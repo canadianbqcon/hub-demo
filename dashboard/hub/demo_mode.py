@@ -520,9 +520,20 @@ def finish(app) -> None:
     gmail.is_authenticated = lambda: True
     check_endpoints(app)
     reset()
+    # Render's free instance has 512 MB and one node transpile peaks near 126 MB, so
+    # jsx_build.warm()'s four at once got the process killed at every boot. The
+    # Docker build transpiles every .jsx into jsx-cache.json, so the server never
+    # starts node; without that file (a local run) it warms as the Hub does.
     try:
         import jsx_build
-        jsx_build.warm()
+        prebuilt = HUB.parents[1] / "jsx-cache.json"
+        if prebuilt.exists():
+            for p, js in json.loads(prebuilt.read_text()).items():
+                f = Path(p)
+                if f.exists():
+                    jsx_build._cache[f] = (f.stat().st_mtime, js)
+        else:
+            jsx_build.warm()
     except Exception as e:  # noqa: BLE001
         log(f"jsx warm failed: {e}")
 
