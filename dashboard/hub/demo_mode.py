@@ -68,24 +68,43 @@ class DemoBlocked(OSError):
     pass
 
 
+# Render sets this to the service's public hostname. The keep-awake ping in
+# finish() may reach it, and only it: Render's free tier sleeps after 15 idle
+# minutes and a visitor then waits 50 s or more for the wake.
+SELF_HOST = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "")
+_self_ips: set[str] = set()  # what SELF_HOST resolved to; connect allows these
+# ponytail: these are Render edge IPs shared with other Render apps; no visitor-reachable
+# route makes an outbound call (all are integration-class), so only the ping uses them.
+
+
+def _allowed(address) -> bool:
+    if _loopback(address):
+        return True
+    return isinstance(address, tuple) and bool(address) and address[0] in _self_ips
+
+
 def _cut_network() -> None:
     real_connect, real_connect_ex = socket.socket.connect, socket.socket.connect_ex
     real_gai = socket.getaddrinfo
 
     def connect(self, address):
-        if not _loopback(address):
+        if not _allowed(address):
             log(f"refused connect {address!r}")
             raise DemoBlocked(f"demo: outside network is switched off ({address!r})")
         return real_connect(self, address)
 
     def connect_ex(self, address):
-        if not _loopback(address):
+        if not _allowed(address):
             log(f"refused connect_ex {address!r}")
             raise DemoBlocked(f"demo: outside network is switched off ({address!r})")
         return real_connect_ex(self, address)
 
     def getaddrinfo(host, *a, **kw):
         h = host.decode() if isinstance(host, bytes) else (host or "")
+        if SELF_HOST and h == SELF_HOST:
+            res = real_gai(host, *a, **kw)
+            _self_ips.update(r[4][0] for r in res)
+            return res
         if not _loopback((h,)):
             log(f"refused lookup {h!r}")
             raise socket.gaierror(f"demo: outside network is switched off ({h!r})")
@@ -498,7 +517,20 @@ def install(app) -> None:
     app.teardown_request(_after_teardown)
 
 
+def _keep_awake() -> None:
+    import time
+    import urllib.request
+    while True:
+        time.sleep(600)
+        try:
+            urllib.request.urlopen(f"https://{SELF_HOST}/healthz", timeout=60).close()
+        except Exception as e:  # noqa: BLE001 - next round tries again
+            log(f"keep-awake ping failed: {e}")
+
+
 def finish(app) -> None:
+    if SELF_HOST:
+        threading.Thread(target=_keep_awake, daemon=True, name="keep-awake").start()
     from guide import api as guide_api
     import hub_modules
     app.register_blueprint(guide_api.bp)
