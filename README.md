@@ -10,8 +10,11 @@ Built by Brendan Quan.
 
 **[Open the live demo](https://hub-demo.onrender.com/guide/)**: one click, no sign-up, nothing to install.
 
+> **If it is slow to open, keep the tab loading.** The demo runs on Render's free tier, which puts the
+> server to sleep after 15 minutes with no visitors. The first request then waits 50 seconds or more
+> while it wakes. Leave the page loading (refresh once if it comes up blank); after that every page is quick.
+
 - It opens on the **Guide**, a ten-minute tour of the pages worth seeing.
-- The first visit can take up to a minute while the free server wakes up. After that it is quick.
 - Click anything. Every visitor shares one copy of the data, and it resets each night.
 
 | Home | Jobs |
