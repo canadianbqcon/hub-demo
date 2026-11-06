@@ -1,0 +1,182 @@
+/* The saved-build overlay: one build, both halves, on top of whatever surface you
+   opened it from. Lives in its own file because two pages now raise it — the build
+   list at /forge/c/<champ>, and the shelf on the front door, which pops it in place
+   rather than making you load a page to reach it.
+
+   Not folded into forge-base.css on purpose: the builder loads that too and has its
+   own .hovercard with different geometry, and a shared rule that the builder has to
+   keep overriding is a rule that breaks the day someone reorders a stylesheet. */
+
+dialog.buildov {
+  width: min(920px, calc(100vw - 32px));
+  max-height: calc(100vh - 60px);
+  padding: 0;
+  color: var(--ink);
+  background: var(--bg);
+  border: 1px solid var(--line-lit);
+  border-radius: var(--r-lg);
+}
+dialog.buildov::backdrop { background: oklch(0.12 0.01 250 / 0.72); }
+
+.ov-head {
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.ov-head h2 { margin: 0; font-size: var(--t-md); font-weight: 600; letter-spacing: -0.01em; }
+.ov-head .meta { margin: 0; }
+.ov-head .x { padding: 4px 10px; color: var(--dim); background: none; border-color: transparent; }
+.ov-head .x:hover { color: var(--danger); border-color: var(--danger); background: none; }
+
+.ov-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; padding: 16px; }
+.ov-body > section { display: grid; gap: 12px; align-content: start; }
+.ov-body h4 {
+  margin: 0;
+  font-size: var(--t-xs); font-weight: 600;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--dim);
+}
+
+.ov-foot {
+  position: sticky; bottom: 0;
+  display: flex; flex-wrap: wrap; gap: 7px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+}
+.ov-foot .kill { margin-left: auto; }
+.ov-foot .kill:hover:not(:disabled) { color: var(--danger); border-color: var(--danger); }
+
+/* the rune page, read-only: the shape of the client's own screen, so what you
+   read here maps onto what you are about to click there */
+.rp { display: grid; gap: 9px; }
+.rp-tree { display: flex; align-items: center; gap: 8px; }
+/* 20px, not larger: Riot ships the five tree emblems at 32x32 and nothing bigger
+   exists on Data Dragon or Community Dragon. Drawn over that, they go to mush. */
+.rp-tree img { width: 20px; height: 20px; }
+.rp-tree span { font-size: var(--t-sm); color: var(--ink-2); }
+.rp-row { display: flex; align-items: center; gap: 9px; }
+.rp-row img { width: 30px; height: 30px; display: block; }
+.rp-row .key img { width: 40px; height: 40px; }
+.rp-row .nm { font-size: var(--t-sm); color: var(--ink); }
+.rp-shards { display: flex; flex-wrap: wrap; gap: 7px; }
+.rp-shards span {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px 3px 4px;
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.rp-shards img { width: 20px; height: 20px; }
+
+/* The alternatives, under the page they are alternatives to. Sentences, not a
+   second rune page: the icon is only there so you can find the row, and the note
+   is the row. A build saved with none renders nothing at all. */
+.rp-alts { display: grid; gap: 8px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.rp-alts h5 { margin: 0; font-size: var(--t-sm); font-weight: 600; color: var(--ink-2); }
+.rp-alt {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 2px 10px;
+  align-items: center;
+  padding: 7px 9px;
+  background: var(--raised);
+  border-left: 2px solid var(--accent-lo);
+  border-radius: var(--r-sm);
+}
+/* Placed explicitly, same reason as the builder's: a row-spanning cell is placed
+   before the auto ones and would otherwise take the text's column. */
+.rp-alt img { grid-area: 1 / 1 / span 2 / 2; width: 26px; height: 26px; display: block; border-radius: 4px; }
+/* Prefixed, because this stylesheet loads on three pages and `.who` is already
+   champion.html's champion header — a 72px grid, which put the rune name in a
+   72px box and wrapped it mid-phrase. An unprefixed class in a shared sheet is
+   a collision waiting for whichever page happens to define it. */
+.rp-alt .rp-who { grid-area: 1 / 2 / 2 / 3; margin: 0; font-size: var(--t-sm); color: var(--ink); }
+/* Its own line, always. Inline after the name it fits on one row for a short
+   rune and breaks mid-phrase for a long one, so half the list reads one way
+   and half the other. */
+.rp-alt .rp-who span { display: block; color: var(--dim); font-size: var(--t-xs); }
+.rp-alt .rp-note {
+  grid-area: 2 / 2 / 3 / 3; margin: 0;
+  font-size: var(--t-xs); line-height: 1.6; color: var(--ink-2);
+  white-space: pre-line; text-wrap: pretty;
+}
+.rp-alt .rp-note:empty { display: none; }
+
+/* the hover card: a rune's full text, next to the row, at once. The dialog is
+   the top layer, so the card has to out-rank it or it renders behind. */
+.buildov .hovercard {
+  position: fixed;
+  z-index: 200;
+  width: 330px;
+  padding: 11px 13px;
+  background: var(--surface);
+  border: 1px solid var(--line-lit);
+  border-radius: var(--r-md);
+  box-shadow: 0 12px 34px oklch(0 0 0 / .5);
+  pointer-events: none;
+}
+.buildov .hovercard[hidden] { display: none; }
+.buildov .hovercard h4 {
+  margin: 0 0 5px;
+  font-size: var(--t-sm); font-weight: 600;
+  letter-spacing: normal; text-transform: none;
+  color: var(--ink);
+}
+.buildov .hovercard p {
+  margin: 0;
+  font-size: var(--t-xs); line-height: 1.6;
+  color: var(--ink-2);
+  white-space: pre-line;
+  text-wrap: pretty;
+}
+
+.ov-block { display: grid; gap: 6px; }
+.ov-block h5 { margin: 0; font-size: var(--t-sm); font-weight: 600; color: var(--ink-2); }
+.ov-items { display: flex; flex-wrap: wrap; gap: 6px; }
+.ov-items .it { position: relative; width: 40px; height: 40px; }
+.ov-items img { width: 40px; height: 40px; display: block; border: 1px solid var(--line); border-radius: var(--r-sm); }
+.ov-items .count {
+  position: absolute; right: -5px; bottom: -5px;
+  min-width: 17px;
+  font: 600 var(--fs-caption)/15px var(--mono);
+  text-align: center;
+  color: var(--accent);
+  background: var(--bg);
+  border: 1px solid var(--accent-lo);
+  border-radius: 999px;
+}
+/* An item's note leads its card, above whatever the item happens to do: it is
+   the only line on there that knows why the item is in this build. */
+.buildov .hovercard h4 b {
+  float: right;
+  font: 600 var(--t-xs)/1.5 var(--mono);
+  color: var(--gold);
+}
+.buildov .hovercard .hc-note {
+  margin: 0 0 7px;
+  padding-left: 8px;
+  border-left: 2px solid var(--accent);
+  color: var(--ink);
+}
+
+/* The only mark on a slot that says there are words here. The words are one
+   hover away; a marker that tried to carry them would be the note in two places. */
+.ov-items .it[data-noted]::after {
+  content: '';
+  position: absolute; left: -3px; top: -3px;
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border: 1px solid var(--bg);
+  border-radius: 999px;
+}
+.ov-items .it[data-noted] img { border-color: var(--accent-lo); }
+
+.buildov .quiet { margin: 0; color: var(--dim); font-size: var(--t-sm); }
+
+@media (max-width: 720px) {
+  .ov-body { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,279 @@
+/* base.css — theme-agnostic shared behavior loaded on EVERY Hub page.
+   Per THEMING-SPEC Rule 2, cross-page behavior that isn't a theme token lives in
+   this shared layer, never in the frozen theme files (Rule 1). Loaded before the
+   theme/module CSS on each page.
+
+   Reduced-motion: the whole Hub animates (per-module CSS carries 200+ motion decls
+   total — home 70, jobs 69, purchases 46 …) with no global opt-out. One universal
+   block neutralizes travel everywhere at once, honoring the OS setting. Keeps color
+   state changes; only the motion travel/duration collapses. Supersedes the partial
+   per-module blocks that already existed (finances, purchases, vault-map). */
+
+/* Universal box model. 8 modules each re-declared this locally (checklists,
+   finances, jobs, purchases, trips, batch_prep, forge, home); pages that load
+   ONLY this shared layer — /blueprints, the design-system reference page — never
+   got it and rendered content-box, which inflated the 56px topbar (min-height +
+   8/8 padding + 1px border) to 73px and left the full-bleed back-tab floating.
+   The reset belongs here, on the layer every page loads. Margin/padding stay
+   per-module: this file only owns the box model, not default spacing. */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Form controls take the browser's font (Arial), not the page's, unless told to
+   inherit. Several modules carried their own reset; the ones that didn't (checklists'
+   ✕/▼ buttons, controls on work, vault-map, ledger, blueprints) rendered
+   Arial under every theme. Family only, so module font-size and font: rules still win. */
+button, input, select, textarea { font-family: inherit; }
+
+/* The one easing the shared components move with: a fast-out settle, no overshoot.
+   Page-level motion, not palette, so it lives here and not in a frozen theme file. */
+:root { --e-out-quint: cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Type scale: Apple text styles, the only font sizes the Hub uses (Workbench pick
+   hub-type-scale, 2026-10-17). Every font-size names one of these; tests/test_type_tiers.py
+   fails on a literal. Headline is body size in semibold. forge-base.css repeats this block
+   because forge pages don't load base.css. */
+:root {
+  --fs-caption: 11px;
+  --fs-footnote: 13px;
+  --fs-subhead: 15px;
+  --fs-body: 17px;
+  --fs-headline: 17px;
+  --fs-title: 22px;
+  --fs-large-title: 34px;
+}
+
+/* Native scrollbars. Without color-scheme the browser assumes light and paints
+   every overflow scrollbar as a white track, whatever the theme. data-surface is
+   set on <html> by each page's theme bootstrap, so this follows the toggle. */
+:root[data-surface="dark"] { color-scheme: dark; }
+:root[data-surface="light"] { color-scheme: light; }
+/* Thin accent-tinted bars everywhere. The standard properties beat the per-module
+   ::-webkit-scrollbar rules in Chrome, so every bar is this one look; a module's
+   scrollbar-width:none still hides its own. Color inherits, width does not. */
+:root { scrollbar-color: var(--accent) transparent; }
+* { scrollbar-width: thin; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------- global focus-visible ring ----------------
+   #1 recurring a11y finding (10/12 pages): custom controls set
+   outline:none or never style focus at all. One rule, every page,
+   keyboard-only (focus-visible ignores mouse clicks). */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[role="checkbox"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------------- themed modal ----------------
+   Replacement for native alert/confirm/prompt. Mirrors the existing
+   .launch-scrim/.launch-panel pattern in chrome.css (same tokens),
+   generalized under a hub- prefix so any page can use it. */
+.hub-modal-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--launch-scrim);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+/* the scrim ships in HTML with [hidden]; an author display:flex beats the UA
+   [hidden]{display:none} at equal specificity, so without this the empty scrim
+   renders as a blank blurred overlay on load until JS hides it. */
+.hub-modal-scrim[hidden] { display: none; }
+.hub-modal {
+  width: min(480px, 92vw);
+  /* a confirm dialog is three lines and never reaches this, but a form dialog is
+     thirty fields and scrolls the page behind itself without it. lived in
+     trips.css until 2026-09-16, which meant only trips had it. */
+  max-height: 86vh;
+  overflow-y: auto;
+  background: var(--bg-elev);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--modal-shadow);
+  padding: var(--s-5);
+}
+.hub-modal-title {
+  font-family: var(--font);
+  font-feature-settings: var(--feat-display);
+  font-size: var(--fs-body);
+  color: var(--fg);
+  margin: 0 0 var(--s-3);
+}
+.hub-modal-body {
+  font-family: var(--font-body);
+  color: var(--fg-dim);
+  font-size: var(--fs-subhead);
+  line-height: 1.5;
+  margin: 0 0 var(--s-4);
+}
+.hub-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-2);
+}
+.hub-modal-btn {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: var(--s-2) var(--s-4);
+  cursor: pointer;
+}
+.hub-modal-btn:hover { background: var(--bg-hover); }
+.hub-modal-btn--danger {
+  border-color: var(--alert-dim);
+  color: var(--alert);
+}
+/* 16px is the floor iOS Safari will not zoom on focus. Lived in trips.css until
+   2026-09-09, which meant every other module's modal zoomed on an iPhone and
+   nothing said so. It belongs here rather than in chrome.css because base.css is
+   the sheet every module links and the one .hub-modal itself is declared in —
+   trips, jobs and finances never load chrome.css at all. Kept inside the phone
+   breakpoint: on a desktop this would grow every modal field to 16px. */
+@media (max-width: 900px) {
+  .hub-modal input, .hub-modal textarea, .hub-modal select { font-size: var(--fs-body); }
+}
+
+/* ---------------- inline error state ----------------
+   For fetches that currently fail silently. */
+.hub-error {
+  background: color-mix(in srgb, var(--alert-dim) 20%, transparent);
+  border: 1px solid var(--alert-dim);
+  border-radius: var(--r-card);
+  color: var(--alert);
+  padding: var(--s-3) var(--s-4);
+  font-family: var(--font-body);
+  font-size: var(--fs-footnote);
+  line-height: 1.4;
+}
+.hub-error-retry {
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font: inherit;
+  padding: 0;
+  margin-left: var(--s-2);
+}
+
+/* ---------------- phone: table overflow ----------------
+   ponytail: a data table's min-content (trips logistics 591px, purchases specs
+   457px, finances shift/dow 490px) is wider than a 390px phone, and the box
+   holding it was overflow:visible — so the right-hand columns were simply cut
+   off with no way to reach them. Hiding columns would lose data; letting the
+   table's own wrapper scroll sideways keeps all of it. `> table` restricts this
+   to the direct wrapper, so no page-level scroll container is ever created.
+   Desktop (>640px) never sees this rule. */
+@media (max-width: 640px) {
+  *:has(> table) { overflow-x: auto; }
+}
+
+/* ---------------- status dot ----------------
+   Color-with-text helper: caller sets --dot-color and MUST pair
+   this with a visible text label — the dot alone is not a state
+   indicator (color-only conveys nothing to colorblind/SR users). */
+.hub-dot {
+  display: inline-flex;
+  align-items: center;
+}
+.hub-dot::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dot-color, var(--fg-dim));
+  margin-right: var(--s-2);
+}
+
+/* Pour (Workbench pick 2026-10-15): native <details> glide open on a long
+   ease-out and shut faster. The row fade and every non-details toggle are in
+   theme-switch.js. */
+details { interpolate-size: allow-keywords; }
+details::details-content {
+  block-size: 0; overflow: clip;
+  transition: block-size 380ms cubic-bezier(.22,1,.36,1), content-visibility 380ms allow-discrete;
+}
+details[open]::details-content {
+  block-size: auto;
+  transition-duration: 420ms; transition-timing-function: cubic-bezier(.16,1,.3,1);
+}
+@media (prefers-reduced-motion: reduce) {
+  details::details-content { transition: none; }
+}
+
+/* ---------------- status strip ----------------
+   Every page's bottom bar is topbar.jsx's StatusStrip, so its base lives here
+   (moved from chrome.css 2026-10-17, which most pages never load). Columns
+   follow the item count: clock, a stretching ambient date, then whatever the
+   page and the connectors add. */
+.status {
+  display: grid; grid-auto-flow: column; grid-template-columns: auto 1fr;
+  align-items: center; gap: var(--s-5);
+  padding: var(--s-1) var(--s-5);
+  border-top: 1px solid var(--line); background: var(--bg);
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-style: italic;
+  font-size: var(--fs-footnote); color: var(--fg-dim);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+.status .clock {
+  font-style: normal;
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text), var(--feat-tnum);
+  color: var(--accent);
+  font-size: var(--fs-subhead); letter-spacing: 0.04em;
+}
+.status .clock::before { content: "● "; color: var(--accent); font-style: normal; }
+.status .ambient { color: var(--fg-dim); }
+.status .weather { color: var(--fg); }
+.status .weather .label { color: var(--fg-dim); margin-right: 4px; }
+.status .weather .sep { color: var(--fg-ghost); margin: 0 var(--s-2); font-style: normal; }
+.status .src { color: var(--fg-faint); font-size: var(--fs-caption); font-style: italic; }
+.status .src .ok  { color: var(--accent);   font-style: normal; }
+.status .src .dim { color: var(--fg-ghost); font-style: normal; }
+.status .src .warn { color: var(--warn-dim); font-style: normal; }
+.status .src .sep { color: var(--fg-ghost); margin: 0 4px; font-style: normal; }
+.status .src .reconnect { color: var(--warn-dim); font-style: normal; text-decoration: underline; cursor: pointer; }
+.status .src .reconnect:hover { color: var(--warn, var(--accent)); }
+.status-ctx { display: contents; }   /* a plain page's own spans, moved in by topbar.jsx */
+.status .status-l { color: var(--fg-dim); }   /* a page's message slot (what just happened) */
+.status .status-r { color: var(--fg-faint); }
+
+/* ponytail: phone width. The 6-track status grid is nowrap end to end, so its
+   min-content (~417px) was wider than a 390px viewport — and because .status
+   sits in the same grid column as the topbar and the page body, it stretched
+   BOTH of them past the screen (that was the /work clipping). One track, auto
+   height, and the whole shell fits again. Desktop is untouched above 640px. */
+@media (max-width: 640px) {
+  .status {
+    grid-auto-flow: row;
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+    gap: var(--s-1);
+    padding: var(--s-2) var(--s-4);
+  }
+  .status > * { min-width: 0; }
+}

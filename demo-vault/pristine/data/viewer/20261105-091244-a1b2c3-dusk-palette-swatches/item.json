@@ -1,0 +1,27 @@
+{
+ "id": "20261105-091244-a1b2c3-dusk-palette-swatches",
+ "kind": "photo",
+ "title": "Dusk palette swatches",
+ "created": "2026-11-05T09:12:44.000000",
+ "source": "Claude",
+ "files": [
+  {
+   "name": "before.png",
+   "orig": "before.png",
+   "label": "before.png",
+   "thumb": "before.png",
+   "preview": null
+  },
+  {
+   "name": "after.png",
+   "orig": "after.png",
+   "label": "after.png",
+   "thumb": "after.png",
+   "preview": null
+  }
+ ],
+ "url": null,
+ "framable": null,
+ "preview_status": "none",
+ "progress": 0
+}

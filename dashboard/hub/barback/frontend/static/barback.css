@@ -1,0 +1,138 @@
+/* Mobile-first barback companion — the "bar back" panel of the juniper & co
+   page (/jc/). Dark, thumb-reachable, high-contrast. */
+/* Colors: theme tokens only — no hardcoded hex. Re-skins with active theme. */
+
+/* NOTHING global lives here any more. This stylesheet shares a document with
+   batch.css now, so the old `* {}` / `body {}` / bare `h1 {}` rules would have
+   restyled the other two sections out from under them — that page-wide font
+   reset was the loudest source of the two surfaces looking like different
+   products. Every rule below is scoped to barback's own classes, and the
+   shell (tabs, panels, topbar) belongs to jc.css. */
+#panel-barback h1 { font-size:var(--fs-title); margin:8px 0; }
+
+/* the panel's own inner padding; the sub-tab bar above it is .jc-subtabs */
+.bb-main { padding: var(--s-4); }
+.bb-loading { color: var(--fg-dim); padding: var(--s-5); display: flex; align-items: center; gap: var(--s-2); }
+.bb-spinner { width: 14px; height: 14px; border: 2px solid var(--line-strong); border-top-color: var(--accent);
+  border-radius: 50%; display: inline-block; animation: bb-spin .7s linear infinite; }
+@keyframes bb-spin { to { transform: rotate(360deg); } }
+
+/* Run head. The sub-tab already names the run, so all that is left here is the
+   progress echo — no title, and no back affordance: there is no card layer to
+   go back to now that the tabs ARE the runs. */
+.run-head { display:flex; align-items:center; justify-content:flex-end; }
+.run-head-prog { color:var(--fg-dim); font-size:var(--fs-subhead); font-feature-settings:var(--feat-tnum); }
+.run-legend { color:var(--fg-dim); font-size:var(--fs-footnote); margin:2px 0 14px; }
+
+/* Section head */
+.section-head { font-size:var(--fs-subhead); color:var(--fg-dim); text-transform:uppercase;
+  letter-spacing:.04em; margin:18px 0 6px; }
+
+/* Item list */
+.item-list { list-style:none; padding:0; margin:0; }
+.item-row { display:flex; align-items:center; gap:12px; padding:16px 12px;
+  border-bottom: 1px solid var(--line); min-height:56px; cursor:pointer; }
+.item-row.done { opacity:.55; }
+.item-row.done .i-text { text-decoration:line-through; }
+
+/* Stock-state row text coloring */
+.item-row.stock-good { color: var(--good); }
+.item-row.stock-low  { color: var(--warn); }
+.item-row.stock-out  { color: var(--alert); }
+
+/* State badge (circle) */
+.i-state { width:28px; height:28px; flex:0 0 28px; border-radius:50%;
+  border:2px solid var(--fg-dim); display:flex; align-items:center; justify-content:center;
+  font-size:var(--fs-footnote); text-transform:uppercase; }
+.item-row.done .i-state { background:var(--good); border-color:var(--good); }
+.stock-good .i-state { background:var(--good); border-color:var(--good); color:var(--bg); }
+.stock-low .i-state  { background:var(--warn);  border-color:var(--warn);  color:var(--bg); }
+.stock-out .i-state  { background:var(--alert); border-color:var(--alert); color:var(--bg); }
+
+/* Item text */
+.i-text { flex:1; }
+.i-detail { display:block; color:var(--fg-dim); font-size:var(--fs-footnote); }
+.deadline { color:var(--accent); font-size:var(--fs-footnote); }
+
+/* Low/out button + output (class selectors — React uses className) */
+.lowout-btn { margin-top:16px; width:100%; padding:14px; background:var(--accent);
+  border:none; border-radius:12px; color:var(--bg); font-size:var(--fs-body); }
+.lowout-text { white-space:pre-wrap; background:var(--bg-elev); padding:12px;
+  border-radius:10px; margin-top:10px; }
+
+/* Low boy fill, nested inside the opening run. Collapsed by default — 67 product
+   rows expanded above the shift steps would drown them. The summary carries the
+   tally so the count is readable without opening it. */
+.lowboy { margin-bottom:28px; border-bottom:1px solid var(--line); }
+.lowboy-head { display:flex; align-items:baseline; justify-content:space-between;
+  gap:12px; padding:18px 4px; font-size:var(--fs-body); cursor:pointer; list-style:none; }
+.lowboy-head::-webkit-details-marker { display:none; }
+.lowboy-head::after { content:"▸"; color:var(--fg-dim); font-size:var(--fs-footnote); }
+.lowboy[open] .lowboy-head::after { content:"▾"; }
+.lowboy-tally { margin-left:auto; color:var(--fg-dim); font-size:var(--fs-subhead);
+  font-feature-settings:var(--feat-tnum); }
+.lowboy-body { padding-bottom:8px; }
+
+/* ---------------- cobalt brutalist structure (scoped) ----------------
+   barback renders under cobalt by default but only ever wore its color
+   tokens — rounded rows, no frame, next to home/jobs' square 2px-framed
+   hardware it read as a different product. This adds the structural signals
+   tokens alone can't carry, gated so vesper/glass keep the original soft look
+   untouched. The .lowout-btn press treatment that used to live here was a copy
+   of cobalt.css's and had drifted (no tomato flash, hardcoded 12px radius); it
+   is gone — themes/cobalt.css's button standard names .lowout-btn directly now.
+   Only the structural bits tokens can't carry stay below. */
+[data-theme="cobalt"] .item-row,
+[data-theme="cobalt"] .lowout-btn {
+  border-radius: var(--r-card);
+}
+[data-theme="cobalt"] .item-row { border: 2px solid var(--line); margin-bottom: 8px; }
+[data-theme="cobalt"] .lowboy-name { font-family: var(--font-display); font-feature-settings: var(--feat-display); }
+
+
+/* ── Low boy fill: counted rows + the grab sweep ─────────────────────────── */
+/* The badge background is set inline from BarbackLogic.fillColor (green->red),
+   so the count itself carries the colour and no per-step class is needed. */
+.item-row.fill-zero { opacity:.62; }
+.item-row.fill-needs { color: var(--fg); font-weight:600; }
+.fill-needs .i-state { border-color: transparent; color: var(--bg); font-weight:700; }
+
+.sweep { margin:28px 0 8px; border-top:1px solid var(--line, currentColor); padding-top:16px; }
+.sweep-loading, .sweep-empty { opacity:.7; padding:12px 0; }
+.sweep-head { margin:0 0 12px; font-size:var(--fs-body); letter-spacing:.02em; }
+.sweep-area { margin:0 0 20px; }
+.sweep-area-head { display:flex; align-items:baseline; justify-content:space-between;
+  gap:12px; margin:0 0 6px; font-size:var(--fs-subhead); }
+.sweep-units { font-variant-numeric:tabular-nums; opacity:.7; }
+.sweep-area.is-unsorted .sweep-area-head { opacity:.75; }
+.sweep-note { margin:0 0 8px; font-size:var(--fs-footnote); opacity:.7; }
+.sweep-stop { margin:0 0 10px; padding-left:10px; border-left:2px solid var(--line, currentColor); }
+.sweep-loc { font-size:var(--fs-footnote); text-transform:uppercase; letter-spacing:.06em; opacity:.65; }
+.sweep-items { list-style:none; margin:4px 0 0; padding:0; }
+.sweep-items li { display:flex; align-items:baseline; gap:10px; padding:3px 0; }
+.sweep-count { flex:0 0 1.6em; font-variant-numeric:tabular-nums; font-weight:700; text-align:right; }
+.sweep-detail { font-size:var(--fs-footnote); opacity:.65; }
+/* Back-to-zero, on a counted row (.row-clear) and on the sweep (.sweep-clear).
+   Same control in both places, so one rule. 44px because this list is read on a
+   phone mid-restock with your hands full — a thumb target, not an icon. The row
+   one only renders above 0, since counting up has no wrap back to zero. */
+.sweep-clear, .row-clear { margin-left:auto; align-self:center; flex:0 0 auto;
+  min-width:44px; min-height:44px; display:grid; place-items:center;
+  background:none; border:0; border-radius:8px; color:inherit; opacity:.65;
+  font:inherit; font-size:var(--fs-body); line-height:1; cursor:pointer; }
+.sweep-clear:hover, .sweep-clear:focus-visible,
+.row-clear:hover, .row-clear:focus-visible { opacity:1; background:var(--line, currentColor); }
+
+/* Clear-all: resets every count to 0. Outlined rather than filled like
+   .lowout-btn — it undoes a shift's tallying, so it should not read as the
+   primary action sitting under the sweep. The per-row .row-clear is the control
+   for a single over-count; this one is the whole-list wipe and stays last.
+   Disabled when there is nothing to clear, which is also the resting state most
+   of the shift. */
+.fill-clear-all { margin-top:16px; width:100%; min-height:44px; padding:12px;
+  background:none; border:1px solid var(--line, currentColor); border-radius:12px;
+  color:inherit; font:inherit; font-size:var(--fs-subhead); opacity:.8; cursor:pointer; }
+.fill-clear-all:hover:not(:disabled), .fill-clear-all:focus-visible:not(:disabled) {
+  opacity:1; border-color:currentColor; }
+.fill-clear-all:disabled { opacity:.3; cursor:default; }
+[data-theme="cobalt"] .fill-clear-all { border-radius:var(--r-card); border:2px solid var(--line); }

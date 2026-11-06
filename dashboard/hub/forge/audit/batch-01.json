@@ -1,0 +1,639 @@
+{
+ "batch": "01",
+ "champions": {
+  "Aatrox": [
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "a tether is formed between the target and the ground beneath them for 1.5 seconds, during which they are revealed.",
+    "fix": "basis hit is R self-reveal 'reveals his true demonic form'; value is right only via W. Require the revealed object to be an enemy/area, not 'reveals his/her true form'"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "The dash distance can be extended to up-to 500 units when targeting across terrain.",
+    "fix": "rule_wall regex \\bwalls?\\b|terrain only reads bin tips; also scan wiki text for 'across terrain|cross (the )?(wall|terrain)|through terrain' and skip negated 'cannot pass through|not through'"
+   },
+   {
+    "trait": "damage10s.excluded: passive cadence",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Innate: Periodically, Aatrox empowers his next basic attack to gain 50 bonus range and deal bonus magic damage equal to 4% – 10% (based on level) of the target's maximum health",
+    "fix": "wiki cooldown field '22 – 10 (based on level)' gives the cadence; read the passive's wiki cooldown with level interpolation"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Ahri": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "damage10s.excluded: passive",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": null,
+    "quote": null,
+    "fix": "passive is heal only (Essence Fragment), nothing to add to damage; item pieces (Scorn, Cinderbloom) are not champion text"
+   }
+  ],
+  "Akali": [
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "The shuriken marks and reveals the enemy or the last Twilight Shroud smoke section hit for 3 seconds, during which Shuriken Flip can be recast to consume the mark.",
+    "fix": "basis hit is passive 'she reveals a ring around them' (a ring, not vision); the value is right only via E. Exclude 'reveals a ring'"
+   },
+   {
+    "trait": "execute",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "R",
+    "quote": "Recast: Akali dashes 800 units in the target direction, dealing magic damage to enemies she passes through, increased by 0% – 200% (based on target's missing health).",
+    "fix": "bin tooltip says 'execute a piercing thrust' (verb for a stab, spell is Perfect Execution); require a threshold: execut\\w* followed within 40 chars by below|under|% health, or drop the bare verb"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "This dash can cross terrain if the end point is beyond it.",
+    "fix": "rule_wall regex \\bwalls?\\b|terrain only reads bin tips; also scan wiki text for 'across terrain|cross (the )?(wall|terrain)|through terrain' and skip negated 'cannot pass through|not through'"
+   },
+   {
+    "trait": "untargetable",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "Entering the shroud renders Akali invisible, unless she is dashing.",
+    "fix": "W is invisibility only; Trait_Untargetable on W is not backed by wiki text (no untargetable wording in her kit); check what the tag marks before trusting it"
+   },
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Akali dashes 750 units in the direction of the target enemy champion, dealing magic damage to enemies she passes through.",
+    "fix": "targeted dashes (E recast, R twice) lack Trait_PlayerSelectedDashDirection so dashes=0; count spells in DIVE_MOVE/targeted-dash wording too (same for Alistar W, Amumu Q, Azir E)"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Akshan": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "revealing them for 1 second and extending its range each time it hits a target.",
+    "fix": "bin tooltip lacks the word; KEYWORDS scan only the bin tips, so fall back to the wiki ability text"
+   },
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "resurrects all dead allied champions that they have slain after 1 second.",
+    "fix": "bin tooltip lacks 'resurrect'; add wiki-text fallback"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "Third Cast: Akshan ends the swing by jumping to the target location, though not through terrain, and fires one last shot at a nearby visible enemy.",
+    "fix": "hit is a grapple to terrain, not crossing it; rule_wall regex \\bwalls?\\b|terrain only reads bin tips; also scan wiki text for 'across terrain|cross (the )?(wall|terrain)|through terrain' and skip negated 'cannot pass through|not through'"
+   },
+   {
+    "trait": "damage10s.excluded: E hit count",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Second Cast: Akshan swings around the terrain in either a clockwise or counterclockwise direction",
+    "fix": "no hit count in text; leave excluded"
+   },
+   {
+    "trait": "damage10s.excluded: passive cadence",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Whenever Akshan uses a basic attack, he fires an additional shot after a delay that deals 50% AD physical damage, increased to 100% AD against minions.",
+    "fix": "per-basic-attack passive: treat as 'per attack' with the 50% AD number"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "R",
+    "quote": "Each bullet's damage applies life steal and executes minions.",
+    "fix": "minion-only execute; keep unknown"
+   }
+  ],
+  "Alistar": [
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "R",
+    "quote": "Active: Alistar cleanses himself of all crowd control. For the next 7 seconds, he reduces incoming damage.",
+    "fix": "Trait_Parry is not a spell shield (this kit has no 'spell shield' wording); drop the tag from TAG_FLAGS spellShield or require wiki text 'spell shield'"
+   },
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Active: Alistar dashes to the target enemy's location.",
+    "fix": "targeted dash not counted; see Akali dashes"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Ambessa": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "While the target is suppressed, they are revealed and Ambessa picks them up off the ground",
+    "fix": "bin tooltip lacks the word; KEYWORDS scan only the bin tips, so fall back to the wiki ability text"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "R",
+    "quote": "Ambessa is displacement immune and unable to act during the cast time and while the target is suppressed.",
+    "fix": "Trait_CCImmune on R is displacement immunity plus lockout, not unstoppable; require 'immune to crowd control' wording"
+   },
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "Additionally, Ambessa shields herself at the time of cast for 50 – 320 (based on level) (+ 150% bonus AD) for 1.5 seconds.",
+    "fix": "Trait_Parry is not a spell shield (this kit has no 'spell shield' wording); drop the tag from TAG_FLAGS spellShield or require wiki text 'spell shield'"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "I",
+    "quote": "This dash cannot pass through terrain.",
+    "fix": "plainly cannot cross walls"
+   },
+   {
+    "trait": "damage10s.excluded: passive cadence",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "she generates a stack of Medarda Maxim after the ability's respective lockout for 4 seconds, refreshing with subsequent casts and stacking up to 3 times.",
+    "fix": "stacks per ability cast, cap 3: a per-cast stack handler could read it"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Amumu": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "stunning them for 1 second and pulling him to them, during which they are revealed.",
+    "fix": "bin tooltip lacks the word; KEYWORDS scan only the bin tips, so fall back to the wiki ability text"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Anivia": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Annie": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Aphelios": [
+   {
+    "trait": "all traits",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": null,
+    "quote": null,
+    "fix": "Q and E have no bin tooltip (reason says so), so every rubric trait is unknown; weapon-swap kit needs a hand table or wiki-text reader for per-weapon Q"
+   }
+  ],
+  "Ashe": [
+   {
+    "trait": "engage",
+    "current": "unknown",
+    "verdict": "handler_missing",
+    "ability": "R",
+    "quote": "stunning them for 1 – 3.5 (based on distance traveled) seconds",
+    "fix": "stun length depends on distance traveled; handler could read the range 1 and max 3.5 and take the global range's low end or a mid value"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Aurelion Sol": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "slowing all enemies hit by 50% for 1 second, and revealing them for 1.5 seconds.",
+    "fix": "bin tooltip lacks the word; KEYWORDS scan only the bin tips, so fall back to the wiki ability text"
+   },
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "The shockwave radius and path are globally visible on the minimap.",
+    "fix": "information to enemies only, not a global-range cast; keep unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "revive",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Aurora": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "I",
+    "quote": "The spirits grant vision of a small area around themselves.",
+    "fix": "bin tooltip lacks the word; KEYWORDS scan only the bin tips, so fall back to the wiki ability text"
+   },
+   {
+    "trait": "untargetable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "If Aurora collides with the border, she dashes to the diametrically opposite side of the rift over 0.4 seconds, becoming untargetable and unable to act during the travel.",
+    "fix": "conditional untargetability has no Trait_Untargetable tag; add wiki 'becoming untargetable' wording as a second source"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Aurora will dash through the rift's border and over the wall, which causes her to exit the rift (thus closing the rift).",
+    "fix": "edge case only; keep unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Azir": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Active: Azir summons a Sand Soldier at the target location that is untargetable, lasts 10 seconds, and grants sight of its surroundings.",
+    "fix": "bin tooltip lacks the word; KEYWORDS scan only the bin tips, so fall back to the wiki ability text; add \\bsight\\b|grants? vision to KEYWORDS['vision']"
+   },
+   {
+    "trait": "engage/peel",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": null,
+    "quote": null,
+    "fix": "no readable CC length in the kit text for R knockback; leave unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Bard": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Enemies hit are revealed for the duration.",
+    "fix": "bin tooltip lacks the word; KEYWORDS scan only the bin tips, so fall back to the wiki ability text"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "Active: Bard opens a one-way magical corridor through a piece of terrain in the target direction for 10 seconds.",
+    "fix": "Magical Journey is a corridor, not a move-tagged dash, so rule_wall (DIVE_MOVE tags only) never reads it; scan non-move spells for 'through a piece of terrain'"
+   },
+   {
+    "trait": "damage10s.excluded: passive cadence",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "At 15 chimes, Meeps deal damage to nearby enemies and in a cone behind the target.",
+    "fix": "Meeps' cooldown '50 • 8 – 4 (based on number of Chimes)' sits in the wiki cooldown field"
+   },
+   {
+    "trait": "engage/peel/dive/...",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": null,
+    "quote": null,
+    "fix": "whole rubric row is unknown (bin spells unresolved); Q and R CC need a hand row"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Bel'Veth": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Void Surge can dash through terrain.",
+    "fix": "rule_wall regex \\bwalls?\\b|terrain only reads bin tips; also scan wiki text for 'across terrain|cross (the )?(wall|terrain)|through terrain' and skip negated 'cannot pass through|not through'"
+   },
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "Active: Bel'Veth enters a frenzy for 1.5 seconds, during which she is unable to move, but gains damage reduction and life steal.",
+    "fix": "Trait_Parry is not a spell shield (this kit has no 'spell shield' wording); drop the tag from TAG_FLAGS spellShield or require wiki text 'spell shield'"
+   },
+   {
+    "trait": "damage10s.excluded: R active",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "This effect stacks infinitely, but is capped at 8 stacks against epic monsters.",
+    "fix": "excluded because R recasts at once; no number to read"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute"
+    ]
+   }
+  ],
+  "Blitzcrank": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "stunning them for 0.65 seconds, and pulling them towards Blitzcrank, during which they are revealed.",
+    "fix": "bin tooltip lacks the word; KEYWORDS scan only the bin tips, so fall back to the wiki ability text"
+   },
+   {
+    "trait": "damage10s.excluded: passive",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Innate: Periodically, when damaged to 30% maximum health, Blitzcrank generates a shield equal to 35% of maximum mana, lasting for up to 10 seconds.",
+    "fix": "shield only, not damage; cooldown 90 s in wiki field"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Brand": [
+   {
+    "trait": "damage10s.excluded: R bounces",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "R",
+    "quote": "Brand launches a fireball at the target enemy that bounces between nearby enemies and Brand up to four times",
+    "fix": "number word 'four'; parse number words in 'up to <n> times' (digits only today)"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Braum": [
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "Active: Braum sets his shield in the target direction for a duration, creating a barrier in front of him that intercepts all incoming hostile projectiles",
+    "fix": "Trait_Parry is not a spell shield (this kit has no 'spell shield' wording); drop the tag from TAG_FLAGS spellShield or require wiki text 'spell shield' (a projectile block is a different mechanic; add a projectileBlock flag if wanted)"
+   },
+   {
+    "trait": "damage10s.excluded: passive cadence",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "The fourth stack against a target consumes them all to deal 26 – 196 (based on his level) magic damage and stun them for 1.25 – 1.75 (based on his level) seconds.",
+    "fix": "fourth-stack burst number is readable; count one proc per 4 applications"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Briar": [
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "If a target is hit, Briar cleanses herself from all crowd control and becomes immune to them over a cast time",
+    "fix": "bin tooltip lacks the word; KEYWORDS scan only the bin tips, so fall back to the wiki ability text"
+   },
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "If the marked target is not available, then she shifts her priority to the nearest other champion, then large monster or minion, and then any other unit in a global radius.",
+    "fix": "R wiki range field is 12000 (Ashe E/R show 'Global'): add rule on spell range >= 5000 or 'Global' from wiki range field"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "While the target is marked, they are revealed.",
+    "fix": "bin tooltip lacks the word; KEYWORDS scan only the bin tips, so fall back to the wiki ability text"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Briar cleanses herself from all crowd control and becomes immune to them over a cast time, afterwards dashing to them with displacement immunity.",
+    "fix": "real CC immunity but no Trait_CCImmune on R; add wiki 'immune to (them|crowd control)' as second source"
+   },
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "Chilling Scream's charge cannot be interrupted by crowd control.",
+    "fix": "Trait_Parry is not a spell shield (this kit has no 'spell shield' wording); drop the tag from TAG_FLAGS spellShield or require wiki text 'spell shield'"
+   },
+   {
+    "trait": "damage10s.excluded: passive",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "stacking up to 5 times and dealing 25% damage for stacks beyond the first.",
+    "fix": "bleed numbers readable; model as 5-stack bleed on the target"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ]
+ }
+}

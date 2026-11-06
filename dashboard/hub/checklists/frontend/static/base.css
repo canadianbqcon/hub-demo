@@ -1,0 +1,26 @@
+/* checklists — base reset + shell layout.
+   Holds NO colors of its own: every token (--bg, --fg, --line, --accent, --s-*,
+   --font-*, --r-*) resolves from the hub theme files loaded after this one
+   (vesper / cobalt / glass × light / dark). The topbar layout itself is injected
+   by theme-switch.js (injectUniversalCss), so this file owns only the page frame. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* the page frame: fixed topbar on top, the 2-column checklist body fills the rest */
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}

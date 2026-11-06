@@ -1,0 +1,1332 @@
+{
+ "batch": "09",
+ "rubricVersion": 1,
+ "champions": {
+  "Yasuo": {
+   "engage": {
+    "value": 2,
+    "basis": "R blinks onto airborne targets and Q3 knocks up, but self-only"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "W Wind Wall blocks projectiles for allies"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E and R reach the backline, needs knockup setup"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dashes": {
+    "value": 5,
+    "basis": "E has near-zero cooldown and resets on minions"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "other",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E Sweeping Blade dashes through enemies and over thin walls"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Yone": {
+   "engage": {
+    "value": 2,
+    "basis": "R blinks behind and pulls enemies in, short range"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Q3 dash and R blink reach backline"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Q3 dash and R blink"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 0.9,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "other",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "Q3 dash and E spirit return cross thin terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Yorick": {
+   "engage": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "Q heal and tanky split push bruiser"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "W wall and E mist block and slow an area"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": true,
+    "basis": "Mist Walkers and Maiden act on their own"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Yunara": {
+   "engage": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "W slows"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E dash while Transcendent"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "Q on-hit and crit magic damage make autos the damage"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Yuumi": {
+   "engage": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "E shields ally, Q slows, R roots and heals"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R waves linger briefly"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": true,
+    "basis": "W attach makes her untargetable except to turrets"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Zaahen": {
+   "engage": {
+    "value": 2,
+    "basis": "E dash and W pull, personal engage"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E Aureate Rush"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 0.4,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": true,
+    "basis": "Passive revives when filled with Determination"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Zac": {
+   "engage": {
+    "value": 4,
+    "basis": "E long leap and R bounce knock up several"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "Full tank with %HP damage"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "none",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E leap crosses terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": true,
+    "basis": "Passive splits into bloblets and revives"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Zed": {
+   "engage": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "R and W reach squishy and kill with way out"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "W shadow swap and R"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "lethality",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "energy",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "W shadow dash and swap cross terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": true,
+    "basis": "R Death Mark untargetable during dash"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Zeri": {
+   "engage": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "Attacks are abilities that carry her damage"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E vaults over terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": true,
+    "basis": "Q burst rate and R triple shot reward attack speed"
+   }
+  },
+  "Ziggs": {
+   "engage": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "W knockback and E slow mines"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "E minefield and R bomb area"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "W satchel self-knockback hop"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "W satchel hop crosses terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Zilean": {
+   "engage": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "E slow, Q stun, R save"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Q time bomb area"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": true,
+    "basis": "R Chronoshift prevents ally death"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Zoe": {
+   "engage": {
+    "value": 1,
+    "basis": "E sleep bubble can start a fight"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "R Portal Jump blinks over terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": true,
+    "basis": "Q Paddle Star grants sight along its path"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  },
+  "Zyra": {
+   "engage": {
+    "value": 2,
+    "basis": "R knockup and E root, no commit"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "E root and R knock up"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "zoneControl": {
+    "value": 4,
+    "basis": "Plants, seeds and R thicket hold ground"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Kit overall vs rubric anchors"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "Share of CC that hits an area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve in main role"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource bar"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "pets": {
+    "value": true,
+    "basis": "Plants fight on their own"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability gives it"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability gives it"
+   }
+  }
+ }
+}

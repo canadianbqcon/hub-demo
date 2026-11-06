@@ -1,0 +1,2046 @@
+{
+ "batch": "07",
+ "rubricVersion": 1,
+ "champions": {
+  "Shen": {
+   "engage": {
+    "value": 3,
+    "basis": "E taunt, W blocks autos, R shield and teleport (level 3 engage)"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "E taunt, W blocks autos, R shield and teleport (level 3 peel)"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E taunt, W blocks autos, R shield and teleport (level 3 dive)"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "E taunt, W blocks autos, R shield and teleport (level 4 frontline)"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "E taunt, W blocks autos, R shield and teleport (level 2 zoneControl)"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E taunt, W blocks autos, R shield and teleport (level 1 dashes)"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "E taunt, W blocks autos, R shield and teleport (level 2 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "CC mix from E taunt, W blocks autos, R shield and teleport"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve of E taunt, W blocks autos, R shield and teleport"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "Main-role build for E taunt, W blocks autos, R shield and teleport"
+   },
+   "resource": {
+    "value": "energy",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "globalPresence": {
+    "value": true,
+    "basis": "E taunt, W blocks autos, R shield and teleport"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Shen's kit grants this"
+   }
+  },
+  "Shyvana": {
+   "engage": {
+    "value": 2,
+    "basis": "R dragon leap and fear, Q/E empowered in dragon form (level 2 engage)"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "R dragon leap and fear, Q/E empowered in dragon form (level 1 peel)"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "R dragon leap and fear, Q/E empowered in dragon form (level 2 dive)"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "R dragon leap and fear, Q/E empowered in dragon form (level 3 frontline)"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R dragon leap and fear, Q/E empowered in dragon form (level 1 zoneControl)"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "R dragon leap and fear, Q/E empowered in dragon form (level 1 dashes)"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "R dragon leap and fear, Q/E empowered in dragon form (level 3 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "CC mix from R dragon leap and fear, Q/E empowered in dragon form"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve of R dragon leap and fear, Q/E empowered in dragon form"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Main-role build for R dragon leap and fear, Q/E empowered in dragon form"
+   },
+   "resource": {
+    "value": "other",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Shyvana's kit grants this"
+   }
+  },
+  "Singed": {
+   "engage": {
+    "value": 1,
+    "basis": "Q poison trail, W adhesive, E fling (level 1 engage)"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "Q poison trail, W adhesive, E fling (level 2 peel)"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Q poison trail, W adhesive, E fling (level 0 dive)"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "Q poison trail, W adhesive, E fling (level 3 frontline)"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "Q poison trail, W adhesive, E fling (level 3 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Q poison trail, W adhesive, E fling (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Q poison trail, W adhesive, E fling (level 1 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "CC mix from Q poison trail, W adhesive, E fling"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve of Q poison trail, W adhesive, E fling"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "Main-role build for Q poison trail, W adhesive, E fling"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Singed's kit grants this"
+   }
+  },
+  "Sion": {
+   "engage": {
+    "value": 4,
+    "basis": "R charge knockup, W shield, passive reanimation (level 4 engage)"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "R charge knockup, W shield, passive reanimation (level 2 peel)"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "R charge knockup, W shield, passive reanimation (level 2 dive)"
+   },
+   "frontline": {
+    "value": 5,
+    "basis": "R charge knockup, W shield, passive reanimation (level 5 frontline)"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R charge knockup, W shield, passive reanimation (level 1 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R charge knockup, W shield, passive reanimation (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "R charge knockup, W shield, passive reanimation (level 2 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "CC mix from R charge knockup, W shield, passive reanimation"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve of R charge knockup, W shield, passive reanimation"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "Main-role build for R charge knockup, W shield, passive reanimation"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "unstoppable": {
+    "value": true,
+    "basis": "R charge knockup, W shield, passive reanimation"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "revive": {
+    "value": true,
+    "basis": "R charge knockup, W shield, passive reanimation"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Sion's kit grants this"
+   }
+  },
+  "Sivir": {
+   "engage": {
+    "value": 0,
+    "basis": "E Spell Shield, W Ricochet attack speed (level 0 engage)"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "E Spell Shield, W Ricochet attack speed (level 0 peel)"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "E Spell Shield, W Ricochet attack speed (level 0 dive)"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "E Spell Shield, W Ricochet attack speed (level 0 frontline)"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "E Spell Shield, W Ricochet attack speed (level 0 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "E Spell Shield, W Ricochet attack speed (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "E Spell Shield, W Ricochet attack speed (level 4 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0,
+    "basis": "CC mix from E Spell Shield, W Ricochet attack speed"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve of E Spell Shield, W Ricochet attack speed"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Main-role build for E Spell Shield, W Ricochet attack speed"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "spellShield": {
+    "value": true,
+    "basis": "E Spell Shield, W Ricochet attack speed"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Sivir's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": true,
+    "basis": "E Spell Shield, W Ricochet attack speed"
+   }
+  },
+  "Skarner": {
+   "engage": {
+    "value": 3,
+    "basis": "E charge through terrain and stun, R suppress (level 3 engage)"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E charge through terrain and stun, R suppress (level 2 peel)"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E charge through terrain and stun, R suppress (level 3 dive)"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "E charge through terrain and stun, R suppress (level 3 frontline)"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "E charge through terrain and stun, R suppress (level 1 zoneControl)"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E charge through terrain and stun, R suppress (level 1 dashes)"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "E charge through terrain and stun, R suppress (level 2 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.2,
+    "basis": "CC mix from E charge through terrain and stun, R suppress"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve of E charge through terrain and stun, R suppress"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "Main-role build for E charge through terrain and stun, R suppress"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E charge through terrain and stun, R suppress"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Skarner's kit grants this"
+   }
+  },
+  "Smolder": {
+   "engage": {
+    "value": 0,
+    "basis": "E flight over terrain, passive stacks, R slow (level 0 engage)"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "E flight over terrain, passive stacks, R slow (level 1 peel)"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "E flight over terrain, passive stacks, R slow (level 1 dive)"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "E flight over terrain, passive stacks, R slow (level 0 frontline)"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "E flight over terrain, passive stacks, R slow (level 2 zoneControl)"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E flight over terrain, passive stacks, R slow (level 1 dashes)"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "E flight over terrain, passive stacks, R slow (level 2 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 1,
+    "basis": "CC mix from E flight over terrain, passive stacks, R slow"
+   },
+   "earlyLate": {
+    "value": 2,
+    "basis": "Power curve of E flight over terrain, passive stacks, R slow"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Main-role build for E flight over terrain, passive stacks, R slow"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E flight over terrain, passive stacks, R slow"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": true,
+    "basis": "E flight over terrain, passive stacks, R slow"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Smolder's kit grants this"
+   }
+  },
+  "Sona": {
+   "engage": {
+    "value": 3,
+    "basis": "R Crescendo area stun, W heal and shield (level 3 engage)"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "R Crescendo area stun, W heal and shield (level 3 peel)"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "R Crescendo area stun, W heal and shield (level 0 dive)"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R Crescendo area stun, W heal and shield (level 0 frontline)"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R Crescendo area stun, W heal and shield (level 1 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R Crescendo area stun, W heal and shield (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "R Crescendo area stun, W heal and shield (level 1 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 1,
+    "basis": "CC mix from R Crescendo area stun, W heal and shield"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve of R Crescendo area stun, W heal and shield"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "Main-role build for R Crescendo area stun, W heal and shield"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Sona's kit grants this"
+   }
+  },
+  "Soraka": {
+   "engage": {
+    "value": 0,
+    "basis": "W heal, E Equinox silence and root, R global heal (level 0 engage)"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "W heal, E Equinox silence and root, R global heal (level 3 peel)"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "W heal, E Equinox silence and root, R global heal (level 0 dive)"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "W heal, E Equinox silence and root, R global heal (level 0 frontline)"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "W heal, E Equinox silence and root, R global heal (level 2 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "W heal, E Equinox silence and root, R global heal (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "W heal, E Equinox silence and root, R global heal (level 1 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 1,
+    "basis": "CC mix from W heal, E Equinox silence and root, R global heal"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve of W heal, E Equinox silence and root, R global heal"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "Main-role build for W heal, E Equinox silence and root, R global heal"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "globalPresence": {
+    "value": true,
+    "basis": "W heal, E Equinox silence and root, R global heal"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Soraka's kit grants this"
+   }
+  },
+  "Swain": {
+   "engage": {
+    "value": 2,
+    "basis": "E root and pull, W reveals, R drain form (level 2 engage)"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E root and pull, W reveals, R drain form (level 2 peel)"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "E root and pull, W reveals, R drain form (level 1 dive)"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "E root and pull, W reveals, R drain form (level 2 frontline)"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "E root and pull, W reveals, R drain form (level 3 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "E root and pull, W reveals, R drain form (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "E root and pull, W reveals, R drain form (level 1 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "CC mix from E root and pull, W reveals, R drain form"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve of E root and pull, W reveals, R drain form"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Main-role build for E root and pull, W reveals, R drain form"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "vision": {
+    "value": true,
+    "basis": "E root and pull, W reveals, R drain form"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Swain's kit grants this"
+   }
+  },
+  "Sylas": {
+   "engage": {
+    "value": 2,
+    "basis": "E dash and pull, W lunge, R steals ultimates (level 2 engage)"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "E dash and pull, W lunge, R steals ultimates (level 0 peel)"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E dash and pull, W lunge, R steals ultimates (level 3 dive)"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "E dash and pull, W lunge, R steals ultimates (level 2 frontline)"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "E dash and pull, W lunge, R steals ultimates (level 1 zoneControl)"
+   },
+   "dashes": {
+    "value": 3,
+    "basis": "E dash and pull, W lunge, R steals ultimates (level 3 dashes)"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "E dash and pull, W lunge, R steals ultimates (level 2 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "CC mix from E dash and pull, W lunge, R steals ultimates"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve of E dash and pull, W lunge, R steals ultimates"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Main-role build for E dash and pull, W lunge, R steals ultimates"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Sylas's kit grants this"
+   }
+  },
+  "Syndra": {
+   "engage": {
+    "value": 1,
+    "basis": "E sphere stun and knockback, R executes low health (level 1 engage)"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E sphere stun and knockback, R executes low health (level 2 peel)"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "E sphere stun and knockback, R executes low health (level 0 dive)"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "E sphere stun and knockback, R executes low health (level 0 frontline)"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "E sphere stun and knockback, R executes low health (level 2 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "E sphere stun and knockback, R executes low health (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "E sphere stun and knockback, R executes low health (level 0 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "CC mix from E sphere stun and knockback, R executes low health"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve of E sphere stun and knockback, R executes low health"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Main-role build for E sphere stun and knockback, R executes low health"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "execute": {
+    "value": true,
+    "basis": "E sphere stun and knockback, R executes low health"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Syndra's kit grants this"
+   }
+  },
+  "Tahm Kench": {
+   "engage": {
+    "value": 3,
+    "basis": "W Abyssal Dive, E shield, R devour ally (level 3 engage)"
+   },
+   "peel": {
+    "value": 4,
+    "basis": "W Abyssal Dive, E shield, R devour ally (level 4 peel)"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "W Abyssal Dive, E shield, R devour ally (level 2 dive)"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "W Abyssal Dive, E shield, R devour ally (level 4 frontline)"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "W Abyssal Dive, E shield, R devour ally (level 1 zoneControl)"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "W Abyssal Dive, E shield, R devour ally (level 1 dashes)"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "W Abyssal Dive, E shield, R devour ally (level 1 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "CC mix from W Abyssal Dive, E shield, R devour ally"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve of W Abyssal Dive, E shield, R devour ally"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "Main-role build for W Abyssal Dive, E shield, R devour ally"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "W Abyssal Dive, E shield, R devour ally"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "untargetable": {
+    "value": true,
+    "basis": "W Abyssal Dive, E shield, R devour ally"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Tahm Kench's kit grants this"
+   }
+  },
+  "Taliyah": {
+   "engage": {
+    "value": 2,
+    "basis": "E minefield, W knock, R Weaver's Wall (level 2 engage)"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "E minefield, W knock, R Weaver's Wall (level 3 peel)"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "E minefield, W knock, R Weaver's Wall (level 0 dive)"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "E minefield, W knock, R Weaver's Wall (level 0 frontline)"
+   },
+   "zoneControl": {
+    "value": 4,
+    "basis": "E minefield, W knock, R Weaver's Wall (level 4 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "E minefield, W knock, R Weaver's Wall (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "E minefield, W knock, R Weaver's Wall (level 0 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.9,
+    "basis": "CC mix from E minefield, W knock, R Weaver's Wall"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve of E minefield, W knock, R Weaver's Wall"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Main-role build for E minefield, W knock, R Weaver's Wall"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "terrain": {
+    "value": true,
+    "basis": "E minefield, W knock, R Weaver's Wall"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Taliyah's kit grants this"
+   }
+  },
+  "Talon": {
+   "engage": {
+    "value": 2,
+    "basis": "E vaults terrain, R invisibility, Q reset on kill (level 2 engage)"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "E vaults terrain, R invisibility, Q reset on kill (level 0 peel)"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "E vaults terrain, R invisibility, Q reset on kill (level 4 dive)"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "E vaults terrain, R invisibility, Q reset on kill (level 1 frontline)"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "E vaults terrain, R invisibility, Q reset on kill (level 1 zoneControl)"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "E vaults terrain, R invisibility, Q reset on kill (level 2 dashes)"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "E vaults terrain, R invisibility, Q reset on kill (level 2 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "CC mix from E vaults terrain, R invisibility, Q reset on kill"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve of E vaults terrain, R invisibility, Q reset on kill"
+   },
+   "scaling": {
+    "value": "lethality",
+    "basis": "Main-role build for E vaults terrain, R invisibility, Q reset on kill"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E vaults terrain, R invisibility, Q reset on kill"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "E vaults terrain, R invisibility, Q reset on kill"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Talon's kit grants this"
+   }
+  },
+  "Taric": {
+   "engage": {
+    "value": 2,
+    "basis": "R makes allies invulnerable, W shield, E stun (level 2 engage)"
+   },
+   "peel": {
+    "value": 5,
+    "basis": "R makes allies invulnerable, W shield, E stun (level 5 peel)"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "R makes allies invulnerable, W shield, E stun (level 0 dive)"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "R makes allies invulnerable, W shield, E stun (level 3 frontline)"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "R makes allies invulnerable, W shield, E stun (level 0 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R makes allies invulnerable, W shield, E stun (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "R makes allies invulnerable, W shield, E stun (level 2 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 1,
+    "basis": "CC mix from R makes allies invulnerable, W shield, E stun"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve of R makes allies invulnerable, W shield, E stun"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "Main-role build for R makes allies invulnerable, W shield, E stun"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "revive": {
+    "value": true,
+    "basis": "R makes allies invulnerable, W shield, E stun"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Taric's kit grants this"
+   }
+  },
+  "Teemo": {
+   "engage": {
+    "value": 0,
+    "basis": "R mushroom fields, passive invisibility, E on-hit poison (level 0 engage)"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "R mushroom fields, passive invisibility, E on-hit poison (level 1 peel)"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "R mushroom fields, passive invisibility, E on-hit poison (level 0 dive)"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R mushroom fields, passive invisibility, E on-hit poison (level 0 frontline)"
+   },
+   "zoneControl": {
+    "value": 4,
+    "basis": "R mushroom fields, passive invisibility, E on-hit poison (level 4 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R mushroom fields, passive invisibility, E on-hit poison (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "R mushroom fields, passive invisibility, E on-hit poison (level 4 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 1,
+    "basis": "CC mix from R mushroom fields, passive invisibility, E on-hit poison"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve of R mushroom fields, passive invisibility, E on-hit poison"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Main-role build for R mushroom fields, passive invisibility, E on-hit poison"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "R mushroom fields, passive invisibility, E on-hit poison"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Teemo's kit grants this"
+   }
+  },
+  "Thresh": {
+   "engage": {
+    "value": 3,
+    "basis": "Q hook, W lantern, E flay, R box, passive souls (level 3 engage)"
+   },
+   "peel": {
+    "value": 4,
+    "basis": "Q hook, W lantern, E flay, R box, passive souls (level 4 peel)"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "Q hook, W lantern, E flay, R box, passive souls (level 1 dive)"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "Q hook, W lantern, E flay, R box, passive souls (level 1 frontline)"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "Q hook, W lantern, E flay, R box, passive souls (level 3 zoneControl)"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Q hook, W lantern, E flay, R box, passive souls (level 1 dashes)"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "Q hook, W lantern, E flay, R box, passive souls (level 0 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "CC mix from Q hook, W lantern, E flay, R box, passive souls"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Power curve of Q hook, W lantern, E flay, R box, passive souls"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "Main-role build for Q hook, W lantern, E flay, R box, passive souls"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": true,
+    "basis": "Q hook, W lantern, E flay, R box, passive souls"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Thresh's kit grants this"
+   }
+  },
+  "Tristana": {
+   "engage": {
+    "value": 0,
+    "basis": "W Rocket Jump resets, R knockback, Q attack speed (level 0 engage)"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "W Rocket Jump resets, R knockback, Q attack speed (level 2 peel)"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "W Rocket Jump resets, R knockback, Q attack speed (level 2 dive)"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "W Rocket Jump resets, R knockback, Q attack speed (level 0 frontline)"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "W Rocket Jump resets, R knockback, Q attack speed (level 0 zoneControl)"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "W Rocket Jump resets, R knockback, Q attack speed (level 2 dashes)"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "W Rocket Jump resets, R knockback, Q attack speed (level 4 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "CC mix from W Rocket Jump resets, R knockback, Q attack speed"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Power curve of W Rocket Jump resets, R knockback, Q attack speed"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Main-role build for W Rocket Jump resets, R knockback, Q attack speed"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Tristana's kit grants this"
+   }
+  },
+  "Trundle": {
+   "engage": {
+    "value": 1,
+    "basis": "E Pillar of Ice terrain, Q chomp, R steals stats (level 1 engage)"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E Pillar of Ice terrain, Q chomp, R steals stats (level 2 peel)"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "E Pillar of Ice terrain, Q chomp, R steals stats (level 1 dive)"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "E Pillar of Ice terrain, Q chomp, R steals stats (level 3 frontline)"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "E Pillar of Ice terrain, Q chomp, R steals stats (level 3 zoneControl)"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "E Pillar of Ice terrain, Q chomp, R steals stats (level 0 dashes)"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "E Pillar of Ice terrain, Q chomp, R steals stats (level 3 autoReliance)"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "CC mix from E Pillar of Ice terrain, Q chomp, R steals stats"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "Power curve of E Pillar of Ice terrain, Q chomp, R steals stats"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Main-role build for E Pillar of Ice terrain, Q chomp, R steals stats"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Resource per kit data"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "terrain": {
+    "value": true,
+    "basis": "E Pillar of Ice terrain, Q chomp, R steals stats"
+   },
+   "revive": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "No ability in Trundle's kit grants this"
+   }
+  }
+ }
+}

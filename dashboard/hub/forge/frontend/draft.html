@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<title>Draft · Item Set Forge</title>
+<base href="/forge/">
+<!-- Preflight, per the Forge rule: the feed, the champion and item catalog and the
+     rune table go out beside the stylesheets, not behind them. -->
+<script>
+  (function () {
+    function get(u) {
+      return fetch(u).then(function (r) { return r.json(); })
+        .catch(function (e) { return { error: String(e) }; });
+    }
+    window.__FORGE = {
+      draft: get('api/draft'),
+      catalog: get('static/catalog.json'),
+      runes: get('static/runes.json'),
+    };
+  }());
+</script>
+<link rel="stylesheet" href="static/forge-base.css">
+<link rel="stylesheet" href="static/forge-themes.css">
+<script>
+  try {
+    var t = localStorage.getItem('forge:theme');
+    if (t) document.documentElement.dataset.theme = t;
+  } catch (e) { /* private mode: the default theme is a fine place to land */ }
+</script>
+
+<style>
+  /* Champ select mirror (Workbench set league-draft-page, option A, with his note
+     "add team traits"). His team on the left, theirs on the right, the advice in
+     the middle: two pick lists while he picks, then the plan, build and runes once
+     he locks. Team traits sit under the middle in both states. One wide layout,
+     PC only; under 1100px the side columns stack above the middle. */
+
+  .wrap { max-width: 1600px; margin: 0 auto; padding: 16px 20px 90px; display: grid; gap: 14px; }
+
+  .status { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px;
+    font: 500 var(--t-xs)/1.4 var(--mono); color: var(--dim); }
+  .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); display: inline-block; margin-right: 6px; }
+  .status.live .dot { background: var(--buff); }
+  .status.offline .dot { background: var(--nerf); }
+  .err { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; padding: 9px 13px; font-size: var(--t-sm);
+    color: var(--rework); background: var(--rework-bg);
+    border: 1px solid color-mix(in oklab, var(--rework) 45%, transparent); border-radius: var(--r-md); }
+  .err code { font: 600 var(--t-xs)/1.4 var(--mono); }
+
+  .desk { display: grid; grid-template-columns: 300px minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+  @media (max-width: 1100px) { .desk { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .desk .mid { grid-column: 1 / -1; grid-row: 2; } }
+
+  .col { display: grid; gap: 8px; min-width: 0; }
+  h3 { margin: 0; font-size: var(--fs-subhead); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--dim); }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+
+  .seat { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 14px; }
+  .seat + .seat { border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
+  .seat img, .seat .blank { width: 64px; height: 64px; border-radius: var(--r-sm); }
+  .seat .blank { border: 1px dashed var(--line); display: grid; place-items: center; color: var(--dim); font-size: var(--t-xs); }
+  .seat .n { font-weight: 600; font-size: var(--fs-title); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .seat .r { font-size: var(--t-sm); color: var(--dim); margin-top: 4px; }
+  .seat.me { background: var(--accent-bg); outline: 1px solid var(--accent-lo); outline-offset: -1px; }
+  .seat.hover .n, .seat.hover img { opacity: .55; }
+
+  /* mock mode: the seat name is a champion picker, same size as the name it replaces */
+  .modes { display: flex; gap: 6px; margin-bottom: 10px; }
+  .modes a { padding: 8px 14px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--dim); text-decoration: none; font-size: var(--fs-subhead); }
+  .modes button { margin-left: 6px; padding: 8px 14px; font: inherit; font-size: var(--fs-subhead); color: var(--ink); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-sm); cursor: pointer; }
+  .modes button:disabled { opacity: .5; cursor: default; }
+  .modes a[aria-current="page"] { color: var(--ink); background: var(--accent-bg); border-color: var(--accent-lo); }
+  .seat select { font: inherit; color: inherit; background: transparent; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 2px 4px; max-width: 100%; }
+  .seat .pickc { font-weight: 600; font-size: var(--t-md); width: 100%; padding: 4px 6px; }
+  .seat .r label { margin-left: 8px; }
+  .seat select option { background: var(--surface); color: var(--ink); }
+  .bans { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bans img { width: 26px; height: 26px; border-radius: var(--r-sm); filter: grayscale(1); opacity: .7; }
+
+  .mid { display: grid; gap: 14px; min-width: 0; }
+  .lists { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  .locked { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 1350px) { .lists, .locked { grid-template-columns: minmax(0, 1fr); } }
+
+  .pick { display: grid; grid-template-columns: auto 40px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 14px; }
+  .pick + .pick { border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
+  .pick .rank { font: 600 var(--t-xs)/1 var(--mono); color: var(--dim); min-width: 1ch; }
+  .pick img { width: 40px; height: 40px; border-radius: var(--r-sm); }
+  .pick .n { font-weight: 600; font-size: var(--t-md); }
+  .pick .sc { font: 600 var(--t-sm)/1 var(--mono); margin-left: 6px; }
+  .pick .sc.up { color: var(--buff); }
+  .pick .sc.down { color: var(--nerf); }
+  .pick .why { font-size: var(--t-xs); color: var(--dim); text-wrap: pretty; }
+  .pick.nodata { opacity: .55; }
+  .pill { font: 500 var(--t-xs)/1 var(--mono); color: var(--dim); border: 1px solid var(--line);
+    border-radius: 999px; padding: 3px 8px; white-space: nowrap; }
+  .pills { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+  .pill.off { opacity: .4; text-decoration: line-through; }
+
+  /* archetype on a seat (Workbench set forge-archetype-chip, "Seat opens in place") */
+  .ax-ic, .seat img.ax-ic { width: 22px; height: 22px; border-radius: var(--r-sm); display: block; }
+  .ax-ic.k, .seat img.ax-ic.k { border-radius: 50%; background: var(--raised); }
+  .ax-icons { display: flex; align-items: center; gap: 3px; }
+  .ax-meta { font: 500 var(--t-xs)/1.4 var(--mono); color: var(--dim); font-variant-numeric: tabular-nums; }
+  .ax-name { font-size: var(--t-sm); color: var(--ink-2); text-wrap: pretty; }
+  .ax-prov { font: 500 var(--t-xs)/1.4 var(--mono); color: var(--dim); margin-top: 3px; }
+  .ax-prov.mine { color: var(--accent); }
+  .ax-prov.items { color: var(--gold); }
+  .ax-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+  .ax-path { font-size: var(--t-xs); color: var(--dim); text-wrap: pretty; }
+  .ax-quote { font-size: var(--t-xs); color: var(--ink-2); margin: 0; text-wrap: pretty; }
+  .ax-quote a { color: var(--accent); }
+  .ax-btn { font: inherit; color: inherit; background: var(--raised); border: 1px solid var(--line);
+    border-radius: var(--r-sm); cursor: pointer; }
+  .ax-btn:hover { background: var(--raised-hi); }
+  .ax-btn:focus-visible, .ax-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .ax-open { display: flex; align-items: center; gap: 3px; width: 100%; margin-top: 6px; padding: 3px 6px 3px 4px; text-align: left; }
+  .ax-k { flex: 1; min-width: 0; margin-left: 4px; font-size: var(--t-xs); line-height: 1.2; text-wrap: balance; }
+  .ax-count { font: 500 var(--t-xs)/1 var(--mono); color: var(--ink-2); }
+  .ax-body { grid-column: 1 / -1; border: 1px solid var(--line); border-radius: var(--r-sm); }
+  .ax-row { display: grid; gap: 3px; width: 100%; padding: 8px 10px; text-align: left; font: inherit; color: inherit;
+    background: transparent; border: 0; border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); cursor: pointer; }
+  .ax-row:first-child { border-top: 0; }
+  .ax-row:hover { background: var(--raised); }
+  .ax-row.on { background: var(--accent-bg); box-shadow: inset 2px 0 var(--accent); }
+  .ax-foot { padding: 8px 10px; display: grid; gap: 4px; border-top: 1px solid var(--line); }
+
+  .plan { padding: 14px 16px; font-size: var(--t-md); line-height: 1.45; text-wrap: pretty; }
+  .plan b { font-weight: 700; }
+  .plan .prov { color: var(--rework); font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .06em; margin-right: 8px; }
+
+  .step { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 14px; }
+  .step + .step { border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
+  .step img { width: 36px; height: 36px; border-radius: var(--r-sm); }
+  .step .n { font-weight: 600; }
+  .step .slot { font-size: var(--t-xs); color: var(--dim); margin-left: 6px; font-weight: 500; }
+  .step .why { font-size: var(--t-xs); color: var(--dim); text-wrap: pretty; }
+  /* under the 1,000-game floor: most bought, not best win rate, drawn grey */
+  .step.thin img { filter: grayscale(1); opacity: .6; }
+  .step.thin .n, .step.thin .pill { color: var(--dim); }
+  .rune { padding: 8px 14px; display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: center; }
+  .rune + .rune { border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
+  .rune img { width: 26px; height: 26px; }
+  .rune .n { font-weight: 600; }
+  .rune .t { font-size: var(--t-xs); color: var(--dim); margin-left: 6px; font-weight: 500; }
+  .rune .why { font-size: var(--t-xs); color: var(--dim); }
+  .rune .why.rule { color: var(--gold); }
+  .note { padding: 9px 14px; font-size: var(--t-xs); color: var(--dim); border-top: 1px solid var(--line); }
+
+  .heal { padding: 12px 14px; display: grid; gap: 4px; font-size: var(--t-sm); }
+  .heal .nums { font: 500 var(--t-sm)/1.5 var(--mono); font-variant-numeric: tabular-nums; }
+  .heal .nums b { color: var(--gold); }
+
+  .save { display: flex; gap: 10px; align-items: center; }
+  .save button { font: inherit; font-size: var(--t-sm); padding: 6px 14px; border-radius: var(--r-md);
+    border: 1px solid var(--accent-lo); background: var(--accent-bg); color: var(--accent); cursor: pointer; }
+  .save button:disabled { opacity: .55; cursor: default; }
+  .save span { font-size: var(--t-xs); color: var(--dim); }
+
+  /* Team traits: paired bars meeting at the trait name. Each row scales to its own
+     larger side, so a bar is "how much of this does each team have" relative to the
+     other, never across traits. Gap rows are gold. */
+  .traits { padding: 8px 14px 12px; display: grid; gap: 3px; }
+  .tr { display: grid; grid-template-columns: minmax(0, 1fr) 240px minmax(0, 1fr); gap: 10px; align-items: center; font-size: var(--t-sm); }
+  .tr .bar { height: 7px; border-radius: 999px; background: var(--raised); overflow: hidden; display: flex; }
+  .tr .bar.l { justify-content: flex-end; }
+  .tr .bar i { display: block; height: 100%; background: var(--accent); }
+  .tr .bar.r i { background: var(--nerf); }
+  .tr .lab { display: grid; grid-template-columns: 56px minmax(0, 1fr) 56px; text-align: center; color: var(--ink-2); }
+  .tr .lab span:first-child, .tr .lab span:last-child { font: 500 var(--t-sm)/1.5 var(--mono); color: var(--dim); font-variant-numeric: tabular-nums; }
+  .tr.gap .lab span:nth-child(2) { color: var(--gold); font-weight: 600; }
+  .tr.gap .bar.l i { background: var(--gold); }
+  .more summary { cursor: pointer; padding: 6px 14px 10px; font-size: var(--t-sm); color: var(--dim); }
+  .more summary:hover { color: var(--ink); }
+  .tkey { display: flex; justify-content: space-between; font-size: var(--t-sm); color: var(--dim); padding: 0 14px; }
+
+  .quiet { margin: 0; padding: 14px; color: var(--dim); font-size: var(--t-sm); }
+</style>
+</head>
+<body class="forge">
+
+<div id="forge-root"></div>
+
+<script src="/static/vendor/react.production.min.js"></script>
+<script src="/static/vendor/react-dom.production.min.js"></script>
+<!-- defer keeps document order: forge-bar.jsx (ForgeUI.Bar) before the page body -->
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/draft-page.jsx?v=8"></script>
+<script>
+// load fallback: if the React body never mounted, say so instead of leaving a blank page
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="forge-draft"]')) return;
+    var host = document.getElementById("forge-root");
+    if (host) host.innerHTML = '<p style="padding:22px 20px;color:var(--dim)">page failed to load</p>';
+  }, 3000);
+});
+</script>
+</body>
+</html>

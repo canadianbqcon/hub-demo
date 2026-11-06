@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<title>Stats · Item Set Forge</title>
+<base href="/forge/">
+<!-- Same preflight as the other surfaces: the data goes out beside the
+     stylesheets rather than three serial round trips behind them. -->
+<script>
+  (function () {
+    window.__FORGE = {
+      me: fetch('api/me').then(function (r) { return r.json(); })
+            .catch(function (e) { return { error: String(e) }; }),
+    };
+  }());
+</script>
+<link rel="stylesheet" href="static/forge-base.css">
+<link rel="stylesheet" href="static/forge-themes.css">
+<script>
+  try {
+    var t = localStorage.getItem('forge:theme');
+    if (t) document.documentElement.dataset.theme = t;
+  } catch (e) { /* private mode: the default theme is a fine place to land */ }
+</script>
+
+<style>
+  /* His own record, the third top-level surface.
+     Champions is what he has built, Patch is what Riot changed under it, and
+     this is how the games actually went. The figures everywhere else in the
+     tool are the population's - coachless WPA, lolalytics win rates, measured
+     over millions of games. Every figure on THIS page is his alone, over a
+     couple of hundred. They are never mixed into one number, and the sample
+     size rides next to each one, because 100% on Ashe is one game.
+
+     Layout is two columns at desk width: the season pool on the left, because
+     it is the half that pairs with the build shelf, and recent games on the
+     right as a running feed. It collapses to one column at 1040px, which is
+     where the pool table's own columns stop fitting beside a 340px feed, not
+     where it stops feeling roomy. */
+
+  .wrap { max-width: 1500px; margin: 0 auto; padding: 22px 20px 90px; display: grid; gap: 22px; }
+
+  .lede { display: grid; gap: 6px; max-width: 74ch; }
+  .lede h2 { margin: 0; font-size: var(--t-lg); font-weight: 600; letter-spacing: -0.015em; }
+  .lede p { margin: 0; color: var(--dim); font-size: var(--t-sm); text-wrap: pretty; }
+  .lede b { color: var(--ink-2); font-weight: 600; }
+
+  /* ── the standing ─────────────────────────────────────────────────────
+     One card per ranked queue, plus the seasons behind them. A queue he has
+     not played this season has no card rather than an empty one. */
+  .ranks { display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch; }
+
+  .rank {
+    display: flex; align-items: center; gap: 14px;
+    min-width: 260px; padding: 13px 18px 13px 13px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+  }
+  .rank img { width: 52px; height: 52px; object-fit: contain; flex: none; }
+  .rank .q { font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+  .rank .t { font-size: var(--t-md); font-weight: 600; letter-spacing: -0.01em; }
+  .rank .lp { font: 500 var(--t-xs)/1 var(--mono); color: var(--gold); }
+  .rank .rec { font: 500 var(--t-xs)/1.5 var(--mono); color: var(--dim); font-variant-numeric: tabular-nums; }
+  .rank .rec b { color: var(--ink-2); font-weight: 600; }
+
+  /* Seasons run oldest to newest left to right, so the climb reads as a shape
+     rather than a list you have to reverse in your head. */
+  .seasons { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .season {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 11px 5px 6px;
+    background: var(--raised); border: 1px solid var(--line); border-radius: 999px;
+    font-size: var(--t-xs); color: var(--ink-2); white-space: nowrap;
+  }
+  .season img { width: 20px; height: 20px; object-fit: contain; }
+  .season .s { color: var(--dim); font: 500 var(--t-xs)/1 var(--mono); }
+  .season.now { border-color: var(--accent-lo); background: var(--accent-bg); color: var(--accent); }
+  .season.now .s { color: inherit; }
+
+  /* ── the two panels ───────────────────────────────────────────────────── */
+  .panes { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(340px, 1fr); gap: 22px; align-items: start; }
+  @media (max-width: 1040px) { .panes { grid-template-columns: minmax(0, 1fr); } }
+
+  .pane { display: grid; gap: 11px; min-width: 0; }
+  .pane > h3 {
+    margin: 0; font-size: var(--t-sm); font-weight: 600;
+    text-transform: uppercase; letter-spacing: .08em; color: var(--dim);
+    display: flex; align-items: baseline; gap: 9px;
+  }
+  .pane > h3 .sub { text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--dim); opacity: .8; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+
+  /* A table narrower than its columns scrolls sideways inside its own card.
+     It never clips - a hidden column is a number he cannot reach with a mouse. */
+  .scroll { overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+  th, td { padding: 9px 12px; text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th {
+    font-size: var(--t-xs); font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--dim); border-bottom: 1px solid var(--line); background: var(--raised);
+    position: sticky; top: 0;
+  }
+  tbody tr + tr td { border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
+  tbody tr:hover td { background: var(--raised); }
+  td.num { font: 500 var(--t-sm)/1.4 var(--mono); font-variant-numeric: tabular-nums; }
+
+  .champ { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .champ img { width: 26px; height: 26px; border-radius: var(--r-sm); flex: none; }
+  .champ a { color: var(--ink); text-decoration: none; font-weight: 600; }
+  .champ a:hover { color: var(--accent); text-decoration: underline; }
+  .champ span.name { font-weight: 600; }
+  /* A champion with no build shelf in this tool is still his record; it just
+     does not link anywhere. The dot says which, without a second column. */
+  .champ .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex: none; }
+
+  /* Win rate carries the number AND the colour: a green number and a red number
+     are the same number to about 8% of men. The bar underneath is the SAMPLE,
+     not a second drawing of the percentage - its length is how many games the
+     figure is made of, so Ashe's 100% is a stub and Viego's 56% is the full
+     width. A bar that redrew the percentage would say nothing the number beside
+     it does not, while making one game and a hundred look equally settled. */
+  .wr { display: grid; gap: 4px; justify-items: end; }
+  .wr b { font: 600 var(--t-sm)/1 var(--mono); font-variant-numeric: tabular-nums; }
+  .wr.up b { color: var(--buff); }
+  .wr.down b { color: var(--nerf); }
+  .wr .bar { height: 4px; border-radius: 999px; background: var(--nerf-bg); overflow: hidden; }
+  .wr .bar i { display: block; height: 100%; background: var(--buff); }
+  .wr.down .bar i { background: var(--nerf); }
+
+  /* op_score is OP.GG's own 0-10 per-game rating. It is the one figure here
+     that is not arithmetic on kills, so it gets the gold. */
+  .op { font: 600 var(--t-sm)/1 var(--mono); color: var(--gold); font-variant-numeric: tabular-nums; }
+
+  /* ── recent games ─────────────────────────────────────────────────────── */
+  .games { display: grid; }
+  /* Only once the columns are side by side. Stacked, the document scrolls and a
+     nested scroller would be a box inside a box for no reason. */
+  @media (min-width: 1041px) {
+    .feed { max-height: 560px; overflow-y: auto; }
+  }
+  .game {
+    display: grid; grid-template-columns: 3px 34px minmax(0, 1fr) auto;
+    gap: 0 11px; align-items: center;
+    padding: 9px 12px 9px 0;
+  }
+  .game + .game { border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
+  .game:hover { background: var(--raised); }
+  .game .edge { align-self: stretch; }
+  .game.win .edge { background: var(--buff); }
+  .game.loss .edge { background: var(--nerf); }
+  .game img { width: 34px; height: 34px; border-radius: var(--r-sm); }
+  .game .who { display: grid; gap: 2px; min-width: 0; }
+  .game .who .n { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .game .who .m {
+    font: 500 var(--t-xs)/1 var(--mono); color: var(--dim);
+    font-variant-numeric: tabular-nums;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .game .right { display: grid; gap: 3px; justify-items: end; }
+  .game .kda { font: 600 var(--t-sm)/1 var(--mono); font-variant-numeric: tabular-nums; }
+  .game .when { font-size: var(--t-xs); color: var(--dim); white-space: nowrap; }
+  .game .res { font-size: var(--t-xs); font-weight: 600; }
+  .game.win .res { color: var(--buff); }
+  .game.loss .res { color: var(--nerf); }
+
+  .queue {
+    font-size: var(--t-xs); color: var(--dim);
+    border: 1px solid var(--line); border-radius: var(--r-sm);
+    padding: 1px 6px; vertical-align: 1px;
+  }
+
+  .empty, .quiet { margin: 0; padding: 16px 12px; color: var(--dim); font-size: var(--t-sm); }
+
+  /* A stale answer beats an empty page, and says so rather than pretending. */
+  .stale {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline;
+    padding: 9px 13px; font-size: var(--t-sm);
+    color: var(--rework); background: var(--rework-bg);
+    border: 1px solid color-mix(in oklab, var(--rework) 45%, transparent);
+    border-radius: var(--r-md);
+  }
+  .stale code { font: 500 var(--t-xs)/1.4 var(--mono); opacity: .85; }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 16px 12px 70px; }
+    .rank { min-width: 100%; }
+  }
+</style>
+</head>
+<body class="forge">
+
+<div id="forge-root"></div>
+
+<script src="/static/vendor/react.production.min.js"></script>
+<script src="/static/vendor/react-dom.production.min.js"></script>
+<!-- defer keeps document order: forge-bar.jsx (ForgeUI.Bar) before the page body -->
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/stats-page.jsx?v=1"></script>
+<script>
+// load fallback: if the React body never mounted, say so instead of leaving a blank page
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="forge-stats"]')) return;
+    var host = document.getElementById("forge-root");
+    if (host) host.innerHTML = '<p style="padding:22px 20px;color:var(--dim)">page failed to load</p>';
+  }, 3000);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1092 @@
+/* Liquid Glass theme; every rule scoped to [data-theme="liquid"].
+   Sections: 1 tokens (THEMING-SPEC section 5), 2 material knobs (--lg-*), 3 module wallpaper,
+   4 scrims, 5 no slogan, 6 accessibility rungs. Component families land in Tasks 7-13.
+   Apple publishes no blur, alpha or saturation numbers: every number marked "eye" below was tuned
+   by eye against the Workbench picks (liquid-material "Clear liquid glass", liquid-overall-look
+   "Module-tinted wallpaper", liquid-14-shell "Floating slabs"). */
+
+[data-theme="liquid"] {
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Segoe UI",system-ui,sans-serif;
+  --font-display:-apple-system,BlinkMacSystemFont,"SF Pro Display","Inter","Segoe UI",system-ui,sans-serif;
+  --font-body:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",system-ui,sans-serif;
+  --r:10px; --r-card:16px; --r-pill:999px;
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-7:32px;
+  --status-h:36px;
+  --feat-display:normal; --feat-text:normal; --feat-meta:normal;
+  --feat-tnum:"tnum" 1,"lnum" 1;
+  --lean-c: var(--fg-dim); --lean-p: var(--violet-label);
+}
+
+[data-theme="liquid"][data-surface="dark"] {
+  --bg:#000000; --bg-elev:#1c1c1e; --bg-elev-2:#2c2c2e; --bg-hover:#3a3a3c;
+  --line:#38383a; --line-soft:#2c2c2e; --line-strong:#48484a;
+  --fg:#ffffff; --fg-mute:#ebebf5; --fg-dim:#aeaeb2; --fg-faint:#8e8e93; --fg-ghost:#636366;
+  --chrome:#1c1c1e;
+  --accent:#0a84ff; --accent-dim:#0060c0; --accent-faint:#0a2a4a;
+  --warn:#ff9f0a; --warn-dim:#8a5600;
+  --alert:#ff453a; --alert-dim:#8a1f1a;
+  --good:#30d158; --good-dim:#1a6e2f;
+  --violet-label:#bf5af2;
+  --panel-head-line:#38383a; --launch-scrim:rgba(0,0,0,.6); --modal-shadow:0 8px 32px rgba(0,0,0,.6);
+  --select-chevron:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M1 1l4 4 4-4' fill='none' stroke='%23aeaeb2' stroke-width='1.5'/></svg>");
+  --tomato:#ff453a; --tomato-dim:#8a1f1a;
+}
+
+[data-theme="liquid"][data-surface="light"] {
+  --bg:#f2f2f7; --bg-elev:#ffffff; --bg-elev-2:#e5e5ea; --bg-hover:#d1d1d6;
+  --line:#c6c6c8; --line-soft:#e5e5ea; --line-strong:#aeaeb2;
+  --fg:#000000; --fg-mute:#3c3c43; --fg-dim:#636366; --fg-faint:#8e8e93; --fg-ghost:#aeaeb2;
+  --chrome:#ffffff;
+  --accent:#007aff; --accent-dim:#0060c0; --accent-faint:#d6e8ff;
+  --warn:#ff9500; --warn-dim:#c27000;
+  --alert:#ff3b30; --alert-dim:#c0281f;
+  --good:#34c759; --good-dim:#1f8a3b;
+  --violet-label:#af52de;
+  --panel-head-line:#c6c6c8; --launch-scrim:rgba(0,0,0,.35); --modal-shadow:0 8px 32px rgba(0,0,0,.18);
+  --select-chevron:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M1 1l4 4 4-4' fill='none' stroke='%23636366' stroke-width='1.5'/></svg>");
+  --tomato:#ff3b30; --tomato-dim:#c0281f;
+}
+
+/* ===== 2. Material knobs. Components read these; rungs 1-2 only change the values. =====
+   One dial, --lg-tint (0 clear .. 1 tinted), drives fill alpha and blur together (spec section 3).
+   LIGHT recipe (--lg-*): small glass, topbar capsules, toast. Clear liquid glass: blur 1.5-3px,
+   tint .06-.18, bright rim. THICK recipe (--lg-thick-*): rail, launcher panel, detail panel;
+   nothing behind reads through. A component writes
+   backdrop-filter: blur(var(--lg-blur)) saturate(var(--lg-sat))  (literal values in -webkit-). */
+[data-theme="liquid"] {
+  --lg-tint:0;                                   /* eye: default is the Clear pick, 0 = clearest */
+  --lg-blur:calc(1.5px + var(--lg-tint) * 1.5px); /* eye: generator CLEAR blur 1.5px, up to 3px */
+  --lg-sat:170%;                                 /* eye: generator CLEAR saturate(170%) */
+  --lg-fill-a:calc(.06 + var(--lg-tint) * .12);  /* eye: generator CLEAR tint .06 to .18 */
+  --lg-edge-a:.08;                               /* eye: hairline edge alpha, set 14 --g-edge */
+  --lg-rim-a:.12;                                /* eye: set 14 --g-rim alpha, dark */
+  --lg-rim-in-a:.2;                              /* eye: darkened inner rim, dark */
+  --lg-spec-a:.35;                               /* eye: static top-left specular */
+  --lg-fill:rgba(28,28,30,var(--lg-fill-a));
+  --lg-edge:rgba(255,255,255,var(--lg-edge-a));
+  --lg-rim:inset 1px 1px 0 rgba(255,255,255,var(--lg-rim-a)), inset -1px -1px 0 rgba(0,0,0,var(--lg-rim-in-a));
+  --lg-spec:linear-gradient(135deg, rgba(255,255,255,var(--lg-spec-a)), transparent 40%);
+  --lg-vib:rgba(255,255,255,.1);                 /* eye: set 14 --vib, fill for rows on glass */
+  --lg-row-on:rgba(255,255,255,.14);             /* eye: set 14 --row-on */
+  /* thick recipe */
+  --lg-thick-blur:24px;                          /* eye: set 14 --rail-blur */
+  --lg-thick-sat:200%;                           /* eye: set 14 --rail-blur */
+  --lg-thick-fill:rgba(28,28,30,.52);            /* eye: set 14 --rail-fill */
+  --lg-thick-rim:inset 1px 1px 0 rgba(255,255,255,.12);
+  /* materialize: scale fade only (spec section 2); reduced motion sets it to 1 */
+  --lg-materialize:.96;                          /* eye */
+}
+[data-theme="liquid"][data-surface="light"] {
+  --lg-edge-a:.06; --lg-rim-a:.9; --lg-rim-in-a:.08; --lg-spec-a:.6;   /* eye: set 14 light values */
+  --lg-fill:rgba(255,255,255,calc(var(--lg-fill-a) + .2));            /* eye: light needs +.2 to read; set 14 light g-fill .5 */
+  --lg-edge:rgba(0,0,0,var(--lg-edge-a));
+  --lg-vib:rgba(0,0,0,.06); --lg-row-on:rgba(0,0,0,.08);
+  --lg-thick-fill:rgba(255,255,255,.55);         /* eye: set 14 light --rail-fill */
+  --lg-thick-rim:inset 1px 1px 0 rgba(255,255,255,.9);
+}
+
+/* ===== 3. Module wallpaper: one fixed layer, painted once, never repainted on scroll. =====
+   Hue triplets per module (Trips = Apple teal, from the picked stage). body.<module> is the
+   page's module hook; unknown pages fall back to Apple blue. */
+[data-theme="liquid"] {
+  --lg-wall-base:#05101c;                          /* eye */
+  --lg-hue-1:10 132 255; --lg-hue-2:10 132 255; --lg-hue-3:10 132 255;
+  --lg-wall-a1:.55; --lg-wall-a2:.45; --lg-wall-a3:.25;  /* eye: stage L dark alphas */
+}
+[data-theme="liquid"][data-surface="light"] { --lg-wall-base:#eaf1fb; --lg-wall-a1:.4; --lg-wall-a2:.35; --lg-wall-a3:.2; } /* eye: stage L light alphas */
+[data-theme="liquid"] body.home { --lg-hue-1:255 90 140; --lg-hue-2:0 145 255; --lg-hue-3:52 199 89; --lg-wall-base:#0a0d1c; } /* eye: stage K pink/blue/green */
+[data-theme="liquid"][data-surface="light"] body.home { --lg-wall-base:#eef1f8; }
+[data-theme="liquid"] body.trips { --lg-hue-1:0 195 208; --lg-hue-2:0 145 180; --lg-hue-3:0 195 208; --lg-wall-base:#04161a; } /* eye: stage L teal */
+[data-theme="liquid"][data-surface="light"] body.trips { --lg-hue-1:0 192 232; --lg-hue-2:0 170 200; --lg-hue-3:0 192 232; --lg-wall-base:#e8f6f8; }
+[data-theme="liquid"] body.jobs { --lg-hue-1:94 92 230; --lg-hue-2:191 90 242; --lg-hue-3:94 92 230; --lg-wall-base:#0d0c24; } /* eye: Apple indigo + purple */
+[data-theme="liquid"][data-surface="light"] body.jobs { --lg-wall-base:#eceaf8; }
+[data-theme="liquid"] body.purchases { --lg-hue-1:255 159 10; --lg-hue-2:255 69 58; --lg-hue-3:255 159 10; --lg-wall-base:#1a1004; } /* eye: Apple orange + red */
+[data-theme="liquid"][data-surface="light"] body.purchases { --lg-wall-base:#fbf0e0; }
+
+:root[data-theme="liquid"] { background:var(--lg-wall-base); }
+:root[data-theme="liquid"] body { margin:0; background:transparent; } /* (0,2,1): beats a page's own body.<module> ground; /recipes keeps the UA 8px margin, which held the bar off the top */
+[data-theme="liquid"] body::before { content:""; position:fixed; inset:0; z-index:-1; pointer-events:none; background:radial-gradient(60% 60% at 10% 0%,rgb(var(--lg-hue-1) / var(--lg-wall-a1)),transparent 70%), radial-gradient(55% 65% at 95% 35%,rgb(var(--lg-hue-2) / var(--lg-wall-a2)),transparent 70%), radial-gradient(70% 50% at 40% 100%,rgb(var(--lg-hue-3) / var(--lg-wall-a3)),transparent 70%),var(--lg-wall-base); } /* resolved on body so the module hues apply */
+
+/* ===== 4. Scrims dim only: no blur, so a glass panel is not cut off from the page (Backdrop Root). ===== */
+[data-theme="liquid"] :is(.launch-scrim, .hub-modal-scrim) { -webkit-backdrop-filter:none; backdrop-filter:none; }
+
+/* ===== 5. Liquid has no slogan: the lockup sits on the wordmark alone. ===== */
+[data-theme="liquid"] .brand-slogan { display:none; }
+
+/* ===== 6. Rung 1 (solid) and accessibility. =====
+   Same token swap in four places (a media query cannot share a rule with an attribute):
+   opaque system fill, no blur, 1px edge. */
+:root[data-theme="liquid"][data-glass="solid"] {
+  --lg-blur:0px; --lg-sat:100%; --lg-thick-blur:0px; --lg-thick-sat:100%;
+  --lg-fill:var(--bg-elev); --lg-thick-fill:var(--bg-elev); --lg-edge:var(--line);
+  --lg-rim:none; --lg-thick-rim:none; --lg-spec:none; --lg-vib:var(--bg-elev-2); --lg-row-on:var(--bg-hover);
+}
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-theme="liquid"] {   /* (0,2,0), later than the surface blocks, so the opaque fill wins in light too */
+    --lg-blur:0px; --lg-sat:100%; --lg-thick-blur:0px; --lg-thick-sat:100%;
+    --lg-fill:var(--bg-elev); --lg-thick-fill:var(--bg-elev); --lg-edge:var(--line);
+    --lg-rim:none; --lg-thick-rim:none; --lg-spec:none; --lg-vib:var(--bg-elev-2); --lg-row-on:var(--bg-hover);
+  }
+}
+@media (prefers-contrast: more) {
+  :root[data-theme="liquid"] {   /* (0,2,0), later than the surface blocks, so the opaque fill wins in light too */
+    --lg-blur:0px; --lg-sat:100%; --lg-thick-blur:0px; --lg-thick-sat:100%;
+    --lg-fill:var(--bg-elev); --lg-thick-fill:var(--bg-elev); --lg-edge:var(--fg-dim);
+    --lg-rim:none; --lg-thick-rim:none; --lg-spec:none; --lg-vib:var(--bg-elev-2); --lg-row-on:var(--bg-hover);
+  }
+  [data-theme="liquid"] body::before { opacity:.5; }   /* eye: quiet the wallpaper */
+}
+@media (forced-colors: active) {
+  :root[data-theme="liquid"] {   /* (0,2,0), later than the surface blocks, so the opaque fill wins in light too */
+    --lg-blur:0px; --lg-sat:100%; --lg-thick-blur:0px; --lg-thick-sat:100%;
+    --lg-fill:Canvas; --lg-thick-fill:Canvas; --lg-edge:CanvasText;
+    --lg-rim:none; --lg-thick-rim:none; --lg-spec:none; --lg-vib:Canvas; --lg-row-on:Highlight;
+  }
+  [data-theme="liquid"] body::before { display:none; }
+}
+/* the token swap leaves blur(0px) behind, and a zero blur is still a backdrop-filter: it keeps the
+   element a containing block and keeps refract's lens running. Solid and the three a11y modes drop it. */
+:root[data-theme="liquid"][data-glass="solid"] * { -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  :root[data-theme="liquid"] * { -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="liquid"] { --lg-materialize:1; }
+}
+
+/* corners:begin (generated by tools/liquid-corners.py, do not edit by hand) */
+[data-theme="liquid"] {
+  --lg-corner-8: shape(from 12.28px 0px, curve to 4.737px 0.696px with 8.289px 0px / 6.294px 0px, curve to 0.696px 4.737px with 2.938px 1.499px / 1.499px 2.938px, curve to 0px 12.28px with 0px 6.294px / 0px 8.289px, line to 0px calc(100% - 12.28px), curve to 0.696px calc(100% - 4.737px) with 0px calc(100% - 8.289px) / 0px calc(100% - 6.294px), curve to 4.737px calc(100% - 0.696px) with 1.499px calc(100% - 2.938px) / 2.938px calc(100% - 1.499px), curve to 12.28px calc(100% - 0px) with 6.294px calc(100% - 0px) / 8.289px calc(100% - 0px), line to calc(100% - 12.28px) calc(100% - 0px), curve to calc(100% - 4.737px) calc(100% - 0.696px) with calc(100% - 8.289px) calc(100% - 0px) / calc(100% - 6.294px) calc(100% - 0px), curve to calc(100% - 0.696px) calc(100% - 4.737px) with calc(100% - 2.938px) calc(100% - 1.499px) / calc(100% - 1.499px) calc(100% - 2.938px), curve to calc(100% - 0px) calc(100% - 12.28px) with calc(100% - 0px) calc(100% - 6.294px) / calc(100% - 0px) calc(100% - 8.289px), line to calc(100% - 0px) 12.28px, curve to calc(100% - 0.696px) 4.737px with calc(100% - 0px) 8.289px / calc(100% - 0px) 6.294px, curve to calc(100% - 4.737px) 0.696px with calc(100% - 1.499px) 2.938px / calc(100% - 2.938px) 1.499px, curve to calc(100% - 12.28px) 0px with calc(100% - 6.294px) 0px / calc(100% - 8.289px) 0px, close);
+  --lg-corner-10: shape(from 15.35px 0px, curve to 5.921px 0.87px with 10.362px 0px / 7.868px 0px, curve to 0.87px 5.921px with 3.673px 1.874px / 1.874px 3.673px, curve to 0px 15.35px with 0px 7.868px / 0px 10.362px, line to 0px calc(100% - 15.35px), curve to 0.87px calc(100% - 5.921px) with 0px calc(100% - 10.362px) / 0px calc(100% - 7.868px), curve to 5.921px calc(100% - 0.87px) with 1.874px calc(100% - 3.673px) / 3.673px calc(100% - 1.874px), curve to 15.35px calc(100% - 0px) with 7.868px calc(100% - 0px) / 10.362px calc(100% - 0px), line to calc(100% - 15.35px) calc(100% - 0px), curve to calc(100% - 5.921px) calc(100% - 0.87px) with calc(100% - 10.362px) calc(100% - 0px) / calc(100% - 7.868px) calc(100% - 0px), curve to calc(100% - 0.87px) calc(100% - 5.921px) with calc(100% - 3.673px) calc(100% - 1.874px) / calc(100% - 1.874px) calc(100% - 3.673px), curve to calc(100% - 0px) calc(100% - 15.35px) with calc(100% - 0px) calc(100% - 7.868px) / calc(100% - 0px) calc(100% - 10.362px), line to calc(100% - 0px) 15.35px, curve to calc(100% - 0.87px) 5.921px with calc(100% - 0px) 10.362px / calc(100% - 0px) 7.868px, curve to calc(100% - 5.921px) 0.87px with calc(100% - 1.874px) 3.673px / calc(100% - 3.673px) 1.874px, curve to calc(100% - 15.35px) 0px with calc(100% - 7.868px) 0px / calc(100% - 10.362px) 0px, close);
+  --lg-corner-12: shape(from 18.42px 0px, curve to 7.105px 1.044px with 12.434px 0px / 9.441px 0px, curve to 1.044px 7.105px with 4.407px 2.249px / 2.249px 4.407px, curve to 0px 18.42px with 0px 9.441px / 0px 12.434px, line to 0px calc(100% - 18.42px), curve to 1.044px calc(100% - 7.105px) with 0px calc(100% - 12.434px) / 0px calc(100% - 9.441px), curve to 7.105px calc(100% - 1.044px) with 2.249px calc(100% - 4.407px) / 4.407px calc(100% - 2.249px), curve to 18.42px calc(100% - 0px) with 9.441px calc(100% - 0px) / 12.434px calc(100% - 0px), line to calc(100% - 18.42px) calc(100% - 0px), curve to calc(100% - 7.105px) calc(100% - 1.044px) with calc(100% - 12.434px) calc(100% - 0px) / calc(100% - 9.441px) calc(100% - 0px), curve to calc(100% - 1.044px) calc(100% - 7.105px) with calc(100% - 4.407px) calc(100% - 2.249px) / calc(100% - 2.249px) calc(100% - 4.407px), curve to calc(100% - 0px) calc(100% - 18.42px) with calc(100% - 0px) calc(100% - 9.441px) / calc(100% - 0px) calc(100% - 12.434px), line to calc(100% - 0px) 18.42px, curve to calc(100% - 1.044px) 7.105px with calc(100% - 0px) 12.434px / calc(100% - 0px) 9.441px, curve to calc(100% - 7.105px) 1.044px with calc(100% - 2.249px) 4.407px / calc(100% - 4.407px) 2.249px, curve to calc(100% - 18.42px) 0px with calc(100% - 9.441px) 0px / calc(100% - 12.434px) 0px, close);
+  --lg-corner-14: shape(from 21.49px 0px, curve to 8.289px 1.218px with 14.506px 0px / 11.015px 0px, curve to 1.218px 8.289px with 5.142px 2.624px / 2.624px 5.142px, curve to 0px 21.49px with 0px 11.015px / 0px 14.506px, line to 0px calc(100% - 21.49px), curve to 1.218px calc(100% - 8.289px) with 0px calc(100% - 14.506px) / 0px calc(100% - 11.015px), curve to 8.289px calc(100% - 1.218px) with 2.624px calc(100% - 5.142px) / 5.142px calc(100% - 2.624px), curve to 21.49px calc(100% - 0px) with 11.015px calc(100% - 0px) / 14.506px calc(100% - 0px), line to calc(100% - 21.49px) calc(100% - 0px), curve to calc(100% - 8.289px) calc(100% - 1.218px) with calc(100% - 14.506px) calc(100% - 0px) / calc(100% - 11.015px) calc(100% - 0px), curve to calc(100% - 1.218px) calc(100% - 8.289px) with calc(100% - 5.142px) calc(100% - 2.624px) / calc(100% - 2.624px) calc(100% - 5.142px), curve to calc(100% - 0px) calc(100% - 21.49px) with calc(100% - 0px) calc(100% - 11.015px) / calc(100% - 0px) calc(100% - 14.506px), line to calc(100% - 0px) 21.49px, curve to calc(100% - 1.218px) 8.289px with calc(100% - 0px) 14.506px / calc(100% - 0px) 11.015px, curve to calc(100% - 8.289px) 1.218px with calc(100% - 2.624px) 5.142px / calc(100% - 5.142px) 2.624px, curve to calc(100% - 21.49px) 0px with calc(100% - 11.015px) 0px / calc(100% - 14.506px) 0px, close);
+  --lg-corner-16: shape(from 24.56px 0px, curve to 9.473px 1.392px with 16.579px 0px / 12.588px 0px, curve to 1.392px 9.473px with 5.876px 2.999px / 2.999px 5.876px, curve to 0px 24.56px with 0px 12.588px / 0px 16.579px, line to 0px calc(100% - 24.56px), curve to 1.392px calc(100% - 9.473px) with 0px calc(100% - 16.579px) / 0px calc(100% - 12.588px), curve to 9.473px calc(100% - 1.392px) with 2.999px calc(100% - 5.876px) / 5.876px calc(100% - 2.999px), curve to 24.56px calc(100% - 0px) with 12.588px calc(100% - 0px) / 16.579px calc(100% - 0px), line to calc(100% - 24.56px) calc(100% - 0px), curve to calc(100% - 9.473px) calc(100% - 1.392px) with calc(100% - 16.579px) calc(100% - 0px) / calc(100% - 12.588px) calc(100% - 0px), curve to calc(100% - 1.392px) calc(100% - 9.473px) with calc(100% - 5.876px) calc(100% - 2.999px) / calc(100% - 2.999px) calc(100% - 5.876px), curve to calc(100% - 0px) calc(100% - 24.56px) with calc(100% - 0px) calc(100% - 12.588px) / calc(100% - 0px) calc(100% - 16.579px), line to calc(100% - 0px) 24.56px, curve to calc(100% - 1.392px) 9.473px with calc(100% - 0px) 16.579px / calc(100% - 0px) 12.588px, curve to calc(100% - 9.473px) 1.392px with calc(100% - 2.999px) 5.876px / calc(100% - 5.876px) 2.999px, curve to calc(100% - 24.56px) 0px with calc(100% - 12.588px) 0px / calc(100% - 16.579px) 0px, close);
+  --lg-corner-18: shape(from 27.63px 0px, curve to 10.657px 1.566px with 18.651px 0px / 14.162px 0px, curve to 1.566px 10.657px with 6.611px 3.374px / 3.374px 6.611px, curve to 0px 27.63px with 0px 14.162px / 0px 18.651px, line to 0px calc(100% - 27.63px), curve to 1.566px calc(100% - 10.657px) with 0px calc(100% - 18.651px) / 0px calc(100% - 14.162px), curve to 10.657px calc(100% - 1.566px) with 3.374px calc(100% - 6.611px) / 6.611px calc(100% - 3.374px), curve to 27.63px calc(100% - 0px) with 14.162px calc(100% - 0px) / 18.651px calc(100% - 0px), line to calc(100% - 27.63px) calc(100% - 0px), curve to calc(100% - 10.657px) calc(100% - 1.566px) with calc(100% - 18.651px) calc(100% - 0px) / calc(100% - 14.162px) calc(100% - 0px), curve to calc(100% - 1.566px) calc(100% - 10.657px) with calc(100% - 6.611px) calc(100% - 3.374px) / calc(100% - 3.374px) calc(100% - 6.611px), curve to calc(100% - 0px) calc(100% - 27.63px) with calc(100% - 0px) calc(100% - 14.162px) / calc(100% - 0px) calc(100% - 18.651px), line to calc(100% - 0px) 27.63px, curve to calc(100% - 1.566px) 10.657px with calc(100% - 0px) 18.651px / calc(100% - 0px) 14.162px, curve to calc(100% - 10.657px) 1.566px with calc(100% - 3.374px) 6.611px / calc(100% - 6.611px) 3.374px, curve to calc(100% - 27.63px) 0px with calc(100% - 14.162px) 0px / calc(100% - 18.651px) 0px, close);
+  --lg-corner-20: shape(from 30.7px 0px, curve to 11.841px 1.74px with 20.723px 0px / 15.735px 0px, curve to 1.74px 11.841px with 7.345px 3.749px / 3.749px 7.345px, curve to 0px 30.7px with 0px 15.735px / 0px 20.723px, line to 0px calc(100% - 30.7px), curve to 1.74px calc(100% - 11.841px) with 0px calc(100% - 20.723px) / 0px calc(100% - 15.735px), curve to 11.841px calc(100% - 1.74px) with 3.749px calc(100% - 7.345px) / 7.345px calc(100% - 3.749px), curve to 30.7px calc(100% - 0px) with 15.735px calc(100% - 0px) / 20.723px calc(100% - 0px), line to calc(100% - 30.7px) calc(100% - 0px), curve to calc(100% - 11.841px) calc(100% - 1.74px) with calc(100% - 20.723px) calc(100% - 0px) / calc(100% - 15.735px) calc(100% - 0px), curve to calc(100% - 1.74px) calc(100% - 11.841px) with calc(100% - 7.345px) calc(100% - 3.749px) / calc(100% - 3.749px) calc(100% - 7.345px), curve to calc(100% - 0px) calc(100% - 30.7px) with calc(100% - 0px) calc(100% - 15.735px) / calc(100% - 0px) calc(100% - 20.723px), line to calc(100% - 0px) 30.7px, curve to calc(100% - 1.74px) 11.841px with calc(100% - 0px) 20.723px / calc(100% - 0px) 15.735px, curve to calc(100% - 11.841px) 1.74px with calc(100% - 3.749px) 7.345px / calc(100% - 7.345px) 3.749px, curve to calc(100% - 30.7px) 0px with calc(100% - 15.735px) 0px / calc(100% - 20.723px) 0px, close);
+  --lg-corner-24: shape(from 36.84px 0px, curve to 14.21px 2.088px with 24.868px 0px / 18.882px 0px, curve to 2.088px 14.21px with 8.814px 4.498px / 4.498px 8.814px, curve to 0px 36.84px with 0px 18.882px / 0px 24.868px, line to 0px calc(100% - 36.84px), curve to 2.088px calc(100% - 14.21px) with 0px calc(100% - 24.868px) / 0px calc(100% - 18.882px), curve to 14.21px calc(100% - 2.088px) with 4.498px calc(100% - 8.814px) / 8.814px calc(100% - 4.498px), curve to 36.84px calc(100% - 0px) with 18.882px calc(100% - 0px) / 24.868px calc(100% - 0px), line to calc(100% - 36.84px) calc(100% - 0px), curve to calc(100% - 14.21px) calc(100% - 2.088px) with calc(100% - 24.868px) calc(100% - 0px) / calc(100% - 18.882px) calc(100% - 0px), curve to calc(100% - 2.088px) calc(100% - 14.21px) with calc(100% - 8.814px) calc(100% - 4.498px) / calc(100% - 4.498px) calc(100% - 8.814px), curve to calc(100% - 0px) calc(100% - 36.84px) with calc(100% - 0px) calc(100% - 18.882px) / calc(100% - 0px) calc(100% - 24.868px), line to calc(100% - 0px) 36.84px, curve to calc(100% - 2.088px) 14.21px with calc(100% - 0px) 24.868px / calc(100% - 0px) 18.882px, curve to calc(100% - 14.21px) 2.088px with calc(100% - 4.498px) 8.814px / calc(100% - 8.814px) 4.498px, curve to calc(100% - 36.84px) 0px with calc(100% - 18.882px) 0px / calc(100% - 24.868px) 0px, close);
+  --lg-corner-26: shape(from 39.91px 0px, curve to 15.394px 2.262px with 26.94px 0px / 20.456px 0px, curve to 2.262px 15.394px with 9.549px 4.873px / 4.873px 9.549px, curve to 0px 39.91px with 0px 20.456px / 0px 26.94px, line to 0px calc(100% - 39.91px), curve to 2.262px calc(100% - 15.394px) with 0px calc(100% - 26.94px) / 0px calc(100% - 20.456px), curve to 15.394px calc(100% - 2.262px) with 4.873px calc(100% - 9.549px) / 9.549px calc(100% - 4.873px), curve to 39.91px calc(100% - 0px) with 20.456px calc(100% - 0px) / 26.94px calc(100% - 0px), line to calc(100% - 39.91px) calc(100% - 0px), curve to calc(100% - 15.394px) calc(100% - 2.262px) with calc(100% - 26.94px) calc(100% - 0px) / calc(100% - 20.456px) calc(100% - 0px), curve to calc(100% - 2.262px) calc(100% - 15.394px) with calc(100% - 9.549px) calc(100% - 4.873px) / calc(100% - 4.873px) calc(100% - 9.549px), curve to calc(100% - 0px) calc(100% - 39.91px) with calc(100% - 0px) calc(100% - 20.456px) / calc(100% - 0px) calc(100% - 26.94px), line to calc(100% - 0px) 39.91px, curve to calc(100% - 2.262px) 15.394px with calc(100% - 0px) 26.94px / calc(100% - 0px) 20.456px, curve to calc(100% - 15.394px) 2.262px with calc(100% - 4.873px) 9.549px / calc(100% - 9.549px) 4.873px, curve to calc(100% - 39.91px) 0px with calc(100% - 20.456px) 0px / calc(100% - 26.94px) 0px, close);
+  --lg-corner-30: shape(from 46.05px 0px, curve to 17.762px 2.61px with 31.085px 0px / 23.603px 0px, curve to 2.61px 17.762px with 11.018px 5.623px / 5.623px 11.018px, curve to 0px 46.05px with 0px 23.603px / 0px 31.085px, line to 0px calc(100% - 46.05px), curve to 2.61px calc(100% - 17.762px) with 0px calc(100% - 31.085px) / 0px calc(100% - 23.603px), curve to 17.762px calc(100% - 2.61px) with 5.623px calc(100% - 11.018px) / 11.018px calc(100% - 5.623px), curve to 46.05px calc(100% - 0px) with 23.603px calc(100% - 0px) / 31.085px calc(100% - 0px), line to calc(100% - 46.05px) calc(100% - 0px), curve to calc(100% - 17.762px) calc(100% - 2.61px) with calc(100% - 31.085px) calc(100% - 0px) / calc(100% - 23.603px) calc(100% - 0px), curve to calc(100% - 2.61px) calc(100% - 17.762px) with calc(100% - 11.018px) calc(100% - 5.623px) / calc(100% - 5.623px) calc(100% - 11.018px), curve to calc(100% - 0px) calc(100% - 46.05px) with calc(100% - 0px) calc(100% - 23.603px) / calc(100% - 0px) calc(100% - 31.085px), line to calc(100% - 0px) 46.05px, curve to calc(100% - 2.61px) 17.762px with calc(100% - 0px) 31.085px / calc(100% - 0px) 23.603px, curve to calc(100% - 17.762px) 2.61px with calc(100% - 5.623px) 11.018px / calc(100% - 11.018px) 5.623px, curve to calc(100% - 46.05px) 0px with calc(100% - 23.603px) 0px / calc(100% - 31.085px) 0px, close);
+  --lg-corner-32: shape(from 49.12px 0px, curve to 18.946px 2.784px with 33.158px 0px / 25.176px 0px, curve to 2.784px 18.946px with 11.753px 5.998px / 5.998px 11.753px, curve to 0px 49.12px with 0px 25.176px / 0px 33.158px, line to 0px calc(100% - 49.12px), curve to 2.784px calc(100% - 18.946px) with 0px calc(100% - 33.158px) / 0px calc(100% - 25.176px), curve to 18.946px calc(100% - 2.784px) with 5.998px calc(100% - 11.753px) / 11.753px calc(100% - 5.998px), curve to 49.12px calc(100% - 0px) with 25.176px calc(100% - 0px) / 33.158px calc(100% - 0px), line to calc(100% - 49.12px) calc(100% - 0px), curve to calc(100% - 18.946px) calc(100% - 2.784px) with calc(100% - 33.158px) calc(100% - 0px) / calc(100% - 25.176px) calc(100% - 0px), curve to calc(100% - 2.784px) calc(100% - 18.946px) with calc(100% - 11.753px) calc(100% - 5.998px) / calc(100% - 5.998px) calc(100% - 11.753px), curve to calc(100% - 0px) calc(100% - 49.12px) with calc(100% - 0px) calc(100% - 25.176px) / calc(100% - 0px) calc(100% - 33.158px), line to calc(100% - 0px) 49.12px, curve to calc(100% - 2.784px) 18.946px with calc(100% - 0px) 33.158px / calc(100% - 0px) 25.176px, curve to calc(100% - 18.946px) 2.784px with calc(100% - 5.998px) 11.753px / calc(100% - 11.753px) 5.998px, curve to calc(100% - 49.12px) 0px with calc(100% - 25.176px) 0px / calc(100% - 33.158px) 0px, close);
+  --lg-corner-34: shape(from 52.19px 0px, curve to 20.13px 2.958px with 35.23px 0px / 26.75px 0px, curve to 2.958px 20.13px with 12.487px 6.373px / 6.373px 12.487px, curve to 0px 52.19px with 0px 26.75px / 0px 35.23px, line to 0px calc(100% - 52.19px), curve to 2.958px calc(100% - 20.13px) with 0px calc(100% - 35.23px) / 0px calc(100% - 26.75px), curve to 20.13px calc(100% - 2.958px) with 6.373px calc(100% - 12.487px) / 12.487px calc(100% - 6.373px), curve to 52.19px calc(100% - 0px) with 26.75px calc(100% - 0px) / 35.23px calc(100% - 0px), line to calc(100% - 52.19px) calc(100% - 0px), curve to calc(100% - 20.13px) calc(100% - 2.958px) with calc(100% - 35.23px) calc(100% - 0px) / calc(100% - 26.75px) calc(100% - 0px), curve to calc(100% - 2.958px) calc(100% - 20.13px) with calc(100% - 12.487px) calc(100% - 6.373px) / calc(100% - 6.373px) calc(100% - 12.487px), curve to calc(100% - 0px) calc(100% - 52.19px) with calc(100% - 0px) calc(100% - 26.75px) / calc(100% - 0px) calc(100% - 35.23px), line to calc(100% - 0px) 52.19px, curve to calc(100% - 2.958px) 20.13px with calc(100% - 0px) 35.23px / calc(100% - 0px) 26.75px, curve to calc(100% - 20.13px) 2.958px with calc(100% - 6.373px) 12.487px / calc(100% - 12.487px) 6.373px, curve to calc(100% - 52.19px) 0px with calc(100% - 26.75px) 0px / calc(100% - 35.23px) 0px, close);
+  --lg-corner-10-h28: shape(from 14px 0px, curve to 6.91px 0.489px with 10.277px 0px / 8.416px 0px, curve to 0.489px 6.91px with 3.865px 1.479px / 1.479px 3.865px, curve to 0px 14px with 0px 8.416px / 0px 10.277px, line to 0px calc(100% - 14px), curve to 0.489px calc(100% - 6.91px) with 0px calc(100% - 10.277px) / 0px calc(100% - 8.416px), curve to 6.91px calc(100% - 0.489px) with 1.479px calc(100% - 3.865px) / 3.865px calc(100% - 1.479px), curve to 14px calc(100% - 0px) with 8.416px calc(100% - 0px) / 10.277px calc(100% - 0px), line to calc(100% - 14px) calc(100% - 0px), curve to calc(100% - 6.91px) calc(100% - 0.489px) with calc(100% - 10.277px) calc(100% - 0px) / calc(100% - 8.416px) calc(100% - 0px), curve to calc(100% - 0.489px) calc(100% - 6.91px) with calc(100% - 3.865px) calc(100% - 1.479px) / calc(100% - 1.479px) calc(100% - 3.865px), curve to calc(100% - 0px) calc(100% - 14px) with calc(100% - 0px) calc(100% - 8.416px) / calc(100% - 0px) calc(100% - 10.277px), line to calc(100% - 0px) 14px, curve to calc(100% - 0.489px) 6.91px with calc(100% - 0px) 10.277px / calc(100% - 0px) 8.416px, curve to calc(100% - 6.91px) 0.489px with calc(100% - 1.479px) 3.865px / calc(100% - 3.865px) 1.479px, curve to calc(100% - 14px) 0px with calc(100% - 8.416px) 0px / calc(100% - 10.277px) 0px, close);
+  --lg-corner-14-h28: shape(from 14px 0px, curve to 14px 0px with 14px 0px / 14px 0px, curve to 0px 14px with 6.268px 0px / 0px 6.268px, curve to 0px 14px with 0px 14px / 0px 14px, line to 0px calc(100% - 14px), curve to 0px calc(100% - 14px) with 0px calc(100% - 14px) / 0px calc(100% - 14px), curve to 14px calc(100% - 0px) with 0px calc(100% - 6.268px) / 6.268px calc(100% - 0px), curve to 14px calc(100% - 0px) with 14px calc(100% - 0px) / 14px calc(100% - 0px), line to calc(100% - 14px) calc(100% - 0px), curve to calc(100% - 14px) calc(100% - 0px) with calc(100% - 14px) calc(100% - 0px) / calc(100% - 14px) calc(100% - 0px), curve to calc(100% - 0px) calc(100% - 14px) with calc(100% - 6.268px) calc(100% - 0px) / calc(100% - 0px) calc(100% - 6.268px), curve to calc(100% - 0px) calc(100% - 14px) with calc(100% - 0px) calc(100% - 14px) / calc(100% - 0px) calc(100% - 14px), line to calc(100% - 0px) 14px, curve to calc(100% - 0px) 14px with calc(100% - 0px) 14px / calc(100% - 0px) 14px, curve to calc(100% - 14px) 0px with calc(100% - 0px) 6.268px / calc(100% - 6.268px) 0px, curve to calc(100% - 14px) 0px with calc(100% - 14px) 0px / calc(100% - 14px) 0px, close);
+}
+/* corners:end */
+
+/* ===== 7. Basics: buttons, fields, pills, text (sets 1-4). =====
+   Picks: set 1 "Gray capsules", set 2 "Field tiles", set 3 "Symbol first", set 4 "Size ladder,
+   sentence case". All solid layer: no backdrop-filter anywhere in this section. Capsules and
+   circles stay round; rounded rectangles take the Task 6 corner tokens, with the border-radius
+   fallback beside them. */
+[data-theme="liquid"] {
+  --on-accent:#ffffff;
+  --lq-fill:rgba(120,120,128,.36);        /* eye: picked stages --fill, Apple fill gray (dark) */
+  --lq-fill-hover:rgba(120,120,128,.5);   /* eye: one step up from --lq-fill for :hover */
+  --lq-tile:rgba(118,118,128,.24);        /* eye: picked stages --tile */
+  --lq-ck:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-7' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+[data-theme="liquid"][data-surface="light"] {
+  --lq-fill:rgba(120,120,128,.16);        /* eye: picked stages light --fill */
+  --lq-fill-hover:rgba(120,120,128,.26);  /* eye */
+  --lq-tile:rgba(118,118,128,.12);        /* eye: picked stages light --tile */
+}
+
+/* ---- set 1: Gray capsules (button, row-delete, chip-toggle, link-chip, checkbox-label, check-dot) ---- */
+[data-theme="liquid"] .hub-btn { height:36px; padding:0 18px; border-radius:999px; background:var(--lq-fill); color:var(--fg); font-size:var(--fs-subhead); font-weight:600; letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .hub-btn:hover { background:var(--lq-fill-hover); }
+[data-theme="liquid"] .hub-btn > .g { display:none; }   /* pick: the label alone, glyph hidden */
+[data-theme="liquid"] .hub-btn.hub-btn--accent, [data-theme="liquid"] .hub-btn.hub-btn--accent:hover { background:var(--accent); color:var(--on-accent); }
+[data-theme="liquid"] .hub-btn.hub-btn--accent:hover { filter:brightness(1.1); }
+[data-theme="liquid"] .hub-btn.hub-btn--danger, [data-theme="liquid"] .hub-btn.hub-btn--danger:hover { color:var(--alert); }
+[data-theme="liquid"] .hub-input { height:36px; padding:0 18px; border:0; border-radius:999px; background-color:var(--lq-fill); font-size:var(--fs-subhead); }   /* a field is a capsule on the button's body, text inset like the button's */
+[data-theme="liquid"] select.hub-input { padding-right:38px; background-position:right 16px center; }
+[data-theme="liquid"][data-surface="dark"] .hub-input { background-color:var(--bg-elev); }   /* the grey capsule fill washes white text out on a grey card; a solid dark field keeps it readable */
+[data-theme="liquid"] .hub-btn-row { gap:8px; }
+
+[data-theme="liquid"] .hub-row-delete { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; padding:0; border:0; border-radius:999px; background:var(--lq-fill); color:var(--fg-mute); opacity:1; font-size:var(--fs-body); }
+[data-theme="liquid"] .hub-row-delete:hover, [data-theme="liquid"] .hub-row-delete:focus-visible { border:0; background:var(--lq-fill-hover); color:var(--alert); }
+
+[data-theme="liquid"] .hub-link-chip { gap:4px; height:30px; padding:0 13px; border-radius:999px; background:var(--lq-fill); color:var(--accent); font-size:var(--fs-footnote); font-weight:600; letter-spacing:0; }
+[data-theme="liquid"] .hub-link-chip:hover { background:var(--lq-fill-hover); }
+
+[data-theme="liquid"] .hub-chip-toggle { height:auto; min-height:36px; padding:8px 15px 8px 7px; gap:8px; border-radius:999px; background:var(--lq-fill); color:var(--fg-mute); font-size:var(--fs-subhead); font-weight:500; line-height:1.25; letter-spacing:0; white-space:normal; text-align:left; }
+[data-theme="liquid"] .hub-chip-toggle:hover { background:var(--lq-fill-hover); color:var(--fg); }
+[data-theme="liquid"] .hub-chip-toggle:has(input:checked) { background:var(--lq-fill); color:var(--fg); font-weight:600; }
+[data-theme="liquid"] .hub-chip-toggle:focus-within { outline:0; }
+[data-theme="liquid"] .hub-chip-toggle:has(input:focus-visible) { outline:2px solid var(--accent); outline-offset:2px; }
+
+[data-theme="liquid"] .hub-checkbox-label { gap:10px; font-size:var(--fs-subhead); color:var(--fg); }
+[data-theme="liquid"] :is(.hub-checkbox-label, .hub-chip-toggle) input { appearance:none; -webkit-appearance:none; flex:none; width:22px; height:22px; margin:0; border-radius:50%; background:none; box-shadow:inset 0 0 0 1.5px var(--fg-faint); cursor:pointer; }
+[data-theme="liquid"] :is(.hub-checkbox-label, .hub-chip-toggle) input:checked { background:var(--accent) var(--lq-ck) center/16px no-repeat; box-shadow:none; }
+[data-theme="liquid"] :is(.hub-checkbox-label, .hub-chip-toggle) input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+[data-theme="liquid"] .hub-check-dot { width:10px; height:10px; border-radius:50%; }
+
+/* ---- set 2: Field tiles (field, pending-field, inline-error) ---- */
+[data-theme="liquid"] .hub-field { gap:4px; padding:14px 16px; border-radius:20px; clip-path:var(--lg-corner-20); background:var(--bg-elev-2); }   /* eye: 20, pick used 30 on a wider tile */
+[data-theme="liquid"] .hub-field:focus-within { box-shadow:inset 0 0 0 2px var(--accent); }   /* inset: clip-path would cut an outer ring */
+[data-theme="liquid"] .hub-field label { color:var(--fg-dim); font-size:var(--fs-footnote); }
+[data-theme="liquid"] .hub-field input:not([type="checkbox"], [type="radio"]) { width:100%; min-width:0; height:32px; margin:0; padding:0; border:0; background:none; color:var(--fg); font:inherit; font-size:var(--fs-title); font-weight:600; font-variant-numeric:tabular-nums; outline:0; -moz-appearance:textfield; }
+[data-theme="liquid"] .hub-field input[type="time"] { font-size:var(--fs-title); }
+[data-theme="liquid"] .hub-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+[data-theme="liquid"] .hub-field input::placeholder { color:var(--fg-faint); }
+[data-theme="liquid"] .hub-field-hint { padding:0 6px; color:var(--fg); opacity:.7; font-size:var(--fs-footnote); font-style:normal; line-height:1.4; }
+[data-theme="liquid"] .hub-field-row { gap:10px; }
+[data-theme="liquid"] .hub-field-row > input { flex:1; min-width:0; height:auto; padding:14px 16px; border:0; border-radius:20px; clip-path:var(--lg-corner-20); background:var(--bg-elev-2); color:var(--fg); font:inherit; font-size:var(--fs-title); font-weight:600; font-variant-numeric:tabular-nums; }   /* bare inputs in a row get the same tile */
+[data-theme="liquid"] .hub-field-group { display:grid; gap:10px; }
+[data-theme="liquid"] .hub-field-sec, [data-theme="liquid"] .hub-field-group > summary { margin:4px 0 0; padding:0 0 0 6px; border:0; font-size:var(--fs-footnote); font-weight:600; letter-spacing:.02em; text-transform:uppercase; color:var(--fg); opacity:.75; }
+[data-theme="liquid"] .hub-field-group > summary::after { content:"  +"; }
+[data-theme="liquid"] .hub-field-group[open] > summary::after { content:"  \2212"; }
+
+[data-theme="liquid"] .hub-pending { font-size:var(--fs-footnote); font-style:italic; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-pending-rows { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; margin:0; }
+[data-theme="liquid"] .hub-pending-row { flex-direction:column; align-items:flex-start; justify-content:space-between; gap:8px; padding:14px 16px; border-radius:16px; clip-path:var(--lg-corner-16); background:var(--lq-tile); }
+[data-theme="liquid"] .hub-pending-add { margin:0; padding:0; border:0; background:none; color:var(--fg); font:inherit; font-size:var(--fs-body); font-weight:600; letter-spacing:0; }
+[data-theme="liquid"] .hub-pending-add:hover { border:0; background:none; opacity:.7; }
+
+[data-theme="liquid"] .hub-error { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 12px; margin:0; padding:14px 16px; border:0; border-radius:20px; clip-path:var(--lg-corner-20); background:var(--alert); color:#fff; font-size:var(--fs-subhead); font-weight:600; }
+[data-theme="liquid"] .hub-error-retry { height:32px; margin:0; padding:0 14px; border-radius:12px; clip-path:var(--lg-corner-12); background:rgba(255,255,255,.22); color:#fff; font:inherit; font-weight:600; text-decoration:none; }   /* eye: .22 white, pick */
+[data-theme="liquid"] .hub-error-retry:focus-visible { outline:0; box-shadow:inset 0 0 0 2px #fff; }
+
+/* ---- set 3: Symbol first (pill, tags, count-badge, status-dot, legend, list-eyebrow) ----
+   Neutral gray capsule; a 16px filled symbol in the tone says what it means. */
+[data-theme="liquid"] :is(.hub-pill, .hub-tag, .hub-count-badge, .hub-dot, .hub-legend-item, .hub-list-eyebrow) { display:inline-flex; align-items:center; gap:6px; height:26px; padding:0 10px; border-radius:999px; background:var(--lq-tile); color:var(--fg); font-size:var(--fs-footnote); font-weight:600; letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .hub-pill:is(.is-good, .is-warn, .is-alert, .hub-pill--filled, .hub-pill--dashed), [data-theme="liquid"] .hub-tag.is-on, [data-theme="liquid"] :is(.hub-count-badge, .hub-dot, .hub-list-eyebrow) { padding-left:5px; }
+[data-theme="liquid"] .hub-pill:is(.is-good, .is-warn, .is-alert) { background:var(--lq-tile); color:var(--fg); }
+[data-theme="liquid"] :is(.hub-pill, .hub-tag, .hub-count-badge, .hub-dot, .hub-list-eyebrow)::before { display:inline-grid; place-items:center; flex:none; width:16px; height:16px; margin:0; border-radius:50%; font:800 var(--fs-caption)/1 var(--font); color:var(--bg-elev); }
+[data-theme="liquid"] .hub-pill.is-good::before, [data-theme="liquid"] .hub-count-badge.is-done::before, [data-theme="liquid"] .hub-dot[style*="--good"]::before { content:"\2713"; background:var(--good); }
+[data-theme="liquid"] .hub-pill.is-warn::before, [data-theme="liquid"] .hub-dot[style*="--warn"]::before { content:"!"; background:var(--warn); }
+[data-theme="liquid"] .hub-pill.is-alert::before, [data-theme="liquid"] .hub-dot[style*="--alert"]::before { content:"\2715"; background:var(--alert); }
+[data-theme="liquid"] .hub-pill--filled::before { content:"\2605"; background:var(--accent); color:var(--on-accent); }
+[data-theme="liquid"] .hub-tag.is-on::before { content:"\2713"; background:var(--accent); color:var(--on-accent); }
+[data-theme="liquid"] .hub-pill.hub-pill--dashed { color:var(--fg-dim); }
+[data-theme="liquid"] .hub-pill--dashed::before { content:""; box-sizing:border-box; border:1.5px dashed var(--fg-dim); background:none; }
+[data-theme="liquid"] .hub-count-badge { gap:6px; color:var(--fg); font-size:var(--fs-footnote); }
+[data-theme="liquid"] .hub-count-badge::before { content:""; box-sizing:border-box; border:1.5px solid var(--fg-dim); }
+[data-theme="liquid"] .hub-count-badge.is-done { color:var(--fg); }
+[data-theme="liquid"] .hub-count-badge.is-done::before { border:0; }
+[data-theme="liquid"] .hub-tag { color:var(--fg-mute); font-weight:500; }
+[data-theme="liquid"] .hub-tag.is-on { color:var(--fg); font-weight:600; }
+[data-theme="liquid"] .hub-dot { font-size:var(--fs-footnote); }
+[data-theme="liquid"] .hub-list-eyebrow { justify-self:start; height:22px; padding-right:9px; font-size:var(--fs-caption); letter-spacing:.18em; text-transform:uppercase; color:var(--fg-dim); }   /* pick keeps the eyebrow tracked caps */
+[data-theme="liquid"] .hub-list-eyebrow::before { content:"\25BE"; background:var(--lq-fill); color:var(--fg-dim); font-size:var(--fs-caption); }
+[data-theme="liquid"] .hub-legend { gap:6px 14px; }
+[data-theme="liquid"] .hub-legend-item { font-size:var(--fs-footnote); font-weight:500; color:var(--fg-mute); }
+/* skipped from the pick: per-kind glyph swatches (triangle up/down, dot). The real swatch carries
+   its kind only as a module class (.wxk-s.*), so it stays a small round chip in its own colour. */
+[data-theme="liquid"] .hub-legend-swatch { width:8px; height:8px; border-radius:50%; }
+
+/* ---- set 4: Size ladder, sentence case (text-tone, section, note, numeric-cell, stagger-in, section-head) ----
+   Rank from size and weight alone; no uppercase, no rules under heads. */
+[data-theme="liquid"] .hub-section { gap:8px; }
+[data-theme="liquid"] .hub-section-h { padding:0 6px; border:0; }
+[data-theme="liquid"] .hub-section-t { font:700 var(--fs-title)/1.2 var(--font-display); letter-spacing:-.01em; text-transform:none; color:var(--fg); }
+[data-theme="liquid"] .hub-section-n { font-size:var(--fs-subhead); color:var(--fg-dim); }
+
+[data-theme="liquid"] .hub-section-head, [data-theme="liquid"] .hub-plate-card > .hub-section-head { gap:6px 12px; padding:14px 18px 8px; border:0; border-radius:0; background:none; align-items:baseline; }
+[data-theme="liquid"] .hub-section-head .hub-section-head-t, [data-theme="liquid"] .hub-plate-card > .hub-section-head .hub-section-head-t { font:600 var(--fs-body)/1.25 var(--font); letter-spacing:-.005em; text-transform:none; color:var(--fg); }
+[data-theme="liquid"] .hub-section-head .hub-section-head-sum, [data-theme="liquid"] .hub-plate-card > .hub-section-head .hub-section-head-sum { font-size:var(--fs-subhead); letter-spacing:0; color:var(--fg-dim); opacity:1; }
+[data-theme="liquid"] .hub-section-head .hub-section-head-act, [data-theme="liquid"] .hub-plate-card > .hub-section-head .hub-section-head-act { align-self:center; padding:0 2px; border:0; border-radius:0; background:none; color:var(--accent); font:400 var(--fs-subhead)/1.2 var(--font); letter-spacing:0; text-decoration:none; }
+[data-theme="liquid"] .hub-section-head .hub-section-head-act:hover, [data-theme="liquid"] .hub-plate-card > .hub-section-head .hub-section-head-act:hover { border:0; background:none; opacity:.7; }
+[data-theme="liquid"] .hub-section-head .hub-section-head-act-i { width:24px; height:24px; padding:0; font-size:var(--fs-body); }
+@media (max-width: 900px) {
+  [data-theme="liquid"] .hub-section-head .hub-section-head-act-i { width:44px; height:44px; font-size:var(--fs-body); }   /* keep the 44px touch target */
+}
+[data-theme="liquid"] .hub-section-empty { padding:4px 18px 10px; font-size:var(--fs-subhead); font-style:normal; color:var(--fg-dim); }
+
+/* a boxed sentence, as in the base theme: flattened to a footer it read as stray plain text under
+   the card (Sam 2026-10-12 marks, "put it in a caution card"). is-warn tints the tile warm. */
+[data-theme="liquid"] .hub-note { margin:10px 18px 14px; padding:11px 14px; border:0; border-radius:12px; clip-path:var(--lg-corner-12); background:var(--lg-vib); font-size:var(--fs-footnote); font-weight:400; line-height:1.45; color:var(--fg-mute); }
+[data-theme="liquid"] .hub-note.is-warn { background:color-mix(in srgb, var(--lq-warn) 16%, transparent); color:var(--fg); }
+[data-theme="liquid"] .hub-note b { font-weight:600; color:var(--fg); }
+[data-theme="liquid"] .hub-note.is-warn b { color:var(--warn); }
+
+[data-theme="liquid"] .hub-num { font-variant-numeric:tabular-nums lining-nums; }
+[data-theme="liquid"] :is(td, th).hub-num { text-align:right; white-space:nowrap; }
+
+[data-theme="liquid"] .hub-text-good { color:var(--good); }
+[data-theme="liquid"] .hub-text-warn { color:var(--warn); }
+[data-theme="liquid"] .hub-text-muted { color:var(--fg-dim); }
+[data-theme="liquid"] .hub-text-faint { color:var(--fg-faint); }
+
+/* rows arrive on the materialize scale fade (spec section 2), not the base slide */
+@keyframes lq-settle-in { from { opacity:0; transform:scale(var(--lg-materialize)); } }
+[data-theme="liquid"] .hub-stagger-in:not(:has(.hub-stagger-item)) { animation-name:lq-settle-in; }
+[data-theme="liquid"] .hub-stagger-in .hub-stagger-item:nth-child(-n+6) { animation-name:lq-settle-in; }
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="liquid"] .hub-stagger-in:not(:has(.hub-stagger-item)), [data-theme="liquid"] .hub-stagger-in .hub-stagger-item:nth-child(-n+6) { animation:none; }
+}
+
+/* ===== 8. Cards and stats (sets 5-6). =====
+   Picks: set 5 "Grouped rows", set 6 "Parts of a whole". All solid layer: no backdrop-filter in this
+   section. A card is the secondary grouped background (--bg-elev on the black/white page), no border,
+   padding 0; its head and rows carry the 18px side padding, and rows are split by an inset hairline
+   that starts at the text edge. Card corners are 30; pieces nested inside (tiles) step down by the
+   padding so radii stay concentric. clip-path clips outer rings, so selected and focus rings are
+   drawn inside. */
+[data-theme="liquid"] {
+  --lq-hair:linear-gradient(var(--line),var(--line)) 18px 0 / calc(100% - 36px) 1px no-repeat;   /* row divider, inset from both edges: run to the trailing edge it read as a rule across the card (Sam 2026-10-12 marks) */
+  --lq-hair-b:linear-gradient(var(--line),var(--line)) 18px 100% / calc(100% - 36px) 1px no-repeat;   /* the same divider under a block instead of over a row */
+  --lq-g0:#ff9f0a; --lq-g1:#ffd60a; --lq-g2:#bf5af2; --lq-g3:#ff375f; --lq-g4:#8e8e93;   /* pick D --g0..g4 (dark) */
+}
+[data-theme="liquid"] { --lean-l:#409cff; --lean-r:#ff6961; }   /* pick --lean-l/-r (dark); liquid had defined only center and primary */
+[data-theme="liquid"][data-surface="light"] { --lean-l:#0071e3; --lean-r:#d70015; }
+[data-theme="liquid"][data-surface="light"] { --lq-g0:#ff9500; --lq-g1:#e5b800; --lq-g2:#af52de; --lq-g3:#ff2d55; --lq-g4:#aeaeb2; }
+
+/* ---- set 5: Grouped rows (card, card-head, card-facts, card-notes, card-foil, card-selectable, plate-card, infocard, figure) ---- */
+[data-theme="liquid"] :is(.hub-card, .hub-infocard) { gap:0; padding:0; border:0; border-radius:30px; clip-path:var(--lg-corner-30); background:var(--bg-elev); color:var(--fg); min-width:0; }   /* no overflow:hidden: it drops a flex item's min-height to 0 and the trips rail shrank its infocards; clip-path already rounds */
+[data-theme="liquid"] .hub-infocard--wide { border-radius:20px; clip-path:var(--lg-corner-20); }   /* eye: a one-line wide card is under 60px tall, 30 would run past half its height */
+/* plate card hosts menus (blueprint DON'T): no clip-path, no overflow clip; plain border-radius only */
+[data-theme="liquid"] .hub-plate-card { gap:0; padding:0; border:0; border-radius:30px; background:var(--bg-elev); color:var(--fg); min-width:0; }
+[data-theme="liquid"] .hub-card:not(:has(> .hub-card-head, > .hub-card-facts, > .hub-card-notes, > .hub-stat-figs, > .hub-figure, > .hub-stat-row)) { padding:14px 18px; gap:3px; }   /* plain label/title/sentence card */
+[data-theme="liquid"] .hub-card-grid { gap:10px; }
+[data-theme="liquid"] .hub-card-l { font-size:var(--fs-footnote); letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-card-t { font-size:var(--fs-body); font-weight:600; color:var(--fg); }
+[data-theme="liquid"] .hub-card-s { font-size:var(--fs-subhead); line-height:1.4; color:var(--fg-mute); }
+
+[data-theme="liquid"] .hub-card-head { display:grid; gap:1px; padding:14px 18px 12px; }
+[data-theme="liquid"] .hub-card-title { font:600 var(--fs-body)/1.25 var(--font); letter-spacing:0; text-transform:none; color:var(--fg); }
+[data-theme="liquid"] .hub-card-subtitle { font-size:var(--fs-footnote); letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-card[data-header="tape"] :is(.hub-card-title, .hub-card-subtitle) { font-family:var(--font); }   /* the tape keeps its label look; components.css's bare monospace was off the system stack */
+
+[data-theme="liquid"] :is(.hub-card-facts, .hub-card-notes) { display:block; margin:0; padding:0; border:0; }
+[data-theme="liquid"] :is(.hub-card-fact, .hub-card-note) { display:flex; justify-content:space-between; gap:12px; padding:10px 18px; background:var(--lq-hair); font-size:var(--fs-subhead); line-height:1.3; white-space:nowrap; }
+[data-theme="liquid"] :is(.hub-card-fact-k, .hub-card-note-k) { flex:none; margin:0; padding:0; font-size:var(--fs-subhead); letter-spacing:0; text-transform:none; color:var(--fg); }
+[data-theme="liquid"] :is(.hub-card-fact-v, .hub-card-note-v) { min-width:0; overflow:hidden; text-overflow:ellipsis; color:var(--fg-dim); font-style:normal; text-align:right; }
+[data-theme="liquid"] .hub-card-note.is-warn .hub-card-note-v { color:var(--warn); }
+[data-theme="liquid"] .hub-card-note.is-alert .hub-card-note-v { color:var(--alert); }
+[data-theme="liquid"] .hub-card-note:last-child { padding-bottom:13px; }
+
+/* selectable: no lift; the selected card shows a check at the head's trailing edge, no ring */
+[data-theme="liquid"] .hub-card--selectable:hover { transform:none; box-shadow:none; background:var(--bg-elev); border-color:transparent; }
+[data-theme="liquid"] .hub-card--selectable.selected, [data-theme="liquid"] .hub-card--selectable.selected:hover { box-shadow:none; border-color:transparent; }
+[data-theme="liquid"] .hub-card.selected:has(> .hub-card-foil)::after { box-shadow:none; }
+[data-theme="liquid"] .hub-card.selected .hub-card-head::after { content:"\2713"; position:absolute; top:15px; right:18px; font-size:var(--fs-body); font-weight:700; color:var(--accent); }
+[data-theme="liquid"] .hub-card--selectable:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }   /* inside: clip-path would cut an outer ring */
+[data-theme="liquid"] .hub-card.is-live { --mx:28%; --my:18%; }
+
+/* plate card: the head is a section label on the card, not an accent plate */
+[data-theme="liquid"] .hub-plate-card > .hub-section-head { padding:14px 18px 12px; gap:12px; border:0; border-radius:0; background:none; align-items:baseline; }
+[data-theme="liquid"] .hub-plate-card .hub-section-head-t, [data-theme="liquid"] .hub-infocard-t { font-size:var(--fs-body); font-weight:600; letter-spacing:0; text-transform:none; color:var(--fg); }
+[data-theme="liquid"] .hub-plate-card .hub-section-head-sum { font-size:var(--fs-footnote); text-align:right; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-plate-card .hub-table tr { background:var(--lq-hair); }
+[data-theme="liquid"] .hub-plate-card .hub-table td { padding:10px 18px; font-size:var(--fs-subhead); }
+[data-theme="liquid"] .hub-plate-card .hub-table td + td { padding-left:0; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-plate-card .hub-table tr:last-child td { padding-bottom:13px; }
+
+[data-theme="liquid"] .hub-infocard-head { margin:0; padding:14px 18px 12px; }
+[data-theme="liquid"] .hub-infocard-t i { font-size:var(--fs-footnote); color:var(--fg-dim); }
+[data-theme="liquid"] .hub-infocard-a { padding:4px 11px; border-radius:999px; background:var(--lq-fill); font-size:var(--fs-footnote); font-weight:600; letter-spacing:0; text-transform:none; }   /* a tinted capsule: bare 15px accent text beside the title read as an unstyled link */
+[data-theme="liquid"] .hub-infocard-a:hover { background:var(--lq-fill-hover); text-decoration:none; }
+[data-theme="liquid"] .hub-infocard-note { margin:0; padding:8px 18px 4px; font-size:var(--fs-footnote); font-weight:400; line-height:1.4; color:var(--fg-dim); }   /* a grouped-list footer, not a row: 15px white on a hairline read as a stray paragraph */
+[data-theme="liquid"] .hub-infocard-note-a { color:var(--accent); text-decoration:none; }
+[data-theme="liquid"] .hub-infocard-note-a:hover { color:var(--accent); opacity:.7; }
+[data-theme="liquid"] .hub-infocard-note.is-warn { color:var(--alert); }
+[data-theme="liquid"] .hub-infocard-note:last-child { padding-bottom:13px; }
+[data-theme="liquid"] .hub-infocard-fine { margin:0; padding:10px 18px 13px; background:var(--lq-hair); font-size:var(--fs-footnote); color:var(--fg-dim); }
+
+[data-theme="liquid"] .hub-figure { gap:0; padding:0; }
+[data-theme="liquid"] .hub-figure-fig { padding:14px 18px 12px; gap:10px; }
+[data-theme="liquid"] .hub-figure-n { font-family:var(--font); font-size:var(--fs-large-title); font-weight:700; letter-spacing:-.01em; }
+[data-theme="liquid"] .hub-figure-l { font-size:var(--fs-footnote); letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] :is(.hub-figure-delta, .hub-figure-split) { padding:10px 18px; background:var(--lq-hair); font-size:var(--fs-subhead); }
+[data-theme="liquid"] .hub-figure-split { padding-bottom:13px; color:var(--fg-dim); }
+
+/* ---- set 6: Parts of a whole (stat, stat-row, stat-figure, track-bar, coverage-bar, chart) ----
+   Figures are quiet, the colour is in the parts: capsule tracks, a segmented coverage bar, flat
+   columns. Skipped from the pick: the dot key and the .fx-parts split bar (page markup, no blueprint
+   class), and the hero figure (.is-hero is page markup). The --lq-g0..g4 part colours are ready for
+   a page that adds is-g0..is-g4 to a bar or column; they are applied below. */
+[data-theme="liquid"] .hub-stat-figs { gap:16px; }
+[data-theme="liquid"] .hub-stat-fig { gap:0; padding:0; border:0; border-radius:0; background:none; }
+[data-theme="liquid"] .hub-stat-fig-l { font-size:var(--fs-footnote); letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-stat-fig-l small { display:block; font-size:var(--fs-footnote); color:var(--fg-dim); }
+[data-theme="liquid"] .hub-stat-fig-n { font:600 var(--fs-body)/1.3 var(--font); letter-spacing:0; }
+[data-theme="liquid"] .hub-stat-row { gap:22px; }
+[data-theme="liquid"] .hub-stat--tile { gap:0; padding:12px 14px; border:0; border-radius:20px; clip-path:var(--lg-corner-20); background:var(--lq-tile); }   /* eye: 20 = 30 card - 10 gap when nested in a grid */
+[data-theme="liquid"] .hub-stat--tile .hub-stat-v { font-size:var(--fs-title); font-weight:700; }
+[data-theme="liquid"] .hub-stat-v { font-variant-numeric:tabular-nums lining-nums; }
+[data-theme="liquid"] .hub-card .hub-stat--tile { background:none; padding:0; border-radius:0; clip-path:none; }
+
+[data-theme="liquid"] .hub-track { height:8px; border-radius:999px; background:var(--lq-fill); }   /* eye: pick tracks run 4 to 16px; 8 is the real default, kept */
+[data-theme="liquid"] .hub-bar.is-g0 { background:var(--lq-g0); }
+[data-theme="liquid"] .hub-bar.is-g1 { background:var(--lq-g1); }
+[data-theme="liquid"] .hub-bar.is-g2 { background:var(--lq-g2); }
+[data-theme="liquid"] .hub-bar.is-g3 { background:var(--lq-g3); }
+[data-theme="liquid"] .hub-bar.is-g4 { background:var(--lq-g4); }
+
+/* coverage bar is the real segmented whole: a 24px capsule of 2px-gapped parts with the share written inside */
+[data-theme="liquid"] .coverage-bar { height:24px; gap:2px; border-radius:999px; background:none; overflow:hidden; }
+[data-theme="liquid"] .coverage-seg { display:flex; align-items:center; justify-content:center; min-width:0; overflow:hidden; font-size:var(--fs-footnote); font-weight:600; color:#fff; white-space:nowrap; }
+[data-theme="liquid"] .coverage-counts { gap:4px 14px; font-size:var(--fs-footnote); color:var(--fg-dim); }
+[data-theme="liquid"] .coverage-names { font-size:var(--fs-footnote); line-height:1.4; color:var(--fg-dim); }
+[data-theme="liquid"] .coverage-gap { font-size:var(--fs-footnote); }
+
+[data-theme="liquid"] .hub-chart-cat { font-family:var(--font); font-size:var(--fs-footnote); letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] :is(.hub-chart-ax, .hub-chart-v, .hub-chart-minor) { font-family:var(--font); }
+[data-theme="liquid"] .hub-chart-ax { font-size:var(--fs-caption); fill:var(--fg-dim); }
+[data-theme="liquid"] .hub-chart-v { font-size:var(--fs-footnote); }
+[data-theme="liquid"] .hub-chart-dot { stroke:var(--bg-elev); }
+[data-theme="liquid"] .hub-chart-bar { opacity:1; }
+[data-theme="liquid"] .hub-chart-bar.is-g0 { fill:var(--lq-g0); }
+[data-theme="liquid"] .hub-chart-bar.is-g1 { fill:var(--lq-g1); }
+[data-theme="liquid"] .hub-chart-bar.is-g2 { fill:var(--lq-g2); }
+[data-theme="liquid"] .hub-chart-bar.is-g3 { fill:var(--lq-g3); }
+[data-theme="liquid"] .hub-chart-bar.is-g4 { fill:var(--lq-g4); }
+[data-theme="liquid"] .hub-chart-col.is-sel .hub-chart-hit { opacity:0; }
+
+/* ===== 12. Brand mark: the same two brackets as a clear-glass icon. =====
+   Field, rim, shade and frosted glyph are baked into the SVG: the mark sits on the
+   glass bar, so it carries no backdrop-filter (never glass on glass). The SVG rim is
+   rx16 in 64 units, which is 8px at the 32px size theme-switch.js gives the mark. */
+[data-theme="liquid"] .brand-stack.brand-link::before {
+  background-image: url(/static/assets/brand-mark-liquid.svg);
+  border-radius: 8px;
+  clip-path: var(--lg-corner-8);
+}
+/* No slogan under liquid, so the wordmark alone is centred on the 32px mark. */
+[data-theme="liquid"] .brand-stack.brand-link { justify-content: center; min-height: 32px; }
+
+/* ===== 9. Lists, list controls, tables (sets 7-9). =====
+   Picks: set 7 "Plain sheet, header bars", set 8 "Segmented tracks", set 9 "Number lane". Every piece
+   here is the solid layer: no backdrop-filter anywhere in this section. Rows sit straight on the card
+   (the sheet) with a full-width hairline under each; a folding group's head is a flat bar, sticky, so it
+   is opaque with a hard square edge. Segmented tracks are capsules (999px, never squircled); a rounded
+   rectangle track takes the corner token. clip-path clips outer shadows, so a clipped thumb carries none.
+   Table lane corners have two rounded corners per cell, which no token covers: plain border-radius. */
+[data-theme="liquid"] {
+  --lq-bar:#2c2c2e;                      /* eye: picked stage --bar, group head bar (dark) */
+  --lq-raised:#636366;                   /* eye: picked stage --raised, the lifted segment thumb (dark) */
+  --lq-lane:rgba(118,118,128,.24);       /* eye: picked stage --tile, the number lane */
+}
+[data-theme="liquid"][data-surface="light"] {
+  --lq-bar:#ececf1;                      /* eye: picked stage light --bar */
+  --lq-raised:#ffffff;                   /* eye: picked stage light --raised */
+  --lq-lane:rgba(118,118,128,.12);       /* eye: picked stage light --tile */
+}
+
+/* ---- set 7: Plain sheet, header bars (list-row, checklist, check-row, col-list, column-list, row-actions, collapsible-group, steplist) ---- */
+[data-theme="liquid"] .hub-collapsible-group > summary,
+[data-theme="liquid"] .hub-collapsible-group:not([open]) > summary { align-items:baseline; gap:12px; margin:0; padding:7px 18px; border:0; border-radius:0; background:var(--lq-bar); box-shadow:inset 0 -1px var(--line); }   /* solid, hard edge: it sticks over rows */
+[data-theme="liquid"] .hub-collapsible-group > summary .hub-section-head-t { font-size:var(--fs-subhead); }
+[data-theme="liquid"] .hub-collapsible-group > summary .hub-section-head-sum { font-size:var(--fs-footnote); }
+[data-theme="liquid"] .hub-collapsible-group > summary:hover .hub-section-head-t { color:var(--fg); }
+[data-theme="liquid"] .hub-collapsible-group > summary::after { content:"\203A"; align-self:center; font-size:var(--fs-body); line-height:1; color:var(--fg-dim); transform:rotate(90deg); }   /* chevron that turns, replaces the minus/plus */
+[data-theme="liquid"] .hub-collapsible-group:not([open]) > summary::after { content:"\203A"; transform:none; }
+
+[data-theme="liquid"] .hub-row { gap:12px; padding:10px 18px 10px 16px; border-radius:0; box-shadow:inset 0 -1px var(--line); color:var(--fg); }   /* 16 + the 2px status edge = the 18 text edge */
+[data-theme="liquid"] .hub-row.selected { background:var(--lg-row-on); }
+[data-theme="liquid"] .hub-row-meat { gap:2px; }
+[data-theme="liquid"] .hub-row-title { font-size:var(--fs-subhead); font-weight:500; color:var(--fg); }
+[data-theme="liquid"] .hub-row-sub { font-size:var(--fs-footnote); color:var(--fg-dim); }
+[data-theme="liquid"] .hub-row-right { gap:8px; font-size:var(--fs-subhead); font-variant-numeric:tabular-nums lining-nums; color:var(--fg-dim); }
+
+[data-theme="liquid"] .hub-row-actions { gap:6px; }
+[data-theme="liquid"] .hub-row-actions button { display:inline-grid; place-items:center; width:30px; height:30px; margin:0; padding:0; border:0; border-radius:999px; background:var(--lq-fill); color:var(--fg-mute); font:500 var(--fs-subhead)/1 var(--font); }
+[data-theme="liquid"] .hub-row-actions button:hover, [data-theme="liquid"] .hub-row-actions button:focus-visible { background:var(--lq-fill-hover); color:var(--fg); }
+[data-theme="liquid"] .hub-row-actions .hub-row-delete:hover, [data-theme="liquid"] .hub-row-actions .hub-row-delete:focus-visible { color:var(--alert); }
+
+[data-theme="liquid"] .hub-checklist { margin:0; padding:0; gap:0; }
+[data-theme="liquid"] .hub-checklist-item { padding:10px 18px; font-size:var(--fs-subhead); color:var(--fg); }
+[data-theme="liquid"] .hub-checklist-item + .hub-checklist-item { background:var(--lq-hair); }
+[data-theme="liquid"] .hub-checklist-item > label { display:flex; align-items:center; gap:12px; margin:0; cursor:pointer; }
+[data-theme="liquid"] :is(.hub-checklist-item, .hub-check-row, .hub-picker-item) input { appearance:none; -webkit-appearance:none; flex:none; width:22px; height:22px; margin:0; border-radius:50%; background:none; box-shadow:inset 0 0 0 1.5px var(--fg-faint); cursor:pointer; }   /* round checks, the set 1 pick */
+[data-theme="liquid"] :is(.hub-checklist-item, .hub-check-row, .hub-picker-item) input:checked { background:var(--accent) var(--lq-ck) center/16px no-repeat; box-shadow:none; }
+[data-theme="liquid"] :is(.hub-checklist-item, .hub-check-row) input:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+[data-theme="liquid"] .hub-check-row { gap:12px; padding:10px 18px; border:0; border-radius:0; background:none; box-shadow:inset 0 -1px var(--line); }
+[data-theme="liquid"] .hub-check-row:hover { border:0; }
+[data-theme="liquid"] .hub-check-row input { margin-top:0; }
+[data-theme="liquid"] .hub-check-row-t { font-size:var(--fs-subhead); line-height:1.3; color:var(--fg); }
+[data-theme="liquid"] .hub-check-row-s { font-size:var(--fs-footnote); line-height:1.4; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-check-rows { gap:0; }
+
+[data-theme="liquid"] .hub-column-list { column-width:11rem; column-gap:0; }   /* eye: pick; gap 0 so the hairlines meet */
+
+[data-theme="liquid"] .hub-steplist { margin:0; padding:0; }
+[data-theme="liquid"] .hub-steplist li { grid-template-columns:6ch 2px minmax(0,1fr); gap:12px; align-items:baseline; padding:9px 18px; background:var(--lq-hair); font-size:var(--fs-subhead); font-weight:400; color:var(--fg-mute); }
+[data-theme="liquid"] .hub-steplist-clock { font:400 var(--fs-subhead)/1.3 var(--font); color:var(--fg-dim); text-align:right; }
+[data-theme="liquid"] .hub-steplist-bar { width:2px; min-height:0; margin:-9px 0; background:none; }   /* inset hairlines like every grouped row; only the hit step keeps its bar */
+[data-theme="liquid"] .hub-steplist li.is-hit { color:var(--fg); }
+[data-theme="liquid"] .hub-steplist li.is-hit .hub-steplist-clock { color:var(--accent); }
+[data-theme="liquid"] .hub-steplist li.is-hit .hub-steplist-bar { background:var(--accent); }
+
+[data-theme="liquid"] .hub-col-list { margin:0; padding:0; gap:0; }
+[data-theme="liquid"] .hub-col-list li { margin:0; padding:9px 18px; box-shadow:inset 0 -1px var(--line); font-size:var(--fs-subhead); font-weight:400; line-height:1.35; color:var(--fg); }
+[data-theme="liquid"] .hub-col-list--steps li { padding-left:44px; }
+[data-theme="liquid"] .hub-col-list--steps li::before { left:18px; top:9px; width:22px; font-size:var(--fs-subhead); line-height:1.35; color:var(--fg-dim); text-align:center; }
+[data-theme="liquid"] .hub-col-list--two { columns:1; }
+[data-theme="liquid"] .hub-col-list--two li { display:flex; justify-content:space-between; gap:12px; padding-left:18px; }
+[data-theme="liquid"] .hub-col-list--two li::before { display:none; }
+[data-theme="liquid"] .hub-col-list-k { color:var(--fg); }
+[data-theme="liquid"] .hub-col-list-k::after { content:none; }
+[data-theme="liquid"] .hub-col-list-v { color:var(--fg-dim); text-align:right; }
+[data-theme="liquid"] .hub-col-list-sub { font-size:var(--fs-footnote); color:var(--fg-dim); }
+[data-theme="liquid"] .hub-col-groups { columns:3 140px; column-gap:0; margin-top:0; }
+[data-theme="liquid"] .hub-col-group { margin:0; }
+[data-theme="liquid"] .hub-col-group-k { margin:0; padding:10px 18px 4px; border:0; box-shadow:inset 0 -1px var(--line); font:600 var(--fs-footnote)/1.3 var(--font); letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-col-group[hidden] { display:none; }
+
+/* ---- set 8: Segmented tracks (list-filter, sort-controls, picker-grid) ---- */
+[data-theme="liquid"] .hub-lf { gap:10px; font-family:var(--font); }
+[data-theme="liquid"] .hub-lf-bar { height:auto; gap:8px; align-items:center; border:0; border-radius:0; overflow:visible; background:none; }
+[data-theme="liquid"] .hub-lf-search { height:36px; padding:0 14px; border:0; border-radius:999px; background:var(--lq-fill); color:var(--fg); font:var(--fs-subhead) var(--font); }
+[data-theme="liquid"] .hub-lf-search::placeholder { color:var(--fg-dim); }
+[data-theme="liquid"] .hub-lf-search:focus { outline:2px solid var(--accent); outline-offset:2px; }
+[data-theme="liquid"] .hub-lf-fold, [data-theme="liquid"] .hub-lf-fold[aria-expanded="false"] { gap:6px; height:36px; padding:0 14px; border:0; border-radius:999px; background:var(--lq-fill); color:var(--fg); font:600 var(--fs-footnote) var(--font); }
+[data-theme="liquid"] .hub-lf-fold:hover { background:var(--lq-fill-hover); }
+[data-theme="liquid"] .hub-lf-sort { align-items:center; gap:8px; height:auto; border:0; border-radius:0; background:none; }
+[data-theme="liquid"] .hub-lf-sort-body { display:none; }   /* pick: the menu is always the track, so the closed field is hidden */
+[data-theme="liquid"] .hub-lf-sort-menu, [data-theme="liquid"] .hub-lf-sort-menu[hidden] { position:static; flex:1; min-width:0; display:grid; grid-auto-flow:column; grid-auto-columns:minmax(max-content,1fr); gap:0; padding:2px; border:0; border-radius:999px; background:var(--lq-fill); box-shadow:none; overflow-x:auto; scrollbar-width:none; }   /* content-sized segments: five labels do not fit a 280px rail at equal widths, so the track scrolls rather than overlapping */
+[data-theme="liquid"] .hub-lf-sort-opt { justify-content:center; height:30px; padding:0 9px; border-radius:999px; color:var(--fg); font:500 var(--fs-footnote) var(--font); white-space:nowrap; }
+[data-theme="liquid"] .hub-lf-sort-opt:hover, [data-theme="liquid"] .hub-lf-sort-opt:focus-visible { background:var(--lq-fill-hover); color:var(--fg); }
+[data-theme="liquid"] .hub-lf-sort-opt[aria-selected="true"] { background:var(--lq-raised); font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,.18); }   /* eye: pick thumb lift */
+[data-theme="liquid"] .hub-lf-sort-dir { order:2; width:34px; height:34px; align-self:center; border:0; border-radius:50%; background:var(--lq-fill); color:var(--fg); font:600 var(--fs-subhead) var(--font); }
+[data-theme="liquid"] .hub-lf-sort-dir:hover { background:var(--lq-fill-hover); color:var(--fg); }
+[data-theme="liquid"] .hub-lf-grid { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:2px; padding:2px; border:0; border-radius:16px; clip-path:var(--lg-corner-16); background:var(--lq-fill); }
+[data-theme="liquid"] .hub-lf-grid[hidden] { display:none; }
+[data-theme="liquid"] :is(.hub-lf-all, .hub-lf-opt) { grid-template-columns:minmax(0,1fr) auto; height:36px; margin:0; padding:0 12px; border:0; border-radius:14px; clip-path:var(--lg-corner-14); background:none; color:var(--fg-mute); font:var(--fs-subhead) var(--font); }   /* 14 = 16 - the 2px padding */
+[data-theme="liquid"] :is(.hub-lf-all, .hub-lf-opt):focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }   /* inside: the clip would cut an outer ring */
+[data-theme="liquid"] .hub-lf-all { grid-column:1 / -1; font-weight:600; }
+[data-theme="liquid"] .hub-lf-box { display:none; }   /* pick: no box, the raised thumb says on */
+[data-theme="liquid"] :is(.hub-lf-opt.is-on, .hub-lf-all.is-all) { background:var(--lq-raised); color:var(--fg); font-weight:600; }
+[data-theme="liquid"] .hub-lf-all.is-some { color:var(--fg); }
+[data-theme="liquid"] .hub-lf-n { color:var(--fg-dim); }
+[data-theme="liquid"] .hub-lf-opt.is-zero, [data-theme="liquid"] .hub-lf-opt.is-zero .hub-lf-n { color:var(--fg-faint); }
+
+[data-theme="liquid"] .hub-sortbar { display:inline-flex; align-items:center; gap:0; padding:2px; border-radius:999px; background:var(--lq-fill); font-size:var(--fs-footnote); max-width:100%; }
+[data-theme="liquid"] .hub-sortbar-k { padding:0 10px 0 12px; letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-sortbar-v { display:inline-flex; align-items:center; height:28px; padding:0 13px; border-radius:999px; background:var(--lq-raised); color:var(--fg); font-size:var(--fs-footnote); font-weight:600; box-shadow:0 2px 6px rgba(0,0,0,.18); }
+[data-theme="liquid"] .hub-sortbar-h { padding:0 12px 0 10px; font-style:normal; color:var(--fg-dim); min-width:0; overflow:hidden; text-overflow:ellipsis; }   /* one capsule: the hint gives way, at 390 it ran 94px past the card */
+[data-theme="liquid"] .hub-sortbar-h::before { content:none; }
+[data-theme="liquid"] .hub-sortbar-x { height:28px; margin:0; padding:0 13px; border:0; border-radius:999px; background:none; color:var(--accent); font:600 var(--fs-footnote) var(--font); letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .hub-sortbar-x:hover { background:var(--lq-fill-hover); color:var(--accent); }
+[data-theme="liquid"] .hub-sortable.hub-sorted { color:var(--fg); }
+[data-theme="liquid"] .hub-sortable.hub-sorted > span { display:inline-flex; align-items:center; height:24px; margin-block:-4px; padding:0 10px; border-radius:999px; background:var(--lq-raised); font-weight:600; box-shadow:0 1px 4px rgba(0,0,0,.18); }
+[data-theme="liquid"] .hub-sort-indicator { font-size:var(--fs-caption); color:var(--fg-faint); }
+[data-theme="liquid"] .hub-sortable.hub-sorted .hub-sort-indicator { font-size:var(--fs-caption); color:var(--fg); }
+
+[data-theme="liquid"] .hub-picker-head { align-items:center; }
+[data-theme="liquid"] .hub-picker-head label { font-size:var(--fs-footnote); color:var(--fg-dim); }
+[data-theme="liquid"] .hub-picker-actions { gap:8px; }
+[data-theme="liquid"] .hub-picker-actions button { height:30px; padding:0 13px; border:0; border-radius:999px; background:var(--lq-fill); color:var(--fg); font:600 var(--fs-footnote) var(--font); letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .hub-picker-actions button:hover, [data-theme="liquid"] .hub-picker-actions button:focus-visible { background:var(--lq-fill-hover); color:var(--fg); }
+[data-theme="liquid"] .hub-picker-grid { grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:2px; padding:2px; border:0; border-radius:16px; clip-path:var(--lg-corner-16); background:var(--lq-fill); }   /* eye: auto-fit keeps a one-item grid from leaving a hole */
+[data-theme="liquid"] .hub-picker-item { height:36px; padding:0 12px; border-radius:14px; clip-path:var(--lg-corner-14); background:none; color:var(--fg-mute); font-size:var(--fs-subhead); }
+[data-theme="liquid"] .hub-picker-item:hover { background:var(--lq-fill-hover); color:var(--fg); }
+[data-theme="liquid"] .hub-picker-item input { display:none; }   /* pick: the raised thumb says on */
+[data-theme="liquid"] .hub-picker-item:has(:checked) { background:var(--lq-raised); color:var(--fg); font-weight:600; }
+[data-theme="liquid"] .hub-picker-item:has(:focus-visible) { outline:2px solid var(--accent); outline-offset:-2px; }
+
+/* ---- set 9: Number lane (table, scroll-table, fact-grid) ---- */
+/* sticky heads are solid: the lane tint is laid over --bg-elev as a gradient on a colour, never a bare alpha */
+[data-theme="liquid"] .hub-table { font-size:var(--fs-subhead); line-height:1.3; color:var(--fg); }
+[data-theme="liquid"] .hub-table :is(th, td), [data-theme="liquid"] .hub-scroll-table :is(th, td) { padding:9px 10px; border:0; text-align:left; vertical-align:middle; font-weight:400; letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .hub-table :is(th, td), [data-theme="liquid"] .hub-scroll-table td { background:none; }
+[data-theme="liquid"] .hub-table :is(th, td).hub-num { text-align:right; }
+[data-theme="liquid"] .hub-table thead th, [data-theme="liquid"] .hub-scroll-table thead th { padding-block:7px; background:var(--bg-elev); box-shadow:inset 0 -1px var(--line); font-size:var(--fs-footnote); font-weight:500; color:var(--fg-dim); }   /* hard edge under a head that may stick */
+[data-theme="liquid"] .hub-table tbody td { box-shadow:inset 0 -1px var(--line); }
+[data-theme="liquid"] .hub-table tbody tr:last-child td { box-shadow:none; }
+[data-theme="liquid"] .hub-table tr > :first-child { padding-left:18px; }
+[data-theme="liquid"] .hub-table tr > :last-child { padding-right:18px; }
+/* the lane: every numeric column rides one tinted strip; the figures run heavier */
+[data-theme="liquid"] .hub-table :is(th, td).hub-num { background:linear-gradient(var(--lq-lane),var(--lq-lane)) var(--bg-elev); padding-inline:14px; }
+[data-theme="liquid"] .hub-table td.hub-num { font-weight:600; box-shadow:none; }
+[data-theme="liquid"] .hub-table thead th.hub-num { color:var(--fg-dim); font-weight:500; }
+[data-theme="liquid"] .hub-table tfoot td { padding-block:12px; font-size:var(--fs-body); font-weight:700; }
+[data-theme="liquid"] .hub-table tfoot .hub-num { background:linear-gradient(var(--lq-fill),var(--lq-fill)) var(--bg-elev); }
+/* lane ends: round the first and last cell of each lane; table must be separate for radii to paint */
+[data-theme="liquid"] .hub-table:has(.hub-num) { border-collapse:separate; border-spacing:0; }
+[data-theme="liquid"] .hub-table thead tr > .hub-num:not(.hub-num + .hub-num) { border-top-left-radius:18px; }   /* eye: pick lane end radius */
+[data-theme="liquid"] .hub-table thead tr > .hub-num:last-child, [data-theme="liquid"] .hub-table thead tr > .hub-num:has(+ :not(.hub-num)) { border-top-right-radius:18px; }
+[data-theme="liquid"] .hub-table tbody:last-child tr:last-child > .hub-num:not(.hub-num + .hub-num) { border-bottom-left-radius:18px; }
+[data-theme="liquid"] .hub-table tbody:last-child tr:last-child > .hub-num:last-child, [data-theme="liquid"] .hub-table tbody:last-child tr:last-child > .hub-num:has(+ :not(.hub-num)) { border-bottom-right-radius:18px; }
+[data-theme="liquid"] .hub-table tfoot tr > .hub-num:not(.hub-num + .hub-num) { border-bottom-left-radius:18px; }
+[data-theme="liquid"] .hub-table tfoot tr > .hub-num:last-child, [data-theme="liquid"] .hub-table tfoot tr > .hub-num:has(+ :not(.hub-num)) { border-bottom-right-radius:18px; }
+/* phone: the lane padding alone pushed a five-column table to 460px in a 322px pane; tighten so it squeezes like the other themes */
+@media (max-width: 600px) {
+  [data-theme="liquid"] .hub-table :is(th, td) { padding-inline:4px; font-size:var(--fs-footnote); hyphens:auto; }   /* hyphens over overflow-wrap:anywhere: a broken word gets a dash, not a shred */
+  [data-theme="liquid"] .hub-table thead th { font-size:var(--fs-footnote); white-space:normal; }   /* a nowrap '1st checked' head was the widest floor */
+  [data-theme="liquid"] .hub-table :is(th, td).hub-num { padding-inline:6px; }
+  [data-theme="liquid"] .hub-table td:not(.hub-num) { overflow-wrap:anywhere; }   /* last resort for a long prose cell; figures never break */
+  [data-theme="liquid"] .hub-table tr > :first-child { padding-left:8px; }
+  [data-theme="liquid"] .hub-table tr > :last-child { padding-right:8px; }
+}
+
+/* scroll-table keeps its horizontal scroller (a weather strip must not squeeze); its cells take the same sheet type */
+[data-theme="liquid"] .hub-scroll-table table { width:100%; font-size:var(--fs-subhead); line-height:1.3; color:var(--fg); border-collapse:collapse; }
+[data-theme="liquid"] .hub-scroll-table tbody td { box-shadow:inset 0 -1px var(--line); font-variant-numeric:tabular-nums lining-nums; }
+[data-theme="liquid"] .hub-scroll-table tbody tr:last-child td { box-shadow:none; }
+[data-theme="liquid"] .hub-scroll-table tr > :first-child { padding-left:18px; }
+[data-theme="liquid"] .hub-scroll-table tr > :last-child { padding-right:18px; }
+[data-theme="liquid"] .hub-scroll-table svg { fill:currentColor; color:var(--fg-mute); }
+
+[data-theme="liquid"] .hub-fact-grid { grid-template-columns:repeat(auto-fit, minmax(210px,1fr)); gap:16px 24px; padding:4px 18px 10px; }
+[data-theme="liquid"] .hub-fact { gap:2px; }
+[data-theme="liquid"] .hub-fact--wide { padding-top:0; border-top:0; }
+[data-theme="liquid"] .hub-fact-k { font-size:var(--fs-footnote); font-weight:400; letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-fact-v { font-size:var(--fs-body); font-weight:600; line-height:1.3; color:var(--fg); }
+[data-theme="liquid"] .hub-fact-v.stay-fv--prose { font-weight:500; }
+
+/* ===== 10. Overlays, tabs, notices (sets 10-12). =====
+   Picks: set 10 "Bottom sheets", set 11 "Track and thumb", set 12 "Settings rows with icon tiles".
+   Overlay surfaces are thick (set 10: nothing behind reads): toast and detail panel are heavy frosted
+   glass; modal and modal-form are opaque sheets over a plain dim. The QR sheet lives inside a modal,
+   so its modal takes the overlay fill (at .9 over a dim, a blur adds nothing visible). No grabber:
+   Hub modals are not draggable, and the pick puts handles only on sheets you can drag.
+   Tabs, split pane, carousel, timeline, notices, empty state: solid layer, no backdrop-filter. */
+[data-theme="liquid"] {
+  --lg-ov-fill:rgb(from var(--lg-thick-fill) r g b / max(alpha, .9));   /* eye: set 10 --thick .9; solid rung stays 1 */
+  --lg-ov-rim:inset 1px 1px 0 rgba(255,255,255,.34), inset -1px -1px 0 rgba(255,255,255,.12);   /* eye: set 10 --lg-rim / --lg-rim2 */
+  --lq-thumb:#636366; --lq-thumb-sh:0 2px 6px rgba(0,0,0,.35);   /* eye: set 11 --thumb, --thumb-sh */
+  --lq-warn:#ff9f0a; --lq-tile-gray:#8e8e93;
+}
+[data-theme="liquid"][data-surface="light"] {
+  --lg-ov-rim:inset 1px 1px 0 rgba(255,255,255,.95), inset -1px -1px 0 rgba(0,0,0,.06);   /* eye: set 10 light */
+  --lq-thumb:#ffffff; --lq-thumb-sh:0 2px 6px rgba(0,0,0,.14), 0 0 0 .5px rgba(0,0,0,.04);   /* eye: set 11 light */
+  --lq-warn:#c93400;   /* Apple accessible orange on light */
+}
+:root[data-theme="liquid"][data-glass="solid"] { --lg-ov-rim:inset 0 0 0 1px var(--lg-edge); }
+@media (prefers-reduced-transparency: reduce) { [data-theme="liquid"] { --lg-ov-rim:inset 0 0 0 1px var(--lg-edge); } }
+@media (prefers-contrast: more) { [data-theme="liquid"] { --lg-ov-rim:inset 0 0 0 1px var(--lg-edge); } }
+@media (forced-colors: active) { [data-theme="liquid"] { --lg-ov-rim:inset 0 0 0 1px CanvasText; } }
+
+/* ---- set 10: Bottom sheets (modal, modal-form, toast, detail-panel, qr-sheet) ---- */
+[data-theme="liquid"] .hub-modal-scrim { align-items:flex-end; padding:8px; box-sizing:border-box; }
+[data-theme="liquid"] .hub-modal { box-sizing:border-box; width:min(640px,100%); max-height:calc(100dvh - 72px); padding:20px; border:0; border-radius:34px; clip-path:var(--lg-corner-34); background:var(--bg-elev); color:var(--fg); box-shadow:none; }   /* clipped, so no outer shadow: the dim carries the lift */
+[data-theme="liquid"] .hub-modal:has(> .hub-qr-sheet) { width:min(440px,100%); background:var(--lg-ov-fill); box-shadow:var(--lg-ov-rim); text-align:center; }
+[data-theme="liquid"] .hub-modal:not(.hub-modal--wide):not(:has(.hub-modal-grid)) { width:min(440px,100%); }   /* pick: confirm and QR sheets are 440, forms 640 */
+[data-theme="liquid"] .hub-modal-title { margin:0 0 4px; font:700 var(--fs-title)/1.2 var(--font); letter-spacing:-.01em; color:var(--fg); }
+[data-theme="liquid"] :is(.hub-modal-body, .hub-modal-note) { margin:0 0 16px; font-size:var(--fs-subhead); line-height:1.4; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-modal-grid { gap:10px; margin:0 0 16px; }
+[data-theme="liquid"] .hub-modal-grid label:has(> :is(input, select, textarea)) { display:grid; gap:4px; min-width:0; padding:10px 16px; border-radius:12px; clip-path:var(--lg-corner-12); background:var(--lq-tile); }   /* pick: each field a tile */
+[data-theme="liquid"] .hub-modal-grid label > span { font-size:var(--fs-footnote); color:var(--fg-dim); }
+[data-theme="liquid"] .hub-modal-grid label :is(input, select, textarea) { width:100%; min-width:0; min-height:28px; margin:0; padding:0; border:0; background:none; color:var(--fg); font:600 var(--fs-body)/1.2 var(--font); outline:0; }   /* eye: pick 19px, 17 fits a 390 date field */
+[data-theme="liquid"] .hub-modal-grid label:has(> :is(input, select, textarea)):focus-within { box-shadow:inset 0 0 0 2px var(--accent); }
+/* trips and the other modules write .hub-field > label + control instead; the field tile (section 7) frames it */
+[data-theme="liquid"] .hub-modal-grid .hub-field input:not([type="checkbox"], [type="radio"]) { height:28px; font-size:var(--fs-body); }   /* eye: matches the label-wrapped field above */
+[data-theme="liquid"] .hub-field :is(select, textarea) { width:100%; min-width:0; margin:0; padding:0; border:0; border-radius:0; background:none; color:var(--fg); font:600 var(--fs-body)/1.3 var(--font); outline:0; }
+[data-theme="liquid"] .hub-field select { height:28px; color:var(--accent); cursor:pointer; }   /* Apple pop-up button: the value in tint */
+[data-theme="liquid"] .hub-field textarea { font-weight:400; font-size:var(--fs-subhead); resize:vertical; }
+[data-theme="liquid"] .hub-modal-actions { gap:8px; }
+[data-theme="liquid"] .hub-modal-btn { height:36px; padding:0 18px; border:0; border-radius:999px; background:var(--lq-fill); color:var(--fg); font:600 var(--fs-subhead) var(--font); }
+[data-theme="liquid"] .hub-modal-btn:hover { background:var(--lq-fill-hover); }
+[data-theme="liquid"] .hub-modal-btn--danger { color:var(--alert); }
+@media (max-width: 600px) {
+  [data-theme="liquid"] .hub-modal-actions .hub-modal-btn, [data-theme="liquid"] .hub-modal-actions .hub-btn { flex:1 1 0; height:44px; }
+}
+
+[data-theme="liquid"] .hub-toast { display:inline-flex; align-items:center; gap:10px; min-height:44px; box-sizing:border-box; padding:0 18px; border:0; border-radius:999px; background:var(--lg-ov-fill); color:var(--fg); font-size:var(--fs-subhead); font-weight:600;
+  -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(calc(var(--lg-thick-blur) * 1.25)) saturate(var(--lg-thick-sat));   /* eye: set 10 30px blur */
+  box-shadow:var(--lg-ov-rim), var(--modal-shadow); }
+[data-theme="liquid"] .hub-toast[hidden] { display:none; }
+
+/* detail panel: hosts action menus, so border-radius, not clip-path */
+[data-theme="liquid"] .hub-detail { border-radius:30px; background:var(--lg-ov-fill); color:var(--fg); padding-bottom:20px;
+  -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(calc(var(--lg-thick-blur) * 1.25)) saturate(var(--lg-thick-sat));
+  box-shadow:var(--lg-ov-rim); }
+[data-theme="liquid"] .hub-detail-head { flex-wrap:wrap; align-items:center; gap:10px 12px; padding:18px 20px 10px; border:0; }
+[data-theme="liquid"] .hub-detail-title { font:700 var(--fs-title)/1.2 var(--font); letter-spacing:-.01em; color:var(--fg); }
+[data-theme="liquid"] .hub-detail-actions { flex-wrap:wrap; flex-shrink:1; min-width:0; max-width:100%; gap:8px; }
+[data-theme="liquid"] .hub-meta-strip { gap:4px 16px; padding:0 20px 14px; border:0; color:var(--fg-mute); }
+[data-theme="liquid"] .hub-meta-strip b { color:var(--fg-dim); }
+[data-theme="liquid"] .hub-detail-body { gap:14px; padding:0 20px; border:0; }
+[data-theme="liquid"] :is(.hub-detail-body-main, .hub-detail-body-side) { padding:0; border:0; }
+@media (max-width: 600px) {
+  /* the 240px side plus 20px insets left main ~20px wide at 390; on a phone it stacks under main
+     (a media query, not @container: narrow desktop rails already stack via their module's own rule) */
+  [data-theme="liquid"] .hub-detail-body { grid-template-columns:minmax(0,1fr); }
+}
+[data-theme="liquid"] .hub-block-label { margin:0 0 4px; font-size:var(--fs-footnote); font-weight:500; letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-block-text { font-size:var(--fs-body); line-height:1.45; color:var(--fg); }
+[data-theme="liquid"] .hub-kv-row { font-size:var(--fs-subhead); color:var(--fg-dim); }
+[data-theme="liquid"] .hub-kv-row b { font-weight:500; }
+[data-theme="liquid"] .hub-link-row { gap:10px; padding:10px 14px; border:0; border-radius:12px; clip-path:var(--lg-corner-12); background:var(--lg-vib); font-size:var(--fs-subhead); color:var(--fg); }
+[data-theme="liquid"] .hub-link-row:hover { border:0; background:var(--lg-row-on); }
+[data-theme="liquid"] .hub-link-row:focus-visible { box-shadow:inset 0 0 0 2px var(--accent); }
+[data-theme="liquid"] .hub-link-row-v { color:var(--fg-dim); font-weight:400; }
+[data-theme="liquid"] .hub-link-row-x { color:var(--accent); font-size:var(--fs-footnote); }
+[data-theme="liquid"] .hub-link-row--flat { background:none; box-shadow:inset 0 0 0 1px var(--lg-edge); }
+[data-theme="liquid"] .hub-callout-warn { border:0; border-radius:12px; clip-path:var(--lg-corner-12); background:var(--lg-vib); }
+[data-theme="liquid"] .hub-detail-card { border:0; border-radius:20px; clip-path:var(--lg-corner-20); background:var(--lg-vib); }
+[data-theme="liquid"] .hub-detail-card-head { font-size:var(--fs-footnote); font-weight:600; letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+
+[data-theme="liquid"] .hub-qr-sheet { margin:4px 0 16px; }
+[data-theme="liquid"] .hub-qr-sheet svg { width:min(70vw, 220px); border-radius:12px; clip-path:var(--lg-corner-12); }
+[data-theme="liquid"] .hub-qr-facts { gap:0; justify-items:stretch; width:100%; max-width:380px; margin:0 auto 16px; text-align:left; border-radius:12px; clip-path:var(--lg-corner-12); background:var(--lg-vib); }
+[data-theme="liquid"] .hub-qr-facts > div { display:flex; justify-content:space-between; gap:12px; padding:10px 14px; }
+[data-theme="liquid"] .hub-qr-facts > div + div { background:linear-gradient(var(--line),var(--line)) 14px 0 / calc(100% - 14px) 1px no-repeat; }
+[data-theme="liquid"] .hub-modal:has(> .hub-qr-sheet) .hub-modal-actions { justify-content:center; }
+
+/* ---- set 11: Track and thumb (tabs, split-pane, carousel, timeline, timeline-row) ---- */
+/* the entry-3-pane stage strip is a .hub-tabs too; it is an origin and takes its look in Task 13 */
+[data-theme="liquid"] .hub-tabs:not(.hub-e3p-stages) { flex-wrap:nowrap; gap:2px; width:fit-content; max-width:100%; box-sizing:border-box; padding:3px; border:0; border-radius:999px; background:var(--lq-tile); overflow-x:auto; scrollbar-width:none; }
+[data-theme="liquid"] .hub-tabs:not(.hub-e3p-stages)::-webkit-scrollbar { display:none; }
+[data-theme="liquid"] .hub-tabs:not(.hub-e3p-stages) .hub-tab { flex:none; margin:0; padding:6px 16px; border:0; border-radius:999px; background:none; color:var(--fg-dim); font-size:var(--fs-subhead); font-weight:500; letter-spacing:0; text-transform:none; white-space:nowrap; }
+[data-theme="liquid"] .hub-tabs:not(.hub-e3p-stages) .hub-tab:hover { background:none; color:var(--fg); }
+[data-theme="liquid"] .hub-tabs:not(.hub-e3p-stages) .hub-tab:is(.active, .is-on, [aria-selected="true"]), [data-theme="liquid"] .hub-tabs:not(.hub-e3p-stages) .hub-tab:is(.active, .is-on, [aria-selected="true"]):hover { background:var(--lq-thumb); color:var(--fg); font-weight:600; box-shadow:var(--lq-thumb-sh); }
+[data-theme="liquid"] .hub-tabs:not(.hub-e3p-stages) .hub-tab:focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
+[data-theme="liquid"] .hub-tabs.hub-tabs--segmented .hub-tab { padding:5px 12px; font-size:var(--fs-footnote); }
+[data-theme="liquid"] .hub-tab-glyph { width:16px; height:16px; stroke-width:1.6; }
+[data-theme="liquid"] .hub-tabs.gtabs { margin:0 0 8px; padding:3px; }   /* trips pulls the strip -12px to run a rule edge to edge; a capsule sits inside the pane */
+
+[data-theme="liquid"] .hub-pane-col { border-right:0; }
+[data-theme="liquid"] .hub-pane-head { border-bottom:0; }
+[data-theme="liquid"] .hub-pane-list { padding:0 10px; }
+/* phone sheet: the open detail sits on a dark card like the desktop slabs, not on the bare page (2026-10-22).
+   The is-open background lives in here too: unscoped, it painted a solid slab behind every
+   opened desktop detail rail (news, mail, trips) where the sheet is not a sheet (2026-11-03). */
+@media (max-width:900px) {
+  [data-theme="liquid"] .hub-slide-over.is-open { background:var(--bg); }
+  [data-theme="liquid"] .hub-slide-over.is-open .hub-slide-over-close { border-bottom:0; }
+  [data-theme="liquid"] .hub-slide-over.is-open .hub-detail-rail-inner { min-height:0; margin:0 10px calc(10px + env(safe-area-inset-bottom,0px)); border-radius:26px; background:var(--bg-elev); box-shadow:inset 0 0 0 1px var(--line-soft); }
+}
+
+[data-theme="liquid"] .hub-carousel { border:0; border-radius:24px; clip-path:var(--lg-corner-24); background:var(--lq-tile); }
+[data-theme="liquid"] .hub-carousel-track { padding:6px; -webkit-mask-image:none; mask-image:none; }
+[data-theme="liquid"] .hub-carousel-slide { margin:0; }   /* the slide is a <figure>: drop the UA 16px 40px margin, as the pick does */
+[data-theme="liquid"] .hub-carousel-slide img { border-radius:18px; clip-path:var(--lg-corner-18); background:var(--lq-tile); }
+[data-theme="liquid"] .hub-carousel-slide figcaption { border-radius:0 0 18px 18px; }
+/* pick: count and credit are solid dim chips, never glass */
+[data-theme="liquid"] :is(.hub-carousel-nav, .hub-carousel-count, .hub-carousel-credit) { border:0; background:rgba(0,0,0,.5); -webkit-backdrop-filter:none; backdrop-filter:none; }
+[data-theme="liquid"] :is(.hub-carousel-count, .hub-carousel-credit) { bottom:16px; padding:4px 10px; font-size:var(--fs-footnote); font-weight:600; color:#fff; }
+[data-theme="liquid"] .hub-carousel-count { right:16px; }
+[data-theme="liquid"] .hub-carousel-credit { left:16px; font-weight:500; }
+
+[data-theme="liquid"] :is(.hub-timeline-head, .hub-timeline-col, .hub-timeline-tray) { border-left:0; }
+[data-theme="liquid"] .hub-timeline-heads { border-bottom:0; }
+[data-theme="liquid"] :is(.hub-timeline-heads, .hub-timeline-cols, .hub-timeline-trays) { gap:4px; }
+[data-theme="liquid"] .hub-timeline-col { border-radius:16px; background:var(--lq-tile); }   /* blocks inside are positioned, so no clip-path */
+[data-theme="liquid"] .hub-timeline-head-d { font:600 var(--fs-body)/1.2 var(--font); }
+[data-theme="liquid"] .hub-timeline-head-n { font-size:var(--fs-footnote); letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-timeline-line { background:var(--line-soft); }
+[data-theme="liquid"] .hub-timeline-chip { border:0; border-radius:14px; background:var(--lq-tile); color:var(--fg); }
+[data-theme="liquid"] .hub-timeline-block { border:0; border-radius:12px; background:var(--lq-thumb); box-shadow:var(--lq-thumb-sh); }
+[data-theme="liquid"] .hub-timeline-block:where(:hover) { background:var(--lq-thumb); }
+[data-theme="liquid"] .hub-timeline-block:where(.selected) { background:var(--lq-thumb); outline:2px solid var(--fg); outline-offset:-2px; }
+[data-theme="liquid"] .hub-timeline-block-t { font-size:var(--fs-caption); color:var(--fg-dim); }
+[data-theme="liquid"] .hub-timeline-block-n { font-size:var(--fs-footnote); font-weight:600; }
+[data-theme="liquid"] .hub-timeline-block-s { font-size:var(--fs-caption); color:var(--fg-dim); }
+[data-theme="liquid"] .hub-timeline-inst-l { border:0; border-radius:999px; background:var(--lq-thumb); box-shadow:var(--lq-thumb-sh); }
+
+[data-theme="liquid"] .hub-timeline-rows { gap:2px; padding:4px; border-radius:22px; background:var(--lq-tile); }   /* no clip-path: rows hold menus */
+[data-theme="liquid"] .hub-timeline-row { padding:9px 10px; border-left:0; border-radius:16px; background:none; }
+[data-theme="liquid"] .hub-timeline-row.is-key { background:var(--lq-thumb); box-shadow:var(--lq-thumb-sh); }
+[data-theme="liquid"][data-surface="dark"] .hub-timeline-row.is-key { background:var(--bg-elev-2); }   /* the #636366 thumb read as light grey under white text; a dark raised card instead */
+[data-theme="liquid"][data-surface="dark"] .hub-timeline-row.is-key .hub-btn:not(.hub-btn--accent) { background:var(--bg-hover); }
+[data-theme="liquid"][data-surface="dark"] .hub-timeline-row.is-key .hub-btn:not(.hub-btn--accent):hover { background:var(--line-strong); }
+[data-theme="liquid"] .hub-timeline-row-t { font-weight:600; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-timeline-row.is-clash .hub-timeline-row-t { color:var(--alert); }
+
+/* ---- set 12: Settings rows with icon tiles (notice-warn, empty-state) ---- */
+[data-theme="liquid"] .hub-notice-warn { display:grid; grid-template-columns:32px minmax(0,1fr); column-gap:14px; row-gap:3px; padding:16px 18px; border:0; border-radius:30px; clip-path:var(--lg-corner-30); background:var(--bg-elev); }
+[data-theme="liquid"] .hub-notice-warn::before { content:""; grid-row:1 / span 2; width:32px; height:32px; border-radius:8px; clip-path:var(--lg-corner-8); background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' fill-rule='evenodd' d='M10.27 3.5a2 2 0 0 1 3.46 0l8.3 14.5A2 2 0 0 1 20.3 21H3.7a2 2 0 0 1-1.73-3zM11 8.5h2v5.5h-2zM10.75 17.2a1.25 1.25 0 1 0 2.5 0a1.25 1.25 0 1 0-2.5 0z'/%3E%3C/svg%3E") center / 20px no-repeat, var(--lq-warn); }
+[data-theme="liquid"] .hub-notice-warn > * { grid-column:2; min-width:0; }
+[data-theme="liquid"] .hub-notice-warn-t { font-size:var(--fs-body); font-weight:600; letter-spacing:0; text-transform:none; color:var(--fg); }
+[data-theme="liquid"] .hub-notice-warn-s { font-size:var(--fs-subhead); line-height:1.45; color:var(--fg-mute); }
+[data-theme="liquid"] .hub-empty-state { display:flex; align-items:center; gap:14px; text-align:left; font-style:normal; font-size:var(--fs-subhead); line-height:1.4; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-empty-state::before { content:""; flex:none; width:32px; height:32px; border-radius:8px; clip-path:var(--lg-corner-8); background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") center / 20px no-repeat, var(--lq-tile-gray); }
+[data-theme="liquid"] .hub-empty-state[hidden] { display:none; }
+
+/* ===== 11. Top bar and its controls (set 13). =====
+   Pick: "Flush at rest, an island on scroll". At rest the bar is part of the page header: no fill,
+   no rule, controls sit on the wallpaper as vibrant capsules. Once the page scrolls, theme-switch.js
+   sets data-scrolled on .topbar (a 24px sentinel leaves view) and the bar detaches into one inset
+   glass island. Sticky instead of the plan's fixed + --topbar-h padding: same look, no content offset
+   math. 3-pane pages scroll inside their panes, and a pane scrolling past 24px marks the bar too.
+   z-index 80 sits under the modal scrim (100); Leaflet panes (400-1000) are isolated so a map
+   cannot paint over the bar. Content scrolls under the island and the dock, so both take the thick
+   recipe (the pick's bar is .4 fill, 16px blur; clear glass let text read through). Glass goes on .topbar and on .topbar-r (the phone dock) only: the
+   controls are solid layer, vibrant fills, no backdrop-filter. Modules is the one tinted control. */
+[data-theme="liquid"] {
+  --lq-bar-shade:0 6px 20px rgba(0,0,0,.28);           /* eye: set 13 --shade */
+  --lq-menu-shade:0 18px 50px rgba(0,0,0,.45), 0 0 0 .5px rgba(255,255,255,.08);   /* eye: set 13 --menu-shade */
+  --lq-seg-on:#636366;
+}
+[data-theme="liquid"][data-surface="light"] {
+  --lq-bar-shade:0 6px 20px rgba(0,40,60,.12);
+  --lq-menu-shade:0 18px 50px rgba(0,40,60,.18), 0 0 0 .5px rgba(0,0,0,.08);
+  --lq-seg-on:#ffffff;
+}
+/* the flush-to-island morph moves like ferrofluid (Sam 2026-10-17: "morph into the space like ferrous
+   fluid"). Gathering: the glass condenses in, the corners bead up first, then the body draws in on a
+   spring that pulls a little past the inset and settles. Spreading: the body runs back out to the edges
+   on a softer spring while the ends flatten and the glass thins away with it, all landing together (a
+   delayed flatten left a seated island flush with the edges, Sam 2026-10-17). Each state carries the transition for arriving at it. Springs are damped step responses
+   sampled into linear(): --lq-gather z .62 (8% overshoot), --lq-spread z .75 (3%). */
+[data-theme="liquid"] {
+  --lq-gather:linear(0, .066, .221, .411, .599, .763, .893, .985, 1.043, 1.074, 1.083, 1.079, 1.067, 1.051, 1.035, 1.021, 1.01, 1.002, .997, .994, .993, .993, .994, .996, 1);
+  --lq-spread:linear(0, .052, .174, .326, .48, .62, .739, .835, .906, .958, .992, 1.013, 1.024, 1.028, 1.028, 1.025, 1.021, 1.017, 1.012, 1.009, 1.006, 1.003, 1.002, 1.001, 1);
+}
+/* height, not only min-height: the modules button takes its width from the bar's height (aspect-ratio,
+   theme-switch.js), and an auto height is not definite outside a grid, so on pages where the bar is a
+   plain body child flex sizing counted the button as its 18px glyph and it ran 34px off the right edge */
+[data-theme="liquid"] .topbar { height:64px; min-height:64px; padding:8px 16px 8px 18px; gap:14px; border:0; background:transparent;
+  transition:margin-inline 640ms var(--lq-spread), translate 640ms var(--lq-spread), border-radius 640ms ease-in-out; }
+[data-theme="liquid"] .topbar[data-scrolled] { transition:margin-inline 760ms var(--lq-gather), translate 760ms var(--lq-gather), border-radius 260ms cubic-bezier(.2,.8,.2,1); }
+@media (prefers-reduced-motion: reduce) { [data-theme="liquid"] .topbar, [data-theme="liquid"] .topbar[data-scrolled], [data-theme="liquid"] .topbar::before, [data-theme="liquid"] .topbar-l, [data-theme="liquid"] .topbar-l::before, [data-theme="liquid"] .topbar[data-scrolled] .topbar-l, [data-theme="liquid"] .topbar[data-scrolled] .topbar-l::before { transition:none !important; } }   /* the flush-to-island morph swaps instantly */
+/* every page, no layout exemptions: the bar is universal chrome (DESIGN.md "Always the same"). A page
+   whose document never scrolls just never uses the stick. The old 3-pane exemption keyed on the class
+   being anywhere in the DOM, so /blueprints (3-pane specimens) and phone /news, /workbench lost it. */
+[data-theme="liquid"] .topbar { position:sticky; top:0; z-index:80; }
+[data-theme="liquid"] .leaflet-container { isolation:isolate; }
+/* 40px, not 999px: past half the bar's height a radius only clamps, so 0 to 999 rounded the corners in
+   the first 4% of the transition and the morph read as a snap */
+[data-theme="liquid"] .topbar[data-scrolled] { translate:0 10px; margin-inline:12px; border-radius:40px; corner-shape:round; }
+/* the island's glass is a layer BEHIND the bar, not the bar: a backdrop-filter on .topbar made it the
+   theme menu's backdrop root, so the menu's frost saw only the bar and went clear (Sam 2026-10-13 mark).
+   It stays built at rest with no opacity, so it fades in and out instead of popping */
+[data-theme="liquid"] .topbar::before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; border-radius:inherit; corner-shape:round; background:var(--lg-thick-fill); -webkit-backdrop-filter:blur(24px) saturate(200%); backdrop-filter:blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow:var(--lg-thick-rim), 0 0 0 .5px var(--lg-edge), var(--lq-bar-shade);
+  opacity:0; transition:opacity 640ms ease-in-out; }
+[data-theme="liquid"] .topbar[data-scrolled]::before { opacity:1; transition:opacity 180ms ease-out; }
+[data-theme="liquid"] .topbar:has(.hub-back) { padding-left:10px; }
+[data-theme="liquid"] .topbar-l { gap:14px; }
+[data-theme="liquid"] .topbar-r { gap:8px; }
+@media (min-width:641px) { [data-theme="liquid"] .topbar { --bar-py:8px; padding-right:var(--mod-g); } }   /* modules button gap, theme-switch.js */
+[data-theme="liquid"] .brand-wordmark { font:700 var(--fs-body)/1.15 var(--font); letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .crumb-block { gap:2px; margin-left:0; padding-left:14px; border-left:1px solid var(--line); }
+[data-theme="liquid"] .crumb { font:600 var(--fs-body)/1.2 var(--font); letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .crumb-meta { font:400 var(--fs-footnote)/1.2 var(--font); font-style:normal; letter-spacing:0; }
+
+/* back: a 40px vibrant circle, not the edge tab */
+[data-theme="liquid"] .hub-back { align-self:center; width:40px; height:40px; margin:0; border:0; border-radius:50%; corner-shape:round; background:var(--lg-vib); color:var(--fg); font:600 var(--fs-body)/1 var(--font); }
+[data-theme="liquid"] .hub-back:hover { border:0; background:var(--lg-row-on); color:var(--fg); }
+[data-theme="liquid"] .topbar-l .hub-back + .brand-stack { margin-left:0; }
+
+/* controls: one vibrant capsule each, sentence case, 36px */
+[data-theme="liquid"] .topbar :is(.surface-toggle, .theme-picker-btn, .launcher) { --ctl-h:36px; height:36px; gap:7px; padding:0 12px; border:0; border-radius:999px; corner-shape:round; background:var(--lg-vib); color:var(--fg); font:600 var(--fs-subhead)/1 var(--font); letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .topbar :is(.surface-toggle, .theme-picker-btn, .launcher):hover { border:0; background:var(--lg-row-on); color:var(--fg); }
+[data-theme="liquid"] .topbar :is(.surface-toggle-icon, .launcher-icon, .module-launcher) { width:36px; padding:0; }
+[data-theme="liquid"] .topbar .module-launcher { background:color-mix(in srgb, var(--accent) 82%, transparent); color:#fff; box-shadow:0 4px 16px color-mix(in srgb, var(--accent) 35%, transparent); }
+[data-theme="liquid"] .topbar .module-launcher:hover { background:var(--accent); color:#fff; }
+/* light: white on #007aff is 4.0:1, under AA at 14px; an opaque deeper blue clears 4.5 */
+[data-theme="liquid"][data-surface="light"] .topbar .module-launcher { background:color-mix(in srgb, var(--accent), #000 15%); }
+[data-theme="liquid"][data-surface="light"] .topbar .module-launcher:hover { background:var(--accent-dim); }
+[data-theme="liquid"] .theme-swatch { width:16px; height:16px; border:0; box-shadow:inset 0 0 0 .5px rgba(255,255,255,.35); corner-shape:round; }
+[data-theme="liquid"] .theme-picker-caret { font-size:var(--fs-caption); color:var(--fg-dim); opacity:1; }
+
+/* control pane menu: dark liquid glass on the dark surface, concentric radii. The 2026-10-12 marks
+   asked for a milky frost on the old theme menu; the 2026-10-19 marks reversed it for the control
+   pane ("a light mode frost glass? not liquid dark?"), so the dark fill is the thick recipe's with
+   the frost's heavier blur. The light surface keeps its white veil. */
+[data-theme="liquid"] { --lq-frost-fill:var(--lg-thick-fill); --lq-frost-blur:40px; }   /* eye */
+[data-theme="liquid"][data-surface="light"] { --lq-frost-fill:rgba(255,255,255,.62); }   /* eye */
+:root[data-theme="liquid"][data-glass="solid"] { --lq-frost-fill:var(--bg-elev-2); }
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) { :root[data-theme="liquid"] { --lq-frost-fill:var(--bg-elev-2); } }
+@media (forced-colors: active) { :root[data-theme="liquid"] { --lq-frost-fill:Canvas; } }
+[data-theme="liquid"] .theme-picker-menu { top:calc(100% + 10px); min-width:0; width:240px; padding:8px; gap:2px; border:0; border-radius:24px; clip-path:var(--lg-corner-24); background:var(--lq-frost-fill); -webkit-backdrop-filter:blur(40px) saturate(180%); backdrop-filter:blur(var(--lq-frost-blur)) saturate(180%); box-shadow:var(--lg-ov-rim), var(--lq-menu-shade); }
+/* the control pane hangs off the bar, not the gear: it drops 8px under whichever bar is showing and
+   lines its right edge up with that bar's edge. Flush (rest): the modules button's edge. Island
+   (scrolled): the island's own edge, one --mod-g further out. Positioned against .topbar-r, which
+   sits --bar-py inside the bar. Phone docks it below instead. */
+@media (min-width:641px) {
+  [data-theme="liquid"] .topbar .theme-picker.control-pane { position:static; }
+  [data-theme="liquid"] .topbar .control-pane-menu { top:calc(100% + var(--bar-py, 10px) + 8px); right:0; }
+  [data-theme="liquid"] .topbar[data-scrolled] .control-pane-menu { right:calc(-1 * var(--mod-g, 12px)); }
+}
+[data-theme="liquid"] .theme-picker-opt { height:44px; padding:0 10px; border-radius:16px; clip-path:var(--lg-corner-16); color:var(--fg); font:400 var(--fs-body)/1.3 var(--font); letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .theme-picker-opt:hover:not(.is-disabled) { background:var(--lg-row-on); color:var(--fg); }
+[data-theme="liquid"] .theme-picker-opt.is-active { background:var(--lg-row-on); font-weight:600; }
+[data-theme="liquid"] .theme-picker-check { font-size:var(--fs-subhead); }
+[data-theme="liquid"] .theme-picker-glass { min-height:44px; margin:6px 0 0; padding:6px 4px 0 10px; border-top:.5px solid var(--line); color:var(--fg); font:400 var(--fs-body)/1 var(--font); letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .theme-picker-glass > span::first-letter { text-transform:uppercase; }
+[data-theme="liquid"] .theme-picker-glass-btn { min-width:72px; height:32px; padding:0 14px; border:0; border-radius:999px; corner-shape:round; background:var(--bg-elev-2); color:var(--fg); font:600 var(--fs-subhead)/1 var(--font); letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .theme-picker-glass-btn[aria-pressed=true] { background:var(--accent); color:#fff; }
+
+/* desktop: the bar is the page's identity row, so it gets real presence. 76px bar, 44px controls
+   (the phone dock's tap size), 48px mark: the mark only stays crisp at a multiple of 16, see the
+   note in theme-switch.js. Starts at 901: between 641 and 900 these sizes cut the crumb to "che…",
+   so that band keeps the 64px bar above and phone keeps its own sizes below. */
+@media (min-width:901px) {
+  [data-theme="liquid"] .topbar { height:76px; min-height:76px; padding:10px 20px 10px 22px; }
+  [data-theme="liquid"] .topbar { --bar-py:10px; padding-right:var(--mod-g); }   /* modules button gap, theme-switch.js */
+  [data-theme="liquid"] .topbar:has(.hub-back) { padding-left:14px; }
+  [data-theme="liquid"] .topbar-l { gap:16px; }
+  [data-theme="liquid"] .topbar-r { gap:10px; }
+  [data-theme="liquid"] .brand-wordmark { font-size:var(--fs-title); }
+  [data-theme="liquid"] .crumb-block { padding-left:16px; }
+  [data-theme="liquid"] .crumb { font-size:var(--fs-title); }
+  [data-theme="liquid"] .crumb-meta { font-size:var(--fs-subhead); }
+  [data-theme="liquid"] .brand-stack.brand-link { padding-left:calc(48px + var(--s-3)); min-height:48px; }
+  [data-theme="liquid"] .brand-stack.brand-link::before { width:48px; height:48px; border-radius:12px; }
+  [data-theme="liquid"] .hub-back { width:48px; height:48px; font-size:var(--fs-title); }
+  [data-theme="liquid"] .topbar :is(.surface-toggle, .theme-picker-btn, .launcher) { --ctl-h:44px; height:44px; padding:0 16px; font-size:var(--fs-body); }
+  [data-theme="liquid"] .topbar :is(.surface-toggle-icon, .launcher-icon, .module-launcher) { width:44px; padding:0; }
+  [data-theme="liquid"] .topbar .surface-ico { font-size:var(--fs-body); }
+}
+
+/* phone: identity row up top, controls in one glass capsule at the thumb */
+@media (max-width:640px) {
+  [data-theme="liquid"] .topbar { height:56px; min-height:56px; padding:0 12px; }
+  /* the dock is fixed inside .topbar, and a backdrop-filter on .topbar would become its containing
+     block: on phone the island is .topbar-l, the bar itself stays clear */
+  [data-theme="liquid"] .topbar[data-scrolled] { translate:none; margin-inline:0; border-radius:0; }
+  [data-theme="liquid"] .topbar::before { content:none; }
+  /* the phone island gathers the same way as the desktop bar: its glass is a layer behind .topbar-l that
+     fades and beads its corners while the padding opens on the gather spring, and runs back on the spread */
+  [data-theme="liquid"] .topbar-l { position:relative; z-index:0; height:48px; padding:0; transition:padding 640ms var(--lq-spread); }
+  [data-theme="liquid"] .topbar[data-scrolled] .topbar-l { padding:0 18px 0 4px; transition:padding 760ms var(--lq-gather); }
+  [data-theme="liquid"] .topbar-l::before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; border-radius:10px; corner-shape:round; background:var(--lg-thick-fill); -webkit-backdrop-filter:blur(24px) saturate(200%); backdrop-filter:blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow:var(--lg-thick-rim), 0 0 0 .5px var(--lg-edge), var(--lq-bar-shade);
+    opacity:0; transition:opacity 640ms ease-in-out, border-radius 640ms ease-in-out; }
+  /* the page's own slot (the /jobs mode tabs) kept its full width and squeezed the crumb to "j…" in the
+     island (2026-10-17): the slot after the crumb gives up the width and scrolls sideways, fading at the edge; the crumb
+     keeps its word */
+  [data-theme="liquid"] .topbar-l > .crumb-block:has(~ *) { flex-shrink:0; }
+  [data-theme="liquid"] .topbar-l > .crumb-block ~ * { flex-shrink:1; min-width:0; overflow-x:auto; scrollbar-width:none; mask-image:linear-gradient(to right, #000 calc(100% - 18px), transparent); }
+  [data-theme="liquid"] .topbar[data-scrolled] .topbar-l::before { opacity:1; border-radius:24px; transition:opacity 180ms ease-out, border-radius 260ms cubic-bezier(.2,.8,.2,1); }
+  [data-theme="liquid"] .crumb-block { padding-left:0; border-left:0; }
+  [data-theme="liquid"] .topbar-r { --ctl-h:44px; left:14px; right:14px; bottom:calc(14px + env(safe-area-inset-bottom,0px)); height:60px; padding:0 8px; gap:4px; border:0; border-radius:999px; corner-shape:round; background:var(--lg-thick-fill); -webkit-backdrop-filter:blur(24px) saturate(200%); backdrop-filter:blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow:var(--lg-thick-rim), 0 0 0 .5px var(--lg-edge), var(--lq-bar-shade); }
+  [data-theme="liquid"] .topbar-r :is(.surface-toggle, .theme-picker-btn, .launcher) { height:44px; min-width:44px; padding:0 12px; }
+  [data-theme="liquid"] .topbar-r :is(.surface-toggle-icon, .launcher-icon, .module-launcher) { width:44px; padding:0; }
+  [data-theme="liquid"] .topbar-r .theme-picker-menu { top:auto; bottom:calc(100% + 16px); right:-8px; }
+  [data-theme="liquid"] body { padding-bottom:calc(88px + env(safe-area-inset-bottom,0px)); }
+  /* a viewport-tall shell (home, trips list) would run under the dock and hide its status strip */
+  [data-theme="liquid"] { --dock-h:calc(88px + env(safe-area-inset-bottom,0px)); }
+  :root[data-theme="liquid"] { scroll-padding-bottom:calc(88px + env(safe-area-inset-bottom,0px)); }
+}
+
+/* ===== 13. Shell, rail, launcher, status strip, origins (sets 14-15). =====
+   Pick 14 "Floating slabs": the shell keeps a 10px gutter, the columns go clear so the wallpaper
+   shows between slabs, the nav rail is one thick-glass slab (radius 26, rows 18), the status strip
+   is a solid 36px capsule centred at the foot. The launcher panel is thick glass, tiles solid soft.
+   Pick 15 "One glass tab capsule" mocks horizontal top-level tabs; the real 3-pane origins keep
+   their tabs in the rail (set 14 draws that rail), so the capsule lands on the reader's tab strip
+   and the rail's selected row; the phone dock is already the top bar's (set 13), so tabs never dock. */
+[data-theme="liquid"] {
+  --lq-soft:rgba(118,118,128,.24);              /* eye: set 14 --soft (tile fill) */
+  --lq-slab-shade:0 18px 40px -22px rgba(0,0,0,.55);   /* eye: set 14 stage A rail shadow */
+}
+[data-theme="liquid"][data-surface="light"] {
+  --lq-soft:rgba(118,118,128,.12);
+  --lq-slab-shade:0 18px 40px -22px rgba(0,40,60,.25);
+}
+
+/* page shell: clear columns over the wallpaper */
+[data-theme="liquid"] .hub-shell { background:transparent; }
+[data-theme="liquid"] :is(.hub-t3p-col, .hub-e3p-list-col, .hub-e3p-rail, .hub-e3p-head, .hub-e3p-tools, .hub-trd-shelf) { background:transparent; border-color:transparent; }
+[data-theme="liquid"] .hub-e3p-group { background:var(--bg-elev); }   /* sticky header bar (set 7): solid, rows scroll under it */
+
+/* nav rail: one thick glass slab */
+[data-theme="liquid"] .hub-nav-rail { flex:1 1 auto; gap:2px; margin:10px 0 10px 10px; padding:10px 8px; border:0; border-radius:26px; background:var(--lg-thick-fill); -webkit-backdrop-filter:blur(24px) saturate(200%); backdrop-filter:blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow:var(--lg-thick-rim), inset -1px -1px 0 rgba(0,0,0,var(--lg-rim-in-a)), var(--lq-slab-shade); }
+[data-theme="liquid"] .hub-t3p-rail { padding:0; border:0; background:transparent; }
+[data-theme="liquid"] .hub-nav-rail .hub-nav-item { align-items:center; gap:10px; min-height:0; padding:9px 12px; border:0; border-radius:18px; background:none; color:var(--fg); font:inherit; transition:background 120ms ease-out; }
+[data-theme="liquid"] .hub-nav-rail .hub-nav-item:hover { border:0; background:var(--lg-vib); color:var(--fg); }
+[data-theme="liquid"] .hub-nav-rail .hub-nav-item.active { border:0; background:var(--lg-row-on); color:var(--fg); }
+[data-theme="liquid"] .hub-nav-label { gap:10px; font:500 var(--fs-subhead)/1.25 var(--font); letter-spacing:0; text-transform:none; }
+[data-theme="liquid"] .hub-nav-item.active .hub-nav-label { font-weight:600; letter-spacing:0; }
+[data-theme="liquid"] .hub-nav-rail .hub-nav-item :is(svg, .hub-t3p-tab-glyph) { width:20px; height:20px; stroke-width:1.6; color:var(--fg-dim); }
+[data-theme="liquid"] .hub-nav-rail .hub-nav-item.active :is(svg, .hub-t3p-tab-glyph) { color:var(--fg); }
+[data-theme="liquid"] .hub-nav-rail .hub-nav-subrail { gap:1px; margin:2px 0 6px 21px; padding-left:8px; border-left:1px solid var(--line); }
+[data-theme="liquid"] .hub-nav-rail .hub-nav-subitem { margin:0; padding:6px 10px; border:0; border-radius:14px; background:none; color:var(--fg-mute); font-size:var(--fs-footnote); }
+[data-theme="liquid"] .hub-nav-rail .hub-nav-subitem:hover { border:0; background:var(--lg-vib); color:var(--fg); }
+[data-theme="liquid"] .hub-nav-rail .hub-nav-subitem.active { border:0; background:var(--lg-row-on); color:var(--fg); font-weight:600; }
+
+/* status strip: the top bar's island, mirrored to the foot (2026-10-17). It floats over the page in the
+   same thick glass instead of owning a grid row, so the shell's status row collapses and the page runs to
+   the bottom edge and scrolls under it. The old row ended every scroller on a hard line above a solid
+   pill. Phone keeps it in flow (below), where the controls dock owns the foot. */
+@media (min-width:641px) {
+  [data-theme="liquid"] { --status-h:0px; --dock-clear:56px; }
+  [data-theme="liquid"] :is(.hub-shell, body) > .status { position:fixed; left:50%; bottom:10px; translate:-50% 0; z-index:80; margin:0; }
+  /* the room a scroller's last row needs to clear the island; panes that end above it get it as a gap */
+  [data-theme="liquid"] .hub-shell :is(.scroll-region, .finances-body, .landing, .hub-t3p-list, .hub-e3p-entries, .hub-detail-rail, .pe-rail-list) { padding-bottom:var(--dock-clear); }
+  [data-theme="liquid"] .hub-shell :is(.hub-t3p-split, .hub-e3p-split, .pe-body, .work-body) { padding-bottom:var(--dock-clear); }
+}
+[data-theme="liquid"] .status { position:relative; isolation:isolate; justify-self:center; align-self:center; display:flex; flex-wrap:nowrap; align-items:center; gap:14px; width:max-content; max-width:calc(100% - 20px); height:34px; min-height:0; margin:0 auto 6px; padding:0 16px; border:0; border-radius:999px; corner-shape:round; background:transparent; font:400 var(--fs-footnote)/1.3 var(--font); font-style:normal; letter-spacing:0; color:var(--fg-dim); white-space:nowrap; }
+/* glass on a layer behind the strip, as the top bar does it, so the strip is never a backdrop root */
+[data-theme="liquid"] .status::before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none; border-radius:inherit; corner-shape:inherit; background:var(--lg-thick-fill); -webkit-backdrop-filter:blur(24px) saturate(200%); backdrop-filter:blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow:var(--lg-thick-rim), 0 0 0 .5px var(--lg-edge), var(--lq-bar-shade); }
+[data-theme="liquid"] :is(.status, .status-ctx) > :empty { display:none; }
+[data-theme="liquid"] .status .clock { font:600 var(--fs-footnote)/1.3 var(--font); font-style:normal; letter-spacing:0; color:var(--fg); font-variant-numeric:tabular-nums; }
+[data-theme="liquid"] .status .clock::before { content:none; }
+[data-theme="liquid"] .status :is(.ambient, .weather) { font-style:normal; color:var(--fg-dim); }
+[data-theme="liquid"] .status .weather .label { color:var(--fg-dim); }
+[data-theme="liquid"] .status .src { font-size:var(--fs-footnote); font-style:normal; color:var(--fg-dim); }
+[data-theme="liquid"] .status .src .ok { color:var(--good); }
+[data-theme="liquid"] .status .src :is(.warn, .reconnect) { color:var(--warn); font-weight:600; text-decoration:none; }
+/* connector dots read like the pages' own source dots, not the chip the shared .hub-dot becomes elsewhere */
+[data-theme="liquid"] .status .hub-dot { display:inline; height:auto; padding:0; background:none; font:inherit; color:inherit; }
+[data-theme="liquid"] .status .hub-dot::before { content:""; display:inline-block; vertical-align:1px; width:7px; height:7px; margin-right:5px; background:var(--dot-color); }
+[data-theme="liquid"] .status .hub-dot[style*="--accent"]::before { background:var(--good); }
+
+/* module launcher: thick glass panel over a plain dim, solid soft tiles */
+[data-theme="liquid"] .launch-panel { width:min(1000px, calc(100vw - 24px)); padding:0 0 4px; border:0; border-radius:30px; color:var(--fg); background:var(--lg-ov-fill); /* an overlay (section 10): at the rail's .52 the story card behind showed through as a ghost box */ -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow:var(--lg-thick-rim), inset -1px -1px 0 rgba(0,0,0,var(--lg-rim-in-a)), var(--lg-lift, var(--modal-shadow)); }
+[data-theme="liquid"] .launch-head { align-items:center; gap:10px; padding:18px 20px 8px; border:0; background:none; }
+[data-theme="liquid"] .launch-head .lbl { font:700 var(--fs-title)/1.2 var(--font); letter-spacing:-.01em; text-transform:none; color:var(--fg); }
+[data-theme="liquid"] .launch-head .meta { flex:1; font:400 var(--fs-footnote)/1.2 var(--font); font-style:normal; color:var(--fg-dim); }
+[data-theme="liquid"] .launch-tier, [data-theme="liquid"] .launch-tier + .launch-tier { border:0; }
+[data-theme="liquid"] .tier-label { padding:14px 20px 6px; font:600 var(--fs-footnote)/1.2 var(--font); letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] .launch-grid { gap:8px; padding:0 12px; background:none; }
+[data-theme="liquid"] .launch-tile { gap:4px; min-height:0; padding:12px 14px; border:0; border-radius:18px; clip-path:var(--lg-corner-18, none); background:var(--lq-soft); color:var(--fg); }
+[data-theme="liquid"] .launch-tile:hover { background:var(--lg-row-on); }
+[data-theme="liquid"] .launch-tile.is-current { background:var(--lg-row-on); }
+[data-theme="liquid"] .launch-tile .tile-row { gap:10px; }
+[data-theme="liquid"] .launch-tile .tile-glyph { color:var(--fg-dim); }
+[data-theme="liquid"] .launch-tile .tile-name { font:600 var(--fs-body)/1.2 var(--font); letter-spacing:0; text-transform:none; color:var(--fg); overflow-wrap:normal; word-break:normal; }
+[data-theme="liquid"] .launch-tile .tile-desc { font:400 var(--fs-footnote)/1.35 var(--font); font-style:normal; letter-spacing:0; color:var(--fg-dim); }
+[data-theme="liquid"] .launch-tile .tile-meta { margin-top:2px; font:500 var(--fs-footnote)/1.2 var(--font); font-style:normal; letter-spacing:0; text-transform:none; color:var(--fg-dim); }
+[data-theme="liquid"] .launch-tile.is-current .tile-meta { color:var(--fg); font-weight:600; }
+[data-theme="liquid"] .launch-tile.tile-home { min-height:0; gap:12px; }
+[data-theme="liquid"] .launch-tile.tile-home .tile-name { font-size:var(--fs-title); }
+[data-theme="liquid"] .launch-tile.tile-home .tile-arrow { font:400 var(--fs-title)/1 var(--font); color:var(--fg-dim); }
+[data-theme="liquid"] .launch-foot { padding:14px 20px; border:0; font:400 var(--fs-footnote)/1.2 var(--font); font-style:normal; color:var(--fg-dim); }
+[data-theme="liquid"] .launch-close { height:32px; min-height:0; padding:0 14px; border:0; border-radius:999px; corner-shape:round; background:var(--lg-vib); color:var(--fg); font:600 var(--fs-subhead) var(--font); letter-spacing:0; text-transform:none; }
+
+/* tabbed reader: shelf rows are grouped rows, the bar is clear, the strip a solid card */
+[data-theme="liquid"] .hub-trd-row { border-radius:12px; }
+[data-theme="liquid"] .hub-trd-row.active { background:var(--lg-row-on); }
+[data-theme="liquid"] .hub-trd-bar { border-bottom:0; background:transparent; }
+[data-theme="liquid"] .hub-trd-title { font:700 var(--fs-title)/1.25 var(--font); letter-spacing:0; }
+[data-theme="liquid"] :is(.hub-trd-back, .hub-trd-toggle) { border:0; border-radius:999px; corner-shape:round; background:var(--lg-vib); color:var(--fg); }
+[data-theme="liquid"] .hub-trd-strip { margin:0 12px; border:0; border-radius:var(--r-card); background:var(--bg-elev); }
+[data-theme="liquid"] .hub-trd-scrim { background:var(--launch-scrim); }
+
+@media (min-width:901px) {
+  [data-theme="liquid"] .hub-t3p { --hub-t3p-rail-w:246px; }
+}
+@media (max-width:900px) {
+  /* the rail is a drawer: the slab grows to the drawer's height, thick glass over a plain dim */
+  [data-theme="liquid"] .hub-t3p-rail { width:min(80vw, 300px); padding:8px; }
+  [data-theme="liquid"] .hub-t3p-rail .hub-nav-rail { min-height:100%; margin:0; padding:18px 8px 10px; border-radius:32px; }   /* drawer only: /food's in-funnel nav stretched to the funnel and spilled it */
+  [data-theme="liquid"] .hub-t3p-scrim { background:var(--launch-scrim); }
+  [data-theme="liquid"] .hub-trd-bar { background:transparent; }
+}
+@media (max-width:640px) {
+  [data-theme="liquid"] .launch-scrim { padding:56px 8px 8px; align-items:flex-start; }
+  [data-theme="liquid"] .launch-panel { width:100%; height:auto; max-height:100%; border-radius:32px; }
+  [data-theme="liquid"] .launch-head { position:sticky; top:0; }
+  [data-theme="liquid"] .launch-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  [data-theme="liquid"] .launch-grid.tier-home { grid-template-columns:minmax(0, 1fr); }
+  [data-theme="liquid"] .launch-tile .tile-name { font-size:var(--fs-subhead); }
+  /* the drawer floats above the controls dock instead of running under it */
+  [data-theme="liquid"] .hub-t3p-rail { bottom:calc(88px + env(safe-area-inset-bottom,0px)); }
+  [data-theme="liquid"] .status { width:fit-content; flex-wrap:wrap; justify-content:center; gap:4px 12px; height:auto; min-height:auto; overflow:visible; margin-bottom:14px; padding:6px 14px; border-radius:18px; corner-shape:auto; white-space:normal; }   /* one capsule cannot hold the sources at 390: it wraps into a card; fit-content, since max-content made the strip's one-line width the shell grid's floor (home ran 909px wide); min-height auto + overflow visible so the shell's 1fr status row grows to the wrapped card (a fixed min or a scroll container let it shrink to 44px and cut 43px off home) */
+  /* the origins fill one screen; the dock covers its last 88px, so the frame ends above it */
+  [data-theme="liquid"] :is(.hub-t3p, .hub-e3p) { min-height:calc(100dvh - 88px - env(safe-area-inset-bottom,0px)); }
+}
+
+/* ===== 14. Rung 3: refraction (Blink only). =====
+   theme-switch.js sets data-glass="refract" in Chromium and builds one SVG lens per tagged element
+   (data-lens). Order from the 2026-10-10 spike: native blur, then the displacement-only lens, then
+   saturate (blur inside the SVG bands and drops the radius). Only the top bar pieces and the phone
+   drawer bend; the desktop rail stays rung 2 (spec). No -webkit- line: WebKit never sees refract.
+   Bars blur a third of the thick blur so the bent rim reads (eye); the drawer keeps the full thick
+   blur, since at a third the page text ghosted behind its rows (2026-10-10 read). The a11y token sets zero it and
+   make the fill opaque, so the lens has nothing to show there. */
+@media (min-width:641px) {
+  /* inside a min-width query: on phone a backdrop-filter on .topbar would hold the fixed dock */
+  :root[data-theme="liquid"][data-glass="refract"] .topbar[data-lens="bar"]::before { backdrop-filter:blur(calc(var(--lg-thick-blur) / 3)) var(--lg-lens-bar,) saturate(var(--lg-thick-sat)); }
+}
+@media (max-width:640px) {
+  :root[data-theme="liquid"][data-glass="refract"] .topbar-l[data-lens="island"]::before { backdrop-filter:blur(calc(var(--lg-thick-blur) / 3)) var(--lg-lens-island,) saturate(var(--lg-thick-sat)); }
+  :root[data-theme="liquid"][data-glass="refract"] .topbar-r[data-lens="dock"] { backdrop-filter:blur(calc(var(--lg-thick-blur) / 3)) var(--lg-lens-dock,) saturate(var(--lg-thick-sat)); }
+}
+@media (max-width:900px) {
+  :root[data-theme="liquid"][data-glass="refract"] .hub-nav-rail[data-lens="drawer"] { backdrop-filter:blur(var(--lg-thick-blur)) var(--lg-lens-drawer,) saturate(var(--lg-thick-sat)); }
+}
+
+/* ===== 15. Page grounds (Task 16 sweep). These pages paint their panes opaque --bg edge to edge,
+   which hid the module wallpaper; under liquid the pane is clear and keeps its hairline. ===== */
+[data-theme="liquid"] body.home :is(.col, .col-glance, .col-pre),
+[data-theme="liquid"] .work-body,
+[data-theme="liquid"] :is(.cl-sidebar, .cl-main),
+[data-theme="liquid"] :is(.pe-rail, .pe-context) { background:transparent; }

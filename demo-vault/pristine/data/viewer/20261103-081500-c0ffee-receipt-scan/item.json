@@ -1,0 +1,20 @@
+{
+ "id": "20261103-081500-c0ffee-receipt-scan",
+ "kind": "upload",
+ "title": "receipt-scan.png",
+ "created": "2026-11-03T08:15:00.000000",
+ "source": "Upload",
+ "files": [
+  {
+   "name": "receipt-scan.png",
+   "orig": "receipt-scan.png",
+   "label": "receipt-scan.png",
+   "thumb": "receipt-scan.png",
+   "preview": null
+  }
+ ],
+ "url": null,
+ "framable": null,
+ "preview_status": "none",
+ "progress": 0
+}

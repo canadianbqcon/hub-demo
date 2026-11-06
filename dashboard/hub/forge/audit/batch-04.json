@@ -1,0 +1,654 @@
+{
+ "batch": "04",
+ "champions": {
+  "Kassadin": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Active: Kassadin blinks toward the target location, dealing magic damage to all nearby enemies upon arrival. He then gains a stack of Riftwalk for 15 seconds, refreshing on subsequent casts and stacking up to 4 times.",
+    "fix": "wiki R text never names walls or terrain; blink-over-wall not stated, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Katarina": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "If the target is very close to a wall and Katarina targets Shunpo behind the target, she can blink over the wall.",
+    "fix": "wallCrossing: bin tooltip names no wall; add a wiki-text fallback on abilities[].text/notes for \\bwalls?\\b|\\bterrain\\b with 'through|over|pass' (exclude 'inside terrain' landing notes)"
+   },
+   {
+    "trait": "engage/peel/dive/dashes/unstoppable/untargetable/stealth/pets/terrain/spellShield",
+    "current": "unknown",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Active: Katarina blinks to a target location near the unit or Dagger closest to the cursor, dealing magic damage to the nearest enemy in range and applying on-hit effects.",
+    "fix": "all 10 rubric traits unknown for the whole champion (view 'resolved' false or a spell has no mSpellTags); tag-flag traits (TAG_FLAGS, DASH_TAG) should degrade per spell, not go unknown wholesale; E blink is dashes/dive"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Innate - Sinister Steel: Whenever Katarina retrieves a Dagger, she slashes around herself to deal 68 – 240 (based on level) (+ 60% bonus AD) (+ 70% / 80% / 90% / 100% (based on level) AP) magic damage to nearby enemies, apply on-hit effects to enemy champions hit, and reduce Shunpo's current cooldown by 78% / 84% / 90% / 96% (based on level) of its total cooldown.",
+    "fix": "passive number is readable (level-ranged magic + AD/AP ratios); cadence = one retrieval per Dagger dropped by Q (lands 1.023 s after hit), W (lands 1.25 s), so count dagger drops from Q/W casts in the fight"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision (R only reveals Katarina herself)",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Kayle": [
+   {
+    "trait": "untargetable",
+    "current": "False",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Active: Kayle grants herself or a target allied champion invulnerability for 2.5 seconds from the start of the cast time, and conjures flaming swords around herself.",
+    "fix": "invulnerability is not Trait_Untargetable; decide whether the rubric wants an invulnerability flag (also Kindred R)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Level 11 - Aflame: Kayle gains 10% bonus size. While Kayle is Exalted, her basic attacks on-attack also launch a wave of fire forward that deals 20 – 41 (based on level) (+ 10% bonus AD) (+ 25% AP) magic damage to all enemies it passes through. The wave is affected by critical strike modifiers.",
+    "fix": "passive wave (20-41 level-ranged + 10% bonus AD + 25% AP) is readable; fires per attack at max Zeal (5 stacks, permanent at level 16), so count one wave per auto in the fight"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive (only notes resurrecting targets)",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Kayn": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Active: Kayn vanishes and dashes to a marked enemy champion over 0.25 seconds, attaching himself to them at the end of the dash. After 0.5 seconds of his arrival, he channels for up to 2 seconds, during which the target is revealed. Umbral Trespass can be recast during the channel after 0.1 seconds have elapsed, and does so automatically after the duration or if it is interrupted.",
+    "fix": "vision: bin tooltip lacks the line; add wiki-text fallback and add 'grants? sight|sight of' to KEYWORDS['vision'] (regex lacks 'sight')"
+   },
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Upon being cast, Kayn is cleansed of drowsiness effects.",
+    "fix": "cleanse: only a self-cleanse of drowsy on R cast; \\bcleans\\w* would match it from wiki text but bin tooltip lacks; minor, arguably not a real cleanse trait"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "Active: Kayn gains 40% bonus total movement speed, ghosting and the ability to ignore terrain collision for a duration. If he has been in combat with enemy champions within the last 3 seconds, Shadow Step will instead last 1.5 seconds.",
+    "fix": "wallCrossing: bin tooltip names no wall; add a wiki-text fallback on abilities[].text/notes for \\bwalls?\\b|\\bterrain\\b with 'through|over|pass' (exclude 'inside terrain' landing notes)"
+   },
+   {
+    "trait": "untargetable",
+    "current": "False",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Recast: After a delay of 0.5 seconds to 0.75 seconds, Kayn deals physical damage to the target and dashes out from their body in the target direction, detaching himself from them and becoming targetable again at the end of the dash.",
+    "fix": "R makes Kayn untargetable while attached; spell lacks Trait_Untargetable; add wiki-text rule 'untargetable' on abilities"
+   },
+   {
+    "trait": "dive",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "Q",
+    "quote": "Active: Kayn dashes in the target direction, dealing physical damage to enemies he passes through. He then swings his scythe, dealing the same damage to nearby enemies.",
+    "fix": "Q and R dash text is present but dive is unknown; likely R or a spell range unreadable; check measure_dive inputs"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Kennen": [
+   {
+    "trait": "dashes/dive",
+    "current": "0",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Active: Kennen turns into lightning for 2 seconds, becoming unable to declare basic attacks but gaining ghosting and 100% bonus movement speed. He deals magic damage to enemies he passes through, reduced to 65% against non-champions, and restores 40 energy upon damaging at least one enemy.",
+    "fix": "E is a 100% MS ghosted rush that damages enemies passed through; counted as no dash and 0 dive; decide if MS-buff rushes count as moves"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Kha'Zix": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Evolved Bonus: Void Spike now fires three clusters in a cone, slows by 40% and reveals enemy champions hit for 2.25 seconds. Multiple explosions do not deal additional damage against the same target nor provide Kha'Zix with extra healing.",
+    "fix": "vision: bin tooltip lacks the line; add wiki-text fallback and add 'grants? sight|sight of' to KEYWORDS['vision'] (regex lacks 'sight'); also scan evolved-ability entries (bin tooltip is base form only)"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Active: Kha'Zix leaps to the target location, dealing physical damage to nearby enemies upon arrival.",
+    "fix": "Leap text never names walls; no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Kindred": [
+   {
+    "trait": "untargetable",
+    "current": "False",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Wolf is untargetable and ghosted but he cannot move through terrain other than the initial dash on activation.",
+    "fix": "W makes Wolf untargetable for 8.5 s; no Trait_Untargetable tag; add wiki-text fallback"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Wolf can be used to get vision over walls.",
+    "fix": "vision: bin tooltip lacks the line; add wiki-text fallback and add 'grants? sight|sight of' to KEYWORDS['vision'] (regex lacks 'sight')"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "W",
+    "quote": "Wolf is untargetable and ghosted but he cannot move through terrain other than the initial dash on activation.",
+    "fix": "text says Wolf cannot cross terrain, only vision over walls; do not set true"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Innate: Both Lamb and Wolf mark targets to hunt. Scoring a takedown against a hunted target collects a stack of Mark of the Kindred.",
+    "fix": "stack count is a game-state estimate and the passive text carries no damage number; leave excluded"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive (R only notes Guardian Angel resurrection)",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Kled": [
+   {
+    "trait": "unstoppable",
+    "current": "False",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Kled & Skaarl charge toward the target location, automatically navigating terrain along the way, during which they are ghosted, immune to crowd control and revealed to enemy champions in a 1250 radius. If the charge does not complete within 15 seconds, it will end prematurely. The charge is interrupted instantly if Kled dismounts during it.",
+    "fix": "R grants CC immunity for the charge but spell lacks Trait_CCImmune; add wiki-text rule 'immune to crowd control'"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "Active: Kled throws a bear trap in the target direction that deals physical damage to enemies hit, increased to 150% against minions, small pets, and small and medium monsters. The bear trap collides with the first enemy champion, large pet, or large monster hit, revealing them for 2.5 seconds, and forming a tether between Kled and the target for 1.75 seconds.",
+    "fix": "vision: bin tooltip lacks the line; add wiki-text fallback and add 'grants? sight|sight of' to KEYWORDS['vision'] (regex lacks 'sight')"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "Recast: Skaarl consumes the mark to dash through the marked target, applying the same effects as the first cast though being able to dash through terrain.",
+    "fix": "wallCrossing: bin tooltip names no wall; add a wiki-text fallback on abilities[].text/notes for \\bwalls?\\b|\\bterrain\\b with 'through|over|pass' (exclude 'inside terrain' landing notes)"
+   },
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "I",
+    "quote": "If Kled would be executed while Mounted, he is instead only Dismounted.",
+    "fix": "incoming execute only; a wiki-text fallback for 'execut' must skip 'would be executed'"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse (summoner table only)",
+     "globalPresence",
+     "revive",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Kog'Maw": [
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Innate: Upon taking fatal damage, Kog'Maw enters a zombie state for 4 seconds, becoming ghosted and gaining 10% bonus movement speed that increases up to 50% over the duration. At the end of the duration, he explodes to deal 140 – 650 (based on level) true damage to nearby enemies.",
+    "fix": "zombie state delays death then explodes; not a revive; KEYWORDS['revive'] has no 'zombie'; decide if it counts"
+   },
+   {
+    "trait": "untargetable",
+    "current": "False",
+    "verdict": "rule_wrong",
+    "ability": "I",
+    "quote": "While under this state, Kog'Maw becomes invulnerable, untargetable, and immune to crowd control, but is also rendered unable to declare basic attacks, cast abilities, use summoner spells, and activate items.",
+    "fix": "passive zombie state; TAG_FLAGS reads spells only; passive-tag/wiki text fallback"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Innate: Upon taking fatal damage, Kog'Maw enters a zombie state for 4 seconds, becoming ghosted and gaining 10% bonus movement speed that increases up to 50% over the duration. At the end of the duration, he explodes to deal 140 – 650 (based on level) true damage to nearby enemies.",
+    "fix": "number is readable but triggers only on fatal damage; correctly not a 10 s fight piece"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "LeBlanc": [
+   {
+    "trait": "stealth",
+    "current": "False",
+    "verdict": "rule_wrong",
+    "ability": "I",
+    "quote": "Innate: Periodically, when LeBlanc is damaged to 40% maximum health, she creates a clone of herself, after which they both instantly become invisible for 1 second.",
+    "fix": "passive invisibility on clone creation; TAG_FLAGS reads spell tags only"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "W",
+    "quote": "Active: LeBlanc dashes to the target location, dealing magic damage to all nearby enemies upon arrival and leaving a return pad at the cast location for 4 seconds. Distortion can be recast after 0.2 seconds of the dash ending for the pad's duration.",
+    "fix": "W/Recast text never names walls; no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Lee Sin": [
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Active: Lee Sin dashes to the target allied unit's location. If the ally is a champion upon arrival, both they and Lee Sin gain a shield for 2 seconds.",
+    "fix": "targeted dashes (W, Q2 Resonating Strike) lack Trait_PlayerSelectedDashDirection; dashes reads 0 while dive reads 4; add wiki-text 'dashes? to' fallback"
+   },
+   {
+    "trait": "engage/peel",
+    "current": "unknown",
+    "verdict": "handler_missing",
+    "ability": "R",
+    "quote": "Active: Lee Sin roots the target enemy champion over the cast time, then roundhouse kicks them to deal physical damage and knock them back up to 800 units over 0.8 seconds, rendering them airborne for 1 second.",
+    "fix": "R CC (root over cast time, then airborne 1 s) is not read so engage and peel stay unknown; read 'airborne for N seconds' and 'roots ... over the cast time'"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "W",
+    "quote": "Active: Lee Sin dashes to the target allied unit's location. If the ally is a champion upon arrival, both they and Lee Sin gain a shield for 2 seconds.",
+    "fix": "ward-hop over walls is not stated in wiki text; no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute (R only scales damage with missing health)",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Leona": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "The revealed radius is not obstructed by terrain or brush.",
+    "fix": "vision: bin tooltip lacks the line; add wiki-text fallback and add 'grants? sight|sight of' to KEYWORDS['vision'] (regex lacks 'sight')"
+   },
+   {
+    "trait": "spellShield",
+    "current": "True",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "Active: Leona raises her guard for 3 seconds, gaining flat pre-mitigation damage reduction of up to 50% of the damage instance and bonus armor and bonus magic resistance.",
+    "fix": "Eclipse is damage reduction + resists, not a spell shield; Trait_Parry on W is a bin tag quirk; require wiki text 'blocks the next' or restrict to a whitelist"
+   },
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "After reaching its maximum range, if the sword hit an enemy champion during its flight, Leona dashes to 225 units beyond the location of the last champion struck and roots them for 0.5 seconds.",
+    "fix": "E dash lacks DASH_TAG so dashes=0 while dive=4; same fix as Lee Sin"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "After reaching its maximum range, if the sword hit an enemy champion during its flight, Leona dashes to 225 units beyond the location of the last champion struck and roots them for 0.5 seconds.",
+    "fix": "no wall wording; no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Lillia": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Lillia can hop over the edges of certain walls despite the ability being unable to traverse terrain.",
+    "fix": "partial: only wall edges; wallCrossing: bin tooltip names no wall; add a wiki-text fallback on abilities[].text/notes for \\bwalls?\\b|\\bterrain\\b with 'through|over|pass' (exclude 'inside terrain' landing notes)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Innate: Lillia's abilities apply Dream Dust to enemies hit, which deals「 5% (+ 1.25% per 100 AP) of the target's maximum health total magic damage over 3 seconds, capped at 70 – 180 (based on level) against monsters. 」「 0.83% (+ 0.2083% per 100 AP) of the target's maximum health magic damage every 0.5 seconds over 3 seconds, capped at 11.67 – 30 (based on level) per tick against monsters. 」",
+    "fix": "Dream Dust 5% (+1.25% per 100 AP) max health over 3 s is readable; cadence = every ability that hits, once per 3 s window; add per-ability application"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Lissandra": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "Glacial Path allows Lissandra to surpass through every single wall in all maps, so long as the claw is at least halfway through them.",
+    "fix": "wallCrossing: bin tooltip names no wall; add a wiki-text fallback on abilities[].text/notes for \\bwalls?\\b|\\bterrain\\b with 'through|over|pass' (exclude 'inside terrain' landing notes)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Innate: Whenever a nearby enemy champion dies, Lissandra spawns a Frozen Thrall from their corpse.",
+    "fix": "needs an enemy death; correctly outside a no-kill fight"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive (zombie note concerns enemies)",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Locke": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "The totem grants sight of the area for 1.25 seconds after the landing delay.",
+    "fix": "vision: bin tooltip lacks the line; add wiki-text fallback and add 'grants? sight|sight of' to KEYWORDS['vision'] (regex lacks 'sight')"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "Can dash through terrain, provided the primary target is on the other side.",
+    "fix": "wallCrossing: bin tooltip names no wall; add a wiki-text fallback on abilities[].text/notes for \\bwalls?\\b|\\bterrain\\b with 'through|over|pass' (exclude 'inside terrain' landing notes)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Innate: Locke's basic attacks deal 5 – 40 (based on level) (+ 10% AP) bonus magic damage on-hit, increased by 0% – 100% (based on target's missing health), up to 10 – 80 (based on level) (+ 20% AP).",
+    "fix": "on-hit passive is a readable number, once per auto; cadence = every basic attack"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive (notes only cover target resurrection)",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Lucian": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "Relentless Pursuit's dash can go through terrain, but will not be extended further if the target location is within terrain, unlike other dashes, like Ekko's Phase Dive.",
+    "fix": "wallCrossing: bin tooltip names no wall; add a wiki-text fallback on abilities[].text/notes for \\bwalls?\\b|\\bterrain\\b with 'through|over|pass' (exclude 'inside terrain' landing notes)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Innate: After casting an ability, Lucian's next basic attack within 3.5 seconds fires an additional shot on-attack after 0.25 seconds, which deals 50% / 55% / 60% (based on level) AD physical damage, increased to 100% AD against minions. He will shoot the same target, else another target within 50 units beyond his basic attack range automatically.",
+    "fix": "shot is 50/55/60% AD level-scaled, readable; cadence = one extra shot per ability-cast-then-attack, can be counted from the fight's casts"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse (summoner table only)",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Lulu": [
+   {
+    "trait": "pets",
+    "current": "False",
+    "verdict": "rule_wrong",
+    "ability": "I",
+    "quote": "Innate: Lulu is assisted by Pix, an untargetable faerie, who follows her around and fires a barrage of 3 bolts towards her target whenever she uses a basic attack on-attack. Each bolt deals 5 – 39 (based on level) (+ 5% AP) magic damage to the first enemy it collides with, for a total of 15 – 117 (based on level) (+ 15% AP) on hitting a single target with all three bolts.",
+    "fix": "Pix is a permanent companion without a Trait_Pet spell; pets false; add wiki-text fallback or passive tag"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Innate: Lulu is assisted by Pix, an untargetable faerie, who follows her around and fires a barrage of 3 bolts towards her target whenever she uses a basic attack on-attack. Each bolt deals 5 – 39 (based on level) (+ 5% AP) magic damage to the first enemy it collides with, for a total of 15 – 117 (based on level) (+ 15% AP) on hitting a single target with all three bolts.",
+    "fix": "3 bolts per auto, readable; cadence = every basic attack"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Lux": [
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Innate: Lux's abilities apply a mark to enemies hit for 6 seconds, refreshing on subsequent hits.",
+    "fix": "passive text shown has no damage number; leave excluded"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Malphite": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "The dash speed can be up-to doubled if Unstoppable Force is targeted at the middle of a wall so that his destination ends up on the other side.",
+    "fix": "wallCrossing: bin tooltip names no wall; add a wiki-text fallback on abilities[].text/notes for \\bwalls?\\b|\\bterrain\\b with 'through|over|pass' (exclude 'inside terrain' landing notes)"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "False",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Active: Malphite dashes with displacement immunity to the target location. Upon arrival, he deals magic damage to nearby enemies and knocks them up for 1.5 seconds.",
+    "fix": "displacement immunity, not CC immunity; leave False"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Malzahar": [
+   {
+    "trait": "execute",
+    "current": "True",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "Active: Malzahar infects the target enemy's mind, dealing magic damage every 0.25 seconds over 4 seconds, which refreshes upon damaging them with Call of the Void or Nether Grasp. Malefic Visions executes minions if they would be damaged below 10 – 30 (based on level) health.",
+    "fix": "minion-only execute matched by \\bexecut\\w*; exclude lines where object is minions/monsters ('executes minions')"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Active: Malzahar tethers to the target enemy champion, knocking them down. He then channels for up to 2.5 seconds, suppressing and revealing the target and dealing them magic damage every 0.25 seconds, revealing himself in the process.",
+    "fix": "vision: bin tooltip lacks the line; add wiki-text fallback and add 'grants? sight|sight of' to KEYWORDS['vision'] (regex lacks 'sight')"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "False",
+    "verdict": "rule_wrong",
+    "ability": "I",
+    "quote": "Void Shift: Malzahar gains crowd control immunity and reduces incoming damage from non-minions by 90%.",
+    "fix": "passive CC immunity (periodic); TAG_FLAGS reads spell tags only; decide whether a periodic passive counts"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "infiniteStacking"
+    ]
+   }
+  ]
+ }
+}

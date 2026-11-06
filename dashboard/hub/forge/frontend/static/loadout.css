@@ -1,0 +1,347 @@
+/* The plan page, and its read-only twin inside the saved-build overlay.
+ *
+ * One stylesheet for both surfaces because it is one component: the builder adds
+ * buttons where the overlay has spans, and everything that decides how the thing
+ * READS - the 18-column grid, the camp tones, the route separators - has to be
+ * identical or the page you authored and the page you read back are two pages.
+ *
+ * Loaded by forge.html (authoring) and champion.html (overlay). Palette comes from
+ * forge-base.css; nothing here defines a colour of its own outside the camp tones.
+ */
+
+/* ── the builder page ─────────────────────────────────────────────────────────
+ * Two columns, and the split is an information architecture rather than a way to
+ * fill space: the left column is what you PICK (two spells, a ban list - short
+ * rows carrying figures), the right is what you SEQUENCE (an 18-column grid, a
+ * route). It caps the page near 1300px without a page-level max-width fighting
+ * the house full-bleed style, and it is what stops four full-bleed cards from
+ * holding content that stops at 40% of their width. */
+
+.planpage {
+  display: grid;
+  grid-template-columns: minmax(340px, 420px) minmax(0, 860px);
+  gap: 16px;
+  margin: 16px 20px 24px;
+  align-content: start;
+  align-items: start;
+}
+.planpage > .meta-head { grid-column: 1 / -1; }
+
+.pl-col { display: grid; gap: 16px; align-content: start; min-width: 0; }
+
+/* One column below the point where the grid column can no longer hold 18 legible
+ * cells beside a 340px picker. */
+@media (max-width: 1180px) {
+  .planpage { grid-template-columns: minmax(0, 860px); }
+  .pl-col-pick { order: 2; }
+}
+
+.pl-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 14px 16px 16px;
+  min-width: 0;
+}
+.pl-card[hidden] { display: none; }
+.pl-card h3 {
+  margin: 0 0 3px;
+  font-size: var(--t-base); font-weight: 600;
+  color: var(--ink);
+}
+.pl-why {
+  margin: 0 0 12px;
+  font-size: var(--t-xs); color: var(--dim);
+  max-width: 74ch; text-wrap: pretty;
+}
+.pl-actions { margin-top: 12px; display: flex; gap: 8px; }
+.pl-empty { margin: 0; font-size: var(--t-xs); color: var(--dim); }
+
+/* The sequence column carries the densest thing on the page, so it gets the one
+ * bit of extra weight: a lit top edge that says which card is the work. */
+.pl-card.pl-lead { border-top-color: var(--line-lit); }
+
+/* ── summoner spells ──────────────────────────────────────────────────────────
+ * A vertical list rather than wrapped inline buttons, because every row now
+ * carries figures and a figure lane only lines up in a column. The row IS the
+ * rune picker's row: same six tracks, same widths, same lane seam. A second
+ * figure shape on a third surface is the failure this avoids. */
+
+.pl-pick { display: grid; gap: 1px; }
+
+/* The note button rides INSIDE the option rather than beside it, so a spell and
+ * its reason are one target to the eye and two to the pointer. */
+.pl-opt {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 26px;
+  align-items: stretch;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: none;
+}
+.pl-opt:hover { background: var(--raised); }
+.pl-opt > button {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 42px 34px;
+  gap: 7px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 4px 8px;
+  border: 0; border-radius: 0; background: none;
+  font-size: var(--t-sm); color: var(--ink-2);
+}
+.pl-opt > button:hover { color: var(--ink); }
+.pl-opt img {
+  width: 32px; height: 32px; border-radius: var(--r-sm); display: block;
+  filter: saturate(.6) opacity(.7);
+}
+.pl-opt:hover img, .pl-opt.on img { filter: none; }
+.pl-opt .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-opt.on { border-color: var(--accent-lo); background: var(--accent-bg); }
+.pl-opt.on > button { color: var(--ink); font-weight: 500; }
+
+.pl-notebtn {
+  border: 0; border-left: 1px solid var(--line); border-radius: 0;
+  padding: 0 8px;
+  background: none; color: var(--dim);
+  font-size: var(--t-sm); line-height: 1;
+}
+.pl-notebtn:hover { background: var(--raised); color: var(--ink); }
+/* Same contract as an item slot's marker: lit means there are words here, and it
+ * is deliberately not lit on anything that was never a decision. */
+.pl-opt.noted .pl-notebtn, .pl-edit .pl-notebtn[title]:not([title^="When"]) { color: var(--gold); }
+
+/* The spell header carries the same tracks as the row, offset by the note
+ * button's width so every label sits over the number it names. */
+.pl-pick .srcbar { grid-template-columns: 32px minmax(0, 1fr) 42px 34px 26px; }
+
+/* A ban suggestion has no note button, so it drops the second track rather than
+ * leaving a 26px hole where one used to be. */
+.pl-opt.solo { grid-template-columns: minmax(0, 1fr); }
+#planBanIn { width: 100%; }
+#planBanSugWrap { margin-top: 13px; }
+#planBanSugWrap .srcbar { grid-template-columns: 32px minmax(0, 1fr) 42px 34px; }
+#planBanSug { margin-top: 2px; }
+#planBanSug .pl-opt img { border-radius: 50%; }
+
+/* lolalytics publishes one top PAIR and no per-spell figure, so it is printed
+ * once under the list rather than given a lane it would misrepresent. */
+.pl-pair {
+  margin: 9px 0 0;
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px;
+  font-size: var(--t-xs); color: var(--dim);
+}
+.pl-pair b { font: 500 var(--t-xs)/1 var(--mono); font-variant-numeric: tabular-nums; }
+.pl-pair .k {
+  font-size: var(--fs-caption); letter-spacing: .06em; text-transform: uppercase; color: var(--dim);
+}
+
+/* ── the ability grid ─────────────────────────────────────────────────────── */
+
+.pl-skills {
+  display: grid;
+  grid-template-columns: 22px repeat(18, minmax(0, 1fr));
+  gap: 2px;
+  max-width: 780px;
+}
+.pl-sk-lv {
+  font: 500 var(--t-xs)/1 var(--mono);
+  color: var(--dim);
+  text-align: center;
+  padding-bottom: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.pl-sk-lv.ult { color: var(--gold); }
+.pl-sk-key {
+  font: 600 var(--t-xs)/1 var(--mono);
+  color: var(--ink-2);
+  display: flex; align-items: center;
+}
+.pl-sk {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0;
+  font: 600 var(--t-xs)/1 var(--mono);
+  color: transparent;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  min-width: 0;
+}
+button.pl-sk:hover:not(:disabled) { background: var(--raised); border-color: var(--line-lit); }
+.pl-sk.on {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-lo);
+}
+/* An illegal cell is drawn flat rather than hidden. The three ultimate columns are
+ * the shape of the levelling rule, and a grid with holes in it teaches that rule
+ * every time you look at it.
+ *
+ * But flat used to mean fully transparent, which read as three random holes in
+ * Q/W/E and three floating boxes in R rather than as a rule. The rule is a COLUMN,
+ * so it is drawn as one: levels 6/11/16 carry a gold wash top to bottom, and the
+ * illegal cells inside it keep a hairline so the row still lines up on the eye. */
+.pl-sk.off { background: none; border-color: color-mix(in oklch, var(--line) 45%, transparent); }
+.pl-sk[data-ult] { background: color-mix(in oklch, var(--gold) 8%, var(--bg)); }
+.pl-sk[data-ult].off { background: color-mix(in oklch, var(--gold) 8%, transparent); }
+.pl-sk[data-ult].on { background: var(--accent-bg); }
+.pl-sk-lv.ult { background: color-mix(in oklch, var(--gold) 8%, transparent); border-radius: var(--r-sm) var(--r-sm) 0 0; }
+button.pl-sk:disabled { cursor: default; }
+
+.pl-order {
+  margin: 9px 0 0;
+  font-size: var(--t-xs); color: var(--dim);
+}
+.pl-order b {
+  font: 600 var(--t-sm)/1 var(--mono);
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+
+/* The level-by-level figure under the grid: lolalytics' own skill order, printed
+ * as the thing the grid is being read against rather than as a second grid. */
+.pl-lola-sk { margin: 7px 0 0; display: grid; gap: 3px; }
+.pl-lola-sk .r {
+  display: grid; grid-template-columns: 62px minmax(0, 1fr);
+  gap: 8px; align-items: baseline;
+  font-size: var(--t-xs); color: var(--dim);
+}
+.pl-lola-sk .k {
+  font-size: var(--fs-caption); letter-spacing: .06em; text-transform: uppercase;
+}
+.pl-lola-sk b {
+  font: 500 var(--t-xs)/1.4 var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-2);
+}
+
+/* ── jungle pathing ───────────────────────────────────────────────────────── */
+
+.pl-edit {
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 10px 12px 12px;
+  background: var(--bg);
+}
+.pl-edit + .pl-edit { margin-top: 10px; }
+/* The name field is sized to a name and the Delete sits beside the thing it
+ * deletes. It used to be a 1500px input with its own delete button a screen
+ * away, which is a different button by the time your eye gets there. */
+.pl-edit-head { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.pl-edit-head .pl-nm { flex: 0 1 clamp(180px, 26ch, 300px); min-width: 0; font-size: var(--t-sm); }
+.pl-edit-head .del { padding: 3px 9px; font-size: var(--t-xs); }
+.pl-edit-head .del:hover { color: var(--danger); border-color: var(--danger); }
+
+/* The route you BUILT and the camps you can add are the same pills, so they used
+ * to be told apart by a dashed rule and nothing else. The route now sits in its
+ * own recessed well under its own label; the pool is a labelled tray below it. */
+.pl-lab {
+  display: block;
+  margin: 0 0 5px;
+  font: 600 var(--fs-caption)/1 var(--mono);
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--dim);
+}
+.pl-route { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.pl-route i {
+  font-style: normal;
+  color: var(--dim);
+  font-size: var(--t-sm);
+}
+.pl-route.built {
+  min-height: 26px;
+  padding: 8px 9px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.pl-camp {
+  padding: 3px 9px;
+  font-size: var(--t-xs);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+/* Four tones, because a route is read as a rhythm rather than word by word: your
+ * own camps, the river, the thing you are actually there for, and the thing you do. */
+.pl-camp[data-g="camp"]      { border-color: var(--line-lit); }
+.pl-camp[data-g="neutral"]   { color: var(--accent); border-color: var(--accent-lo); }
+.pl-camp[data-g="objective"] { color: var(--gold); border-color: color-mix(in oklch, var(--gold) 45%, transparent); }
+.pl-camp[data-g="action"]    { color: var(--dim); border-style: dashed; }
+
+button.pl-camp:hover { border-color: var(--danger); color: var(--danger); }
+/* A pool pill is an offer, not a step: quieter, on the card ground rather than
+ * the route's raised one, and it lights up on the way in instead of on the way out. */
+.pl-pool .pl-camp { background: none; color: var(--dim); }
+button.pl-camp.add:hover { border-color: var(--accent); color: var(--accent); background: var(--surface); }
+
+.pl-pool {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin-top: 4px;
+}
+.pl-pool-wrap { margin-top: 11px; }
+
+.pl-note {
+  display: block;
+  margin: 9px 0 0;
+  font-size: var(--t-xs); color: var(--dim);
+  max-width: 74ch; text-wrap: pretty;
+}
+
+/* ── the read-only twin, inside the saved-build overlay ───────────────────── */
+
+.pl-h {
+  margin: 14px 0 7px;
+  font: 600 var(--t-xs)/1 var(--mono);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--dim);
+}
+.pl-h:first-child { margin-top: 0; }
+
+.pl-spells { display: flex; flex-wrap: wrap; gap: 8px; }
+.pl-spell {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 3px 11px 3px 3px;
+  font-size: var(--t-sm); color: var(--ink-2);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.pl-spell img { width: 28px; height: 28px; border-radius: 50%; display: block; }
+.pl-spell.noted { border-color: color-mix(in oklch, var(--gold) 45%, transparent); }
+
+.pl-paths { list-style: none; margin: 0; padding: 0; display: grid; gap: 11px; }
+.pl-path-nm {
+  display: block; margin-bottom: 5px;
+  font-size: var(--t-sm); font-weight: 600; color: var(--ink);
+}
+
+.pl-bans { display: flex; flex-wrap: wrap; gap: 6px; }
+.pl-ban {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 3px 11px 3px 3px;
+  font-size: var(--t-sm); color: var(--ink-2);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+.pl-ban img { width: 24px; height: 24px; border-radius: 50%; display: block; }
+
+/* The grid is the one thing here with a floor: 18 columns of a legible glyph is
+ * about 400px, and below that it scrolls inside its own box rather than crushing
+ * the cells into slivers. */
+@media (max-width: 560px) {
+  .planpage { margin: 16px 12px 24px; }
+  .pl-skills { max-width: none; }
+  .pl-card { overflow-x: auto; }
+}
+
+/* ── the saved-build overlay ───────────────────────────────────────────────
+ * The overlay lays runes and items in two columns. The plan reads across both:
+ * an 18-column grid squeezed into half the dialog is a row of slivers. */
+.ov-plan { grid-column: 1 / -1; }

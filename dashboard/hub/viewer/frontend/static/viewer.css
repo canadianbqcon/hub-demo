@@ -1,0 +1,108 @@
+/* viewer.css: page mods for /viewer/ on the tabbed-3-pane origin.
+   Workbench pick viewer-page-layout (contact sheet with kind filters), ported
+   from the mock generator's option b. Tokens only; liquid, cobalt and vesper
+   inherit through them. */
+
+/* liquid: the list and the open item are rounded slabs, as in the other 3-pane pages */
+@media (min-width: 901px) {
+  [data-theme="liquid"] body.viewer .vw-split > :is(.hub-t3p-list-col, .hub-t3p-side) {
+    margin: 22px 0 10px 10px; border: 0; border-radius: 26px; background: var(--bg-elev);
+    box-shadow: inset 0 0 0 1px var(--line-soft), var(--lq-slab-shade); overflow: clip;
+  }
+  [data-theme="liquid"] body.viewer .vw-split > :last-child { margin-right: 10px; }
+}
+@media (min-width: 1200px) {
+  body.viewer .hub-t3p-split.vw-b { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
+}
+
+body.viewer { font-family: var(--font-body); }
+body.viewer .vw-g { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+body.viewer .vw-g--big { width: 30px; height: 30px; }
+body.viewer .vw-dim { color: var(--fg-dim); font-size: var(--fs-caption); }
+body.viewer .vw-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+body.viewer .hub-t3p-list-col > .vw-head { margin-bottom: 12px; }
+body.viewer .vw-head-t { display: flex; align-items: baseline; gap: 10px; min-width: 0; flex: 1 1 auto; }
+body.viewer .vw-head-t b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.viewer .vw-btn { display: inline-flex; align-items: center; gap: 6px; }
+body.viewer .vw-up { display: inline-flex; align-items: center; justify-content: center; gap: 8px; margin: 0 0 6px; }
+body.viewer .vw-cnt { margin-left: auto; font-size: var(--fs-caption); color: var(--fg-dim); }
+body.viewer .vw-you { color: var(--accent); }
+body.viewer .vw-empty { padding: var(--s-5) var(--s-3); color: var(--fg-dim); font-size: var(--fs-footnote); }
+
+/* the contact sheet */
+body.viewer .vw-chips { display: none; gap: 6px; flex-wrap: wrap; padding: var(--s-2) var(--s-3) 0; }
+body.viewer .vw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; padding: var(--s-3); align-content: start; overflow-y: auto; }
+body.viewer .vw-tile { display: flex; flex-direction: column; gap: 6px; padding: 6px; border-radius: 12px; border: 1px solid transparent; text-align: left; min-width: 0; }
+body.viewer .vw-tile.active { border-color: var(--accent); background: color-mix(in oklab, var(--accent) 12%, transparent); }
+body.viewer .vw-th { width: 100%; aspect-ratio: 4 / 3; border-radius: 7px; object-fit: cover; display: flex; align-items: center; justify-content: center; background: color-mix(in oklab, var(--fg) 8%, transparent); color: var(--fg-dim); }
+body.viewer .vw-th--g .vw-g { width: 30px; height: 30px; }
+body.viewer .vw-tile b { font-weight: 500; font-size: var(--fs-caption); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.viewer .vw-row-m { font-size: var(--fs-caption); color: var(--fg-dim); display: flex; gap: 6px; }
+
+/* the open item */
+body.viewer .vw-pane { display: flex; flex-direction: column; min-height: 0; }
+body.viewer .vw-tools { margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 0 var(--s-3); }
+body.viewer .vw-stage { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; padding: var(--s-3); }
+body.viewer .vw-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; display: block; }
+body.viewer .vw-ph { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--fg-dim); font-size: var(--fs-footnote); text-align: center; overflow-wrap: anywhere; }
+body.viewer .vw-lnk, body.viewer .vw-lnkbtn { color: var(--accent); text-decoration: underline; background: none; height: auto; padding: 0; font: inherit; letter-spacing: 0; cursor: pointer; }
+body.viewer .vw-line { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: var(--fs-caption); color: var(--fg-dim); padding: 0 var(--s-3) var(--s-3); justify-content: center; position: relative; }
+body.viewer .vw-line b { color: var(--fg); font-weight: 500; }
+body.viewer .vw-menu { position: relative; }
+body.viewer .vw-pop { position: absolute; bottom: 100%; right: 0; z-index: 5; display: flex; flex-direction: column; gap: 4px; min-width: 180px; max-width: 70vw; padding: 8px 10px; margin-bottom: 4px; border-radius: 10px; background: var(--bg-elev-2, var(--bg-elev)); box-shadow: inset 0 0 0 1px var(--line); text-align: left; }
+body.viewer .vw-pop a { color: var(--fg); overflow-wrap: anywhere; }
+body.viewer .vw-term { color: var(--fg); background: none; border: 0; padding: 4px 0; font: inherit; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+body.viewer .vw-term:hover { color: var(--accent); }
+body.viewer .vw-send .vw-bad { color: var(--accent); }
+body.viewer .vw-send .vw-pop { min-width: min(300px, 70vw); }
+body.viewer .vw-details-panel { padding: 0 var(--s-3) var(--s-3); overflow-y: auto; max-height: 45%; flex: none; }
+body.viewer .vw-details-panel .hub-detail-card { margin-bottom: 8px; }
+body.viewer .vw-kv b { text-align: right; overflow-wrap: anywhere; }
+body.viewer .vw-kv--stack { display: block; }
+body.viewer .vw-kv--stack b { display: block; text-align: left; font-weight: 400; margin-top: 2px; }
+body.viewer .vw-file span { overflow-wrap: anywhere; }
+body.viewer .vw-dl { color: var(--fg-dim); display: inline-flex; }
+
+/* phone sheet: the open item over the document (non-photo items; photos open the zoom overlay) */
+body.viewer .vw-sheet { position: fixed; inset: 0; z-index: 95; display: flex; flex-direction: column; background: var(--bg); overflow-y: auto; }
+body.viewer .vw-sheet .vw-stage { flex: 0 0 auto; padding: var(--s-2) 0; }
+body.viewer .vw-sheet .vw-img { max-height: none; width: 100%; border-radius: 8px; }
+
+@media (max-width: 900px) {
+  body.viewer .hub-t3p-side { display: none; }
+  body.viewer .vw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: var(--s-2) var(--s-3); }
+  body.viewer .vw-chips { display: flex; }
+}
+body.viewer .vw-sheet .vw-head { position: relative; padding-right: 56px; }
+body.viewer .vw-close { position: absolute; right: var(--s-3); top: 50%; transform: translateY(-50%); }
+body.viewer .vw-sheet .vw-line { margin-top: auto; padding-top: var(--s-3); }
+
+/* new-arrival mark, upload line, drop target */
+body.viewer .vw-new { color: var(--accent); font-weight: 600; }
+body.viewer .vw-upmsg { padding: var(--s-2) var(--s-3) 0; font-size: var(--fs-caption); color: var(--fg-dim); }
+body.viewer .vw-upmsg.is-bad { color: var(--accent); }
+body.viewer .vw-drop { position: fixed; inset: 0; z-index: 98; display: flex; align-items: center; justify-content: center; pointer-events: none; background: color-mix(in oklab, var(--bg) 70%, transparent); box-shadow: inset 0 0 0 3px var(--accent); color: var(--fg); font-size: var(--fs-footnote); }
+
+/* video, web frame, file list inside the stage */
+body.viewer .vw-vid { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; max-height: 100%; }
+body.viewer .vw-video { max-width: 100%; max-height: 100%; border-radius: 10px; background: color-mix(in oklab, var(--fg) 8%, transparent); }
+body.viewer .vw-stage--web { flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 8px; }
+body.viewer .vw-webbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: var(--fs-caption); min-width: 0; }
+body.viewer .vw-webbar .vw-dim { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+body.viewer .vw-frame { flex: 1 1 auto; min-height: 240px; width: 100%; border: 0; border-radius: 10px; background: var(--bg-elev); }
+body.viewer .vw-stage:has(.vw-files) { flex-direction: column; justify-content: flex-start; gap: 8px; overflow-y: auto; }
+body.viewer .vw-files { display: flex; flex-direction: column; gap: 4px; width: 100%; font-size: var(--fs-footnote); }
+body.viewer .vw-frow { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 8px; overflow-wrap: anywhere; }
+body.viewer .vw-frow.active { background: color-mix(in oklab, var(--accent) 12%, transparent); }
+body.viewer .vw-frow > :first-child { flex: 1 1 auto; text-align: left; }
+
+/* full-screen zoom overlay: a scrolling box, the picture at fit or 100% */
+body.viewer .vw-zoom { position: fixed; inset: 0; z-index: 96; display: flex; flex-direction: column; background: var(--bg); }
+body.viewer .vw-zhead { margin: 0; flex: none; flex-direction: row; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: var(--s-3); padding: var(--s-2) var(--s-3); }
+body.viewer .vw-zhead .vw-seg { margin: 0; flex: none; }
+body.viewer .vw-zhead .vw-zclose { margin: 0 0 0 auto; flex: none; }
+body.viewer .vw-zbox { flex: 1 1 auto; min-height: 0; display: flex; overflow: auto; cursor: zoom-in; user-select: none; }
+body.viewer .vw-zbox.is-100 { cursor: grab; }
+body.viewer .vw-zimg { margin: auto; flex: none; max-width: 100%; max-height: 100%; display: block; }
+body.viewer .vw-zbox.is-100 .vw-zimg { max-width: none; max-height: none; width: auto; height: auto; }
+body.viewer .vw-zbox > .vw-ph { margin: auto; }

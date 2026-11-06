@@ -1,0 +1,1642 @@
+/* components.css, the Hub's parts library.
+   chrome.css is the page shell, base.css is the three primitives it has always had,
+   this file takes everything promoted out of a module under a hub- name.
+
+   what lands here: the TREATMENT. how a thing looks and moves: card chrome, a
+   shimmer, a pip shape, a table's rhythm, a hover. what never lands here: the
+   SEMANTICS. what a module means by it, which column is the payer, what a pip
+   colour encodes. a crew card is a card with a shimmer and roster meaning on top;
+   the card and the shimmer belong here, the roster meaning stays in trips.
+
+   a part is promoted whenever its treatment is generic, even if one page is its
+   only consumer today. "another page already uses it" orders the work, it does not
+   gate it. gating on it would strand exactly the treatments worth sharing.
+
+   every class here carries a blueprint entry in blueprints.json, in the same change
+   that adds it. the undocumented check sits at max 0, so there is no other way in.
+
+   promoted 2026-09-16 onward. plan: docs/archive/plans/2026-09-16-hub-component-library-stage-2.md
+*/
+
+/* ---------------- modal, form variants ----------------
+   base.css owns the dialog itself. these are the three parts a FORM dialog needs
+   and a confirm dialog does not, promoted out of trips.css 2026-09-16 where they
+   had been sitting as `.modal--wide` / `.modal-grid` / `.modal-note` beside a
+   drifted copy of the dialog they modify. */
+
+/* a booking form is 30-odd fields; one 480px column of them is a scroll, not a
+   form. wide plus two columns only when there are enough fields to fill it, and
+   only then: the
+   one-field split-between dialog stays the size of its one field. */
+.hub-modal--wide { width: min(680px, 94vw); }
+.hub-modal-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--s-3); }
+@media (max-width: 560px) { .hub-modal-grid { grid-template-columns: 1fr; } }
+
+/* a line of context under the title, pulled up tight against it. */
+.hub-modal-note { margin: calc(var(--s-4) * -1 + 2px) 0 var(--s-4); font-size: var(--fs-footnote); color: var(--fg-dim); }
+
+/* ---------------- button ----------------
+   trips, jobs and purchases had each rebuilt the same outline button, and trips'
+   and jobs' hover rule was byte-identical. the base is trips' compact one; jobs'
+   is the same button at a larger size with an icon slot, so that is a modifier
+   rather than a second component. purchases' filled accent button is a genuinely
+   different treatment and stays in purchases for now. promoted 2026-09-16. */
+/* chips and buttons share one control height so any chip sits flush beside any
+   button (approved on the Workbench 2026-09-29: "solid split chips, solid slab
+   buttons"). fixed height + flex centring + line-height 1 puts the text within
+   0.7px of optical centre; nothing is outlined, every control is a solid fill. */
+:root { --ctl-h: 28px; }
+.hub-btn { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+  height: var(--ctl-h); padding: 0 10px; gap: 6px; line-height: 1; white-space: nowrap;
+  border: 0; border-radius: var(--r-card); font-size: var(--fs-footnote); font-weight: 500; letter-spacing: 0.02em;
+  background: var(--bg-elev-2, var(--bg-elev)); color: var(--fg); transition: background 120ms ease-out; }
+.hub-btn:hover { background: var(--bg-hover); }
+.hub-btn:disabled { opacity: 0.4; pointer-events: none; }
+/* a glyph led into a button keeps the accent so the label stays the loud part. */
+.hub-btn > .g { color: var(--accent); font-weight: 700; }
+/* the destructive action reads as ordinary until you reach for it. */
+.hub-btn--danger:hover { background: color-mix(in oklab, var(--alert) 22%, var(--bg-elev)); color: var(--alert); }
+/* the one action in a row worth pointing at: the solid accent fill. */
+.hub-btn--accent { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.hub-btn--accent:hover { background: var(--accent); filter: brightness(1.1); }
+.hub-btn--accent > .g { color: inherit; }
+/* several buttons on one line, wrapping on a phone. */
+.hub-btn-row { display: flex; gap: var(--s-2); flex-wrap: wrap; }
+/* the larger label on the same 28px body. */
+.hub-btn--lg { font-size: var(--fs-subhead); padding: 0 14px; text-transform: lowercase; }
+/* a one-line text box or dropdown on the button's body. text and chevron sit inset from
+   the ends; a theme with capsule corners (liquid) widens the inset to clear the curve.
+   no calc on --r-card: cobalt sets it to a bare 0, which voids any calc it lands in. */
+.hub-input { box-sizing: border-box; height: var(--ctl-h); min-width: 0; margin: 0; line-height: normal;
+  padding: 0 10px; border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg); color: var(--fg); font-size: var(--fs-footnote); }
+.hub-input::placeholder { color: var(--fg-faint); }
+/* the open dropdown list paints its own rows: give them a solid ground, never the field's tint. */
+.hub-input option { background-color: var(--bg-elev); color: var(--fg); }
+select.hub-input { appearance: none; -webkit-appearance: none; cursor: pointer; text-overflow: ellipsis;
+  padding-right: 28px; background: var(--bg) var(--select-chevron) no-repeat right 10px center; }
+
+/* ---------------- tabs ----------------
+   six modules had each drawn their own tab strip and every one arrived at the
+   same two facts: a 2px underline that stays transparent until the tab is the
+   one you are on, and a -1px pull so that underline sits ON the strip's own
+   rule instead of under it. what differed was only the type, which is a
+   module's call about how loud its tabs should read. promoted 2026-09-16.
+
+   the ACTIVE state deliberately stays with the module. three modules paint the
+   live label accent, three paint it foreground, one paints its underline
+   accent-dim. that is a reading of the page, not a part, and it costs the
+   module one declaration. what is shared is the affordance underneath it.
+
+   the segmented variant is the same control drawn as a filled pill in a
+   bordered track, for a choice of MODE rather than a choice of section. */
+.hub-tabs { display: flex; border-bottom: 1px solid var(--line); }
+.hub-tab {
+  display: inline-flex; align-items: center; gap: 6px; margin-bottom: -1px;
+  padding: 6px var(--s-2); background: none; border: 0;
+  border-bottom: 2px solid transparent; color: var(--fg-mute);
+  font-family: inherit; cursor: pointer;
+  transition: color 120ms ease-out, border-color 120ms ease-out, background 120ms ease-out;
+}
+.hub-tab:hover { color: var(--fg); }
+.hub-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+@media (prefers-reduced-motion: reduce) { .hub-tab { transition: none; } }
+
+/* One control, not N buttons with gaps between them: the tabs are the same object
+   switching state, and spacing them apart makes them read as several things to do
+   rather than one thing to choose.
+
+   Sized to its own labels, never stretched. `flex: 1` across a board-width card
+   puts three words in the middle of three 570px boxes, which is a browser tab
+   strip: the control looks like chrome and its selected state has nowhere near
+   enough weight to survive that much whitespace. */
+.hub-tabs--segmented {
+  gap: 2px; padding: 2px; flex: 0 0 auto;
+  border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-elev);
+}
+.hub-tabs--segmented .hub-tab {
+  padding: 5px 12px; margin-bottom: 0; border-bottom: 0;
+  border-radius: calc(var(--r-card) - 2px); white-space: nowrap;
+  font-size: var(--fs-footnote); font-weight: 600; line-height: 1.3;
+}
+.hub-tabs--segmented .hub-tab:hover { background: var(--bg-hover); }
+/* the glyph beside a segmented label, stroked in whatever colour the label is. */
+.hub-tab-glyph {
+  width: 15px; height: 15px; flex: 0 0 auto;
+  fill: none; stroke: currentColor; stroke-width: 1.4;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ---------------- numeric cell ----------------
+   a figure in a column: the digits line up down the page, the values line up
+   against each other on the right. trips and finances had each arrived at this
+   cell and no two of the four rules matched, so the triage's "identical" was
+   only ever true of the intent. trips asked for lining figures through
+   font-variant-numeric, the stocks watchlist asked for the same thing through
+   --feat-tnum, and the debt and weekly tables asked for tabular alone and got
+   lining by luck of the face they inherit. one rule states it once.
+
+   font-variant-numeric alone, deliberately: `font-feature-settings:
+   var(--feat-text), var(--feat-tnum)` is the older idiom in this codebase and
+   it breaks on the theme branch where --feat-text is `normal`, because `normal`
+   is not a list item and the whole declaration is dropped. the high-level
+   property has no such hole and says the same thing.
+
+   the face stays with the module. trips sets its money in the display serif and
+   finances sets its in the body face, and which one a page reads its numbers in
+   is a reading of that page, not a part. promoted 2026-09-16. */
+.hub-num { text-align: right; font-variant-numeric: tabular-nums lining-nums; }
+
+/* ---------------- stat ----------------
+   a figure with a label under or over it. trips had built it five times (the
+   score pills, the day summary, the weather readings and their grid, the row the
+   pills sit in), finances once for the debt headline and jobs once for the
+   culture ratings, and the triage called them one tile. read declaration by
+   declaration they are not: no two agree on the value's size or face, the
+   label's tracking or colour, or which side of the figure the label sits. those
+   are each page's reading of how loud its numbers are, and they stay with it.
+
+   what they do agree on is small and is what lands here. every value is the
+   foreground colour in tabular figures. the unboxed ones are a 2px column. the
+   boxed ones are a 1px rule on the card radius. finances' debt tiles draw a
+   softer rule on a fixed 4px and keep it, so they take only the value.
+
+   label rules are deliberately absent. trips' own label overrides are single
+   classes in a sheet that loads before this one, and a shared label size would
+   quietly beat its phone sizes. promoted 2026-09-16. */
+.hub-stat { display: flex; flex-direction: column; gap: 2px; }
+.hub-stat--tile { border: 1px solid var(--line); border-radius: var(--r-card); }
+.hub-stat-v { color: var(--fg); font-variant-numeric: tabular-nums; }
+/* a row of stats that wraps on a phone. */
+.hub-stat-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); }
+/* separate tiles, not a divider grid. auto-fill leaves empty tracks on the last
+   row, and a grid whose gap carries the dividing line paints those empties as one
+   grey slab: six readings and a hole where two more would be. */
+.hub-stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: var(--s-2); }
+
+/* ---------------- track and bar ----------------
+   a length measured against a full width: the track is the scale, the bar is
+   the amount. trips' cost chart, finances' pay weeks and jobs' score rows had
+   each drawn one. what they share is the shape: a pill that clips what it
+   holds, and a solid accent bar that fills its height.
+
+   the base is trips' track. its height and ground are a default, not a rule:
+   finances draws a 5px bar on the rule colour and jobs a 6px bordered one, and
+   how heavy a page's bars read against their neighbours is that page's call.
+   both sheets load before this one, so their overrides are scoped
+   `.hub-track.<own>` rather than left bare. how the bar gets its length (a
+   width, a scaleX, a transition) stays with the module too. promoted 2026-09-16. */
+.hub-track { display: flex; height: 8px; border-radius: var(--r-pill); background: var(--bg-elev); overflow: hidden; }
+.hub-bar { display: block; height: 100%; background: var(--accent); }
+
+/* ---------------- page shell ----------------
+   nine pages frame themselves the same way: a grid exactly one viewport tall, so
+   the top bar and the status strip stay pinned and only the middle row scrolls.
+   that frame is the part. the rows are not: which strips a page stacks between
+   top bar and status is the page's own layout, and so is where a phone lets the
+   frame go and scroll as a document. promoted 2026-09-16. --dock-h is the foot a
+   theme's floating phone dock covers (liquid), so the frame ends above it. */
+.hub-shell { display: grid; height: calc(100vh - var(--dock-h, 0px)); }
+
+/* ---------------- field ----------------
+   a label over its control. trips, jobs and purchases had each built the same
+   column, and trips and purchases to the pixel. jobs spaces its a pixel wider and
+   says so as `.hub-field.field`, because its sheet loads first.
+
+   the control itself stays with the module. the three disagree on padding, size,
+   ground and focus ring, and a shared `.hub-field input` would also outrank jobs'
+   single-class inputs. a shared input is its own family if it ever comes.
+
+   the hint is the line under a control saying what an empty one means. its size
+   is the module's; the voice (italic, faint) is the part. promoted 2026-09-16. */
+.hub-field { display: flex; flex-direction: column; gap: 4px; }
+.hub-field-hint { font-style: italic; color: var(--fg-faint); }
+/* controls sharing one line, splitting it evenly. */
+.hub-field-row { display: flex; gap: 8px; }
+.hub-field-row .hub-field { flex: 1; }
+
+/* a long form in labelled sections. a section the form can do without folds
+   behind its heading, and says whether it is open with + or minus. */
+.hub-field-sec, .hub-field-group > summary {
+  font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 0.09em; color: var(--fg-dim);
+  border-top: 1px solid var(--line); padding-top: var(--s-3); margin-bottom: var(--s-3);
+}
+.hub-field-group > summary { cursor: pointer; list-style: none; }
+.hub-field-group > summary::marker, .hub-field-group > summary::-webkit-details-marker { display: none; }
+.hub-field-group > summary::after { content: " +"; }
+.hub-field-group[open] > summary::after { content: " \2212"; }
+.hub-field-group > summary:hover { color: var(--fg); }
+
+/* ---------------- picker grid ----------------
+   a set of things you pick, not loose checkboxes stacked down a column of empty
+   dialog. each option is its own hit target the full width of its cell, so the
+   click lands wherever you aim it, and a picked one says so with the accent
+   rather than only with a 13px tick. two columns when there is room, because
+   seven names down one column is a scroll of dead space beside it. trips' crew
+   split is the only consumer today; nothing in it is about crews. promoted
+   2026-09-16. */
+.hub-picker-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 2px; border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg-elev); padding: var(--s-1);
+}
+/* the empty grid's one line. */
+.hub-picker-grid > i { grid-column: 1 / -1; padding: var(--s-2); color: var(--fg-faint); font-size: var(--fs-footnote); }
+.hub-picker-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 9px; border-radius: var(--r-card);
+  font-size: var(--fs-footnote); color: var(--fg-dim); cursor: pointer;
+  transition: background 140ms ease-out, color 140ms ease-out;
+}
+.hub-picker-item input { flex: none; width: 13px; height: 13px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+/* --bg-hover is the same value as --bg-elev in some skins, and the grid already
+   sits on --bg-elev, so a hover painted with it is invisible. mixed off the
+   accent it reads on every theme and still stays under the checked tint. */
+.hub-picker-item:hover { background: color-mix(in srgb, var(--accent) 7%, transparent); color: var(--fg); }
+.hub-picker-item:has(:checked) { color: var(--fg); font-weight: 500; background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.hub-picker-item:has(:focus-visible) { outline: 1px solid var(--accent); outline-offset: -1px; }
+/* the bulk actions ride the label line: they act on the grid, so they sit with
+   its heading rather than as another row of controls under it. */
+.hub-picker-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); }
+.hub-picker-actions { display: flex; gap: var(--s-1); }
+.hub-picker-actions button {
+  background: none; font-family: inherit; font-size: var(--fs-caption); letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--fg-faint); padding: 2px 6px; border-radius: var(--r-pill);
+  border: 1px solid transparent; transition: all 120ms ease-out;
+}
+.hub-picker-actions button:hover, .hub-picker-actions button:focus-visible { color: var(--accent); border-color: var(--accent-dim); }
+
+/* ---------------- list row ----------------
+   one item in a pickable list: the words on the left, a figure or a status on
+   the right, a 2px edge that lights when the row is the one open beside it.
+   trips' activity list and jobs' application funnel had drawn it twice, hover
+   and selected state byte for byte.
+
+   the type is the module's: jobs sets its company in the body face at 16px,
+   trips its place at 15px. so is the padding and any rule between rows. what a
+   row's status means (a decided activity, a match) is a module colour on the
+   same edge, scoped up past `.hub-row.selected`. promoted 2026-09-16. */
+.hub-row {
+  display: grid; grid-template-columns: 1fr auto; gap: var(--s-2); align-items: center;
+  border-left: 2px solid transparent; cursor: pointer;
+  transition: background 120ms ease-out, border-color 120ms ease-out;
+}
+.hub-row:hover { background: var(--bg-elev); }
+.hub-row.selected { background: var(--bg-elev); border-left-color: var(--accent); }
+.hub-row-meat { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+/* one line each, cut with an ellipsis; a phone may release them to wrap. */
+.hub-row-title { color: var(--fg); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hub-row-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hub-row-right { display: flex; align-items: center; gap: 6px; }
+
+/* ---------------- section nav rail ----------------
+   the page's primary control, set as a column of full-height entries rather
+   than thin sidebar links: a flush 4px spine on the left, carded on the right.
+   trips' section rail and the /food area view's switch had built it twice.
+
+   what the active entry's ground is stays with the module: trips fills it with
+   accent, food leaves it elevated. padding the label/glyph line and the count
+   are the module's too. the sub-rail is a quieter child list hung off one
+   entry by a hairline. promoted 2026-09-16. */
+.hub-nav-rail { display: flex; flex-direction: column; padding: var(--s-3) var(--s-2); gap: 4px; }
+.hub-nav-item {
+  display: flex; gap: var(--s-2);
+  width: 100%; text-align: left; padding: 15px var(--s-3) 15px calc(var(--s-3) + 4px);
+  border: 1px solid transparent; border-left: 4px solid transparent;
+  /* square left edge so the spine reads as a flush bar, not a thick border
+     fighting a rounded corner */
+  border-radius: 0 var(--r-card) var(--r-card) 0;
+  color: var(--fg-mute); transition: all 120ms ease-out;
+}
+.hub-nav-item:hover { color: var(--fg); background: var(--bg-elev); border-left-color: var(--line-strong); }
+.hub-nav-item.active { border-color: var(--accent-dim); border-left: 4px solid var(--accent); }
+.hub-nav-label { font-size: var(--fs-subhead); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+.hub-nav-item.active .hub-nav-label { letter-spacing: 0.12em; }
+.hub-nav-subrail { display: flex; flex-direction: column; gap: 1px; margin: 2px 0 2px calc(var(--s-3) + 4px); border-left: 1px solid var(--line); }
+.hub-nav-subitem {
+  width: 100%; text-align: left; border-left: 3px solid transparent; margin-left: -1px;
+  color: var(--fg-mute); transition: all 120ms ease-out;
+}
+.hub-nav-subitem:hover { color: var(--fg); background: var(--bg-elev); border-left-color: var(--line-strong); }
+.hub-nav-subitem.active { color: var(--accent); background: var(--bg-elev); border-left-color: var(--accent); }
+
+/* ---------------- checklist ----------------
+   a list of things to tick, with a done state that dims the sentence and
+   strikes it through. only the words are struck, never the box: a rule across
+   the control reads as the control being disabled. trips' day-of and grocery
+   lists and /checklists had each drawn the same done state.
+
+   the row's spacing, type, box size and controls are the module's, and so is
+   anything a module adds to the done state (checklists also fades it). the
+   done state keys on the tick itself, so no script has to mirror it into a
+   class. promoted 2026-09-16. */
+.hub-checklist { list-style: none; padding: 0; display: flex; flex-direction: column; }
+.hub-checklist-item:has(input:checked) .hub-checklist-text { color: var(--fg-faint); text-decoration: line-through; }
+
+/* ---------------- toast ----------------
+   a short notice that floats over the page and goes away on its own: saved,
+   failed, deleted with an undo. the edge, radius, lift and type are the part
+   every module had drawn the same way. trips, the trip list, /checklists and
+   /jobs each built one.
+
+   where it sits, its ground and colour, its padding and how it arrives are the
+   module's: three centre it and toggle [hidden], jobs pins it to the corner and
+   fades it on a class. promoted 2026-09-16. */
+.hub-toast { position: fixed; border: 1px solid var(--line-strong); border-radius: var(--r-card); font-size: var(--fs-footnote); box-shadow: var(--modal-shadow); }
+.hub-toast[hidden] { display: none; }
+
+/* ---------------- empty state ----------------
+   the line a pane shows when it has nothing to list: centred, italic, faint,
+   so it reads as the absence of content and never as content. trips, /finances
+   and /checklists each drew it. trips' copy was a bare .empty that leaked onto
+   every other .empty on its page, which is what finances had scoped against.
+
+   spacing, size and any icon are the module's. promoted 2026-09-16. */
+.hub-empty-state { text-align: center; font-style: italic; color: var(--fg-faint); }
+
+/* ---------------- split pane ----------------
+   a section's working area: a list column beside a detail column, as a grid
+   that fills what its flex parent leaves. the default gives the list two
+   thirds and floors the detail at 320px; a module sets its own ratio with a
+   two-class rule (trips keys it on data-split). hub-pane-col is the list side:
+   a flex column that owns its scroller and draws the divider. promoted
+   2026-09-16. */
+.hub-split {
+  display: grid; min-height: 0; min-width: 0; flex: 1;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+}
+.hub-pane-col { display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; border-right: 1px solid var(--line); }
+/* inside a pane: the head (title, filters, the add button) holds its height
+   and rules itself off, and the list under it takes the rest and scrolls */
+.hub-pane-head { padding: var(--s-3) var(--s-3) var(--s-2); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: var(--s-2); flex-shrink: 0; }
+.hub-pane-list { overflow-y: auto; flex: 1; }
+/* the detail side: the selected record's column takes what its parent leaves
+   and scrolls on its own; the stack inside it is a flex column, so a module
+   can gap the cards in it. */
+.hub-detail-rail { flex: 1; min-height: 0; overflow-y: auto; }
+.hub-detail-rail-inner { display: flex; flex-direction: column; }
+/* the rail's back button only exists on a phone, where the rail is a slide-over */
+.hub-slide-over-close { display: none; }
+
+/* ---------------- detail panel ----------------
+   the selected record read out: a column whose head carries the title on the
+   left and the record's own actions (edit, delete) on the right, ruled off from
+   what follows. the title is display type; the actions never shrink. a narrow
+   rail tightens the head with a two-class rule (trips' .context .fdetail-head).
+   promoted 2026-09-16. */
+.hub-detail { display: flex; flex-direction: column; }
+.hub-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-3); padding: var(--s-4) var(--s-5); border-bottom: 1px solid var(--line); }
+.hub-detail-title { font-family: var(--font-display); font-size: var(--fs-large-title); color: var(--fg); line-height: 1.1; }
+.hub-detail-actions { display: flex; gap: 6px; flex-shrink: 0; }
+/* the record's facts under the head: a wrapping line of short label-and-value
+   spans, the label in bold at a lighter weight. */
+.hub-meta-strip { display: flex; flex-wrap: wrap; gap: var(--s-3) var(--s-5); padding: var(--s-3) var(--s-5); border-bottom: 1px dashed var(--line); font-size: var(--fs-footnote); color: var(--fg-dim); }
+.hub-meta-strip b { color: var(--fg-mute); font-weight: 500; }
+/* the record's body: a wide main column of blocks beside a 240px side column of
+   controls, split by a dashed rule. a narrow rail stacks the two (trips'
+   .context .fbody). */
+.hub-detail-body { display: grid; grid-template-columns: minmax(0,1fr) 240px; gap: 0; }
+.hub-detail-body-main { padding: var(--s-4) var(--s-5); display: flex; flex-direction: column; gap: var(--s-4); border-right: 1px dashed var(--line); min-width: 0; }
+.hub-detail-body-side { padding: var(--s-4) var(--s-5); display: flex; flex-direction: column; gap: var(--s-5); }
+/* one block in the body: a small caps label over its content. prose content is
+   hub-block-text, which keeps the record's own line breaks. */
+.hub-block-label { font-size: var(--fs-caption); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-faint); margin-bottom: 6px; }
+.hub-block-text { font-size: var(--fs-body); color: var(--fg-mute); line-height: 1.6; white-space: pre-wrap; }
+/* a stated fact: label on the left, value in bold on the right. a module's own
+   row states (trips' you-row, marked row) compound on the module class, since
+   this sheet loads after some module sheets. */
+.hub-kv-row { display: flex; justify-content: space-between; gap: var(--s-2); font-size: var(--fs-footnote); padding: 4px 0; color: var(--fg-mute); }
+.hub-kv-row b { color: var(--fg); font-weight: 600; }
+/* a pressable row: the whole row is the target, on the kv row's label-left,
+   value-right skeleton so a link and a fact line up inside one card. the label
+   (-t) flexes and wraps whole addresses; -v is the value; -x is the outbound
+   mark, quiet until the row is hovered. --flat is a row with nowhere to go, so
+   it drops the pressed look. module classes stay beside these for trips'
+   .rideout variant and cobalt's 2px border. */
+.hub-link-row {
+  display: flex; align-items: center; gap: var(--s-2); width: 100%;
+  margin-top: 4px; padding: 7px 10px;
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  font-size: var(--fs-footnote); line-height: 1.4; color: var(--fg-mute); text-align: left;
+  transition: border-color 120ms ease-out, background 120ms ease-out, color 120ms ease-out;
+}
+.hub-link-row:hover { border-color: var(--accent-dim); background: var(--bg-elev); color: var(--fg); }
+.hub-link-row:focus-visible { border-color: var(--accent); }
+.hub-link-row-t { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.hub-link-row-v { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hub-link-row-x { flex-shrink: 0; font-size: var(--fs-caption); color: var(--fg-faint); transition: color 120ms ease-out; }
+.hub-link-row:hover .hub-link-row-x { color: var(--accent); }
+.hub-link-row--flat { border-style: dashed; }
+.hub-link-row--flat:hover { border-color: var(--line); background: none; color: var(--fg-mute); }
+/* a to-do, not an error: a warn edge on the left and a short line saying what
+   is missing and what would fix it, the figure in bold. stacked callouts sit
+   closer together. */
+.hub-callout-warn {
+  margin-top: var(--s-3); padding: var(--s-2) var(--s-3);
+  border-left: 2px solid var(--warn); border-radius: 0 var(--r-card) var(--r-card) 0;
+  background: var(--bg-elev);
+  font-size: var(--fs-caption); line-height: 1.5; color: var(--fg-mute);
+}
+.hub-callout-warn b { color: var(--fg); font-weight: 600; font-variant-numeric: tabular-nums; }
+.hub-callout-warn + .hub-callout-warn { margin-top: var(--s-2); }
+/* one read in a detail rail is one card, on the card's own ground. its head is
+   10px caps at 0.16em, which needs the 600 weight: at 400 the tracking pulls the
+   letters apart and the head reads as a whisper. */
+.hub-detail-card { background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s-4); }
+[data-theme="cobalt"] .hub-detail-card { border-width: 2px; }
+.hub-detail-card-head { font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--violet-label); margin-bottom: var(--s-3); }
+
+/* ---------------- sort controls ----------------
+   a table whose rows can be reordered says so on its headers: a dim arrow on
+   every column that sorts, resolving to the live direction on the active one,
+   and a line above naming the current order with a way back to the default.
+   trips' option boards drew all of it, /finances' watchlist drew the header half.
+
+   hub-sortable goes on each header that sorts, never on the whole table: a board
+   mixes sortable columns with status and link columns that do not, and a pointer
+   on those promises a click that does nothing. the header's own type, case and
+   resting colour are the module's. promoted 2026-09-16. */
+.hub-sortable { cursor: pointer; user-select: none; }
+.hub-sortable:hover { color: var(--fg); }
+.hub-sortable.hub-sorted { color: var(--accent); }
+.hub-sortable:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+/* 9px on purpose: a glyph you glance at, not a caption you read. a margin, not a
+   flex gap, so a two-word header still wraps at its own space. */
+.hub-sort-indicator { margin-left: 5px; font-size: var(--fs-caption); color: var(--fg-faint); transition: color 120ms ease-out, transform 120ms ease-out; }
+.hub-sortable:hover .hub-sort-indicator { color: var(--fg-dim); }
+.hub-sortable.hub-sorted .hub-sort-indicator { color: var(--accent); font-size: var(--fs-caption); }
+.hub-sortbar { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; font-size: var(--fs-caption); }
+.hub-sortbar-k { letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-faint); }
+.hub-sortbar-v { color: var(--fg-dim); font-variant-numeric: tabular-nums lining-nums; }
+.hub-sortbar-h { color: var(--fg-faint); font-style: italic; }
+.hub-sortbar-h::before { content: "\00b7"; margin-right: 6px; font-style: normal; }
+.hub-sortbar-x {
+  background: none; font-family: inherit; padding: 1px 7px; border: 1px solid var(--line); border-radius: var(--r-pill);
+  font-size: var(--fs-caption); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-mute);
+  transition: all 120ms ease-out;
+}
+.hub-sortbar-x:hover { border-color: var(--accent-dim); color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { .hub-sort-indicator { transition: none; } }
+
+/* ---------------- table ----------------
+   a data table's footing: full width, collapsed borders, 13px body text. trips'
+   boards, purchases' score grid and /finances' watchlist each set exactly this.
+
+   cell padding, rules, alignment and header type are the module's: the three
+   disagree on every one of them. promoted 2026-09-16. */
+.hub-table { width: 100%; border-collapse: collapse; font-size: var(--fs-footnote); }
+
+/* ---------------- page parts ----------------
+   the blocks a full-width reading page is built from: a titled section, a grid
+   of plain cards, a band of big figures, a row of ticks, a run of timed rows,
+   tags and a warning notice. trips' hallmark pages (a
+   festival, a wedding, a birthday, written by three hands) drew all of them
+   from one vocabulary, and not one declaration in it was about a trip.
+   promoted whole 2026-09-16. the tick store, the "N of M" count and what a done
+   count means stay in trips.
+
+   the notice is loud on purpose: a warn edge, never alert (nothing is broken,
+   it is a rule about who is reading) and never a quiet grey line somebody
+   reads past. */
+.hub-notice-warn {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--warn); border-left: 4px solid var(--warn);
+  background: color-mix(in oklab, var(--warn) 12%, var(--bg-elev));
+  border-radius: 0 var(--r-card) var(--r-card) 0;
+}
+.hub-notice-warn-t { font-size: var(--fs-footnote); font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--warn); }
+.hub-notice-warn-s { font-size: var(--fs-footnote); line-height: 1.5; color: var(--fg-mute); }
+
+/* a titled band. the title is the same uppercase spine as the nav rail, so a
+   section reads as part of the page around it. */
+.hub-section { display: flex; flex-direction: column; gap: var(--s-3); }
+.hub-section-h {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3);
+  padding-bottom: var(--s-2); border-bottom: 1px solid var(--line);
+}
+.hub-section-t {
+  font-family: var(--font-display); font-size: var(--fs-subhead); font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--violet-label);
+}
+.hub-section-n { font-size: var(--fs-footnote); color: var(--fg-dim); font-variant-numeric: tabular-nums; }
+
+/* auto-fill, not auto-fit: a lone card keeps its own width instead of
+   stretching the length of the pane. the wide grid is for cards that carry a
+   paragraph. a phone takes one column either way. */
+.hub-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--s-3); }
+.hub-card-grid--wide { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
+.hub-card {
+  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-3) var(--s-4); background: var(--bg-elev);
+  border: 1px solid var(--line); border-radius: var(--r-card); min-width: 0;
+}
+.hub-card-t { font-size: var(--fs-subhead); font-weight: 700; color: var(--fg); }
+.hub-card-s { font-size: var(--fs-footnote); line-height: 1.55; color: var(--fg-dim); }
+.hub-card-l { font-size: var(--fs-caption); letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-faint); }
+
+/* short labelled facts that wrap, a caption beside each value. a value too long
+   for its line ellipsises, so give it the full text as a title. */
+.hub-card-facts { display: flex; flex-wrap: wrap; gap: 4px var(--s-3); }
+.hub-card-fact { font-size: var(--fs-footnote); color: var(--fg-mute); white-space: nowrap; }
+.hub-card-fact-k { font-size: var(--fs-caption); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-faint); margin-right: 5px; }
+.hub-card-fact-v { overflow: hidden; text-overflow: ellipsis; }
+
+/* labelled flags under a dashed rule, one to a line. an unset flag is a faint
+   italic value; a set one takes the warn or alert ink. */
+.hub-card-notes { display: flex; flex-direction: column; gap: 2px; border-top: 1px dashed var(--line); padding-top: var(--s-3); }
+.hub-card-note { display: flex; gap: var(--s-2); font-size: var(--fs-footnote); line-height: 1.45; }
+.hub-card-note-k { flex: 0 0 66px; font-size: var(--fs-caption); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-faint); padding-top: 2px; }
+.hub-card-note-v { color: var(--fg-faint); font-style: italic; min-width: 0; }
+.hub-card-note.is-warn .hub-card-note-v { color: var(--warn); font-style: normal; }
+.hub-card-note.is-alert .hub-card-note-v { color: var(--alert); font-style: normal; }
+
+/* a holographic card face. three siblings of the content, never wrappers,
+   because the order is the whole effect: the foil is in the stock, the print
+   sits on it, the laminate goes over both.
+       z0  .hub-card-foil    the grating, blending against the stock
+       z0  .hub-card-shine   the travelling band
+       z1  the card's own children, always crisp
+       z2  .hub-card-glare   the laminate, the only layer over the print
+   foil over the print cost every bit of text contrast, so that order is settled.
+   the host is lit by .is-live and aimed by --mx/--my (0%..100%) and --hyp
+   (0..1), written by the page per frame. no tilt: it writes the same transform
+   a hover lift does. decorative children marked aria-hidden stay off z1, so a
+   module can pin its own marks above the foil. */
+.hub-card:has(> .hub-card-foil) { position: relative; isolation: isolate; overflow: hidden; --mx: 50%; --my: 50%; --hyp: 0; }
+.hub-card:has(> .hub-card-foil) > :not(.hub-card-foil, .hub-card-shine, .hub-card-glare, [aria-hidden="true"]) { position: relative; z-index: 1; }
+.hub-card-foil, .hub-card-shine, .hub-card-glare {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  opacity: 0; transition: opacity 320ms ease-out;
+}
+.hub-card-glare { z-index: 2; }
+.hub-card.is-live > .hub-card-foil  { opacity: var(--foil-max);  transition-duration: 120ms; }
+.hub-card.is-live > .hub-card-shine { opacity: var(--shine-max); transition-duration: 120ms; }
+.hub-card.is-live > .hub-card-glare { opacity: var(--glare-max); transition-duration: 120ms; }
+[data-shimmer="none"] > .hub-card-foil, [data-shimmer="none"] > .hub-card-shine { display: none; }
+
+/* blend physics belong to the surface, not the theme: color-dodge is foil on a
+   dark ground and blows to white on a light one, so light runs hard-light and
+   quieter. */
+[data-surface="dark"] :is(.hub-card-foil, .hub-card-shine, .hub-card-glare) {
+  --foil-blend: color-dodge; --foil-max: .42;
+  --shine-blend: color-dodge; --shine-max: .30;
+  --glare-blend: overlay;    --glare-max: .22;
+}
+[data-surface="light"] :is(.hub-card-foil, .hub-card-shine, .hub-card-glare) {
+  --foil-blend: hard-light;  --foil-max: .40;
+  --shine-blend: soft-light; --shine-max: .55;
+  --glare-blend: soft-light; --glare-max: .34;
+}
+
+/* the grating: a prism sweep crossed with a fine grain. the grain is what makes
+   it read as a ruled foil rather than a gradient. the sweep travels with the
+   cursor; keep background-position inside 0%..100%, because past either end of
+   an oversized layer a tile seam enters the card as a hard line. the mask keeps
+   the colour where the light is. */
+.hub-card-foil {
+  background-image: var(--grain, none), var(--prism);
+  background-blend-mode: var(--grain-blend, overlay);
+  background-size: var(--grain-size, 100% 100%), var(--prism-size, 190% 190%);
+  background-position: 0 0, var(--mx) var(--my);
+  mix-blend-mode: var(--foil-blend);
+  -webkit-mask-image: radial-gradient(farthest-side circle at var(--mx) var(--my),
+    #000 0%, rgba(0,0,0,.80) 18%, rgba(0,0,0,.34) 40%, rgba(0,0,0,.08) 62%, transparent 80%);
+          mask-image: radial-gradient(farthest-side circle at var(--mx) var(--my),
+    #000 0%, rgba(0,0,0,.80) 18%, rgba(0,0,0,.34) 40%, rgba(0,0,0,.08) 62%, transparent 80%);
+  /* linear, the default: icy diagonal shards */
+  --grain: repeating-linear-gradient(45deg, transparent 0 10px, rgba(255,255,255,0.3) 10px 11px, transparent 11px 20px, rgba(0,0,0,0.2) 20px 22px);
+  --prism: linear-gradient(135deg, oklch(75% .15 220), oklch(85% .15 200) 25%, oklch(50% .2 260) 75%, oklch(30% .15 280));
+}
+/* seven more palettes, picked by data-shimmer on the host. each is a different
+   geometry, not a different hue. */
+[data-shimmer="burst"] > .hub-card-foil {
+  --grain: repeating-conic-gradient(from 0deg at 50% 50%, transparent 0 4deg, rgba(255,255,255,.2) 4deg 5deg, transparent 5deg 10deg);
+  --prism-size: 150% 150%;
+  --prism: radial-gradient(circle at var(--mx) var(--my), oklch(95% .2 100) 0%, oklch(65% .25 45) 40%, oklch(35% .2 10) 80%, oklch(20% .1 300) 100%);
+}
+[data-shimmer="slick"] > .hub-card-foil {
+  --grain: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 0%, transparent 20%),
+           radial-gradient(circle at 70% 70%, rgba(0,0,0,0.1) 0%, transparent 20%);
+  --grain-blend: color-dodge;
+  --prism: radial-gradient(120% 62% at 14% 10%, oklch(80% .25 160) 0%, transparent 60%),
+           radial-gradient(112% 58% at 88% 30%, oklch(65% .3 330) 0%, transparent 60%),
+           radial-gradient(90% 70% at 50% 90%, oklch(85% .2 210) 0%, transparent 60%),
+           linear-gradient(120deg, oklch(40% .1 280), oklch(30% .1 300));
+}
+[data-shimmer="swirl"] > .hub-card-foil {
+  --grain: repeating-radial-gradient(circle at 50% 50%, transparent 0 5px, rgba(255,255,255,0.2) 5px 10px, transparent 10px 15px);
+  --prism: conic-gradient(from calc(var(--hyp) * 360deg) at var(--mx) var(--my), oklch(65% .3 320), oklch(80% .25 70), oklch(65% .3 320));
+}
+[data-shimmer="grid"] > .hub-card-foil {
+  --grain: repeating-linear-gradient(0deg, transparent 0 8px, rgba(255,255,255,.2) 8px 9px),
+           repeating-linear-gradient(90deg, transparent 0 8px, rgba(255,255,255,.2) 8px 9px);
+  --prism: linear-gradient(180deg, oklch(30% .25 280), oklch(50% .28 320) 40%, oklch(70% .2 350) 60%, oklch(90% .18 50));
+}
+[data-shimmer="wave"] > .hub-card-foil {
+  --grain: repeating-radial-gradient(circle at 50% 100%, transparent 0 10px, rgba(255,255,255,.15) 10px 12px, transparent 12px 20px);
+  --prism: radial-gradient(circle at 50% 100%, oklch(80% .15 160) 0%, oklch(50% .18 200) 40%, oklch(30% .15 240) 80%, oklch(20% .1 260) 100%);
+}
+[data-shimmer="dots"] > .hub-card-foil {
+  --grain: radial-gradient(rgba(255,255,255,0.35) 2px, transparent 2.5px);
+  --grain-size: 8px 8px;
+  --prism: conic-gradient(from 45deg, oklch(75% .25 350), oklch(85% .2 90), oklch(75% .25 350));
+}
+[data-shimmer="scanlines"] > .hub-card-foil {
+  --grain: repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,0.4) 2px 4px);
+  --prism: linear-gradient(180deg, oklch(30% .15 140), oklch(55% .25 140) 50%, oklch(30% .15 140));
+}
+/* the travelling band, offset opposite the pointer: what the eye tracks, since
+   the prism alone shifts hue without obviously moving. at 260% it travels 1.6x
+   the card over the same 0%..100%. */
+.hub-card-shine {
+  background: linear-gradient(102deg,
+    transparent 30%, rgba(255,255,255,.10) 42%, rgba(255,255,255,.55) 49%,
+    rgba(210,225,255,.22) 55%, transparent 68%);
+  background-size: 260% 260%;
+  background-position: calc(100% - var(--mx)) calc(100% - var(--my));
+  mix-blend-mode: var(--shine-blend);
+}
+/* the specular hotspot under the pointer: the wet-laminate gleam */
+.hub-card-glare {
+  background: radial-gradient(circle at var(--mx) var(--my),
+    rgba(255,255,255,.9) 0%, rgba(190,215,255,.35) calc(9% + var(--hyp) * 5%),
+    transparent calc(38% + var(--hyp) * 12%));
+  mix-blend-mode: var(--glare-blend);
+}
+/* reduced motion keeps the foil and drops only the travelling band */
+@media (prefers-reduced-motion: reduce) {
+  .hub-card-foil, .hub-card-shine, .hub-card-glare { transition: none; }
+  .hub-card-shine { display: none; }
+}
+
+/* a card you pick. it lifts on hover and takes a full 2px ring when selected:
+   a ring, not a coloured left stripe, so it reads as struck rather than tagged.
+   the ring is restated on hover or the lift shadow replaces it. */
+.hub-card--selectable {
+  cursor: pointer;
+  transition: transform 160ms var(--e-out-quint), box-shadow 160ms var(--e-out-quint),
+              border-color 120ms ease-out, background 120ms ease-out;
+}
+.hub-card--selectable:hover {
+  background: var(--bg-hover); border-color: var(--accent); transform: translateY(-3px);
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.hub-card--selectable.selected { border-color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+.hub-card--selectable.selected:hover {
+  box-shadow: inset 0 0 0 2px var(--accent),
+              0 10px 24px -12px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+/* cobalt lifts up-left onto a hard 6px offset, its own .launch-tile idiom. the
+   excursion is -2px and +4px past the resting box, so the grid's gap and the
+   scroller's padding have to cover it or an overflow:hidden column shears the
+   shadow off. */
+[data-theme="cobalt"] .hub-card--selectable { border-width: 2px; }
+[data-theme="cobalt"] .hub-card--selectable:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 0 var(--accent); }
+[data-theme="cobalt"] .hub-card--selectable.selected:hover { box-shadow: inset 0 0 0 2px var(--accent), 6px 6px 0 0 var(--accent); }
+/* an inset ring paints under the card's children, so a lit foil would cover it
+   exactly while it is pointed at. on a foil card the ring is redrawn above. */
+.hub-card.selected:has(> .hub-card-foil)::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  border-radius: inherit; box-shadow: inset 0 0 0 2px var(--accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hub-card--selectable, .hub-card--selectable:hover,
+  [data-theme="cobalt"] .hub-card--selectable:hover { transition: none; transform: none; }
+}
+
+/* a card's name plate. the head holds an initial, a title and an optional
+   subtitle, and data-header on the card picks how the name is set, so a change
+   of style is a pure css swap on markup that never changes. the initial ships
+   in every head and only the badge paints it. the head is the positioning box
+   for the ruled line. plain (or no attribute) is the card's own type. */
+.hub-card-head { position: relative; }
+.hub-card-initial { display: none; }
+
+/* plate: the name reversed out of a solid bar that runs edge to edge. the
+   negative margins cancel the base card padding; a card with more air
+   restates them. */
+.hub-card[data-header="plate"] .hub-card-head {
+  margin: calc(var(--s-3) * -1) calc(var(--s-4) * -1) 0;
+  padding: 10px var(--s-4) 8px; background: var(--accent);
+}
+.hub-card[data-header="plate"] .hub-card-title,
+.hub-card[data-header="plate"]:hover .hub-card-title,
+.hub-card[data-header="plate"].selected .hub-card-title { color: var(--on-accent); font-size: var(--fs-body); }
+.hub-card[data-header="plate"] .hub-card-subtitle { color: color-mix(in srgb, var(--on-accent) 74%, transparent); }
+
+/* stamped: the display face. archivo black is already a theme family, so this
+   is the loudest option without importing anything. */
+.hub-card[data-header="stamped"] .hub-card-title {
+  font-family: "Archivo Black", var(--font-display, system-ui), sans-serif;
+  font-size: var(--fs-title); letter-spacing: -.02em; line-height: 1.08;
+}
+.hub-card[data-header="stamped"] .hub-card-subtitle {
+  letter-spacing: .06em; text-transform: uppercase; font-style: normal; font-size: var(--fs-caption);
+}
+
+/* ruled: the name over a heavy rule. the quiet one, and the only variant that
+   adds no colour. */
+.hub-card[data-header="rule"] .hub-card-head { padding-bottom: 7px; }
+.hub-card[data-header="rule"] .hub-card-head::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0;
+  height: 2px; background: var(--fg); opacity: .5;
+}
+
+/* knockout: the name is die-cut out of the print, so a hub-card-foil beneath
+   shows through the letters instead of being painted onto them. transparent
+   fill plus a stroke, not background-clip:text with a gradient: gradient text
+   is banned in this vault's design rules, and a real die-cut name is a hole in
+   the ink. at rest the letters read as outlines on card stock; when the foil
+   fires they fill with spectrum. the only header that changes with the shimmer. */
+.hub-card[data-header="knockout"] .hub-card-title,
+.hub-card[data-header="knockout"]:hover .hub-card-title,
+.hub-card[data-header="knockout"].selected .hub-card-title {
+  font-family: "Archivo Black", var(--font-display, system-ui), sans-serif;
+  font-size: var(--fs-title); line-height: 1.06; letter-spacing: -.03em; text-transform: uppercase;
+  color: transparent; -webkit-text-stroke: 1.1px var(--fg-mute, var(--fg-dim));
+  paint-order: stroke fill; transition: -webkit-text-stroke-color 200ms ease-out;
+}
+.hub-card[data-header="knockout"]:hover .hub-card-title { -webkit-text-stroke-color: var(--accent); }
+.hub-card[data-header="knockout"] .hub-card-subtitle {
+  letter-spacing: .14em; text-transform: uppercase; font-style: normal; font-size: var(--fs-caption); margin-top: 4px;
+}
+
+/* badge: a filled hexagon carrying the initial, set beside the name. a mark
+   rather than a typographic treatment. grid, not flex, because the subtitle
+   has to sit under the title and share its column instead of wrapping under
+   the badge. */
+.hub-card[data-header="badge"] .hub-card-head {
+  display: grid; grid-template-columns: 42px minmax(0, 1fr);
+  column-gap: 11px; align-items: center; align-content: center;
+}
+.hub-card[data-header="badge"] .hub-card-initial {
+  display: grid; place-items: center; grid-row: 1 / span 2; align-self: center;
+  width: 42px; height: 46px; background: var(--accent); color: var(--on-accent);
+  font-family: "Archivo Black", var(--font-display, system-ui), sans-serif;
+  font-size: var(--fs-title); line-height: 1;
+  clip-path: polygon(50% 0, 100% 26%, 100% 74%, 50% 100%, 0 74%, 0 26%);
+}
+.hub-card[data-header="badge"] .hub-card-title { grid-column: 2; align-self: end; font-size: var(--fs-body); }
+.hub-card[data-header="badge"] .hub-card-subtitle { grid-column: 2; align-self: start; margin-top: 2px; }
+/* a lone title would centre against a two-row track and sit high; one row
+   keeps it optically centred on the hexagon */
+.hub-card[data-header="badge"] .hub-card-head:not(:has(.hub-card-subtitle)) { grid-template-rows: auto; }
+.hub-card[data-header="badge"] .hub-card-head:not(:has(.hub-card-subtitle)) .hub-card-title { align-self: center; }
+
+/* tape: a dymo label. the colour holds through hover and selection, which
+   would otherwise repaint the title in the accent and lose it on the tape. */
+.hub-card[data-header="tape"] .hub-card-head { align-items: flex-start; }
+.hub-card[data-header="tape"] .hub-card-title {
+  background: var(--fg); padding: 2px 6px;
+  font-family: monospace; font-weight: bold; font-size: var(--fs-body);
+  transform: rotate(-2deg); display: inline-block;
+}
+.hub-card[data-header="tape"] .hub-card-subtitle { font-family: monospace; font-size: var(--fs-caption); margin-top: 4px; }
+
+/* neon: a glowing outline */
+.hub-card[data-header="neon"] .hub-card-title {
+  font-family: var(--font-display, system-ui), sans-serif;
+  font-size: var(--fs-title); text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
+  letter-spacing: .05em;
+}
+
+/* pill: the title on a rounded ground */
+.hub-card[data-header="pill"] .hub-card-head { align-items: center; }
+.hub-card[data-header="pill"] .hub-card-title {
+  background: var(--fg-dim); padding: 4px 12px;
+  border-radius: 99px; font-weight: 700; font-size: var(--fs-subhead); display: inline-block;
+}
+.hub-card[data-header="pill"] .hub-card-subtitle { font-size: var(--fs-caption); margin-top: 4px; }
+.hub-card:is([data-header="tape"], [data-header="neon"], [data-header="pill"]) .hub-card-title,
+.hub-card:is([data-header="tape"], [data-header="neon"], [data-header="pill"]):is(:hover, .selected) .hub-card-title { color: var(--bg); }
+
+/* floating: a soft drop shadow */
+.hub-card[data-header="floating"] .hub-card-title {
+  font-size: var(--fs-title); font-weight: 800;
+  text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+/* one number that carries a band, boxed. it is a .hub-stat with its value in
+   .hub-stat-v; the figure adds the box and the display-size number. */
+.hub-stat-figs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-3); }
+.hub-stat-fig { padding: var(--s-3); background: var(--bg-elev); border: 1px solid var(--line-soft); border-radius: var(--r-card); }
+.hub-stat-fig-n { font-family: var(--font-display); font-size: var(--fs-title); line-height: 1.1; font-feature-settings: var(--feat-tnum); }
+.hub-stat-fig-l { font-size: var(--fs-caption); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-dim); }
+
+/* a boxed tick with a line and a note beside it. it is a .hub-checklist-item,
+   so the done state is the checklist's; the row adds the box. */
+.hub-check-rows { gap: 4px; }
+.hub-check-row {
+  display: flex; align-items: flex-start; gap: var(--s-3);
+  padding: 10px var(--s-3); background: var(--bg-elev);
+  border: 1px solid var(--line-soft); border-radius: var(--r-card);
+  cursor: pointer; transition: border-color 120ms ease-out;
+}
+.hub-check-row:hover { border-color: var(--line-strong); }
+.hub-check-row input { margin-top: 2px; flex: 0 0 auto; accent-color: var(--accent); width: 16px; height: 16px; }
+.hub-check-row-b { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hub-check-row-t { font-size: var(--fs-footnote); color: var(--fg); }
+.hub-check-row-s { font-size: var(--fs-footnote); color: var(--fg-dim); line-height: 1.5; }
+
+/* a time on the left, the thing on the right: a set-time schedule, a run of
+   ceremony events, a day plan. a key row takes the accent, a clash the alert. */
+.hub-timeline-rows { display: flex; flex-direction: column; gap: 2px; }
+.hub-timeline-row {
+  display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: var(--s-3);
+  padding: 9px var(--s-3); border-left: 2px solid var(--line);
+  background: var(--bg-elev); border-radius: 0 var(--r-card) var(--r-card) 0;
+}
+.hub-timeline-row.is-key { border-left-color: var(--accent); background: color-mix(in oklab, var(--accent) 10%, var(--bg-elev)); }
+.hub-timeline-row.is-clash { border-left-color: var(--alert); }
+.hub-timeline-row-t { font-size: var(--fs-footnote); font-weight: 700; color: var(--fg-mute); font-variant-numeric: tabular-nums; font-feature-settings: var(--feat-tnum); }
+.hub-timeline-row-b { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+/* an hour grid: a day is a column, an hour is 1/24 of the column's height, and
+   a block's height is its duration. --tl-h is the whole 24h axis, so density is
+   one variable; --tl-days (set inline) lays the columns out so a few days fill
+   the pane and many scroll instead of squeezing. Row two is the untimed tray. */
+.hub-timeline {
+  --tl-h: 1440px; --tl-gutter: 46px; --tl-day-min: 168px;
+  display: grid; grid-template-columns: var(--tl-gutter) 1fr; grid-template-rows: auto auto 1fr;
+  height: 100%; min-height: 0;
+}
+.hub-timeline-corner { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.hub-timeline-heads, .hub-timeline-cols { display: grid; grid-template-columns: repeat(var(--tl-days), minmax(var(--tl-day-min), 1fr)); }
+.hub-timeline-heads { border-bottom: 1px solid var(--line); background: var(--bg); }
+.hub-timeline-head { padding: 8px var(--s-3); border-left: 1px solid var(--line); display: flex; align-items: baseline; gap: 7px; min-width: 0; }
+.hub-timeline-head-d { font-family: var(--font-display); font-size: var(--fs-subhead); color: var(--fg); }
+.hub-timeline-head-n { font-size: var(--fs-caption); letter-spacing: .06em; text-transform: uppercase; color: var(--fg-mute); }
+.hub-timeline-head.is-today .hub-timeline-head-d, .hub-timeline-head.is-today .hub-timeline-head-n { color: var(--good); }
+/* one scroller for both axes; the hour gutter pins to its left edge */
+.hub-timeline-body { grid-column: 1 / -1; display: grid; grid-template-columns: var(--tl-gutter) 1fr; overflow: auto; min-height: 0; }
+.hub-timeline-gutter { height: var(--tl-h); border-right: 1px solid var(--line); position: sticky; left: 0; z-index: 2; background: var(--bg); }
+.hub-timeline-hr { height: calc(var(--tl-h) / 24); position: relative; }
+.hub-timeline-hr span { position: absolute; top: -6px; right: 6px; font-size: var(--fs-caption); color: var(--fg-faint); font-variant-numeric: tabular-nums; }
+.hub-timeline-hr:first-child span { top: 1px; }
+/* midnight is the column edge, not a rule partway down, so its label only reads stronger */
+.hub-timeline-hr.is-mid span { color: var(--fg-mute); font-weight: 600; }
+.hub-timeline-cols { height: var(--tl-h); }
+.hub-timeline-col { position: relative; border-left: 1px solid var(--line); min-width: 0; }
+.hub-timeline-line { position: absolute; left: 0; right: 0; height: 1px; background: var(--line-soft); }
+.hub-timeline-line.strong { background: var(--line); }
+/* the current time: the one mark on the axis whose meaning is "live", so the one that repeats */
+.hub-timeline-now { position: absolute; left: 0; right: 0; height: 2px; background: var(--good); z-index: 3; }
+.hub-timeline-now::before {
+  content: ""; position: absolute; left: -3px; top: -3px; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--good); animation: now-pulse 2.4s var(--e-out-quint) infinite;
+}
+@keyframes now-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--good) 45%, transparent); }
+  50%      { box-shadow: 0 0 0 5px color-mix(in srgb, var(--good) 0%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) { .hub-timeline-now::before { animation: none; } }
+/* a block: top is when it starts, height is how long it runs, on the elevated
+   ground with an accent edge. The floor is its three natural line boxes
+   (15 + 17 + 15 + 2 gaps + 6 padding) and the lines are flex:none, so a short
+   block clips whole lines instead of the descenders. The states are wrapped in
+   :where() so a module's two-class kind rule wins in either load order. */
+.hub-timeline-block {
+  position: absolute; overflow: hidden; cursor: pointer; min-height: 58px;
+  padding: 3px 6px; border-radius: var(--r); border: 1px solid var(--line-strong);
+  background: var(--bg-elev-2); box-shadow: inset 3px 0 0 var(--accent);
+  display: flex; flex-direction: column; gap: 1px;
+  transition: border-color 120ms ease-out, background 120ms ease-out;
+}
+.hub-timeline-block:where(:hover) { background: var(--bg-hover); border-color: var(--accent-dim); z-index: 4; }
+.hub-timeline-block:where(.selected) { border-color: var(--accent); background: var(--bg-hover); z-index: 4; }
+/* no end time is a guess: the bottom edge goes dashed and fades */
+.hub-timeline-block:where(.is-open) { border-bottom-style: dashed; border-bottom-color: var(--fg-ghost); }
+.hub-timeline-block:where(.is-open)::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40%;
+  background: linear-gradient(to bottom, transparent, var(--bg)); pointer-events: none;
+}
+.hub-timeline-block > * { flex: none; }
+.hub-timeline-block-t { font-size: var(--fs-caption); color: var(--fg-mute); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+/* 1.4, not 1.2: a 14.4px box clips the tails of y, p and g under overflow:hidden */
+.hub-timeline-block-n { font-size: var(--fs-footnote); line-height: 1.4; color: var(--fg); overflow: hidden; text-overflow: ellipsis; }
+.hub-timeline-block-s { font-size: var(--fs-caption); line-height: 1.5; color: var(--fg-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the untimed tray, grid row two: "no time set" is not midnight, so an item with
+   no time sits above the axis as a chip, one tray per day column. The chip's
+   states are :where()-wrapped for the same reason as the block's. */
+.hub-timeline-tray-l {
+  font-size: var(--fs-caption); letter-spacing: .1em; text-transform: uppercase; color: var(--fg-faint);
+  padding: 6px 4px 0; text-align: right; border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.hub-timeline-trays {
+  display: grid; grid-template-columns: repeat(var(--tl-days), minmax(var(--tl-day-min), 1fr));
+  border-bottom: 1px solid var(--line); background: var(--bg-elev);
+}
+.hub-timeline-tray {
+  border-left: 1px solid var(--line); padding: 5px var(--s-2);
+  display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; min-width: 0;
+}
+.hub-timeline-tray-none { color: var(--fg-ghost); font-size: var(--fs-caption); }
+.hub-timeline-chip {
+  display: inline-flex; flex-direction: column; max-width: 100%; cursor: pointer;
+  font-size: var(--fs-caption); line-height: 1.25; padding: 3px 7px;
+  border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+  color: var(--fg-dim); background: var(--bg);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hub-timeline-chip i { font-style: normal; font-size: var(--fs-caption); color: var(--fg-faint); }
+.hub-timeline-chip:where(:hover) { color: var(--fg); border-color: var(--accent-dim); }
+.hub-timeline-chip:where(.selected) { border-color: var(--accent); color: var(--fg); }
+/* an instant is not a short block. A departure or a check-in has no duration,
+   so it draws as a 2px rule at its exact minute, capped on the left so it reads
+   as a mark and not a gridline, with ONE full-width label (never lane-split,
+   never clipped to a 30px box). The module places the label (inline top), since
+   whether it sits above its rule or stacks below a run of them depends on the
+   neighbours. A module tints a kind by setting --tl-inst; selected sets --i
+   itself, so it wins over any kind in either load order. */
+.hub-timeline-inst, .hub-timeline-inst-l { --i: var(--tl-inst, var(--accent)); }
+.hub-timeline-inst {
+  position: absolute; left: 0; right: 0; height: 2px;
+  background: var(--i); z-index: 3; cursor: pointer;
+}
+.hub-timeline-inst::before {
+  content: ""; position: absolute; left: 0; top: -3px;
+  width: 8px; height: 8px; background: var(--i);
+}
+/* an opaque ground: the label crosses gridlines and, on a dense evening, the
+   rules of its own run */
+.hub-timeline-inst-l {
+  position: absolute; left: 0; right: 0; height: 18px; z-index: 4;
+  display: flex; align-items: center; gap: 7px;
+  padding: 0 6px 0 8px; border-left: 3px solid var(--i);
+  background: var(--bg); cursor: pointer;
+  font-size: var(--fs-caption); line-height: 1; white-space: nowrap; overflow: hidden;
+}
+.hub-timeline-inst-l i {
+  font-style: normal; color: var(--fg-mute);
+  font-variant-numeric: tabular-nums; letter-spacing: .02em; flex: none;
+}
+.hub-timeline-inst-l span { color: var(--fg); overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+/* the <em> tail is a short qualifier that must stay on the line ("check in") */
+.hub-timeline-inst-l em { font-style: normal; color: var(--fg-faint); flex: none; }
+.hub-timeline-inst-l:where(:hover) { background: var(--bg-hover); }
+.hub-timeline-inst:where(.selected), .hub-timeline-inst-l:where(.selected) { --i: var(--accent); z-index: 5; }
+.hub-timeline-inst-l:where(.selected) { background: var(--bg-hover); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* a short fact that is not a sentence. */
+.hub-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.hub-tag { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+  height: var(--ctl-h); padding: 0 10px; gap: 6px; line-height: 1; white-space: nowrap;
+  border: 0; font-size: var(--fs-footnote); font-weight: 500; letter-spacing: 0.02em;
+  border-radius: var(--r-pill); background: color-mix(in oklab, var(--fg-dim) 22%, transparent); color: var(--fg-dim); }
+.hub-tag.is-on { background: color-mix(in oklab, var(--accent) 26%, transparent); color: var(--fg); }
+
+/* a solid tinted block that carries a reading: a badge, a verdict, a flag. same
+   28px body as a button. the tone is the whole message, so there are three and
+   no fourth: good, warn, alert. an optional <em> is the value cell. */
+.hub-pill { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+  height: var(--ctl-h); padding: 0 10px; gap: 6px; line-height: 1; white-space: nowrap;
+  border: 0; border-radius: var(--r-card); font-size: var(--fs-footnote); font-weight: 500; letter-spacing: 0.02em;
+  --tone: var(--fg-dim);
+  background: color-mix(in oklab, var(--tone) 30%, transparent); color: var(--fg); }
+.hub-pill > em { font-style: normal; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hub-pill.is-good { --tone: var(--good); background: var(--tone); color: var(--bg); }
+.hub-pill.is-warn { --tone: var(--warn); background: var(--tone); color: var(--bg); }
+.hub-pill.is-alert { --tone: var(--alert); background: var(--tone); color: var(--bg); }
+/* a reading that is not in yet: same body, quieter, so the line does not move
+   when the answer lands. */
+.hub-pill--dashed { background: color-mix(in oklab, var(--fg-faint) 14%, transparent); color: var(--fg-faint); }
+/* the one pill in a row that must be planned around. --on-accent on --accent is
+   the pair the theme defines for a fill (4.9:1 dark, 6.7:1 light). */
+.hub-pill--filled { color: var(--on-accent); background: var(--accent); font-weight: 600; }
+/* the x that clears the filter a pill names: bare, in the pill's own colour, focus-ringed. promoted 2026-10-21 from mail's search chips. */
+.hub-pill-x { flex: none; border: 0; background: none; color: inherit; font: inherit; font-size: var(--fs-subhead); line-height: 1; padding: 0 2px; cursor: pointer; }
+.hub-pill-x:hover { color: var(--accent); }
+.hub-pill-x:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-radius: var(--r-pill); }
+
+/* ---------------- carousel ----------------
+   a scroll-snap strip, not a JS carousel: the browser owns momentum, touch drag,
+   snapping and keyboard scrolling, and the buttons only call scrollBy. each slide
+   is narrower than the frame on purpose, because the next one's edge is what says
+   there are more. the module wires the drag and toggles is-drag, at-start and
+   at-end on the track (trips' bindShots, with its throw in SPIN). */
+/* the frame makes the strip an object: inset from its panel, its own hairline and
+   radius, and the slides fade into its gutter instead of being cut mid-image. */
+.hub-carousel {
+  position: relative; background: var(--bg-elev);
+  margin: var(--s-3) var(--s-3) 0; border: 1px solid var(--line);
+  border-radius: var(--r-card); overflow: hidden;
+}
+/* the mask matches the padding, so a slide at rest is never touched. proximity
+   snap, not mandatory: mandatory grabs the strip at the end of every gesture and
+   a flick of six photos reads as a page turn. */
+.hub-carousel-track {
+  display: flex; gap: var(--s-2); overflow-x: auto; overscroll-behavior-x: contain;
+  mask-image: linear-gradient(90deg, transparent 0, #000 var(--s-3),
+                              #000 calc(100% - var(--s-3)), transparent 100%);
+  scroll-snap-type: x proximity;
+  padding: var(--s-3); scrollbar-width: none;
+  cursor: grab; user-select: none; -webkit-user-select: none;
+}
+.hub-carousel-track.is-drag { cursor: grabbing; }
+.hub-carousel-track::-webkit-scrollbar { display: none; }
+.hub-carousel-track:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+/* fixed height, natural width: a filmstrip, not a slideshow, so two or three
+   slides show at once and a portrait photo stays portrait. centred snap, so the
+   slide you land on has its neighbours showing either side. */
+.hub-carousel-slide { position: relative; flex: 0 0 auto; scroll-snap-align: center; }
+.hub-carousel-slide img {
+  display: block; height: clamp(190px, 30vh, 340px); width: auto; max-width: 100%;
+  object-fit: cover; border-radius: var(--r-card); background: var(--bg-elev-2);
+  /* a native image drag picks the picture up and the throw never starts */
+  -webkit-user-drag: none; user-select: none; -webkit-user-select: none;
+}
+/* a caption sits over the image, so a captioned slide is no taller than the rest */
+.hub-carousel-slide figcaption {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: var(--s-4) var(--s-3) var(--s-2);
+  font-size: var(--fs-footnote); color: #fff; border-radius: 0 0 var(--r-card) var(--r-card);
+  background: linear-gradient(transparent, rgba(0,0,0,0.72));
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+/* arrows, count and credit are one set of smoked glass over whatever is behind
+   them. the arrows are the fallback input (the strip is dragged), so they hide
+   until the frame is hovered; keyboard focus brings them back. */
+.hub-carousel-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 34px; height: 34px; display: grid; place-items: center;
+  font-size: var(--fs-body); line-height: 1; color: #fff;
+  background: rgba(0,0,0,0.36); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.20); border-radius: var(--r-pill);
+  opacity: 0; transition: opacity 160ms ease-out, background 160ms ease-out;
+}
+.hub-carousel:hover .hub-carousel-nav, .hub-carousel-nav:focus-visible { opacity: 1; }
+.hub-carousel-nav:hover { background: rgba(0,0,0,0.58); }
+.hub-carousel-nav.is-prev { left: var(--s-3); }
+.hub-carousel-nav.is-next { right: var(--s-3); }
+/* an exhausted arrow goes. four classes, so it outranks the hover rule above. */
+.hub-carousel-track.at-start ~ .hub-carousel-nav.is-prev,
+.hub-carousel-track.at-end ~ .hub-carousel-nav.is-next { opacity: 0; pointer-events: none; }
+.hub-carousel-count {
+  position: absolute; right: var(--s-3); bottom: var(--s-3);
+  padding: 3px 9px; font-size: var(--fs-caption); letter-spacing: 0.02em;
+  color: rgba(255,255,255,0.92);
+  background: rgba(0,0,0,0.36); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.18); border-radius: var(--r-pill);
+  font-variant-numeric: tabular-nums lining-nums;
+  pointer-events: none;  /* a readout sitting in the drag surface */
+}
+/* photo credit, the count's twin on the other corner: a provider that requires
+   visible, legible credit gets it here, linked to the source. */
+.hub-carousel-credit {
+  position: absolute; left: var(--s-3); bottom: var(--s-3);
+  padding: 3px 9px; font-size: var(--fs-caption); letter-spacing: 0.02em; text-decoration: none;
+  color: rgba(255,255,255,0.92);
+  background: rgba(0,0,0,0.36); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.18); border-radius: var(--r-pill);
+}
+.hub-carousel-credit:hover { background: rgba(0,0,0,0.52); color: #fff; }
+
+/* ---------------- fact grid ----------------
+   label and value pairs you scan for one answer: a code, a clock, a sum. the value
+   is the payload and takes the size and weight; the label holds its ground at 10px
+   and 500 rather than being dimmed, because a dimmed 10px cap runs under 4.5:1. */
+.hub-fact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: var(--s-4) var(--s-5); }
+.hub-fact { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+/* a value that is a sentence (an address, a policy) takes the whole row, ruled off
+   so the scan zone above it stays apart from the read zone below. */
+.hub-fact--wide { grid-column: 1 / -1; padding-top: var(--s-3); border-top: 1px solid var(--line-soft); }
+.hub-fact-k { font-size: var(--fs-caption); font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-mute); }
+.hub-fact-v {
+  font-size: var(--fs-subhead); font-weight: 600; line-height: 1.35; color: var(--fg); overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums lining-nums;   /* clocks, codes and money align down the column */
+}
+/* A value that reads as a sentence (address, host, parking) drops to medium; codes and names
+   you scan for stay bold. Flagged in trips-housing.jsx stayFacts. Approved on Workbench 2026-11-03. */
+.hub-fact-v.stay-fv--prose { font-weight: 500; }
+
+/* ---------------- pending field ----------------
+   a field nobody has filled in says so in words, because a blank is ambiguous:
+   unread and genuinely-none look the same. hub-pending is that line, at caption
+   size. hub-pending-add is the control for a blank the reader can fill right now,
+   sized to sit in the value slot; when a waiting line follows it they share the row. */
+.hub-pending { font-size: var(--fs-footnote); font-style: italic; color: var(--fg-faint); }
+.hub-pending-add {
+  background: none; font-family: inherit; padding: 4px 9px; border: 1px dashed var(--line); border-radius: var(--r-card);
+  color: var(--accent); font-size: var(--fs-footnote); letter-spacing: 0.03em; white-space: nowrap;
+  transition: all 120ms ease-out;
+}
+.hub-pending-add:hover { border-style: solid; border-color: var(--accent-dim); background: var(--bg-elev); }
+.hub-pending-add + .hub-pending { margin-left: var(--s-3); }
+/* a short stack of those under a section that already has something real in it.
+   no border, count or icon, so it reads as a suggestion and not a list of faults;
+   the sentence and its button share a baseline. */
+.hub-pending-rows { display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-4); }
+.hub-pending-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--s-3); }
+.hub-pending-row .hub-pending { margin-left: 0; }
+
+/* ---------------- column list ----------------
+   short factual lines (a ticket number, a fare rule, an amenity), not paragraphs,
+   so they carry 500 without going muddy. hub-col-list is the list: a flex column
+   with the UA markers off, because a flex ul still draws discs that land in the
+   column gutter. a keyed line reads as key and fact (hub-col-list-k, -v); the key
+   column is ragged on purpose, since a ragged edge beats a truncated one. a line's
+   own detail (hub-col-list-sub) sits under it rather than behind a hover. */
+.hub-col-list { display: flex; flex-direction: column; gap: 5px; list-style: none; }
+.hub-col-list li { font-size: var(--fs-footnote); font-weight: 500; color: var(--fg-mute); line-height: 1.5; }
+.hub-col-list-k { color: var(--fg-dim); }
+.hub-col-list-k::after { content: ":"; margin-right: 0.4em; }
+.hub-col-list-v { color: var(--fg); }
+.hub-col-list-sub {
+  display: block; font-size: var(--fs-caption); font-weight: 400; color: var(--fg-dim);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+/* named groups of those flowed into columns (hub-col-groups, hub-col-group with a
+   hub-col-group-k head). multi-column rather than a grid: groups run 1 to 18 lines,
+   and a grid row is as tall as its tallest cell. */
+.hub-col-groups { columns: 3 240px; column-gap: var(--s-5); }
+.hub-col-group { break-inside: avoid; margin-bottom: var(--s-4); }
+.hub-col-group-k {
+  font-size: var(--fs-caption); letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-mute);
+  padding-bottom: 4px; margin-bottom: 6px; border-bottom: 1px solid var(--line-soft);
+}
+.hub-col-group[hidden] { display: none; }
+/* --two: a bulleted list in two columns, so nine short rules do not push what
+   follows below the fold. --steps: a numbered list, for a sequence worked through
+   in order. both draw their own markers. */
+.hub-col-list--two { columns: 2 260px; column-gap: var(--s-5); display: block; }
+.hub-col-list--two li { break-inside: avoid; margin-bottom: 5px; }
+.hub-col-list--two li, .hub-col-list--steps li { padding-left: 14px; position: relative; color: var(--fg); }
+.hub-col-list--two li::before, .hub-col-list--steps li::before {
+  content: ""; position: absolute; left: 2px; top: 8px;
+  width: 4px; height: 4px; border-radius: 50%; background: var(--fg-faint);
+}
+.hub-col-list--steps { counter-reset: chore; }
+.hub-col-list--steps li::before {
+  counter-increment: chore; content: counter(chore); background: none;
+  left: 0; top: 0; width: auto; height: auto;
+  font-size: var(--fs-caption); color: var(--fg-mute); font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* ---------------- multicolumn checklist ----------------
+   a checklist flowed into as many 15rem columns as fit, a row never split across
+   two. the module decides what else stays whole (trips keeps a named section
+   together with its own rule on pkcols). */
+.hub-column-list { column-width: 15rem; column-gap: var(--s-5); }
+.hub-column-list .hub-checklist-item { break-inside: avoid-column; }
+
+/* ---------------- legend ----------------
+   a chart's key: a swatch and its label per series, wrapping as a row. the swatch
+   is a short neutral line; the module colours and reshapes it per series with a
+   class of its own beside it. */
+.hub-legend { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-4); }
+.hub-legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: var(--fs-caption); color: var(--fg-mute); }
+.hub-legend-swatch { width: 14px; height: 3px; border-radius: 2px; background: var(--fg-faint); }
+
+/* ---------------- check dot ----------------
+   a small square that says done (solid) or still open (hatched), always beside
+   words that say the same thing. the round status dot is .hub-dot in base.css. */
+.hub-check-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; flex: none; }
+.hub-check-dot.is-done { background: var(--accent); }
+.hub-check-dot.is-open { background: repeating-linear-gradient(135deg, var(--accent) 0 2px, transparent 2px 4px); }
+
+/* ---------------- text tone ----------------
+   colour alone, on a word inside a line: good, warn, muted, and faint for a
+   placeholder with nothing to state. always said in words too. */
+.hub-text-good { color: var(--good); }
+.hub-text-warn { color: var(--warn); }
+.hub-text-muted { color: var(--fg-dim); }
+.hub-text-faint { color: var(--fg-faint); }
+
+/* ---------------- row delete ----------------
+   the same quiet x at the end of every deletable row: half there until the row is
+   hovered (the module names its rows), red on its own hover or keyboard focus. */
+.hub-row-delete {
+  background: none; font-family: inherit; flex-shrink: 0; margin-left: 6px; width: 22px; height: 22px; line-height: 1;
+  border: 1px solid transparent; border-radius: var(--r-card);
+  font-size: var(--fs-subhead); color: var(--fg-faint); opacity: 0.5;
+  transition: all 120ms ease-out;
+}
+.hub-row-delete:hover, .hub-row-delete:focus-visible { opacity: 1; color: var(--alert); border-color: var(--alert); background: var(--bg-elev); }
+
+/* ---------------- note ----------------
+   a gap in the record said in the flow of a list rather than as a badge: a boxed
+   sentence at 12px, the figure in bold. is-warn outlines it and colours the figure
+   (nothing is broken, something just has not arrived yet). */
+.hub-note {
+  margin: var(--s-3) 0; padding: 9px 12px; border-radius: var(--r-card);
+  border: 1px solid var(--line); background: var(--bg-elev);
+  font-size: var(--fs-footnote); font-weight: 500; line-height: 1.5; color: var(--fg-mute);
+}
+.hub-note.is-warn { border-color: var(--warn); }
+.hub-note.is-warn b { color: var(--warn); }
+
+/* ---------------- chip toggle ----------------
+   a setting you press, drawn as a pill around its own native checkbox, which stays
+   because it is what the keyboard and screen reader operate. checked wears the
+   accent like every other selected thing. [hidden] is restated because the
+   inline-flex here beats the UA's display: none. */
+.hub-chip-toggle {
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+  height: var(--ctl-h); line-height: 1; white-space: nowrap;
+  border: 0; font-size: var(--fs-footnote); font-weight: 500; letter-spacing: 0.02em;
+  gap: 8px; align-self: flex-start; padding: 0 12px 0 9px; border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--fg-dim) 18%, transparent); color: var(--fg-mute); cursor: pointer;
+  transition: color 150ms var(--e-out-quint), background 150ms var(--e-out-quint);
+}
+.hub-chip-toggle:hover { color: var(--fg); background: var(--bg-hover); }
+.hub-chip-toggle:has(input:checked) {
+  color: var(--fg); background: color-mix(in oklab, var(--accent) 28%, transparent);
+}
+.hub-chip-toggle:focus-within { outline: 2px solid var(--accent); outline-offset: 1px; }
+.hub-chip-toggle[hidden] { display: none; }
+.hub-chip-toggle input { accent-color: var(--accent); width: 13px; height: 13px; margin: 0; }
+@media (prefers-reduced-motion: reduce) { .hub-chip-toggle { transition: none; } }
+
+/* ---------------- checkbox label ----------------
+   a native checkbox and its words as one clickable line, dim until hovered. a
+   module that wraps long items sets align-items: flex-start on it. */
+.hub-checkbox-label { display: inline-flex; align-items: center; gap: 5px; font-size: var(--fs-footnote); color: var(--fg-dim); cursor: pointer; }
+.hub-checkbox-label input { accent-color: var(--accent); cursor: pointer; }
+.hub-checkbox-label:hover { color: var(--fg); }
+
+/* ---------------- row actions ----------------
+   a row's own controls in a tight flex run at its end, out of the way of reading
+   until the row is hovered (the module names its rows) or a control has keyboard
+   focus. no hover on a phone, so there they show outright. */
+.hub-row-actions { display: flex; align-items: center; gap: 4px; flex: none; opacity: 0; transition: opacity 120ms ease-out; }
+.hub-row-actions:focus-within { opacity: 1; }
+@media (max-width: 900px) { .hub-row-actions { opacity: 1; } }
+
+/* ---------------- count badge ----------------
+   "n of m" beside a list's title: small, medium weight, muted, tabular digits,
+   never wrapping. is-done turns it good, and the module sets that only when the
+   list is actually clear: a colour that means done has to be false until it is. */
+.hub-count-badge { font-size: var(--fs-caption); font-weight: 500; color: var(--fg-mute); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hub-count-badge.is-done { color: var(--good); }
+
+/* ---------------- list eyebrow ----------------
+   a label that separates a run of items inside one list (an aisle, a section):
+   10px, tracked wide, uppercase, dim, medium-bold. a divider, not a head, so no
+   bar and no border. the module sets its inset. */
+.hub-list-eyebrow { font-size: var(--fs-caption); letter-spacing: 0.18em; text-transform: uppercase; color: var(--fg-dim); font-weight: 600; }
+
+/* ---------------- qr sheet ----------------
+   a code to hold a phone out to. the svg is centred at the width it is given, up
+   to a size that still fits a phone in portrait with the facts under it in view
+   (a code you scroll to is a code nobody scans); the facts stack centred under
+   it, one per line, for the camera that will not scan. */
+.hub-qr-sheet { display: flex; justify-content: center; margin: var(--s-4) 0; }
+.hub-qr-sheet svg { width: min(70vw, 320px); height: auto; border-radius: 6px; }
+.hub-qr-facts { display: grid; gap: var(--s-2); justify-items: center; text-align: center; }
+
+/* ---------------- link chip ----------------
+   an outbound link drawn as a small control: an outline chip in the accent, 11px
+   and tracked a little, that fills on hover. it never wraps, because in a narrow
+   column a two-word label came out one letter per line; the module lets it wrap
+   where it has a whole row. for the row's one action that leaves the page (a
+   listing, a map, a booking), so it reads as a control and not as decorated text. */
+.hub-link-chip {
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+  height: var(--ctl-h); padding: 0 10px; border: 0; border-radius: var(--r-card);
+  background: var(--bg-elev-2, var(--bg-elev)); font-size: var(--fs-footnote); letter-spacing: 0.02em; line-height: 1;
+  color: var(--accent); text-decoration: none; transition: background 120ms ease-out;
+}
+.hub-link-chip:hover { background: var(--bg-hover); }
+
+/* ---------------- text + action line ----------------
+   a line of text and the one control that acts on it (an address and its map
+   chip, "1 stop not on the map yet" and its geocode button). The text is the
+   value: it can be long, so it wraps. The control's label is a word or two
+   ("map ↗", never the address itself), so it never wraps and never shrinks.
+   They share one line while both fit; when the text needs the line, the control
+   drops under it, flush with the text's left edge, 8px down. Nothing is
+   squeezed, clipped or wrapped inside a capsule. Text beside a control reads at
+   the control's own size or larger, never a 10px caps label. */
+.hub-text-act { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.hub-text-act > * { flex: 0 1 auto; min-width: 0; }
+.hub-text-act > :is(a, button) { flex: none; }
+
+/* ---------------- section head ----------------
+   the bar that names a run of rows on a board: an uppercase title tracked wide at
+   11px, a summary that takes the rest of the bar in dim tabular type, and the run's
+   actions at its end as small outline buttons in the accent. -act-i is the same
+   button reduced to its glyph, 24px square (in a card half a pane wide two labels
+   were most of the bar), and every one carries its sentence in title + aria-label.
+   baseline-aligned and wrapping, padded as a bar, ruled off underneath. the module
+   says which bars are loud (a display-face title) and which sit on a card's plate.
+   hub-section-empty is the run's copy when it has no rows: small, italic, faint. */
+.hub-section-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-3);
+  padding: var(--s-4) var(--s-3) 6px; border-bottom: 1px solid var(--line);
+}
+.hub-section-head-t { font-size: var(--fs-caption); letter-spacing: 0.18em; text-transform: uppercase; color: var(--fg); font-weight: 600; }
+.hub-section-head-sum { flex: 1; font-size: var(--fs-caption); color: var(--fg-dim); font-variant-numeric: tabular-nums lining-nums; }
+.hub-section-head-act {
+  background: none; font-family: inherit; padding: 5px 10px; border: 1px solid var(--line); border-radius: var(--r-card);
+  color: var(--accent); font-size: var(--fs-caption); letter-spacing: 0.04em; white-space: nowrap;
+  transition: all 120ms ease-out;
+}
+.hub-section-head-act:hover { border-color: var(--accent-dim); background: var(--bg-elev); }
+.hub-section-head-act-i {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; padding: 0; font-size: var(--fs-footnote); line-height: 1;
+}
+.hub-section-empty { padding: var(--s-3); font-size: var(--fs-footnote); font-style: italic; color: var(--fg-faint); }
+
+/* ---------------- plate card ---------------- */
+/* PLATE CARD (hub-plate-card). Promoted from tabbed-3-pane.css 2026-09-25, when a
+   second origin (entry-3-pane) drew it; picked from the option rig 2026-09-09, option A. One separation
+   signal instead of three at once: a solid band across the card's top edge that
+   names it. The band is the wayfinding -- these boards are scanned for a section
+   before they are read. */
+.hub-plate-card {
+  background: var(--bg-elev); border: 0; border-radius: var(--r-card);
+}
+.hub-plate-card > .hub-section-head {
+  background: var(--accent); border-bottom: 0;
+  /* the plate IS the card's top edge, so rounding the plate rounds the card. */
+  border-radius: var(--r-card) var(--r-card) 0 0;
+  padding: var(--s-2) var(--s-3); align-items: center;
+}
+.hub-plate-card > .hub-section-head :is(.hub-section-head-t, .hub-section-head-sum) { color: var(--on-accent); }
+.hub-plate-card > .hub-section-head .hub-section-head-sum { opacity: 0.78; }
+/* the head's buttons ride the plate. Borders track the ink rather than naming a
+   colour: --on-accent is white on the light surface and near-black on the dark one. */
+.hub-plate-card > .hub-section-head .hub-section-head-act {
+  color: var(--on-accent); border-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+.hub-plate-card > .hub-section-head .hub-section-head-act:hover {
+  border-color: currentColor; background: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+
+/* ---------------- collapsible group ----------------
+   a native <details> whose summary is a section head: the pointer, no marker, a
+   minus at the end of the bar that turns to a plus when it is closed, and the title
+   lit in the accent on hover. the summary sticks to the top of its scroller, so the
+   group's name stays in view while its rows scroll under it; that is why a host
+   card must not clip its overflow. the module remembers which groups were closed. */
+.hub-collapsible-group > summary { cursor: pointer; list-style: none; position: sticky; top: 0; z-index: 1; }
+.hub-collapsible-group > summary::-webkit-details-marker { display: none; }
+.hub-collapsible-group > summary::after { content: "\2212"; color: var(--fg-mute); font-size: var(--fs-footnote); line-height: 1; }
+.hub-collapsible-group:not([open]) > summary::after { content: "+"; }
+.hub-collapsible-group > summary:hover .hub-section-head-t { color: var(--accent); }
+
+/* ---------------- infocard ----------------
+   a reading card on a board: a raised, hairlined box that flexes from 260px and is
+   capped at 290px so a lone card never stretches to the width of a 2500px board
+   (the cap lifts under 900, where a row holds one or two cards and it was dead
+   gutter). its head puts an uppercase 11px title on the left, with a plain-weight
+   aside in <i>, against a right-hand slot that holds whatever the card has (a link,
+   a pill, both or neither: empty, it collapses so the title stays put). -a is the
+   card's one outbound link, small and bold in the accent, underlined on hover.
+   --wide takes the whole row, for the one card that is a drawing rather than text.
+   under the body, -note is the card's conclusion, a 12px sentence at the same
+   weight as what it concludes (is-warn says it in the alert colour), -fine is the
+   card's housekeeping line, 11px and faint, and -note-a is the way to fix what a
+   note names. the module orders the cards. */
+.hub-infocard { flex: 1 1 260px; max-width: 290px;
+  border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s-3); background: var(--bg-elev); }
+.hub-infocard--wide { flex: 1 1 100%; max-width: none; }
+.hub-infocard-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); margin-bottom: 8px; }
+.hub-infocard-t { font-size: var(--fs-caption); letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg); font-weight: 600; }
+.hub-infocard-t i { font-style: normal; letter-spacing: 0; text-transform: none; font-weight: 400; color: var(--fg-mute); }
+.hub-infocard-r { display: flex; align-items: center; gap: 8px; }
+.hub-infocard-r:empty { display: none; }
+.hub-infocard-a { font-size: var(--fs-caption); font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; }
+.hub-infocard-a:hover { text-decoration: underline; }
+.hub-infocard-note { margin-top: 10px; font-size: var(--fs-footnote); font-weight: 500; line-height: 1.5; color: var(--fg-mute); }
+.hub-infocard-note.is-warn { color: var(--alert); }
+.hub-infocard-fine { margin-top: 12px; font-size: var(--fs-caption); font-weight: 400; line-height: 1.5; color: var(--fg-faint); }
+.hub-infocard-note-a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+.hub-infocard-note-a:hover { color: var(--fg); }
+
+/* ---------------- step list ----------------
+   a day running downward inside a reading card: each li is a clock in the display
+   face on a 6ch track, a 2px spine, and the step in 12px muted type; is-hit is the
+   step you act on, which lights its own segment of the spine and its clock in the
+   accent and bolds its sentence. the spine is continuous because the rows have no
+   gap and the bar's negative margin spans the row padding. two things are pinned
+   on purpose: the weight goes on the text and never on the li, because the li is
+   what the ch track measures against and a bolder row shifts the spine a pixel at
+   exactly the row you are reading; and the clock's weight stays 500, because the
+   display face ships one face and asking for 600 gets a synthetic bold that reads
+   as the clock sitting off the ones above it. */
+.hub-steplist { display: flex; flex-direction: column; gap: 0; }
+.hub-steplist li { display: grid; grid-template-columns: 6ch 12px 1fr; align-items: baseline; gap: 6px; padding: 3px 0; font-size: var(--fs-footnote); font-weight: 500; color: var(--fg-mute); }
+.hub-steplist li.is-hit { color: var(--fg); }
+.hub-steplist li.is-hit .hub-steplist-what { font-weight: 600; }
+.hub-steplist-clock { font-family: var(--font-display); font-weight: 500; font-variant-numeric: tabular-nums lining-nums; color: var(--fg-mute); }
+.hub-steplist li.is-hit .hub-steplist-clock { color: var(--accent); }
+.hub-steplist-bar { justify-self: center; align-self: stretch; width: 2px; height: auto; min-height: 18px; margin: -3px 0; background: var(--line-strong); }
+.hub-steplist li.is-hit .hub-steplist-bar { background: var(--accent); }
+
+/* ---------------- figure ----------------
+   the one number a pane's head turns on, with its reading: -n is the figure in
+   32px display type, -l its label in 10px uppercase beside it on the baseline
+   (-fig is that pair), -delta the line that says how it stands against the floor
+   (is-floor in the good colour, is-over in the warn), and -split the pick spelled
+   out in words, 11px and dim. under 900 the pair stacks, the number drops to 26px
+   and wraps, and the label reads at 11px, because a long total beside its label
+   left the label a three-line column and dragged the page sideways. */
+.hub-figure { display: flex; flex-direction: column; gap: 3px; padding-bottom: var(--s-3); }
+.hub-figure-fig { display: flex; align-items: baseline; gap: var(--s-3); }
+.hub-figure-n { font-family: var(--font-display); font-size: var(--fs-large-title); line-height: 1; color: var(--fg); font-variant-numeric: tabular-nums lining-nums; }
+.hub-figure-l { font-size: var(--fs-caption); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-mute); }
+.hub-figure-delta { font-size: var(--fs-footnote); font-variant-numeric: tabular-nums lining-nums; }
+.hub-figure-delta.is-floor { color: var(--good); }
+.hub-figure-delta.is-over { color: var(--warn); }
+.hub-figure-split { font-size: var(--fs-caption); color: var(--fg-dim); }
+
+/* ---------------- stagger-in ----------------
+   the section-switch entrance. the pane takes hub-stagger-in for one run, set and
+   stripped in script and never left on (a row a later re-render inserts would
+   otherwise animate in). a pane with no hub-stagger-item inside arrives as one
+   block; one with items lets the first six rise in turn, 30ms apart, because the
+   rest are already in place when the sixth lands and an uncapped stagger on
+   thirty rows reads as a loading bar. nothing here repeats or reveals on scroll. */
+@keyframes hub-pane-in { from { opacity: 0; transform: translateY(6px); } }
+@keyframes hub-row-in  { from { opacity: 0; transform: translateY(9px); } }
+.hub-stagger-in:not(:has(.hub-stagger-item)) { animation: hub-pane-in 200ms var(--e-out-quint) both; }
+.hub-stagger-in .hub-stagger-item:nth-child(-n+6) { animation: hub-row-in 240ms var(--e-out-quint) both; }
+.hub-stagger-in .hub-stagger-item:nth-child(2) { animation-delay: 30ms; }
+.hub-stagger-in .hub-stagger-item:nth-child(3) { animation-delay: 60ms; }
+.hub-stagger-in .hub-stagger-item:nth-child(4) { animation-delay: 90ms; }
+.hub-stagger-in .hub-stagger-item:nth-child(5) { animation-delay: 120ms; }
+.hub-stagger-in .hub-stagger-item:nth-child(6) { animation-delay: 150ms; }
+@media (prefers-reduced-motion: reduce) {
+  /* matched at the rows' own (0,3,0), or the nth-child rule above outranks a plain descendant */
+  .hub-stagger-in:not(:has(.hub-stagger-item)),
+  .hub-stagger-in .hub-stagger-item:nth-child(-n+6) { animation: none; }
+}
+
+/* ---------------- chart ----------------
+   the drawing primitives of an svg chart, scaled by its viewBox: the wrapper
+   sizes the svg to its column with the height from the aspect, never a pinned
+   px, so the curve is the same shape at 380px and at 1100px (a pinned height
+   plus preserveAspectRatio=none flattened a wide column and spiked a narrow
+   one). -grid and -base are the hairline and the axis rule, -ax the axis
+   numbers, -cat the category labels along the bottom in uppercase, -v a value
+   written on the plot and -minor a small reading beside a mark. -band is a
+   range between two series at low alpha so the marks on it stay first, -line a
+   2px round-capped series, -dot a mark ringed in the page colour, -bar a column
+   at 0.34 alpha, -shade a region shaded rather than ticked (night on an hourly
+   plot, read off the band without consulting a tick) and -hit the transparent
+   column a -col catches the pointer with, lit faintly on hover and a little
+   more when is-sel. which series gets which colour or dash, and whether a bar
+   is filled, is the module's, on its own class beside these. */
+.hub-chart svg { display: block; width: 100%; height: auto; }
+.hub-chart-grid { stroke: var(--line-soft); stroke-width: 1; }
+.hub-chart-base { stroke: var(--line); stroke-width: 1; }
+.hub-chart-ax    { fill: var(--fg-faint); font-size: var(--fs-caption); font-family: var(--font-body); }
+.hub-chart-cat   { fill: var(--fg-dim); font-size: var(--fs-caption); font-family: var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; }
+.hub-chart-v     { fill: var(--fg); font-size: var(--fs-caption); font-weight: 600; font-family: var(--font-body); font-variant-numeric: tabular-nums; }
+.hub-chart-minor { fill: var(--fg-faint); font-size: var(--fs-caption); font-family: var(--font-body); font-variant-numeric: tabular-nums; }
+.hub-chart-band  { fill: var(--accent); opacity: 0.13; stroke: none; }
+.hub-chart-line  { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.hub-chart-dot   { stroke: var(--bg); stroke-width: 1.5; }
+.hub-chart-bar   { fill: var(--accent); opacity: 0.34; }
+.hub-chart-shade { fill: var(--fg); opacity: 0.055; }
+.hub-chart-hit   { fill: transparent; }
+.hub-chart-col.is-sel .hub-chart-hit { fill: var(--accent); opacity: 0.09; }
+.hub-chart-col:hover .hub-chart-hit  { fill: var(--accent); opacity: 0.06; }
+
+/* ---------------- scroll table ----------------
+   the wrapper a table wider than its column scrolls inside, sideways, at any
+   width: base.css only does this for a table's direct wrapper on a phone, and a
+   twelve-column hourly read or a score grid overflows a desktop column too.
+   the inset is the module's. */
+.hub-scroll-table { overflow-x: auto; }
+
+@media (max-width: 900px) {
+  .hub-card-grid { grid-template-columns: 1fr; }
+  /* one column: the list, then the detail under it, divided across not down */
+  .hub-split { grid-template-columns: 1fr; grid-template-rows: auto auto; }
+  .hub-pane-col { border-right: 0; border-bottom: 1px solid var(--line); }
+  /* the glyph button squares off to the 44px touch target the module gives its
+     text buttons: min-height alone would turn a 24px square into a 24x44 slot */
+  .hub-section-head-act-i { width: 44px; height: 44px; font-size: var(--fs-subhead); }
+  /* the infocard's 290px cap is a desktop column band; here it was dead gutter */
+  .hub-infocard { max-width: none; }
+  .hub-figure-fig { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .hub-figure-n { font-size: var(--fs-title); overflow-wrap: anywhere; }
+  .hub-figure-l { font-size: var(--fs-caption); }
+  /* the detail rail as a phone sheet. open (is-open, set by the module when a row
+     is selected), it takes the whole viewport under a back button, its inner
+     stack scrolls, and the page behind it does not. closed, it is gone: nothing
+     in it is actionable there, and a document-scrolling page would print the
+     summary a second time under the list. a module map inside the same stacking
+     context must hide itself while it is open (Leaflet panes run to z 800). */
+  .hub-slide-over.is-open { display: flex; flex-direction: column; position: fixed; inset: 0; z-index: 90; background: var(--bg); }
+  .hub-slide-over.is-open .hub-slide-over-close {
+    display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+    min-height: 44px; padding: 0 var(--s-4); border-bottom: 1px solid var(--line);
+    font-size: var(--fs-footnote); letter-spacing: 0.06em; text-transform: lowercase; color: var(--fg-dim);
+  }
+  .hub-slide-over.is-open .hub-detail-rail-inner { flex: 1; overflow-y: auto; }
+  .hub-slide-over:not(.is-open) { display: none; }
+  html:has(.hub-slide-over.is-open) { overflow: hidden; }
+  .hub-timeline-row { grid-template-columns: 62px minmax(0, 1fr); }
+  /* a viewport-tall box with narrower days. .hub-timeline itself becomes the one
+     scroller: a scroll container's minimum size is zero, so the grid stops
+     widening the page, and a sticky left/top only pins against the box that
+     actually scrolls. The heads pin at the top and need a known height
+     (--tl-headh) so the tray can stack under them; pinned chrome sits above
+     everything that scrolls under it (3 and 4 are the columns' own furniture). */
+  .hub-timeline { height: 76vh; --tl-day-min: 128px; --tl-h: 1150px; overflow: auto; --tl-headh: 52px; }
+  .hub-timeline-head { padding: 6px var(--s-2); flex-direction: column; gap: 0; }
+  .hub-timeline-body { overflow: visible; }
+  .hub-timeline-corner, .hub-timeline-heads { height: var(--tl-headh); position: sticky; top: 0; z-index: 6; }
+  .hub-timeline-gutter { z-index: 5; }
+  .hub-timeline-corner { left: 0; z-index: 7; background: var(--bg); }
+  /* the tray row pins under the heads and its label pins left like the corner.
+     A gutter-wide label at .1em tracking overflows the 46px gutter, so it tightens. */
+  .hub-timeline-tray-l, .hub-timeline-trays { position: sticky; top: var(--tl-headh); z-index: 6; }
+  .hub-timeline-tray-l { left: 0; z-index: 7; background: var(--bg); letter-spacing: 0.02em; padding-left: 2px; padding-right: 2px; }
+  /* the time and sub lines are read at arm's length, and a 128px day wraps the
+     name, so the name clamps at two lines and the floor holds all of it:
+     17 + 34 + 18 + 3 of gap + 6 of padding */
+  .hub-timeline-block-t, .hub-timeline-block-s { font-size: var(--fs-caption); }
+  .hub-timeline-block { min-height: 80px; }
+  .hub-timeline-block-n { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .hub-carousel-slide img { height: clamp(170px, 26vh, 260px); }
+  /* read at arm's length */
+  .hub-col-group-k { font-size: var(--fs-caption); }
+}
+
+/* A proportional coverage bar: outlets split left/center/right by lean, a
+   counts row under it, and a plain-words gap line when a bucket is empty.
+   Lifted verbatim from the news-cluster-coverage option B design pick. */
+.coverage-bar {
+  display: flex; gap: 2px; height: 8px; border-radius: 2px; overflow: hidden;
+  background: var(--line-soft);
+}
+.coverage-seg.k-L { background: var(--lean-l); }
+.coverage-seg.k-C { background: var(--lean-c); }
+.coverage-seg.k-R { background: var(--lean-r); }
+.coverage-counts { display: flex; flex-wrap: wrap; gap: 4px 14px; white-space: nowrap; font-size: var(--fs-footnote); color: var(--fg-dim); font-variant-numeric: tabular-nums; }
+.coverage-ct b { color: var(--fg); font-weight: 600; }
+.coverage-ct.zero { color: var(--fg-ghost); }
+.coverage-ct.zero b { color: var(--fg-ghost); }
+.coverage-prim { margin-left: auto; color: var(--lean-p); }
+.coverage-gap { margin: 0; font-size: var(--fs-footnote); font-weight: 600; color: var(--warn); }
+.coverage-names { margin: 0; font-size: var(--fs-footnote); color: var(--fg-faint); }
+
+/* ---------------- list filter rail (HubListFilter) ----------------
+   Portable search + facet + sort control for a rail's top: static/js/list-filter.js
+   mounts the `.hub-lf*` markup below and drives it (state, counts, sort).
+   Visual source: data/workbench/options/list-filter-rail/options.html, card B
+   ("the select-all box shows a partial state"): a search bar with a fold
+   toggle at its right end, a full-width raised sort field under it, and a
+   bordered two-column stage grid headed by a tri-state select-all row. */
+.hub-lf { display: flex; flex-direction: column; gap: 8px; font-family: var(--font-body); }
+
+/* search bar + fold toggle share one bordered strip, the toggle riding the
+   accent tint while open so its open/closed state reads without the arrow. */
+.hub-lf-bar { display: flex; height: 30px; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--bg-elev); }
+.hub-lf-search { flex: 1 1 auto; min-width: 0; border: 0; border-radius: 0; height: 28px; padding: 0 10px; background: transparent; color: var(--fg); font: var(--fs-footnote) var(--font-body); }
+.hub-lf-search::placeholder { color: var(--fg-faint); }
+.hub-lf-search:focus { outline: none; }
+.hub-lf-fold { flex: none; display: flex; align-items: center; gap: 5px; padding: 0 10px; border: 0; border-left: 1px solid var(--line); background: var(--accent-faint); color: var(--fg); font-size: var(--fs-footnote); white-space: nowrap; cursor: pointer; }
+.hub-lf-fold[aria-expanded="false"] { background: var(--bg-elev); color: var(--fg-dim); }
+.hub-lf-fold:hover { color: var(--fg); }
+
+/* sort field: raised the same as the search bar, full rail width. The body
+   button (icon + label + chevron) opens the listbox; the direction segment
+   is a separate button on the right, divided by its own left border like
+   the stage grid's select-all row divides itself from the options below it. */
+.hub-lf-sort { position: relative; display: flex; height: 30px; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-elev); }
+.hub-lf-sort-body { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 0 10px; border: 0; background: transparent; color: var(--fg); font: var(--fs-footnote) var(--font-body); text-align: left; cursor: pointer; }
+.hub-lf-sort-ico { font-size: var(--fs-footnote); color: var(--fg-faint); }
+.hub-lf-sort-label { flex: 1 1 auto; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hub-lf-sort-chev { font-style: normal; font-size: var(--fs-caption); color: var(--fg-faint); }
+.hub-lf-sort-dir { flex: none; width: 30px; align-self: stretch; display: grid; place-items: center; border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--fg-dim); cursor: pointer; }
+.hub-lf-sort-body:hover, .hub-lf-sort-dir:hover { color: var(--fg); }
+
+/* the listbox: absolutely positioned under the field, left edge aligned with
+   the body button and right edge clear of the direction segment. */
+.hub-lf-sort-menu { position: absolute; top: calc(100% + 4px); left: 0; right: 30px; z-index: 20; display: flex; flex-direction: column; padding: 4px; gap: 2px; background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r); box-shadow: var(--modal-shadow); }
+.hub-lf-sort-menu[hidden] { display: none; }
+.hub-lf-sort-opt { display: flex; align-items: center; padding: 6px 8px; border: 0; border-radius: var(--r); background: transparent; color: var(--fg-dim); font: var(--fs-footnote) var(--font-body); text-align: left; cursor: pointer; }
+.hub-lf-sort-opt:hover, .hub-lf-sort-opt:focus-visible { background: var(--bg); color: var(--fg); outline: none; }
+.hub-lf-sort-opt[aria-selected="true"] { color: var(--fg); font-weight: 600; }
+
+/* the bordered stage grid: two columns when the rail is wide enough, one in a
+   narrow rail. Each row (select-all + options) is a real button so the whole
+   control is keyboard reachable without extra ARIA scaffolding: role=checkbox +
+   aria-checked carries the state a native checkbox would, "mixed" on the
+   select-all row when the selection is partial. */
+.hub-lf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); gap: 0 14px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r); }
+.hub-lf-grid[hidden] { display: none; }
+.hub-lf-all, .hub-lf-opt { display: grid; grid-template-columns: 13px 1fr auto; align-items: center; gap: 7px; padding: 3px 0; border: 0; background: transparent; font: var(--fs-footnote) var(--font-body); color: var(--fg-dim); text-align: left; cursor: pointer; }
+/* the select-all row spans both columns and reads as the grid's header:
+   bold, with a rule under it separating it from the options it governs. */
+.hub-lf-all { grid-column: 1 / -1; font-weight: 600; color: var(--fg); padding-bottom: 6px; margin-bottom: 4px; border-bottom: 1px solid var(--line-soft); }
+.hub-lf-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hub-lf-box { width: 12px; height: 12px; border: 1px solid var(--line-strong); border-radius: 3px; }
+.hub-lf-opt.is-on .hub-lf-box, .hub-lf-all.is-all .hub-lf-box { background: var(--accent); border-color: var(--accent); }
+/* the dash: a partial selection fills neither, so the box gets its own mark
+   rather than reusing the filled state (workbench round six, card B). */
+.hub-lf-all.is-some .hub-lf-box { position: relative; border-color: var(--accent); }
+.hub-lf-all.is-some .hub-lf-box::after { content: ""; position: absolute; left: 2px; right: 2px; top: 5px; height: 1.5px; background: var(--accent); }
+/* a stage with no rows in it stays clickable, just dimmed; a switched-on
+   empty stage keeps a hollow box so "on" is still legible at zero. */
+.hub-lf-opt.is-zero, .hub-lf-opt.is-zero .hub-lf-n { color: var(--fg-ghost); }
+.hub-lf-opt.is-zero.is-on .hub-lf-box { background: none; border-color: var(--accent); opacity: .35; }
+.hub-lf-n { color: var(--fg-dim); font-variant-numeric: tabular-nums; }

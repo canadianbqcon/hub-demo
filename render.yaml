@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: hub-demo
+    runtime: docker
+    plan: free
+    region: ohio
+    healthCheckPath: /healthz
+    autoDeploy: true

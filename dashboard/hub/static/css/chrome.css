@@ -1,0 +1,342 @@
+/* chrome.css — shared Hub chrome (Topbar, StatusStrip, ModuleLauncher,
+   SurfaceToggle) extracted from home.css 2026-06-17 so purchases (and future
+   React surfaces) reuse the exact chrome styling instead of duplicating it.
+   Tokens (--font, --font-body, --s-*, --status-h, --r-card, --line, --accent,
+   --fg*, --bg*) come from the theme files (vesper/cobalt/glass), which every
+   page loads — so these rules resolve identically on home and purchases. The
+   .theme-picker* styling is injected by theme-switch.js, not here. Loaded by
+   BOTH index.html (home) and purchases-react.html. */
+
+/* ---------------- topbar ---------------- */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  /* see the injected twin in theme-switch.js: the shell is a grid, and a grid
+     item's automatic minimum size is min-content, so without this a long crumb
+     pushes the whole document sideways on a phone. */
+  min-width: 0;
+  padding: var(--s-2) var(--s-4) var(--s-2) var(--s-5);
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  /* 56px, not 88: the bar is chrome, not a header. 88 sized itself to a 72px
+     brand mark no page renders, so it was pure dead band above every module's
+     first real row. Keep in sync with the injected twin in theme-switch.js and
+     with --topbar-h in jc.css. */
+  min-height: 56px;
+}
+.topbar-l { display: flex; align-items: center; gap: var(--s-5); }
+.brand-mark {
+  display: block;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  /* light / dark marks carry their own colour. */
+}
+.brand-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1;
+}
+.brand-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.brand-wordmark {
+  /* the wordmark is an <h1> on every vanilla page, and nothing in the shared
+     layer zeroes UA margins (base.css owns the box model only). Left alone it
+     added 0.67em top and bottom, which is what rendered /work's bar at 86px
+     against the 56 every other page gets. Keep in sync with the injected twin
+     in theme-switch.js. */
+  margin: 0;
+  font-family: var(--font);
+  font-feature-settings: var(--feat-display);
+  font-weight: 400;
+  font-size: var(--fs-title);
+  letter-spacing: 0.04em;
+  color: var(--fg);
+  text-transform: lowercase;
+  line-height: 1;
+}
+.brand-slogan {
+  font-family: var(--font);
+  font-feature-settings: var(--feat-meta);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--fs-caption);
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  text-transform: lowercase;
+  line-height: 1;
+}
+.crumb-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-left: var(--s-4);
+  border-left: 1px solid var(--line);
+  margin-left: var(--s-3);
+}
+.crumb {
+  font-family: var(--font);
+  font-feature-settings: var(--feat-display);
+  font-weight: 500; font-size: var(--fs-body);
+  color: var(--fg); letter-spacing: 0.02em;
+  text-transform: lowercase;
+  line-height: 1;
+}
+/* second crumb line — a live count or status under the page name (/artifacts
+   uses it). The chrome extraction left this behind in home.css, so the one page
+   still emitting it rendered a bare span at the body's default line-height and
+   pushed the bar to 59px. line-height:1 is what keeps it inside the 56.
+   Keep in sync with the injected twin in theme-switch.js. */
+.crumb-meta {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-style: italic;
+  font-size: var(--fs-footnote);
+  line-height: 1;
+  color: var(--fg-dim);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.crumb-meta .sep { color: var(--fg-ghost); margin: 0 6px; font-style: normal; }
+
+.topbar-r { display: flex; align-items: center; gap: var(--s-2); }
+
+.surface-toggle {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-size: var(--fs-footnote);
+  letter-spacing: 0.06em;
+  color: var(--fg-dim);
+  text-transform: lowercase;
+  transition: border-color 120ms ease-out, color 120ms ease-out, background 120ms ease-out;
+}
+.surface-toggle:hover { border-color: var(--accent-dim); color: var(--fg); background: var(--bg-elev); }
+.surface-toggle .dot {
+  width: 8px; height: 8px; border-radius: var(--r-pill);
+  background: var(--accent); display: inline-block;
+}
+/* icon-only light/dark toggle — sun (light) / moon (dark), no word label */
+.surface-toggle-icon { width: var(--ctl-h); padding: 0; justify-content: center; overflow: hidden; }
+.surface-ico { font-size: var(--fs-subhead); line-height: 1; display: inline-block; }
+
+.launcher {
+  display: inline-flex; align-items: center; gap: var(--s-2);
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-size: var(--fs-footnote);
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  text-transform: lowercase;
+  transition: background 120ms ease-out, border-color 120ms ease-out, color 120ms ease-out;
+}
+.launcher:hover { border-color: var(--accent-dim); background: var(--bg-elev); color: var(--fg); }
+.launcher .kbd {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-style: italic;
+  font-size: var(--fs-caption);
+  color: var(--fg-dim);
+  padding: 1px 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--bg-elev);
+}
+
+/* ---------------- module launcher ---------------- */
+.launch-scrim {
+  position: fixed; inset: 0;
+  background: var(--launch-scrim);
+  display: flex; align-items: flex-start; justify-content: center;
+  padding-top: 96px;
+  padding-bottom: var(--s-4);
+  /* 1200: above Leaflet's control layer (1000). twin of theme-switch.js's injected copy. */
+  z-index: 1200;
+  backdrop-filter: blur(3px);
+}
+.launch-panel {
+  width: min(720px, 92vw);
+  background: var(--bg-elev);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-card);
+  /* the max-height + overflow-y the phone note below called for. The card was
+     sized by its tiles and clipped by overflow:hidden, so 11 tiles growing to 13
+     put the foot 29px past the fold at 1440x900 and the whole UTILITIES tier past
+     it at 1024x768, with a fixed scrim offering nothing to scroll. 100% resolves
+     against the scrim's content box, so its padding is the breathing room. */
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: var(--modal-shadow);
+}
+.launch-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: var(--s-4);
+  border-bottom: 1px solid var(--line);
+  /* pinned, so the title stays put while the tiers scroll under it */
+  position: sticky; top: 0; z-index: 1; background: var(--bg-elev);
+}
+.launch-head .lbl {
+  font-family: var(--font);
+  font-feature-settings: var(--feat-display);
+  font-weight: 500; font-size: var(--fs-title);
+  color: var(--fg); letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+.launch-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+  background: var(--line-soft); padding: 1px;
+}
+.launch-tile {
+  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-5) var(--s-4);
+  background: var(--bg-elev);
+  border: 0; text-align: left; cursor: pointer;
+  transition: background 120ms ease-out;
+}
+/* hover = the "select the module" gesture: a hard-stop diagonal fill. quiet by
+   default — accent-faint, no lift or shadow — to stay in vesper's flat voice;
+   cobalt.css overrides this with its brutalist accent fill + offset shadow. */
+.launch-tile:hover { background: linear-gradient(135deg, var(--accent-faint) 50%, var(--bg-elev-2) 50%); }
+/* glyph + name on one line (treatment C). The glyph is decorative and stays at
+   --fg-faint so the name keeps the tile's hierarchy; hover lifts it one step, in
+   step with the tile's own hover. 20px is fixed everywhere, including the wide
+   home tile: the 1.2n+0.6 stroke grid the marks are drawn on only lands on whole
+   pixels at 20px and 60px, so a 28px or 40px copy renders blurrier, not bigger. */
+.launch-tile .tile-row {
+  display: flex; align-items: center; gap: var(--s-3);
+}
+.launch-tile .tile-glyph {
+  flex: 0 0 auto;
+  width: 20px; height: 20px;
+  color: var(--fg-faint);
+  stroke: currentColor; fill: none;
+  stroke-width: 1.4;
+  stroke-linecap: round; stroke-linejoin: round;
+  transition: color 120ms ease-out;
+}
+.launch-tile:hover .tile-glyph { color: var(--fg-dim); }
+.launch-tile .tile-name {
+  font-family: var(--font);
+  font-feature-settings: var(--feat-display);
+  font-weight: 500; font-size: var(--fs-title);
+  color: var(--fg); letter-spacing: 0.02em;
+  text-transform: lowercase;
+}
+/* ---- tiered launcher: home mainstay → workspaces → utilities ---- */
+.launch-tier + .launch-tier { border-top: 1px solid var(--line); }
+.tier-label {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-weight: 500; font-size: var(--fs-caption);
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--fg-faint);
+  padding: var(--s-4) var(--s-4) var(--s-2);
+}
+/* home tier: one full-width mainstay block, row layout with a trailing arrow —
+   biggest type in the launcher so the hub reads as the anchor. */
+.launch-grid.tier-home { grid-template-columns: 1fr; }
+.launch-tile.tile-home {
+  flex-direction: row; align-items: center; justify-content: space-between;
+}
+.launch-tile.tile-home .tile-name { font-size: var(--fs-large-title); }
+.launch-tile.tile-home .tile-arrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-title); color: var(--accent); line-height: 1;
+}
+/* the phone-only dismiss. Hidden by default: on desktop the scrim gap and Escape
+   already close the launcher, so this would be a third redundant control. */
+.launch-close { display: none; }
+
+/* ---- phone: the launcher becomes a full-bleed overlay ----
+   As a floating card it did not fit. Ten to eleven tiles at two columns build a
+   1070-1190px panel, the scrim pinned its top 64px down inside an 844px viewport,
+   and nothing scrolled: `.launch-panel` is `overflow:hidden` and a `position:fixed`
+   scrim with visible overflow gives the user no way to reach what hangs below. So
+   the bottom tier (vault-map) and the foot were simply unreachable on a phone.
+   Now the panel IS the viewport and scrolls inside itself, with the head pinned.
+   Same idiom as the shared phone slide-over (`hub-slide-over`).
+   The max-height arm is the same bug reached from the other side: an iPhone in
+   landscape is 844px WIDE, so a width-only query left it on the floating card in
+   a 390px-tall viewport and it still hung 401px past the fold. 500px catches every
+   phone in landscape (the tallest is ~430px) and no real desktop window.
+   ponytail: a genuinely short desktop window (~600-700px tall) still clips the
+   card, since the deliverable was "no desktop change". Widen this max-height, or
+   give .launch-panel a max-height + overflow-y at every size, if that ever matters.
+   MUST stay after the .launch-* rules above — a media query adds no specificity,
+   so source order is what makes these win. Twin of theme-switch.js's injected
+   block; change both. Desktop is untouched above 640px wide / 500px tall. */
+/* ---- soft header bands (Workbench pick 2026-10-11): four columns, one per group, each under a band tinted in its group color; rows keep the 20px glyph in that color. Selectors carry .launch-panel so cobalt's tile border, hover drop and current-tile stripes stay off the rows. Twin of theme-switch.js; change both. */
+.launch-panel{width:min(1000px,94vw);padding-bottom:var(--s-5);}
+.launch-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:var(--s-4) 12px 0;}
+.launch-cols .g-today{--g:#e0a030;}.launch-cols .g-life{--g:#36b37e;}.launch-cols .g-career{--g:#5b8cff;}.launch-cols .g-system{--g:#a77bff;}
+.launch-panel .launch-cols .launch-tier{border-top:0;}
+.launch-panel .launch-cols .tier-label{margin:0 6px 8px;padding:8px 10px;border-radius:4px;font-size:var(--fs-footnote);font-weight:600;background:color-mix(in srgb,var(--g) 18%,transparent);color:color-mix(in srgb,var(--g) 55%,var(--fg));}
+.launch-panel .launch-cols .launch-grid{grid-template-columns:1fr;gap:0;background:transparent;padding:0;}
+.launch-panel .launch-cols .launch-tile{min-height:48px;padding:0 14px;justify-content:center;border:0;border-radius:4px;background:transparent;box-shadow:none;transform:none;}
+.launch-panel .launch-cols .launch-tile:hover{background:var(--accent-faint);box-shadow:none;transform:none;}
+.launch-panel .launch-cols .launch-tile.is-current{background:color-mix(in srgb,var(--accent) 32%,transparent);box-shadow:none;}
+.launch-panel .launch-cols .tile-glyph{color:var(--g);}
+.launch-panel .launch-cols .tile-name{font-size:var(--fs-body);}
+
+@media (max-width: 640px), (max-height: 500px) {
+  .launch-scrim { padding: 0; align-items: stretch; }
+  .launch-panel {
+    width: 100%;
+    /* biome-ignore lint/suspicious/noDuplicateProperties: deliberate fallback —
+       100vh first for browsers without dvh support, 100dvh after so it wins
+       where supported (last-declaration-wins is the mechanism, not a mistake). */
+    height: 100vh; height: 100dvh;   /* dvh so iOS Safari's collapsing toolbar
+                                        cannot park the foot under the chrome */
+    border: 0; border-radius: 0;
+    overflow-y: auto;                /* base rule is overflow:hidden — x stays hidden */
+    -webkit-overflow-scrolling: touch;
+  }
+  /* pinned so "modules" and the dismiss stay reachable at any scroll depth */
+  .launch-head {
+    position: sticky; top: 0; z-index: 1;
+    align-items: center;
+    background: var(--bg-elev);
+  }
+  /* full-bleed leaves no scrim to tap and a phone has no Escape key, so without
+     this the only way out of the overlay would be navigating to a module. */
+  .launch-close {
+    display: inline-flex; align-items: center;
+    min-height: 44px; padding: 0 var(--s-2);
+    border: 0; background: transparent; cursor: pointer;
+    font-family: var(--font-body);
+    font-feature-settings: var(--feat-meta);
+    font-size: var(--fs-footnote); letter-spacing: 0.06em;
+    text-transform: lowercase; color: var(--fg-dim);
+  }
+  /* minmax(0,1fr), not 1fr: once the rule below pulls the last tile out of the
+     column track, nothing else constrains the two remaining tiles and their
+     min-content widths pull the columns to unequal sizes. The 0 floor keeps
+     them even. */
+  .launch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Two columns leave a tile-shaped hole beside the last tile of any odd tier
+     (utilities has three), and the hole is visible because the grid's own
+     --line-soft background shows through the 1px gutter. Widen that last tile
+     across both columns instead. :nth-child(odd) is what makes it fire only on
+     odd tiers — in an even tier the last tile sits at an even position. */
+  .launch-grid > .launch-tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  /* At an even 194px column the longest single-word name ("capabilities") runs
+     past the tile at the desktop 18px. min-width:0 lets the flex name shrink at
+     all — without it the row refuses to go below its content and simply spills.
+     Full-width spanning tiles keep the desktop size, they have the room. */
+  .launch-tile .tile-row { min-width: 0; }
+  .launch-tile .tile-name { min-width: 0; font-size: var(--fs-body); overflow-wrap: anywhere; }
+  .launch-tile:last-child:nth-child(odd) .tile-name { font-size: var(--fs-body); }
+  .launch-panel .launch-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:var(--s-4) 10px 0;}
+  .launch-panel .launch-cols .launch-tile{padding:0 10px;}
+  .launch-panel .launch-cols .tile-name{font-size:var(--fs-body);}
+}

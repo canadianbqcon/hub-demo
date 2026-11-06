@@ -1,0 +1,1312 @@
+/* ============================================================
+   hub · purchases — the decision board.
+
+   Rebuilt 2026-08-28. The page answers one question per decision:
+   what am I buying, and is the case for it finished. Everything on
+   screen is either that case being assembled or the number it
+   resolves to.
+
+   THEME-AGNOSTIC: every colour, radius and space reads a shared hub
+   token (vesper/cobalt/glass own them). No hardcoded colours, and no
+   module-local alias vocabulary — the previous file aliased --surface/
+   --text/--border onto hub tokens and then grew two more layers on top,
+   which is why nothing on the page lined up with anything else.
+   ============================================================ */
+
+:root {
+  --rail-w: 244px;
+  /* The page's ONE horizontal inset. Every block inside a tab is either
+     inset by this (heads, fieldsets, grids) or full-bleed by design (a
+     row list whose own hairline IS the divider). Those were five
+     different numbers before — 14, 15, 16, 22, and 2 — which read as
+     drift even when each block was individually fine. */
+  --pane-gutter: var(--s-5);
+  /* Page-level motion, not palette: the theme files are frozen and these
+     are not colours. No bounce, no elastic. */
+  --e-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --e-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  /* The ONE transition on the page. It was a 120 millisecond ease-out in 26 places while
+     the two easings above sat unused outside the toast; DESIGN.md's band is
+     150-250ms. */
+  --t: 160ms var(--e-out-quart);
+  /* Above the hub modal scrim (base.css, 100), below the module launcher
+     (chrome.css, 1200). */
+  --z-toast: 200;
+}
+
+/* The ONE micro-label. These were three sizes (9/10/11) and four trackings
+   across the page; 9px is under the legibility floor. Every tracked caps
+   label reads this, and a rule below adds only what differs (weight, fill). */
+.pmoney-l, .pfact-l, .pe-stage-label, .pe-field-label, .reflect-k,
+.dim-label, .con-group-head, table.specs th, .form-field label {
+  font-size: var(--fs-caption); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-mute);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+  background: var(--bg);
+  color: var(--fg);
+  /* 15/1.5, matching the rest of the hub. The old 16/1.6 was set for
+     prose and made every dense surface here — the score grid, the
+     candidate list, the spec contract — read loose. */
+  font-size: var(--fs-subhead);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+button, input, textarea, select { font: inherit; color: inherit; background: none; border: 0; }
+button { cursor: pointer; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); }
+
+/* ═══ SHELL — rail | working pane ═════════════════════════════════════════
+   Two columns, not three. The spec contract used to be a permanent 340px
+   third column: on the compare tab that starved an eight-candidate scoring
+   grid until its last column fell off the page, and on the need tab it was
+   340px of constraint prose beside a form. It is a per-tab share of the
+   working pane now (see .pe-split), which is the same trade the trips page
+   made when its fixed 372px rail gave a fare table and a card grid the
+   same width. */
+
+.hub-shell.pe-shell {
+  /* topbar · mode strip · body · status. The mode strip is the one piece of
+     page-level navigation: the pipeline and the orders it produced. */
+  grid-template-rows: auto auto 1fr var(--status-h);
+  height: 100dvh;
+  background: var(--bg);
+  color: var(--fg);
+}
+.pe-body {
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ═══ RAIL — the decision list ════════════════════════════════════════════ */
+
+.pe-rail {
+  position: relative;
+  display: flex; flex-direction: column;
+  min-height: 0; min-width: 0;
+  background: var(--bg);
+  border-right: 1px solid var(--line);
+  overflow: hidden;
+}
+/* a collapsed rail is 0 wide, so its edge handle would be clipped with it */
+.pe-rail.collapsed .pe-rail-edge { display: none; }
+.pe-rail.collapsed { width: 0; min-width: 0; border-right: 0; }
+/* the rail's grid track is fixed at --rail-w, so a 0-wide rail alone left a
+   244px hole; the track has to go with it */
+.pe-body:has(.pe-rail.collapsed) { grid-template-columns: 0 minmax(0, 1fr); }
+/* Pour: the rail glides shut and open (Workbench pick 2026-10-15) */
+.pe-body { transition: grid-template-columns 420ms cubic-bezier(.16,1,.3,1); }
+@media (prefers-reduced-motion: reduce) { .pe-body { transition: none; } }
+
+.pe-rail-head {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.pe-rail-title {
+  font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--fg-mute);
+}
+
+.pe-rail-summary {
+  display: flex; flex-direction: column; gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+/* Open budget is not a filter and stopped pretending to be one. It reads as a
+   labelled line under the two cells that ARE buttons — the shape now matches
+   what the thing does, which is the whole reason the third cell moved. */
+.pe-budline {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2);
+  padding-top: var(--s-3); border-top: 1px solid var(--line-soft);
+}
+.pe-budline-l { font-size: var(--fs-caption); color: var(--fg-mute); }
+.pe-budline-n {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-size: var(--fs-body); color: var(--fg); font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Collapse sits on the border it drags, not in a header row — the header is
+   gone, and an edge handle is where the hand goes for one anyway. */
+.pe-rail-edge {
+  position: absolute; top: 50%; right: 0; transform: translateY(-50%);
+  z-index: 1;
+  width: 13px; height: 38px; padding: 0;
+  display: grid; place-items: center;
+  background: var(--bg-elev); border: 1px solid var(--line); border-right: 0;
+  color: var(--fg-mute); font-size: var(--fs-caption); line-height: 1; cursor: pointer;
+  transition: color var(--t), border-color var(--t);
+}
+.pe-rail-edge:hover { color: var(--accent); border-color: var(--accent); }
+
+/* The list carries the state, so no row repeats a word its neighbours said.
+   Sticky, because the heading is the only thing telling you which bucket you
+   are in once the group is taller than the pane. */
+.pe-group-head {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2);
+  padding: var(--s-1) var(--s-4);
+  background: var(--bg-elev); border-bottom: 1px solid var(--line);
+  font-size: var(--fs-caption); letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-mute);
+}
+.pe-group-n {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-size: var(--fs-footnote); letter-spacing: 0; color: var(--fg-dim);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* The create button over the foot of the list, no bordered strip. The negative
+   margin pulls it back over the last rows and the fade says the list continues
+   underneath, which a hard border denied. */
+.pe-rail-newfloat {
+  position: relative; flex-shrink: 0;
+  margin-top: calc(-1 * var(--s-7) - var(--s-4));
+  padding: var(--s-3) var(--s-4);
+  pointer-events: none;
+  background: linear-gradient(to top, var(--bg) 58%, transparent);
+}
+.pe-rail-newfloat .sidebar-btn { pointer-events: auto; }
+
+.pe-rail-list { flex: 1; overflow-y: auto; min-height: 0; }
+
+/* One row per decision. The old row hung an eight-segment dash strip under
+   the name with no legend and no scale, so it read as texture; the stage is
+   a word now, which is the thing the strip was encoding. State is the fill
+   and the stage word's colour: the 2px side-stripe that used to carry it is
+   the accent border DESIGN.md bans, and the totals above already use this
+   same accent fill for "this is what I'm looking at". */
+.pe-proj-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline; gap: 2px var(--s-2);
+  width: 100%; text-align: left;
+  padding: var(--s-2) var(--s-4);
+  border-bottom: 1px solid var(--line-soft);
+  transition: background var(--t);
+}
+.pe-proj-row:hover { background: var(--bg-elev); }
+.pe-proj-row.active { background: color-mix(in oklab, var(--accent) 14%, var(--bg-elev)); }
+.pe-proj-row.is-cancelled .pe-proj-name { color: var(--fg-dim); text-decoration: line-through; text-decoration-color: var(--line-strong); }
+.pe-proj-name {
+  grid-column: 1;
+  font-size: var(--fs-subhead); font-weight: 500; color: var(--fg); line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pe-proj-row.active .pe-proj-name { font-weight: 600; }
+.pe-proj-sub {
+  grid-column: 1;
+  display: flex; align-items: baseline; gap: var(--s-2);
+  font-size: var(--fs-caption); color: var(--fg-mute);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.pe-proj-stage { letter-spacing: 0.04em; }
+.pe-proj-row.is-decided .pe-proj-stage { color: var(--good); }
+.pe-proj-budget {
+  grid-row: 1 / 3; grid-column: 2; align-self: center;
+  font-family: var(--font-display); font-size: var(--fs-subhead); color: var(--fg-dim);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* The number the whole page resolves to, pinned to the foot of the rail.
+   A purchase decision exists to answer "what is this going to cost me", and
+   until now that figure appeared nowhere in the chrome — you had to open the
+   compare tab and read a price column. Budget is the ceiling you set; ask is
+   the leading candidate's actual price, so the pair reads as "what I allowed"
+   over "what it costs". The 2px accent rule marks the block: not a new colour,
+   the accent already in the palette spent where it means something. */
+.pe-rail-money {
+  display: flex; flex-direction: column; gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  border-top: 2px solid var(--accent);
+  flex-shrink: 0;
+}
+.pmoney { display: flex; flex-direction: column; gap: 3px; line-height: 1.15; }
+.pmoney-n {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-size: var(--fs-title); color: var(--fg);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.pmoney.is-sub .pmoney-n { font-size: var(--fs-body); color: var(--fg-dim); }
+.pmoney.is-over .pmoney-n { color: var(--warn); }
+
+.pe-rail-actions { padding: var(--s-3) var(--s-4); border-top: 1px solid var(--line); flex-shrink: 0; }
+
+/* One filled action per view: the create button. Everything else on the page
+   is a utility and stays outlined, so the fill is what says "this is the
+   thing you came here to do". */
+.sidebar-btn {
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: var(--ctl-h); padding: 0 10px; line-height: 1; white-space: nowrap; border: 0; border-radius: var(--r-card); background: var(--bg-elev-2, var(--bg-elev));
+  width: 100%; text-align: center;
+  color: var(--fg); font-size: var(--fs-footnote); font-weight: 500; letter-spacing: 0.02em;
+  transition: background var(--t);
+}
+.sidebar-btn:hover { background: var(--bg-hover); }
+.sidebar-btn.primary { background: var(--accent); color: var(--on-accent, var(--bg)); font-weight: 600; }
+.sidebar-btn.primary:hover { background: var(--accent-dim); }
+
+/* ═══ ARENA — head, then a per-tab split ══════════════════════════════════ */
+
+.pe-arena { display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden; }
+
+.pe-focus-head {
+  padding: var(--s-4) var(--pane-gutter) 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.pe-focus-top { display: flex; align-items: baseline; gap: var(--s-4); }
+.pe-focus-title {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-size: var(--fs-title); font-weight: 500; letter-spacing: 0.01em;
+  text-transform: lowercase; color: var(--fg);
+  flex: 1; min-width: 0; line-height: 1.15;
+}
+.pe-focus-title .editable-value { font-size: var(--fs-title); }
+.pe-focus-title .editable-input { font-size: var(--fs-title); width: 100%; }
+
+.focus-action {
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: var(--ctl-h); padding: 0 10px; line-height: 1; white-space: nowrap; border: 0; border-radius: var(--r-card); background: var(--bg-elev-2, var(--bg-elev));
+  font-size: var(--fs-footnote); font-weight: 500; color: var(--fg-mute);
+  transition: color var(--t), background var(--t);
+}
+.focus-action:hover { color: var(--fg); background: var(--bg-hover); }
+.focus-action.alert:hover { color: var(--alert); background: color-mix(in oklab, var(--alert) 22%, var(--bg-elev)); }
+
+/* The facts row. The header carried the decision's name and nothing else —
+   no count, no budget, no price range, no leader — so the one surface you
+   always see said the least. Same idiom the trips landing card uses under
+   its own rule: a tabular number and a tracked micro-label, read as a
+   sentence rather than as tiles. */
+.pe-facts {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-2) var(--s-5);
+  margin-top: var(--s-3); padding-top: var(--s-3);
+  border-top: 1px solid var(--line-soft);
+}
+.pfact { display: flex; align-items: baseline; gap: var(--s-2); }
+.pfact-n {
+  font-size: var(--fs-body); font-weight: 600; color: var(--fg);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.pfact.is-zero .pfact-n { color: var(--fg-faint); }
+/* The leading candidate is the one thing this page exists to produce, so its
+   score is the only accent-coloured figure in the row. */
+.pfact.is-lead .pfact-n { color: var(--accent); }
+.pe-stage-control { display: inline-flex; align-items: baseline; gap: var(--s-2); margin-left: auto; }
+
+/* Seven tabs is a lot of header, and every one of them used to carry a
+   two-line label plus an italic gloss — fourteen lines of type above the
+   content. The gloss belongs to the tab you are on, so only that one shows
+   it; the rest are one word each. */
+.hub-tabs.surface-tabs {
+  align-items: flex-end; gap: 2px;
+  margin: var(--s-3) calc(-1 * var(--pane-gutter)) -1px;
+  padding: 0 var(--pane-gutter);
+  overflow-x: auto; scrollbar-width: none;
+}
+.surface-tabs::-webkit-scrollbar { display: none; }
+.hub-tab.surface-tab {
+  flex: 0 0 auto; align-items: baseline; gap: var(--s-1);
+  padding: var(--s-2) var(--s-3);
+  font-size: var(--fs-footnote); letter-spacing: 0.04em; text-transform: lowercase;
+}
+.hub-tab.surface-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.surface-tab .stub { font-style: italic; font-size: var(--fs-caption); color: var(--fg-faint); }
+
+/* ── THE SPLIT — tab content | side pane, sized per tab ───────────────────
+   Every tab here wants a different share of the row. compare is an
+   n-candidate scoring grid and takes the whole pane; need is a form and
+   reads better at a fixed measure than stretched; candidates puts the
+   deep-dive beside the list instead of stacking it below (which is why the
+   old page ran a screen and a half tall and ended in dead space). */
+.pe-split {
+  display: grid; min-height: 0; min-width: 0; flex: 1;
+  grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+}
+.pe-split[data-split="compare"] { grid-template-columns: minmax(0, 1fr); }
+.pe-split[data-split="candidates"] { grid-template-columns: minmax(0, 1.7fr) minmax(360px, 1fr); }
+.pe-split[data-split="verdict"] { grid-template-columns: minmax(0, 2.2fr) minmax(300px, 1fr); }
+
+.pe-focus-body { overflow-y: auto; overflow-x: hidden; min-height: 0; min-width: 0; }
+/* One inset for the whole tab. Row lists are the exception — a row's own
+   hairline IS the divider, so it has to run edge to edge — and they pull
+   back out with .pe-bleed rather than each block inventing its own padding.
+   That was the drift: five insets across the page, none of them wrong on
+   their own, none of them agreeing. */
+.pe-tab { padding: var(--s-4) var(--pane-gutter) 64px; }
+.pe-bleed { margin-left: calc(-1 * var(--pane-gutter)); margin-right: calc(-1 * var(--pane-gutter)); }
+
+/* need is a form, so it wants a measure rather than the full window. The side
+   pane gives it one without leaving a void where a hard cap would. */
+.pe-split[data-split="need"] { grid-template-columns: minmax(0, 1.9fr) minmax(320px, 1fr); }
+
+.pe-section-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3);
+  padding-bottom: var(--s-2); margin-bottom: var(--s-3);
+  border-bottom: 1px solid var(--line-strong);
+}
+/* a second (or later) section on the same tab, spaced off the one above it —
+   this was an inline marginTop in four JSX files, at two different values */
+.pe-section-head.is-second { margin-top: var(--s-7); }
+.section-title {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display), var(--feat-tnum);
+  font-size: var(--fs-body); font-weight: 500; letter-spacing: 0.01em;
+  text-transform: lowercase; color: var(--violet-label);
+}
+.section-meta { font-size: var(--fs-caption); letter-spacing: 0.04em; color: var(--fg-mute); }
+.section-add {
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: var(--ctl-h); padding: 0 10px; line-height: 1; white-space: nowrap; border: 0; border-radius: var(--r-card); background: var(--bg-elev-2, var(--bg-elev));
+  font-size: var(--fs-footnote); font-weight: 500; color: var(--fg-mute);
+  transition: color var(--t), background var(--t);
+}
+.section-add:hover:not(:disabled) { color: var(--accent); background: var(--bg-hover); }
+.section-add:disabled { opacity: 0.4; cursor: default; }
+
+/* ═══ SIDE PANE — the spec contract, or the open candidate ════════════════ */
+
+.pe-context {
+  display: flex; flex-direction: column;
+  overflow-y: auto; min-height: 0; min-width: 0;
+  border-left: 1px solid var(--line);
+  background: var(--bg);
+}
+.pe-context .panel { display: flex; flex-direction: column; border-bottom: 1px solid var(--line); }
+.pe-context .panel:last-child { border-bottom: 0; }
+.panel-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3);
+  padding: var(--s-4) var(--s-4) var(--s-2);
+  border-bottom: 1px solid var(--panel-head-line);
+}
+.panel-title {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-size: var(--fs-body); font-weight: 500; letter-spacing: 0.01em;
+  text-transform: lowercase; color: var(--violet-label);
+  white-space: nowrap; line-height: 1;
+}
+.panel-meta { font-style: italic; font-size: var(--fs-footnote); color: var(--fg-dim); white-space: nowrap; }
+.panel-body { padding: 0; }
+.panel-pad { padding: var(--s-3) var(--s-4) var(--s-4); }
+
+/* ═══ NEED — the decision's scope ═════════════════════════════════════════ */
+
+.pe-meta-strip {
+  display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5);
+  padding-bottom: var(--s-4); margin-bottom: var(--s-4);
+  border-bottom: 1px solid var(--line);
+}
+.pe-meta-cell { display: inline-flex; align-items: baseline; gap: var(--s-2); font-size: var(--fs-footnote); color: var(--fg-dim); }
+.pe-fieldset { display: flex; flex-direction: column; gap: var(--s-4); }
+.pe-field { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: var(--s-4); align-items: start; }
+.pe-field-label { padding-top: var(--s-1); }
+.pe-field-value { min-width: 0; font-size: var(--fs-subhead); }
+
+/* ═══ CANDIDATES — a ranked list, not a card grid ═════════════════════════
+   Eight products in eight identically-framed boxes is the card grid the hub
+   bans by name, and it could not do the one thing this list is for: read
+   two prices or two scores against each other. Ragged too — a candidate
+   with a second price point grew its box and knocked the row out of
+   alignment. As rows, price and score are columns you can run your eye
+   down, and the rank is the sort. */
+.crow-list { margin-left: calc(-1 * var(--pane-gutter)); margin-right: calc(-1 * var(--pane-gutter)); }
+.crow {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto auto;
+  align-items: center; gap: var(--s-3);
+  width: 100%; text-align: left;
+  padding: var(--s-3) var(--pane-gutter);
+  border-bottom: 1px solid var(--line-soft);
+  transition: background var(--t);
+}
+.crow:hover { background: var(--bg-elev); }
+/* selection is the same accent fill the rail and the totals use; chosen is
+   the same good tint the verdict list uses, and the rank glyph turns with it */
+.crow.selected { background: color-mix(in oklab, var(--accent) 14%, var(--bg-elev)); }
+.crow.is-chosen { background: color-mix(in srgb, var(--good) 7%, transparent); }
+.crow.is-chosen .crow-rank { color: var(--good); }
+.crow.is-rejected { opacity: 0.55; }
+.crow.is-rejected:hover { opacity: 1; }
+.crow-rank {
+  font-family: var(--font-display); font-size: var(--fs-subhead); color: var(--fg-faint);
+  font-variant-numeric: tabular-nums lining-nums; text-align: right;
+}
+.crow.is-lead .crow-rank { color: var(--accent); }
+.crow-meat { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.crow-name {
+  font-size: var(--fs-subhead); font-weight: 500; color: var(--fg); line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.crow.is-rejected .crow-name { text-decoration: line-through; text-decoration-color: var(--line-strong); }
+.crow-sub {
+  display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2);
+  font-size: var(--fs-caption); color: var(--fg-mute); min-width: 0;
+}
+.crow-price {
+  font-family: var(--font-display); font-size: var(--fs-body); color: var(--fg);
+  font-variant-numeric: tabular-nums lining-nums; text-align: right;
+}
+.crow-score {
+  min-width: 46px; text-align: right;
+  font-family: var(--font-display); font-size: var(--fs-body); color: var(--fg-dim);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.crow.is-lead .crow-score { color: var(--accent); }
+.crow-score.empty { font-family: var(--font-body); font-size: var(--fs-caption); font-style: italic; color: var(--fg-faint); }
+
+/* constraint fail flags — full border chip, never a side-stripe */
+.fail-flag {
+  font-size: var(--fs-caption); letter-spacing: 0.03em; color: var(--alert);
+  border: 1px solid var(--alert); border-radius: var(--r); padding: 0 var(--s-1);
+  white-space: nowrap;
+}
+
+/* ── the open candidate, in the side pane ─────────────────────────────── */
+.cand-deepdive { padding: 0; }
+
+/* ── pros/cons as dot + text (semantic colour via the dot, no fill) ────── */
+.procon { display: inline-flex; align-items: baseline; gap: var(--s-1); font-size: var(--fs-footnote); color: var(--fg-dim); line-height: 1.4; max-width: 100%; }
+.procon-col { display: flex; flex-direction: column; gap: var(--s-2); }
+.procon-dot { font-weight: 700; font-size: var(--fs-footnote); line-height: 1; flex-shrink: 0; width: 10px; text-align: center; }
+.procon-pro .procon-dot { color: var(--good); }
+.procon-con .procon-dot { color: var(--alert); }
+.procon-failure_mode .procon-dot { color: var(--alert); }
+.procon-regret .procon-dot { color: var(--warn); }
+.pill-row { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-3); margin: 2px 0; }
+.pill-row .procon { padding: 0; }
+
+/* ═══ COMPARE — the weighted scoring grid ═════════════════════════════════
+   This is the widest thing on the page and now the only thing in the pane. */
+.score-grid th, .score-grid td { border-bottom: 1px solid var(--line); padding: var(--s-2) var(--s-3); text-align: center; }
+.score-grid thead th { border-bottom: 1px solid var(--line-strong); vertical-align: bottom; }
+/* Scoped to .score-grid: bare .sg-crit (0,1,0) loses to the `.score-grid td`
+   centring rule (0,1,1), which is why every criterion name in this column
+   used to sit centred and the left edge read as ragged. */
+.score-grid .sg-corner, .score-grid .sg-crit { text-align: left; color: var(--fg-dim); white-space: nowrap; }
+.sg-cand {
+  font-family: var(--font-display); font-weight: 500; color: var(--fg);
+  text-transform: lowercase; min-width: 90px; max-width: 130px;
+  white-space: normal; line-height: 1.2;
+}
+/* the chip sits under the name, not beside it — inline it ran past the edge of
+   the last column and got clipped by the wrap's overflow */
+.sg-cand .fail-flag { display: block; margin: var(--s-1) 0 0; white-space: normal; text-align: center; }
+.sg-w { color: var(--fg-dim); font-size: var(--fs-caption); font-variant-numeric: tabular-nums; }
+.sg-cell { font-variant-numeric: tabular-nums; }
+.score-cell {
+  width: 38px; height: 28px;
+  border: 1px solid transparent; border-radius: var(--r-card);
+  color: var(--fg); font-size: var(--fs-footnote); font-variant-numeric: tabular-nums;
+  transition: border-color var(--t), background var(--t);
+}
+.score-cell:hover { border-color: var(--accent-dim); background: var(--bg-elev); }
+.score-cell.empty { color: var(--fg-ghost); }
+/* a score carrying a written rationale gets a corner tick, so the ones that
+   have one are findable instead of invisible. Hover/title shows the text. */
+.score-cell.has-note { position: relative; }
+.score-cell.has-note::after { content: ""; position: absolute; top: 3px; right: 3px; width: 3px; height: 3px; border-radius: 50%; background: var(--accent-dim); }
+.score-cell.has-note:hover::after { background: var(--accent); }
+.score-cell-input { width: 44px; height: 28px; background: var(--bg-elev-2); border: 1px solid var(--accent); border-radius: var(--r-card); color: var(--fg); font-size: var(--fs-footnote); text-align: center; }
+.score-grid tfoot td { border-top: 1px solid var(--line-strong); border-bottom: 0; padding-top: var(--s-3); }
+.sg-weighted {
+  font-family: var(--font-display); font-variant-numeric: tabular-nums lining-nums;
+  font-size: var(--fs-body); color: var(--fg);
+}
+/* Only the winning column is accent. Every weighted total used to be, which
+   made the row a band of blue with no leader in it. */
+.sg-weighted.is-lead { color: var(--accent); }
+.sg-weighted.empty { color: var(--fg-faint); font-size: var(--fs-subhead); }
+.sg-cov { color: var(--fg-dim); font-size: var(--fs-caption); font-variant-numeric: tabular-nums; }
+.sg-foot-rank { font-size: var(--fs-caption); color: var(--fg-mute); font-variant-numeric: tabular-nums; }
+.sg-foot-score { font-size: var(--fs-caption); color: var(--fg-dim); }
+
+/* criteria priority dot (compare grid rows) */
+.crit-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: var(--s-2); background: var(--fg-faint); }
+.crit-dot.prio-dealbreaker { background: var(--alert); }
+.crit-dot.prio-must-have { background: var(--accent); }
+.crit-dot.prio-nice-to-have { background: var(--fg-faint); }
+
+/* ═══ VERDICT — the pick and the reflection ═══════════════════════════════ */
+
+.verdict-tag { font-size: var(--fs-caption); color: var(--good); white-space: nowrap; }
+.verdict-table td, .verdict-table th { white-space: nowrap; }
+/* sub scores read as a block of narrow columns: vertical headers keep nine
+   criteria near 30px each, so the end columns stay on screen at a half-snapped
+   1280. The name column stays pinned while the rest scrolls. */
+.verdict-table .vt-name { white-space: normal; min-width: 140px; max-width: 170px; color: var(--fg);
+  position: sticky; left: 0; z-index: 1; }
+/* the pane's own fill, so scrolled scores pass under the name, not through it;
+   doubled class beats liquid's `.hub-table :is(th, td) { background: none }` */
+.verdict-table.verdict-table :is(th, td).vt-name { background: var(--bg-elev); }
+.verdict-table th.vt-subh { vertical-align: bottom; padding-inline: 4px; }
+.verdict-table th.vt-subh > span { writing-mode: vertical-rl; transform: rotate(180deg); }
+.verdict-table td.vt-sub { padding-inline: 4px; text-align: center; }
+.verdict-table .vt-sub { color: var(--fg-dim); }
+.verdict-table .vt-end { font-weight: 600; color: var(--fg); border-left: 1px solid var(--line); }
+.verdict-table .vt-step { color: var(--fg-dim); }
+.verdict-table .vt-verdict { font-size: var(--fs-caption); color: var(--fg-dim); }
+.verdict-table .ladder-no { color: var(--fg-faint); }
+.verdict-table tr.is-lead .vt-verdict { color: var(--good); }
+.verdict-table tr.chosen { background: color-mix(in srgb, var(--good) 7%, transparent); }
+.verdict-reason { margin-top: var(--s-3); font-size: var(--fs-footnote); color: var(--fg-dim); font-style: italic; }
+
+/* ═══ THE ITEM — the winner as an object, in transit then owned ═══════════
+   One row, not a card: a shot, the product line, and the tracking strip the
+   need tab already established as the vocabulary for "facts about this
+   decision". The shot is fixed-box and object-fit contain, so a tall vendor
+   PNG and a wide one land on the same baseline instead of shoving the text. */
+
+.owned { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: var(--s-4); align-items: start; }
+.owned-shot {
+  width: 96px; height: 96px; object-fit: contain;
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg-elev); padding: var(--s-2);
+}
+.owned-shot.is-empty {
+  display: grid; place-items: center;
+  color: var(--fg-ghost); font-size: var(--fs-title); box-sizing: border-box;
+}
+.owned-meat { min-width: 0; }
+.owned-name { font-family: var(--font-display); font-size: var(--fs-body); color: var(--fg); line-height: 1.2; }
+.owned-sub { display: flex; flex-wrap: wrap; gap: var(--s-2); font-size: var(--fs-footnote); color: var(--fg-mute); margin-top: var(--s-1); }
+.owned-paid { color: var(--fg-dim); font-variant-numeric: tabular-nums lining-nums; }
+.owned-why { font-size: var(--fs-footnote); color: var(--fg-dim); font-style: italic; margin-top: var(--s-2); max-width: 72ch; white-space: pre-line; }
+a.icon-btn { text-decoration: none; }
+.owned-tracking { margin-top: var(--s-4); }
+
+/* The one place a status earns colour: delivered is done, returned/cancelled
+   is the decision coming undone, everything else is still in motion. */
+.ship-chip {
+  font-size: var(--fs-caption); letter-spacing: 0.04em; padding: 2px var(--s-2);
+  border: 1px solid var(--line-strong); border-radius: var(--r-pill);
+  color: var(--fg-dim); white-space: nowrap;
+}
+.ship-chip.is-delivered { color: var(--good); border-color: color-mix(in srgb, var(--good) 55%, transparent); }
+.ship-chip.is-shipped, .ship-chip.is-out-for-delivery { color: var(--accent); border-color: var(--accent-dim); }
+.ship-chip.is-returned, .ship-chip.is-cancelled { color: var(--alert); border-color: color-mix(in srgb, var(--alert) 55%, transparent); }
+
+@media (max-width: 640px) {
+  .owned { grid-template-columns: 1fr; }
+}
+
+/* ═══ RESEARCH TABS — landscape / priorities / market ═════════════════════ */
+
+.research-null { padding: var(--s-6) 0; }
+.research-null-what { font-size: var(--fs-footnote); font-weight: 600; color: var(--fg); }
+.research-null-how { font-size: var(--fs-footnote); color: var(--fg-mute); margin-top: var(--s-1); }
+.research-null-how code { color: var(--fg); }
+
+.dim-row {
+  border-bottom: 1px solid var(--line-soft); padding: var(--s-3) var(--pane-gutter);
+  margin-left: calc(-1 * var(--pane-gutter)); margin-right: calc(-1 * var(--pane-gutter));
+}
+.dim-head { display: flex; align-items: baseline; gap: var(--s-3); cursor: pointer; }
+.dim-name { font-weight: 600; font-size: var(--fs-subhead); color: var(--fg); }
+.dim-range { flex: 1; font-size: var(--fs-footnote); color: var(--fg-mute); }
+.dim-caret { font-size: var(--fs-caption); color: var(--fg-mute); }
+.dim-explainer { font-size: var(--fs-footnote); color: var(--fg-mute); margin-top: var(--s-1); max-width: 72ch; }
+.dim-why { font-size: var(--fs-footnote); color: var(--fg); margin-top: var(--s-2); max-width: 72ch; }
+.dim-block { margin-top: var(--s-2); }
+.dim-block .dim-explainer, .dim-block .dim-why { margin-top: 3px; }
+.dim-opts { display: flex; flex-direction: column; gap: var(--s-1); margin-top: var(--s-1); }
+.dim-opt { display: flex; gap: var(--s-3); font-size: var(--fs-footnote); align-items: baseline; }
+.dim-opt-label { flex: 0 0 160px; font-weight: 600; color: var(--fg); }
+.dim-opt-note { flex: 1; color: var(--fg-mute); max-width: 60ch; }
+.dim-foryou { font-size: var(--fs-footnote); margin-top: 3px; }
+.dim-foryou-v { font-weight: 600; color: var(--accent); }
+.dim-caret-btn { color: var(--fg-mute); padding: 0 var(--s-1); }
+.dim-caret-btn:hover { color: var(--fg); }
+.dim-add-opt {
+  align-self: flex-start; margin-top: 2px; padding: 2px var(--s-2);
+  border: 1px dashed var(--line); border-radius: var(--r-card);
+  color: var(--fg-mute); font-size: var(--fs-caption);
+}
+.dim-add-opt:hover { color: var(--fg); border-color: var(--accent-dim); }
+.dim-opt-del { flex: 0 0 auto; }
+
+.evidence-list { margin-top: var(--s-2); display: flex; flex-direction: column; gap: var(--s-2); }
+.evidence-row { font-size: var(--fs-footnote); }
+.evidence-grade {
+  display: inline-block; margin-right: var(--s-2); padding: 0 var(--s-1);
+  border: 1px solid var(--line); border-radius: var(--r);
+  font-size: var(--fs-caption); text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-mute);
+}
+.eg-holds { border-color: var(--good); color: var(--good); }
+.eg-weak { border-color: var(--warn); color: var(--warn); }
+.eg-refuted { border-color: var(--alert); color: var(--alert); }
+.evidence-claim { color: var(--fg); }
+.evidence-src { color: var(--fg-mute); margin-left: var(--s-2); }
+.evidence-why { color: var(--fg-mute); margin: 2px 0 0 26px; max-width: 70ch; }
+
+.topfive-row {
+  border-bottom: 1px solid var(--line-soft);
+  margin-left: calc(-1 * var(--pane-gutter)); margin-right: calc(-1 * var(--pane-gutter));
+}
+.topfive-head { display: flex; align-items: baseline; gap: var(--s-3); padding: var(--s-3) var(--pane-gutter); cursor: pointer; }
+.topfive-rank { font-family: var(--font-display); font-size: var(--fs-footnote); color: var(--fg-faint); font-variant-numeric: tabular-nums; }
+.topfive-name { font-weight: 600; font-size: var(--fs-subhead); color: var(--fg); flex: 1; }
+.topfive-score { font-family: var(--font-display); font-size: var(--fs-subhead); color: var(--fg-dim); font-variant-numeric: tabular-nums; }
+.topfive-assessment { font-size: var(--fs-footnote); color: var(--fg); padding: 0 var(--pane-gutter) var(--s-3); max-width: 72ch; white-space: pre-wrap; }
+
+.price-steps td { font-variant-numeric: tabular-nums; }
+.knee-flag { font-size: var(--fs-caption); color: var(--warn); border: 1px solid currentColor; border-radius: var(--r); padding: 0 var(--s-1); }
+
+.checkpoint-btn { margin-top: var(--s-4); width: 100%; }
+.checkpoint-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.checkpoint-done { margin-top: var(--s-4); font-size: var(--fs-footnote); color: var(--good); }
+
+/* ═══ SPEC CONTRACT — the side pane's constraint sheet ════════════════════ */
+
+.con-group { margin-bottom: var(--s-4); }
+.con-group:last-child { margin-bottom: 0; }
+.con-group-head {
+  padding-bottom: var(--s-1); border-bottom: 1px solid var(--line); margin-bottom: var(--s-2);
+}
+.con-row { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: var(--s-2); align-items: start; padding: var(--s-2) 0; }
+.con-row + .con-row { border-top: 1px solid var(--line-soft); }
+.con-lock {
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: var(--ctl-h); padding: 0; line-height: 1; border: 0; border-radius: var(--r-card);
+  background: var(--bg-elev-2, var(--bg-elev)); color: var(--fg-mute); font-size: var(--fs-footnote);
+  transition: background var(--t), color var(--t);
+}
+/* ● locked / ○ proposed: the same glyph set as the rest of the page. It was a
+   🔒 emoji, which renders from the colour-emoji font and ignores the colour. */
+.con-lock.on { color: var(--accent); }
+.con-lock:hover, .con-lock:focus-visible { background: var(--bg-hover); color: var(--fg); }
+.con-lock.on:hover, .con-lock.on:focus-visible { color: var(--accent); }
+.con-body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.con-name { font-size: var(--fs-footnote); font-weight: 600; color: var(--fg); }
+.con-req { font-size: var(--fs-footnote); color: var(--fg-dim); }
+.con-origin { font-size: var(--fs-caption); color: var(--fg-faint); }
+.con-fails { font-size: var(--fs-caption); color: var(--fg-mute); font-variant-numeric: tabular-nums; }
+.con-fails.some { color: var(--alert); }
+/* A locked constraint is the contract; a proposed one is a suggestion. The
+   weight difference is the whole point of the two groups. */
+.con-row.locked .con-name { color: var(--fg); }
+.con-row:not(.locked) .con-name { color: var(--fg-dim); font-weight: 500; }
+
+/* ═══ SHARED PRIMITIVES ═══════════════════════════════════════════════════ */
+
+.empty-hint { padding: var(--s-4) 0; color: var(--fg-mute); font-size: var(--fs-footnote); }
+.pe-rail-list .empty-hint { padding: var(--s-4); }
+.empty-state-main {
+  display: flex; align-items: center; justify-content: center; height: 100%;
+  color: var(--fg-mute); font-size: var(--fs-subhead); text-align: center;
+}
+.empty-state-glyph { font-size: var(--fs-large-title); margin-bottom: var(--s-3); opacity: 0.5; }
+.bullet-list { margin: 0; padding-left: var(--s-4); }
+.bullet-list li { margin-bottom: 2px; }
+.dim { color: var(--fg-mute); }
+
+.editable-value {
+  cursor: text; border-radius: var(--r); padding: 1px 4px; margin: -1px -4px;
+  word-break: break-word; white-space: pre-wrap;
+  transition: background var(--t);
+}
+.editable-value:hover { background: var(--bg-hover); }
+.editable-empty { color: var(--fg-faint); }
+.editable-input {
+  background: var(--bg-elev-2); border: 1px solid var(--accent); border-radius: var(--r-card);
+  padding: var(--s-1) var(--s-2); font-size: inherit; font-weight: inherit; color: var(--fg); resize: vertical;
+}
+textarea.editable-input { display: block; min-height: 52px; }
+.editable-select { padding: 2px var(--s-1); resize: none; }
+
+.inline-select {
+  background: transparent; color: var(--fg-dim);
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  padding: 2px var(--s-2); font-size: var(--fs-caption);
+  transition: color var(--t), border-color var(--t);
+}
+.inline-select:hover { color: var(--fg); border-color: var(--line-strong); }
+.inline-select:focus { border-color: var(--accent-dim); }
+
+.icon-btn {
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: var(--ctl-h); padding: 0 10px; line-height: 1; white-space: nowrap; border: 0; border-radius: var(--r-card); background: var(--bg-elev-2, var(--bg-elev));
+  min-width: var(--ctl-h); font-size: var(--fs-footnote); color: var(--fg-mute);
+  transition: color var(--t), background var(--t);
+}
+.icon-btn:hover { color: var(--fg); background: var(--bg-hover); }
+.icon-btn.danger:hover { color: var(--alert); background: color-mix(in oklab, var(--alert) 22%, var(--bg-elev)); }
+
+table.specs { width: 100%; border-collapse: collapse; font-size: var(--fs-footnote); margin: var(--s-3) 0; }
+table.specs th, table.specs td {
+  padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--line); text-align: left; white-space: pre-wrap;
+}
+table.specs th { font-weight: 600; background: var(--bg-elev); }
+table.specs td.numeric { font-variant-numeric: tabular-nums; }
+/* .editable-value carries word-break: break-word for long free text, which in a
+   narrow enum column broke "important" across two lines as "importan / t". The
+   editable cells in a specs table hold enum values and numbers; only the plain
+   text cells beside them want wrapping. */
+table.specs .editable-value { white-space: nowrap; word-break: normal; }
+
+.card {
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  padding: var(--s-3) var(--s-4); font-size: var(--fs-subhead);
+}
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-2); margin-bottom: var(--s-2); }
+.card-headline { display: flex; align-items: flex-start; gap: var(--s-2); min-width: 0; }
+.card-title { font-weight: 600; font-size: var(--fs-subhead); color: var(--fg); }
+.card-meta { font-size: var(--fs-footnote); color: var(--fg-mute); margin-bottom: var(--s-1); }
+/* the review's takeaway is the finding, so it reads in full text colour */
+.card-takeaway { color: var(--fg); }
+.card-num { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+/* Price is a fact, not an action — the accent it used to carry made every
+   candidate box shout the one thing it shared with every other box. */
+.card-price {
+  font-family: var(--font-display); font-size: var(--fs-body); color: var(--fg);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.card-score { font-variant-numeric: tabular-nums; font-size: var(--fs-footnote); color: var(--fg-dim); }
+.card-score.empty { font-size: var(--fs-caption); font-style: italic; color: var(--fg-faint); }
+.card-score-cov { color: var(--fg-faint); font-size: var(--fs-caption); }
+.card-actions { display: flex; gap: var(--s-2); margin-top: var(--s-2); flex-wrap: wrap; }
+/* source-quality caveat on a review: why to trust it less. Set apart from
+   the takeaway so it reads as a flag on the evidence, not as findings — a
+   tint, not the side-stripe DESIGN.md bans. */
+.card-caveat {
+  font-size: var(--fs-footnote); color: var(--fg-mute);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  border-radius: var(--r-card); padding: var(--s-1) var(--s-2);
+  margin-bottom: var(--s-1); white-space: pre-wrap;
+}
+
+.rank-badge {
+  display: inline-flex; align-items: center; padding: 1px var(--s-2); flex-shrink: 0;
+  border: 1px solid var(--line); border-radius: var(--r-pill);
+  font-size: var(--fs-caption); font-weight: 600; color: var(--fg-mute); font-variant-numeric: tabular-nums;
+}
+.rank-badge.lead { color: var(--accent); border-color: var(--accent); }
+
+/* tab status glyphs — awaiting-you is the only accent state */
+.section-glyph { display: inline-block; font-size: var(--fs-caption); color: var(--fg-faint); }
+.sg-awaiting-you { color: var(--accent); font-weight: 700; }
+.sg-done { color: var(--good); }
+.sg-stale { color: var(--warn); }
+.sg-error { color: var(--alert); font-weight: 700; }
+.sg-skipped, .sg-pending { opacity: 0.5; }
+
+.sentiment { font-size: var(--fs-caption); padding: 1px var(--s-2); border-radius: var(--r-pill); }
+.sentiment-positive { color: var(--good); border: 1px solid var(--good-dim, var(--good)); }
+.sentiment-negative { color: var(--alert); border: 1px solid var(--alert); }
+.sentiment-mixed { color: var(--fg-mute); border: 1px solid var(--line); }
+
+/* ── modals / forms / buttons ─────────────────────────────────────────────
+   Both dialogs are the hub's .hub-modal (base.css): scrim, panel, title face
+   and buttons. The page used to run its own .modal for the forms and the
+   hub's for confirms, which was two title faces and two button sets for one
+   job. What is page-owned here: the form layout, a wider panel for the
+   nine-field candidate editor, and a filled primary button base.css lacks. */
+
+/* SCOPED, not deleted. purchases had invented .hub-modal--wide for itself before
+   the shared one existed; components.css now states it at 680px, which is trips'
+   width, and the height ceiling moved to base.css. this keeps purchases' own
+   narrower dialog exactly as it was rather than widening a page this change is
+   not verifying. unscope it when purchases is screenshotted at 680px. */
+body.purchases .hub-modal--wide { width: min(560px, 92vw); max-height: 88vh; }
+.modal-fields { display: flex; flex-direction: column; gap: var(--s-3); margin-bottom: var(--s-4); }
+/* SCOPED, not deleted. base.css's .hub-modal-btn declares no transition, so this
+   adds rather than overrides. Stage 2 promotion candidate: the cobalt button
+   standard arguably owns this hover transition for every page. */
+body.purchases .hub-modal-btn { transition: background var(--t), border-color var(--t), color var(--t); }
+.hub-modal-btn--primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent, var(--bg)); font-weight: 600; }
+.hub-modal-btn--primary:hover { background: var(--accent-dim); border-color: var(--accent-dim); }
+.hub-modal-btn--primary:disabled { opacity: 0.6; cursor: default; }
+
+.form-field { min-width: 120px; }
+.form-input {
+  width: 100%; padding: var(--s-2) var(--s-3);
+  background: var(--bg-elev-2); border: 1px solid var(--line); border-radius: var(--r-card);
+  color: var(--fg); font-size: var(--fs-subhead);
+}
+.form-input:focus { border-color: var(--accent-dim); }
+textarea.form-input { resize: vertical; min-height: 52px; }
+
+/* the load-failure banner. It is a child of the shell grid, and a fourth
+   child of a three-row 100vh grid lands in an implicit row below the status
+   strip, i.e. clipped and never seen. Pinned in the toast's band instead. */
+.pe-loaderr {
+  position: fixed; left: var(--s-6); bottom: calc(var(--status-h) + var(--s-4));
+  max-width: 480px; z-index: var(--z-toast);
+}
+.pe-loaderr .hub-error-retry { margin-left: var(--s-2); }
+
+/* what broke: the error boundary. --fg/--fg-mute, not the --text aliases the
+   old inline style read, which no theme defines. */
+.pe-crash { padding: var(--s-7); color: var(--fg); }
+.pe-crash pre { white-space: pre-wrap; color: var(--fg-mute); margin-top: var(--s-3); }
+
+.btn {
+  padding: var(--s-2) var(--s-4); border-radius: var(--r-card);
+  font-size: var(--fs-subhead); white-space: nowrap;
+  border: 1px solid transparent; transition: background var(--t), border-color var(--t), color var(--t);
+}
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent, var(--bg)); font-weight: 600; }
+.btn-primary:hover { background: var(--accent-dim); border-color: var(--accent-dim); }
+.btn-primary:disabled { opacity: 0.6; cursor: default; }
+.btn-ghost { color: var(--fg-mute); border-color: var(--line); }
+.btn-ghost:hover { border-color: var(--fg-mute); color: var(--fg); }
+
+#toast {
+  position: fixed; bottom: calc(var(--status-h) + var(--s-4)); right: var(--s-6);
+  background: var(--bg-elev-2); border: 1px solid var(--line-strong); border-radius: var(--r-card);
+  padding: var(--s-2) var(--s-4); font-size: var(--fs-footnote); box-shadow: var(--modal-shadow); z-index: var(--z-toast);
+}
+#toast.pending { border-color: var(--accent); color: var(--accent); }
+#toast.ok { border-color: var(--good); color: var(--good); }
+#toast.err { border-color: var(--alert); color: var(--alert); }
+
+/* ═══ MOTION ══════════════════════════════════════════════════════════════
+   The budget is deliberately small: this page is opened to read a decision,
+   not to watch it assemble. Nothing choreographs on load, nothing reveals on
+   scroll. What moves is hover, selection, and the toast arriving. */
+
+@keyframes p-toast-in { from { opacity: 0; transform: translateY(8px); } }
+#toast.show { animation: p-toast-in 200ms var(--e-out-quint) both; }
+@keyframes sg-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+.sg-researching { animation: sg-pulse 1.6s ease-out infinite; }
+
+/* Loading: switching decisions used to leave the previous decision on screen
+   until the new one landed, so for a beat the head said one name and the
+   rail another. Three pulsing lines where the head and the first rows go. */
+.pe-skel { display: flex; flex-direction: column; gap: var(--s-3); padding: var(--s-4) var(--pane-gutter); }
+.pe-skel-line { height: 14px; width: 60%; border-radius: var(--r); background: var(--bg-elev-2); animation: sg-pulse 1.6s ease-out infinite; }
+.pe-skel-line.is-title { height: 28px; width: 40%; margin-bottom: var(--s-3); }
+
+.sidebar-btn:active, .btn:active, .section-add:active { transform: scale(0.98); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 1ms !important; }
+  .sg-researching, #toast.show, .pe-skel-line { animation: none; }
+  .sg-researching, .pe-skel-line { opacity: 0.7; }
+  .sidebar-btn:active, .btn:active, .section-add:active { transform: none; }
+}
+
+/* ═══ NARROW ══════════════════════════════════════════════════════════════
+   Under ~1100px the split stops being a split: the side pane goes under the
+   content rather than sharing a row too narrow for either. */
+
+@media (max-width: 1100px) {
+  /* Both rows size to content and the split scrolls as ONE column. Capping
+     the side pane and letting the list keep the 1fr looked right and wasn't:
+     the list collapsed to two visible rows out of eight while the contract
+     below it sat fully expanded. Stacked, you read the list out and the
+     contract follows it. */
+  /* flex column, not a two-row grid: .pe-split has a FIXED height (it is the
+     flex:1 child of .pe-arena), and a fixed-height grid compresses its `auto`
+     rows to fit rather than letting them overflow — the list and the contract
+     rendered on top of each other. flex:0 0 auto children size to content and
+     the container scrolls. */
+  .pe-split, .pe-split[data-split] { display: flex; flex-direction: column; overflow-y: auto; }
+  .pe-focus-body, .pe-context { overflow: visible; flex: 0 0 auto; }
+  .pe-context { border-left: 0; border-top: 1px solid var(--line); }
+}
+
+@media (max-width: 768px) {
+  /* .pe-shell/.pe-body both have a fixed cross size on desktop, and a
+     fixed-size grid compresses "auto" rows to fit rather than letting them
+     overflow. Let both size to their content and scroll the page instead. */
+  body:has(.pe-shell) { overflow-y: auto; overflow-x: hidden; }
+  .hub-shell.pe-shell {
+    height: auto; min-height: 100vh;
+    /* body is the scroller here and drops its own bottom padding, so the shell clears the phone dock itself */
+    padding-bottom: var(--dock-h, 0px);
+    grid-template-rows: auto auto auto;
+    /* minmax(0, 1fr), not a bare 1fr — a bare track still carries an
+       automatic minimum equal to its content's min-content width, so one
+       unwrapped row stretched every row above and below it. */
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pe-body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    overflow: visible;
+  }
+  /* 60vh, not 44. The rail is five stacked blocks — head, the totals and
+     search, the list, the money foot, the actions — and at 44vh the last two
+     were pushed straight out of an overflow:hidden band: on a phone there was
+     no way to add an order or start an email scan at all. 60vh leaves the
+     list about three rows with its own scroll, which is what the band is for,
+     and the arena below still opens at 70vh with the page scrolling past it. */
+  .pe-rail { width: 100%; max-height: 60vh; border-right: 0; border-bottom: 1px solid var(--line); }
+  .pe-rail.collapsed { width: 100%; max-height: 0; border-bottom: 0; }
+  .pe-arena { min-height: 70vh; }
+
+  /* >=44px tap targets on touch viewports; glyphs stay the same visual
+     size, only the hit area grows. */
+  .icon-btn { min-width: 44px; min-height: 44px; }
+  /* the lock grows to a 44px tap target, so its grid column has to grow with
+     it — left at 24px the button overlapped the constraint name beside it */
+  .con-lock { width: 44px; height: 44px; }
+  .con-row { grid-template-columns: 44px minmax(0, 1fr) auto; }
+  /* No viewport floor on the list. A 40vh floor inside a 60vh band is what
+     starved the foot; flex:1 against a taller band gives it the remainder,
+     which is the same thing the floor was trying to buy. */
+  .pe-rail-list { min-height: 0; }
+  .section-add { min-height: 44px; padding: 0 var(--s-3); }
+  .score-cell { min-width: 44px; min-height: 44px; }
+}
+
+@media (max-width: 640px) {
+  /* the stage control and delete drop under the title instead of squeezing
+     it to a column that breaks "portable" in half */
+  .pe-focus-top { flex-wrap: wrap; }
+  .pe-focus-title { flex-basis: 100%; }
+  .dim-opt { flex-direction: column; gap: 1px; }
+  .dim-opt-label { flex: none; }
+  /* the specs table's trailing rationale column squeezed to ~100px wraps a
+     two-line sentence into twenty. Its wrapper scrolls sideways already, so
+     give the table a real width and let the swipe do the work. */
+  table.specs { min-width: 600px; }
+  .pe-field { grid-template-columns: minmax(0, 1fr); gap: var(--s-1); }
+}
+
+
+/* ═══ MODE STRIP + ORDERS ═════════════════════════════════════════════════
+   The page has two halves. "decisions" is the research pipeline that ends in a
+   pick; "orders" is every pick that turned into a parcel, plus everything bought
+   without a decision behind it at all. Same tab vocabulary as the arena's, one
+   level up — a second visual language for the same gesture is how a page starts
+   reading like two pages stapled together. */
+
+/* SCOPED to .hub-tabs. bare, it loses to `.hub-tabs.surface-tabs` above and the
+   page-level strip inherits that pane-gutter negative margin, overflowing 20px. */
+.hub-tabs.pe-modes {
+  margin: 0; padding: 0 var(--s-5);
+  background: var(--bg);
+}
+.pe-modes .surface-tab { font-size: var(--fs-subhead); padding: var(--s-2) var(--s-3) var(--s-3); }
+
+/* ═══ ORDERS — the three panes ════════════════════════════════════════════
+   The rail, the cards and the side strip all borrow the decisions half's
+   chassis (.pe-rail, .pe-split, .panel), so what follows is only what an
+   order needs on top of it. The old full-width six-column .ord-row grid is
+   gone with the single-pane layout it belonged to. */
+
+/* The middle wants more of the row than a decision tab does: an order's cards
+   are dense two-column field lists, and the side strip carries a map that
+   stops being a map much under 300px. */
+.pe-split[data-split="orders"] { grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); }
+
+/* Settled orders step back in the rail: they are reference, not the reason you
+   opened this. The name still reads — it is what you pick by. */
+.ord-rail-row.is-delivered .pe-proj-name,
+.ord-rail-row.is-returned .pe-proj-name,
+.ord-rail-row.is-cancelled .pe-proj-name { color: var(--fg-dim); }
+.ord-rail-row.is-cancelled .pe-proj-name { text-decoration: line-through; }
+
+.ord-rail-vendor { color: var(--fg-faint); }
+.ord-rail-vendor::before { content: "·"; margin-right: var(--s-1); color: var(--fg-ghost); }
+
+/* The cards. Actual cards — a bordered surface each, not four flat sections
+   separated by a hairline, because the middle pane holds four unrelated reads
+   (parcel, money, return, origin) and a rule between them says "next heading",
+   not "different object".
+
+   Two up while the pane is wide enough: a card's fields are a 96px key column
+   and a short value, so one card per row left half the pane empty. auto-fit at
+   a 320px floor drops to one column on its own when the pane narrows. */
+.ord-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+             gap: var(--s-4); align-items: start; }
+.ord-cards .panel {
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg-elev);
+}
+/* origin carries the two full-measure fields (product URL, notes), so it takes
+   the whole row rather than wrapping a URL inside half a pane. */
+.ord-cards .panel.is-wide { grid-column: 1 / -1; }
+
+/* A card's fields: key left at a fixed measure, value right, so every card's
+   keys line up down the pane and the eye reads one column of labels. */
+.ord-fields { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: var(--s-2) var(--s-3); align-items: baseline; }
+.ord-field { display: contents; }
+.ord-field-k { font-size: var(--fs-caption); letter-spacing: 0.04em; text-transform: lowercase; color: var(--fg-mute); }
+.ord-field-v { font-size: var(--fs-footnote); color: var(--fg); }
+/* A wide field's value gets the whole row under its key — a returns policy and
+   a URL both run past the value column and wrap into an unreadable ribbon. */
+.ord-field.is-wide { display: block; grid-column: 1 / -1; }
+.ord-field.is-wide .ord-field-k { display: block; margin-bottom: 2px; }
+/* A parcel with no tracking number is the blank this tab exists to get filled,
+   so it is drawn as a prompt, not as an empty cell. */
+.ord-field.is-missing .editable-value { color: var(--accent); }
+
+/* The click-through to the carrier's own page. It rides .icon-btn so it is a
+   pill you can see rather than a run of small text in the panel head — it was
+   the latter, and a link nobody notices is a link that is not there. */
+.ord-track-link { color: var(--accent); text-decoration: none; white-space: nowrap; }
+.ord-track-link:hover { color: var(--fg); }
+
+/* ── the side strip ── */
+.ord-side { display: flex; flex-direction: column; gap: var(--s-4); padding: var(--s-4) var(--s-4) 64px; overflow-y: auto; }
+
+/* The journey. A rail of dots joined by the line behind them: the line is drawn
+   on the list, not per step, so it cannot fall out of register with the dots. */
+.ord-prog { position: relative; display: flex; flex-direction: column; gap: var(--s-3); list-style: none; }
+.ord-prog::before {
+  content: ""; position: absolute; left: 4px; top: 6px; bottom: 6px;
+  width: 1px; background: var(--line);
+}
+.ord-prog-step { position: relative; display: flex; align-items: center; gap: var(--s-3); font-size: var(--fs-footnote); color: var(--fg-faint); }
+.ord-prog-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+  background: var(--bg); border: 1px solid var(--line);
+}
+.ord-prog-step.is-done { color: var(--fg-dim); }
+.ord-prog-step.is-done .ord-prog-dot { background: var(--fg-dim); border-color: var(--fg-dim); }
+/* Where it actually is now is the one thing on this list you are reading for. */
+.ord-prog-step.is-now { color: var(--fg); font-weight: 600; }
+.ord-prog-step.is-now .ord-prog-dot { background: var(--accent); border-color: var(--accent); }
+.ord-prog-exit {
+  margin-top: var(--s-3); font-size: var(--fs-caption); letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--alert);
+}
+
+/* The return line is the only thing here that can expire, so it is the only
+   thing that changes colour as it does. */
+.ord-return { font-size: var(--fs-caption); margin-top: 2px; grid-column: 1 / -1; }
+.ord-return.tone-open { color: var(--good); }
+.ord-return.tone-urgent { color: var(--alert); font-weight: 600; }
+.ord-return.tone-closed, .ord-return.tone-none, .ord-return.tone-done { color: var(--fg-faint); }
+.ord-side .sidebar-btn { grid-column: 1 / -1; margin-top: var(--s-2); }
+
+.ord-map { height: 190px; }
+.ord-map-null { font-size: var(--fs-footnote); color: var(--fg-mute); line-height: 1.5; }
+.ord-map-addr { font-size: var(--fs-footnote); color: var(--fg-dim); padding-top: var(--s-2); }
+
+.owned-returns { margin-top: var(--s-2); }
+.pe-meta-cell.is-missing { color: var(--accent); }
+
+/* Under 900px the three panes cannot all be columns. The rail collapses to a
+   band across the top and the side strip drops under the cards — the reading
+   order stays pick, read, then the supplementary. */
+@media (max-width: 900px) {
+  .pe-split[data-split="orders"] { grid-template-columns: minmax(0, 1fr); }
+  .ord-side { padding-top: 0; }
+  .ord-fields { grid-template-columns: 88px minmax(0, 1fr); }
+}
+
+
+/* ═══ LIQUID ══════════════════════════════════════════════════════════════
+   The page was built flat: three panes edge to edge, split by hairlines, every
+   ground painted --bg. Liquid's --bg is pure black, so the head became a black
+   band and the panes read as one dark sheet over the module wallpaper, unlike
+   home, trips and finances, which float rounded slabs apart on a gap. This
+   block brings purchases onto that vocabulary (liquid.css sets 1-15): the rail
+   is a thick-glass slab like the nav rail, the head, tab body and side pane are
+   solid --bg-elev slabs, controls are gray capsules, labels are sentence case
+   with no rules under heads, rows divide on an inset hairline.
+
+   Selectors climb to (0,3,0) where they meet liquid.css, which loads after this
+   file: its section 15 clears .pe-rail/.pe-context and its .hub-tabs track is
+   (0,3,0), so an equal-weight rule here would lose on order. */
+
+[data-theme="liquid"] .pe-shell {
+  /* the cut labels: live/decided/cancelled cells, "search", sort segments.
+     Liquid's 36px capsules need ~300px where the flat rail fitted 244: the
+     sort track scrolled "updated" off and the search placeholder was cut. */
+  --rail-w: 300px;
+  --lq-pane-r: 26px;    /* the nav rail's slab radius (liquid.css set 14) */
+  --lq-gap: 10px;       /* set 14 shell gutter */
+}
+
+/* shell: slabs on a gutter, wallpaper between them */
+[data-theme="liquid"] .hub-shell.pe-shell { background: transparent; }
+[data-theme="liquid"] .pe-body { column-gap: var(--lq-gap); padding: 0 var(--lq-gap) var(--lq-gap); }
+[data-theme="liquid"] .pe-shell .hub-tabs.surface-tabs.pe-modes { margin: 2px var(--lq-gap) var(--lq-gap); padding: 3px; background: var(--lq-tile); }
+
+/* rail: one thick-glass slab, rows as rounded selections */
+[data-theme="liquid"] .pe-body > .pe-rail {
+  border: 0; border-radius: var(--lq-pane-r);
+  background: var(--lg-thick-fill);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  backdrop-filter: blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat));
+  box-shadow: var(--lg-thick-rim), inset -1px -1px 0 rgba(0,0,0,var(--lg-rim-in-a)), var(--lq-slab-shade);
+}
+[data-theme="liquid"] .pe-body > .pe-rail.collapsed { box-shadow: none; }
+/* search takes its own row so the placeholder reads whole; the sort labels fit
+   the track without scrolling */
+[data-theme="liquid"] .pe-rail .hub-lf-bar { flex-wrap: wrap; }
+[data-theme="liquid"] .pe-rail .hub-lf-search { flex: 1 1 100%; min-width: 0; }
+[data-theme="liquid"] .pe-rail .hub-lf-fold { flex: 1 1 auto; justify-content: center; }
+[data-theme="liquid"] .pe-rail .hub-lf-sort-opt { padding: 0 5px; }
+[data-theme="liquid"] .pe-rail :is(.pe-rail-head, .pe-rail-summary) { border-bottom: 0; }
+[data-theme="liquid"] .pe-rail .pe-rail-actions { display: flex; flex-direction: column; gap: var(--s-2); border-top: 0; }
+[data-theme="liquid"] .pe-rail-title { font: 600 var(--fs-subhead)/1.25 var(--font); letter-spacing: 0; text-transform: none; color: var(--fg); }
+[data-theme="liquid"] .pe-rail .pe-budline { border-top: 0; padding-top: 0; }
+[data-theme="liquid"] .pe-rail .pe-budline-l { font-size: var(--fs-footnote); color: var(--fg-dim); }
+/* right padding clears the collapse handle that sits over the rows' edge */
+[data-theme="liquid"] .pe-rail .pe-rail-list { padding: 2px 18px var(--s-2) var(--s-2); }
+/* the group head sticks over rows; it frosts them instead of painting a bar
+   across a glass slab. The rail is the backdrop root, so it blurs only rows. */
+[data-theme="liquid"] .pe-rail .pe-group-head {
+  margin: 0 -18px 0 calc(-1 * var(--s-2)); padding: 6px 30px 4px 20px;
+  border-bottom: 0; background: transparent;
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  font-size: var(--fs-footnote); font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--fg-dim);
+}
+[data-theme="liquid"] .pe-rail .pe-group-n { font-family: var(--font); font-size: var(--fs-footnote); color: var(--fg-faint); }
+[data-theme="liquid"] .pe-rail .pe-proj-row { padding: 8px 12px; border-bottom: 0; border-radius: 14px; }
+[data-theme="liquid"] .pe-rail .pe-proj-row:hover { background: var(--lg-vib); }
+[data-theme="liquid"] .pe-rail .pe-proj-row.active { background: var(--lg-row-on); }
+[data-theme="liquid"] .pe-rail :is(.pe-proj-budget, .pmoney-n, .pe-budline-n) { font-family: var(--font); }
+[data-theme="liquid"] .pe-rail .pe-proj-sub { font-size: var(--fs-footnote); color: var(--fg-dim); }
+/* the create button no longer sits on a --bg fade over the last rows: on
+   liquid that fade was a black band hiding a decision */
+[data-theme="liquid"] .pe-rail .pe-rail-newfloat { margin-top: 0; padding: var(--s-2) var(--s-3); background: none; }
+/* the money foot: a grouped tile, not a 2px accent rule */
+[data-theme="liquid"] .pe-rail .pe-rail-money {
+  margin: 0 var(--s-2) var(--s-2); padding: 12px 14px;
+  border: 0; border-radius: 18px; background: var(--lq-tile);
+}
+[data-theme="liquid"] .pe-rail .pmoney-n { font-weight: 700; font-size: var(--fs-title); letter-spacing: -.01em; }
+[data-theme="liquid"] .pe-rail .pmoney.is-sub .pmoney-n { font-weight: 600; font-size: var(--fs-body); }
+[data-theme="liquid"] .pe-rail .pe-rail-edge {
+  right: 3px; width: 14px; height: 36px;
+  border: 0; border-radius: 999px; background: var(--lq-fill); color: var(--fg-dim);
+}
+[data-theme="liquid"] .pe-rail .pe-rail-edge:hover { background: var(--lq-fill-hover); color: var(--fg); }
+
+/* arena: the head and each split column are solid slabs */
+[data-theme="liquid"] .pe-arena { gap: var(--lq-gap); overflow: visible; }
+[data-theme="liquid"] .pe-arena > .pe-focus-head,
+[data-theme="liquid"] .pe-split > .pe-focus-body,
+[data-theme="liquid"] .pe-split > .pe-context {
+  border: 0; border-radius: var(--lq-pane-r); background: var(--bg-elev); box-shadow: var(--lq-slab-shade);
+}
+[data-theme="liquid"] .pe-arena > .pe-focus-head { padding-bottom: var(--s-3); }
+[data-theme="liquid"] .pe-arena > .pe-split { column-gap: var(--lq-gap); }
+[data-theme="liquid"] .pe-arena > .pe-skel { border-radius: var(--lq-pane-r); background: var(--bg-elev); }
+/* orders: the middle holds cards, so the cards are the slabs and the column
+   stays clear; a card inside a slab is the nested card DESIGN.md bans */
+[data-theme="liquid"] .pe-split[data-split="orders"] > .pe-focus-body { background: transparent; box-shadow: none; border-radius: 0; }
+[data-theme="liquid"] .pe-split[data-split="orders"] .ord-cards { padding: 0 0 64px; gap: var(--lq-gap); }
+[data-theme="liquid"] .ord-cards .panel { border: 0; border-radius: var(--lq-pane-r); background: var(--bg-elev); box-shadow: var(--lq-slab-shade); }
+
+[data-theme="liquid"] .pe-focus-title,
+[data-theme="liquid"] .pe-focus-title :is(.editable-value, .editable-input) {
+  font: 700 var(--fs-title)/1.15 var(--font); letter-spacing: -.01em; text-transform: none;
+}
+[data-theme="liquid"] .pe-focus-head .pe-facts { border-top: 0; padding-top: 0; }
+[data-theme="liquid"] .pfact-n { font-weight: 700; }
+/* the step tabs: the flat strip pulled itself out by the gutter to run edge to
+   edge; as a capsule that left it hanging 20px past the slab */
+[data-theme="liquid"] .pe-focus-head .hub-tabs.surface-tabs { margin: var(--s-3) 0 0; }
+[data-theme="liquid"] .hub-tab.surface-tab.active { border-bottom-color: transparent; }
+[data-theme="liquid"] .surface-tab .stub { font-style: normal; font-size: var(--fs-footnote); font-weight: 400; color: var(--fg-dim); }
+
+/* sentence case, size and weight carry rank, no rules under heads (set 4) */
+[data-theme="liquid"] :is(.pmoney-l, .pfact-l, .pe-stage-label, .pe-field-label, .reflect-k,
+  .dim-label, .con-group-head, .form-field label) {
+  font-size: var(--fs-footnote); letter-spacing: 0; text-transform: none; color: var(--fg-dim);
+}
+[data-theme="liquid"] table.specs th { font-size: var(--fs-footnote); letter-spacing: 0; text-transform: none; color: var(--fg-dim); font-weight: 500; background: none; }
+[data-theme="liquid"] :is(.section-title, .panel-title) {
+  font: 600 var(--fs-body)/1.25 var(--font); letter-spacing: 0; text-transform: none; color: var(--fg);
+}
+[data-theme="liquid"] .panel-meta { font-style: normal; font-size: var(--fs-footnote); }
+[data-theme="liquid"] :is(.pe-section-head, .panel-head, .con-group-head) { border-bottom: 0; }
+[data-theme="liquid"] .pe-context .panel { border-bottom: 0; }
+/* the candidate deep-dive title ran past the 360px pane and scrolled it sideways */
+[data-theme="liquid"] .pe-context .panel-head { min-width: 0; }
+[data-theme="liquid"] .pe-context .panel-title { min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+[data-theme="liquid"] .pe-context .panel + .panel { box-shadow: inset 0 1px var(--line-soft); }
+[data-theme="liquid"] .pe-meta-strip { border-bottom: 0; }
+[data-theme="liquid"] :is(.crow-rank, .crow-price, .crow-score, .topfive-rank, .topfive-score,
+  .sg-cand, .sg-weighted, .card-price, .owned-name, .pe-budline-n, .pe-group-n) { font-family: var(--font); }
+
+/* rows: an inset hairline (Sam's 2026-10-12 mark on liquid cards: a divider
+   run to the slab edge reads as a rule across it); hover and selection are the
+   neutral vibrancy fills, since --bg-elev is the slab itself and vanished */
+[data-theme="liquid"] :is(.crow, .dim-row, .topfive-row) {
+  border-bottom: 0;
+  background-image: linear-gradient(var(--line-soft), var(--line-soft));
+  background-size: calc(100% - 2 * var(--pane-gutter)) 1px;
+  background-position: var(--pane-gutter) 100%;
+  background-repeat: no-repeat;
+}
+[data-theme="liquid"] :is(.crow, .dim-row, .topfive-row):hover { background-color: var(--lg-vib); }
+[data-theme="liquid"] .crow.selected { background-color: var(--lg-row-on); }
+[data-theme="liquid"] :is(.crow.is-chosen, .verdict-table tr.chosen) { background-color: color-mix(in srgb, var(--good) 12%, transparent); }
+
+/* controls: gray capsules (set 1); the primary keeps its accent fill */
+[data-theme="liquid"] :is(.sidebar-btn, .focus-action, .section-add, .icon-btn) {
+  border-radius: 999px; background: var(--lq-fill); color: var(--fg); font-size: var(--fs-footnote); font-weight: 600; letter-spacing: 0;
+}
+[data-theme="liquid"] :is(.sidebar-btn, .focus-action, .section-add, .icon-btn):hover:not(:disabled) { background: var(--lq-fill-hover); color: var(--fg); }
+[data-theme="liquid"] .sidebar-btn.primary { background: var(--accent); color: var(--on-accent); }
+[data-theme="liquid"] .sidebar-btn.primary:hover { background: var(--accent); filter: brightness(1.1); }
+[data-theme="liquid"] :is(.focus-action.alert, .icon-btn.danger) { color: var(--alert); }
+[data-theme="liquid"] :is(.focus-action.alert, .icon-btn.danger):hover { color: var(--alert); background: var(--lq-fill-hover); }
+[data-theme="liquid"] .ord-track-link { color: var(--accent); }
+[data-theme="liquid"] .con-lock { width: 28px; height: 28px; border-radius: 50%; background: var(--lq-fill); }
+[data-theme="liquid"] .con-lock:hover, [data-theme="liquid"] .con-lock:focus-visible { background: var(--lq-fill-hover); }
+[data-theme="liquid"] .inline-select {
+  height: 30px; padding: 0 28px 0 12px; border: 0; border-radius: 999px;
+  background-color: var(--lq-fill); color: var(--fg); font-size: var(--fs-footnote); font-weight: 500;
+}
+[data-theme="liquid"] .inline-select:hover { background-color: var(--lq-fill-hover); }
+[data-theme="liquid"] .inline-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* fields: tiles with an inset focus ring (set 2), not a 1px frame */
+[data-theme="liquid"] :is(.form-input, .editable-input, .score-cell-input) {
+  border: 0; border-radius: 12px; background: var(--lq-tile); box-shadow: inset 0 0 0 2px var(--accent);
+}
+[data-theme="liquid"] .form-input { box-shadow: none; }
+[data-theme="liquid"] .form-input:focus { box-shadow: inset 0 0 0 2px var(--accent); }
+/* the modal's field tile already takes the focus ring; the input inside it
+   stays flat or the ring doubles */
+[data-theme="liquid"] .form-field .form-input,
+[data-theme="liquid"] .form-field .form-input:focus { background: transparent; box-shadow: none; }
+[data-theme="liquid"] .editable-value { border-radius: 8px; }
+[data-theme="liquid"] .editable-value:hover { background: var(--lg-vib); }
+[data-theme="liquid"] .score-cell { border-radius: 10px; }
+[data-theme="liquid"] .score-cell:hover { border-color: transparent; background: var(--lg-vib); }
+
+/* chips: symbol-first gray capsules (set 3); the tone stays in the text */
+[data-theme="liquid"] :is(.fail-flag, .evidence-grade, .knee-flag, .sentiment, .rank-badge, .ship-chip) {
+  padding: 1px 8px; border: 0; border-radius: 999px; background: var(--lq-tile);
+  font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0; text-transform: none;
+}
+[data-theme="liquid"] .dim-add-opt { border-radius: 999px; }
+
+/* tiles inside a slab are fills, not a second bordered card */
+[data-theme="liquid"] .card { border: 0; border-radius: 18px; background: var(--lg-vib); }
+[data-theme="liquid"] .card-caveat { border-radius: 10px; }
+[data-theme="liquid"] .owned-shot { border: 0; border-radius: 18px; background: var(--lq-tile); }
+[data-theme="liquid"] .ord-prog-dot { background: var(--bg-elev); border-color: var(--line-strong); }
+
+[data-theme="liquid"] #toast {
+  border: 0; border-radius: 999px; padding: 8px 16px;
+  background: var(--bg-elev-2); color: var(--fg); font-weight: 600; box-shadow: var(--modal-shadow);
+}
+[data-theme="liquid"] #toast.pending { color: var(--accent); }
+[data-theme="liquid"] #toast.ok { color: var(--good); }
+[data-theme="liquid"] #toast.err { color: var(--alert); }
+
+@media (max-width: 1100px) {
+  [data-theme="liquid"] .pe-arena > .pe-split { gap: var(--lq-gap); }
+  [data-theme="liquid"] .pe-split > .pe-context { border-top: 0; }
+}
+@media (max-width: 768px) {
+  [data-theme="liquid"] .pe-body { row-gap: var(--lq-gap); padding: 0 8px 8px; }
+  [data-theme="liquid"] .pe-body > .pe-rail { border-bottom: 0; }
+  [data-theme="liquid"] .con-lock { width: 44px; height: 44px; }
+  /* the flat 60vh cap clipped the rail's foot and squeezed the list to 10px;
+     the page scrolls as one document, so the rail takes its height and the
+     list keeps its own bounded scroll */
+  [data-theme="liquid"] .pe-body > .pe-rail:not(.collapsed) { max-height: none; overflow: visible; }
+  [data-theme="liquid"] .pe-rail .pe-rail-list { flex: 0 0 auto; min-height: 120px; max-height: 280px; }
+}

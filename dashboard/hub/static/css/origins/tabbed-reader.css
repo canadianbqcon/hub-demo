@@ -1,0 +1,122 @@
+/* ============================================================
+   hub · origin: tabbed reader (slug tabbed-reader).
+   EXTENDS tabbed 3-pane. The shell, the viewport lock, the tab rail,
+   the status bar, the phone drawer, its scrim and the nav toggle are
+   hub-t3p-* classes used exactly as tabbed-3-pane.css ships them; a
+   derivative links that file first, then this one. What is left for
+   this file is the working pane: instead of a focus column and a
+   context rail, one reading pane -- a shelf of documents and a reader
+   for the open one, with the actions pinned in the reader's bar and a
+   comment strip that opens under it. Composes hub-btn, hub-pill and hub-empty-state and
+   never restyles them, nor any hub-t3p-* class.
+
+   The pane is one grid whose shape depends on width. Wide (>=1400px)
+   docks the shelf beside the reader. Half (901-1399px) hides the shelf
+   and slides it over the reader on demand. Phone (<=900px, the same
+   band tabbed 3-pane releases the viewport lock in) is master-detail:
+   the shelf, or the reader with a back button. No JS lives here; a
+   derivative's script toggles is-reading, is-shelf-open and is-wide.
+
+   Class prefix is hub-trd- (hub- is the shared-layer convention; trd
+   is tabbed-reader's initials, same reasoning as hub-t3p-).
+   ============================================================ */
+
+/* ===== PANE -- the .col the themes paint, so it stays transparent to them ===== */
+.hub-trd-pane { position: relative; display: grid; min-height: 0; min-width: 0; grid-template-columns: minmax(0, 1fr); }
+/* Nothing open: the shelf fills the pane and the reader is not in the focus order. */
+.hub-trd-pane:not(.is-reading) > .hub-trd-reader { display: none; }
+
+/* ===== SHELF -- the doc list ===== */
+/* no background on shelf, reader or bar: the pane is the .col the themes paint
+   (cobalt's grid dots), and like tabbed 3-pane's split its children let it through */
+.hub-trd-shelf { min-height: 0; min-width: 0; overflow-y: auto; }
+.hub-trd-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--s-3); align-items: center;
+  width: 100%; padding: var(--s-3) var(--s-4); text-align: left;
+  color: var(--fg); background: transparent; border: 0; border-bottom: 1px solid var(--line); cursor: pointer;
+}
+.hub-trd-row:hover { background: var(--bg-hover); }
+/* same tint the tab rail uses for the active tab, so "you are here" reads
+   the same on both columns */
+.hub-trd-row.active { background: color-mix(in oklab, var(--accent) 14%, var(--bg-elev)); }
+.hub-trd-row-t { grid-column: 1; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+.hub-trd-row-s { grid-column: 1; margin-top: 2px; font-size: var(--fs-footnote); color: var(--fg-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hub-trd-row > .hub-pill { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+
+/* ===== READER -- the open doc =====
+   Three rows: the bar, the comment strip, then the body. The body is the only
+   scroller, so the bar and the strip cannot move while the text does; an open
+   strip pushes the text down rather than covering it. The minmax(0) column
+   stops a wide table's min-content from widening the reader. */
+.hub-trd-reader { position: relative; display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); min-height: 0; min-width: 0; }
+/* wraps, so a toolbar too long for the width drops under the title instead of squeezing it */
+.hub-trd-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3); padding: var(--s-2) var(--s-4); border-bottom: 1px solid var(--line); min-width: 0; }
+/* an h1 with no shared reset: size and margin are set here so the bar stays one control tall */
+.hub-trd-title { flex: 1 1 12em; min-width: 0; margin: 0; font-family: var(--font-display); font-size: var(--fs-body); font-weight: 400; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* the title only takes focus from script (tabindex=-1, so the reader is announced on open); it is not a control, so no ring */
+.hub-trd-title:focus { outline: none; }
+.hub-trd-back, .hub-trd-toggle { flex: none; display: none; align-items: center; min-height: 36px; padding: 0 var(--s-3); color: var(--fg-dim); background: transparent; border: 1px solid var(--line); border-radius: var(--r-card); cursor: pointer; }
+.hub-trd-back:hover, .hub-trd-toggle:hover { color: var(--fg); background: var(--bg-hover); }
+.hub-trd-body { min-height: 0; overflow-y: auto; padding: var(--s-5) var(--s-4); }
+.hub-trd-measure { max-width: 78ch; margin: 0 auto; }
+/* option sets are a grid of rig cards, not prose, so they lose the measure */
+.hub-trd-reader.is-wide .hub-trd-measure { max-width: none; }
+
+/* ===== ACTIONS -- approve / send back, or a toolbar, at the bar's end ===== */
+.hub-trd-acts { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--s-2); margin-left: auto; }
+.hub-trd-acts:empty { display: none; }
+
+/* ===== STRIP -- the comment box send back opens, directly under the bar =====
+   A grid row, not an overlay: it pushes the text down. [hidden] is restated
+   because display:flex outranks the UA rule (as components.css does for hub-toast). */
+.hub-trd-strip { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--s-2) var(--s-3); padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line); background: var(--bg-elev); }
+.hub-trd-strip[hidden] { display: none; }
+.hub-trd-strip > .hub-field { flex: 1 1 280px; min-width: 0; }
+
+/* ===== SCRIM -- only the half band's slid-over shelf needs one ===== */
+.hub-trd-scrim { display: none; }
+
+/* ===== EMPTY -- wraps hub-empty-state, adds only the room around it ===== */
+.hub-trd-empty { display: flex; align-items: center; justify-content: center; padding: var(--s-5) var(--s-4); min-height: 40vh; }
+
+/* ===== WIDE >=1400px -- shelf docked beside the reader ===== */
+@media (min-width: 1400px) {
+  .hub-trd-pane.is-reading { grid-template-columns: var(--hub-trd-shelf-w, 300px) minmax(0, 1fr); }
+  .hub-trd-pane.is-reading > .hub-trd-shelf { border-right: 1px solid var(--line); }
+}
+
+/* ===== HALF 901-1399px -- reader fills; the shelf slides over on demand ===== */
+@media (min-width: 901px) and (max-width: 1399px) {
+  .hub-trd-toggle { display: inline-flex; }
+  .hub-trd-pane.is-reading > .hub-trd-shelf {
+    position: absolute; inset: 0 auto 0 0; z-index: 20; width: min(360px, 80%);
+    background: var(--bg-elev); border-right: 1px solid var(--line-strong);
+    box-shadow: 0 0 24px color-mix(in srgb, var(--fg) 18%, transparent);
+    /* visibility as well as transform, so a parked shelf is out of the focus order */
+    transform: translateX(-100%); visibility: hidden;
+    /* hidden only once the slide-out ends; visible at once on open, so focus can land on it */
+    transition: transform 180ms ease-out, visibility 0s linear 180ms;
+  }
+  .hub-trd-pane.is-reading.is-shelf-open > .hub-trd-shelf { transform: translateX(0); visibility: visible; transition: transform 180ms ease-out, visibility 0s; }
+  .hub-trd-pane.is-reading.is-shelf-open > .hub-trd-scrim { display: block; position: absolute; inset: 0; z-index: 19; background: color-mix(in srgb, var(--bg) 55%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* the open-state rule is listed too: its four classes outrank the base rule's three */
+  .hub-trd-pane.is-reading > .hub-trd-shelf, .hub-trd-pane.is-reading.is-shelf-open > .hub-trd-shelf { transition: none; }
+}
+
+/* ===== PHONE <=900px -- master-detail, the page scrolls as a document =====
+   tabbed-3-pane's phone release already unlocks the body, so nothing below
+   scrolls in place: the shelf and the body are released, and the bar (with
+   its actions) sticks to the top so it stays reachable on a long doc. */
+@media (max-width: 900px) {
+  .hub-trd-pane.is-reading > .hub-trd-shelf { display: none; }
+  .hub-trd-shelf { overflow: visible; }
+  .hub-trd-back { display: inline-flex; min-height: 44px; }
+  .hub-trd-reader { grid-template-rows: auto auto auto; }
+  .hub-trd-acts .hub-btn { min-height: 44px; }
+  /* focus scrolls the box into view; the margin keeps it out from under the sticky bar */
+  .hub-trd-strip textarea { scroll-margin-top: 160px; }
+  .hub-trd-bar { position: sticky; top: 0; z-index: 6; background: var(--bg); }
+  .hub-trd-body { overflow: visible; }
+}

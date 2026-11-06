@@ -1,0 +1,104 @@
+{
+  "artifacts": [
+    {
+      "title": "Lisbon trip day planner",
+      "url": "https://artifacts.example/lisbon-planner",
+      "updated": "2026-11-04",
+      "category": "Planning",
+      "description": "Three loose days plus the Alfama tram tour, with walking times between stops.",
+      "favicon": "L"
+    },
+    {
+      "title": "Packing list builder",
+      "url": "https://artifacts.example/packing-list",
+      "updated": "2026-10-28",
+      "category": "Planning",
+      "description": "Pick a trip length and weather, get a checklist that ticks and saves.",
+      "favicon": "P",
+      "tool": true
+    },
+    {
+      "title": "Shift pay calculator",
+      "url": "https://artifacts.example/shift-pay",
+      "updated": "2026-10-25",
+      "category": "Finance",
+      "description": "Enter hours and tips for a week of bar shifts and see a pre-tax estimate.",
+      "favicon": "$",
+      "tool": true
+    },
+    {
+      "title": "October spending breakdown",
+      "url": "https://artifacts.example/oct-spend",
+      "updated": "2026-10-31",
+      "category": "Finance",
+      "description": "Where the month went, by category, against the budget book.",
+      "favicon": "O"
+    },
+    {
+      "title": "Cheapest month to fly to Lisbon",
+      "url": "https://artifacts.example/lisbon-fares",
+      "updated": "2026-10-22",
+      "category": "Research",
+      "description": "A fare history comparison for ORD to LIS across eight months.",
+      "favicon": "F"
+    },
+    {
+      "title": "Standing desk comparison",
+      "url": "https://artifacts.example/desk-compare",
+      "updated": "2026-10-17",
+      "category": "Research",
+      "description": "Five desks scored on stability, noise and price, with the pick.",
+      "favicon": "D"
+    },
+    {
+      "title": "Interview prep: Harbor & Pine",
+      "url": "https://artifacts.example/hp-prep",
+      "updated": "2026-11-03",
+      "category": "Career",
+      "description": "Likely questions, three stories to tell, and questions to ask the team.",
+      "favicon": "H"
+    },
+    {
+      "title": "Resume bullet rewriter",
+      "url": "https://artifacts.example/bullets",
+      "updated": "2026-10-26",
+      "category": "Career",
+      "description": "Paste a bullet, get three tighter versions with numbers kept.",
+      "favicon": "R",
+      "tool": true
+    },
+    {
+      "title": "Hub tour",
+      "url": "/guide/",
+      "updated": "2026-11-05",
+      "category": "Hub",
+      "description": "The ten-minute tour of every page in this Hub.",
+      "favicon": "G"
+    },
+    {
+      "title": "Workbench",
+      "url": "/workbench/",
+      "updated": "2026-11-05",
+      "category": "Hub",
+      "description": "Sign off specs, plans and design options.",
+      "favicon": "W"
+    },
+    {
+      "title": "Recipe scaler",
+      "url": "https://artifacts.example/scaler",
+      "updated": "2026-10-12",
+      "category": "Cooking",
+      "description": "Scale a recipe to any serving count and see grams next to cups.",
+      "favicon": "S",
+      "tool": true
+    },
+    {
+      "title": "Braise timing chart",
+      "url": "https://artifacts.example/braise",
+      "updated": "2026-10-19",
+      "category": "Cooking",
+      "description": "Oven temperature and hours by cut, for the five braises on the shortlist.",
+      "favicon": "B"
+    }
+  ]
+}

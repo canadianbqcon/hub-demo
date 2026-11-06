@@ -1,0 +1,594 @@
+/* ============================================================
+   j&co batch-prep + storage map — the two payload panels of the juniper &
+   co page (/jc/), no longer a standalone surface with its own
+   bottom nav. Tokens (colors, type, spacing, radii) come from the
+   shared theme files linked in jc.html (themes/{vesper,cobalt}.css),
+   resolved off <html data-theme=… data-surface=…> exactly like the
+   home + jobs pages — so the light/dark toggle and theme picker drive
+   this page for free. Only layout constants live here.
+
+   The shell (topbar, primary tabs, sub-tabs, panels) is jc.css. The
+   --topbar-h / --jc-*-h vars below come from there; they are redeclared
+   nowhere else.
+   ============================================================ */
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+/* min-height, NOT height. `height:100%` caps <body>'s box at one viewport, and
+   a position:sticky element can never travel outside its containing block — so
+   every sticky direct child of <body> (the topbar, the primary tab bar) silently
+   stopped sticking the moment you scrolled past 100vh, while sticky elements
+   deeper in the tree kept working because their containing block was tall. Same
+   full-height background, no sticky ceiling. */
+html,body { min-height:100%; }
+body {
+  background:var(--bg); color:var(--fg);
+  font-family:var(--font-body); font-size:var(--fs-body); line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;
+  overscroll-behavior-y:none;
+}
+button,input,textarea { font:inherit; color:inherit; background:none; border:0; }
+button { cursor:pointer; }
+h1 { font-family:var(--font-display); font-weight:500; letter-spacing:0.01em; }
+.muted { color:var(--fg-dim); }
+.pad { padding:var(--s-5); }
+
+/* topbar (brand lockup + crumb + controls) is injected ONCE by
+   theme-switch.js injectUniversalCss() so it can't drift. Do not
+   redefine the topbar/brand/crumb/surface-toggle/launcher selectors here. */
+
+.icon-toggle {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:34px; height:34px; font-size:var(--fs-body); color:var(--fg-dim);
+  border:1px solid var(--line-strong); border-radius:var(--r-pill);
+  transition:all 120ms ease-out;
+}
+.icon-toggle:active { background:var(--bg-hover); color:var(--fg); }
+
+.unit-toggle {
+  display:inline-flex; align-items:stretch;
+  border:1px solid var(--line-strong); border-radius:var(--r-pill);
+  overflow:hidden; flex-shrink:0;
+}
+.unit-opt {
+  padding:6px 15px; font-size:var(--fs-subhead); color:var(--fg-faint);
+  display:flex; align-items:center; transition:all 120ms ease-out;
+}
+.unit-opt.is-on { background:var(--accent); color:var(--bg); font-weight:500; }
+
+/* ===== VIEW SWITCHER (recipes / prep day, inside the batch panel) ===== */
+.views {
+  position:relative;
+  min-height:calc(100vh - var(--topbar-h) - var(--jc-tabs-h) - var(--jc-subtabs-h));
+}
+.view { display:none; }
+.view.is-active { display:block; }
+
+/* ===== RECIPE CONTROLS (sticky tabs + search) ===== */
+.recipe-controls {
+  /* third sticky layer: below the topbar, the primary tabs and the sub-tabs */
+  position:sticky; top:calc(var(--topbar-h) + var(--jc-tabs-h) + var(--jc-subtabs-h)); z-index:20;
+  background:var(--bg); border-bottom:1px solid var(--line);
+  padding:var(--s-3) var(--s-5);
+  display:flex; align-items:center; gap:var(--s-3);
+}
+.recipe-tabs {
+  display:inline-flex; align-items:stretch; flex-shrink:0;
+  border:1px solid var(--line-strong); border-radius:var(--r-pill); overflow:hidden;
+}
+.rtab {
+  padding:7px 16px; font-size:var(--fs-subhead); color:var(--fg-faint);
+  transition:all 120ms ease-out;
+}
+.rtab.is-on { background:var(--accent); color:var(--bg); font-weight:500; }
+.recipe-search {
+  flex:1; min-width:0; padding:9px var(--s-4); font-size:var(--fs-subhead); color:var(--fg);
+  background:var(--bg-elev); border:1px solid var(--line-strong); border-radius:var(--r-pill);
+}
+.recipe-search::placeholder { color:var(--fg-ghost); }
+/* outline:none removed — it was beating base.css's global :focus-visible ring on
+   specificity (.recipe-search:focus is 2 classes vs input:focus-visible's 1+1) and
+   silently killing keyboard focus here. Border-color-on-focus is now just an extra
+   cue, not the only one. */
+.recipe-search:focus { border-color:var(--accent); }
+
+/* ===== RECIPE LIST ===== */
+.recipe-list { display:flex; flex-direction:column; }
+.cat-head {
+  font-family:var(--font-display); font-size:var(--fs-footnote); letter-spacing:0.1em;
+  text-transform:uppercase; color:var(--accent);
+  padding:var(--s-4) var(--s-5) var(--s-2);
+  background:var(--bg);
+}
+.recipe-row {
+  display:flex; align-items:center; gap:var(--s-3);
+  padding:var(--s-3) var(--s-5);
+  border-bottom:1px solid var(--line-soft);
+  text-align:left; width:100%;
+}
+.recipe-row:active { background:var(--bg-hover); }
+.recipe-row .r-main { display:flex; flex-direction:column; gap:2px; min-width:0; flex:1; }
+.recipe-row .r-name { font-size:var(--fs-body); color:var(--fg); }
+.recipe-row .r-meta { font-size:var(--fs-footnote); color:var(--fg-faint); font-variant-numeric:tabular-nums; }
+.recipe-row .r-tag {
+  flex-shrink:0; font-size:var(--fs-caption); letter-spacing:0.04em; text-transform:uppercase;
+  border:1px solid var(--line); border-radius:var(--r-pill); padding:2px 8px;
+}
+.recipe-row .r-tag.is-multi { color:var(--accent); border-color:var(--accent-faint); }
+.recipe-row .r-tag.is-direct { color:var(--fg-ghost); }
+.recipe-row .chev { flex-shrink:0; color:var(--fg-ghost); font-size:var(--fs-body); }
+
+/* ===== RECIPE DETAIL (inline accordion under its list row) ===== */
+/* an open row carries a faint tint + drops its own divider so the panel reads as
+   one continuous block; the chevron flips ›→▾ in JS. */
+.recipe-item { display:flex; flex-direction:column; }
+.recipe-row.is-open { background:var(--bg-elev); border-bottom-color:transparent; }
+.recipe-row.is-open .chev { color:var(--accent); }
+.recipe-panel {
+  background:var(--bg-elev);
+  padding:0 var(--s-5) var(--s-4);
+  border-bottom:1px solid var(--line-soft);
+}
+.panel-note { font-size:var(--fs-subhead); font-style:italic; color:var(--fg-faint); padding:var(--s-3) 0; }
+.detail-meta { font-size:var(--fs-footnote); font-style:italic; color:var(--fg-faint); padding:var(--s-1) 0 var(--s-2); }
+
+/* scaler (note + reset only — scaling is ingredient-driven) */
+.scaler {
+  padding:var(--s-2) 0; margin-bottom:var(--s-2);
+  border-bottom:1px solid var(--line-soft);
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s-3);
+}
+.scale-note { font-size:var(--fs-footnote); font-style:italic; color:var(--fg-faint); }
+.scale-reset {
+  flex-shrink:0; padding:6px 14px; font-size:var(--fs-footnote); color:var(--accent);
+  border:1px solid var(--accent-faint); border-radius:var(--r-pill);
+}
+.scale-reset:active { background:var(--bg-hover); }
+
+/* shared spacer: pushes a row's quantity to the right of its name. once a dotted
+   connector leader, now line-free (Sam, 2026-06-06: "connector lines is too
+   many lines") — the row divider borders carry the visual separation instead.
+   used in recipe ingredient rows, prep steps, and composition rows. */
+.leader {
+  flex:1 1 auto; min-width:16px; margin:0 var(--s-3);
+}
+
+/* ingredient rows */
+.ing-list { list-style:none; }
+.ing { padding:var(--s-3) 0; border-bottom:1px solid var(--line-soft); }
+.ing-head { display:flex; align-items:baseline; }
+.ing-main { min-width:0; }
+.ing-main.is-expander { cursor:pointer; }
+.ing-caret { font-size:var(--fs-caption); color:var(--accent-faint); margin-left:var(--s-2); }
+.ing-name { font-size:var(--fs-body); color:var(--fg); }
+.ing-bom {
+  display:inline-block; margin-left:var(--s-2);
+  font-size:var(--fs-caption); font-style:italic; color:var(--accent-faint);
+  border:1px solid var(--line); border-radius:var(--r-pill); padding:1px 7px;
+  vertical-align:middle;
+}
+.ing-src { display:block; font-size:var(--fs-caption); color:var(--fg-ghost); margin-top:2px; }
+.ing-val {
+  flex-shrink:0; text-align:right;
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1,"lnum" 1;
+}
+.ing-num { font-size:var(--fs-body); color:var(--fg); }
+.ing-unit { font-size:var(--fs-footnote); color:var(--fg-faint); margin-left:3px; }
+.ing-val.is-editable .ing-num { color:var(--accent); border-bottom:1px dashed var(--accent-faint); }
+.ing-val.is-text .ing-num { font-size:var(--fs-subhead); font-style:italic; color:var(--fg-dim); }
+
+/* inline-expanded sub-recipe (read-only, the prep's own card amounts) */
+.ing-sub { padding:var(--s-2) 0 var(--s-1) var(--s-4); }
+.ing-sub-list { list-style:none; margin:0; padding:0; }
+.ing-sub-note { font-size:var(--fs-footnote); font-style:italic; color:var(--fg-faint); line-height:1.4; margin-top:var(--s-2); }
+
+/* inline edit field */
+.ing-edit {
+  width:92px; text-align:right; font-size:var(--fs-body); color:var(--accent);
+  font-variant-numeric:tabular-nums;
+  border-bottom:1px solid var(--accent);
+}
+
+.detail-note {
+  font-size:var(--fs-subhead); color:var(--accent); line-height:1.5;
+  padding:var(--s-2) 0 var(--s-3);
+}
+
+.method-box {
+  margin-top:var(--s-5); border:1px solid var(--line); border-radius:var(--r-card);
+  padding:var(--s-3) var(--s-4);
+}
+.method-box summary { font-size:var(--fs-subhead); color:var(--accent); cursor:pointer; }
+.method-box p { font-size:var(--fs-body); color:var(--fg-dim); margin-top:var(--s-3); line-height:1.6; }
+
+/* ===== PREP DAY ===== */
+/* builder */
+.prep-builder h1 { font-size:var(--fs-large-title); margin-bottom:var(--s-2); }
+.prep-builder > .muted { font-size:var(--fs-subhead); max-width:34rem; margin-bottom:var(--s-4); }
+
+/* picker controls: drinks/preps tabs + search (reuse the recipes-view classes) */
+.pick-controls { display:flex; align-items:center; gap:var(--s-3); margin-bottom:var(--s-3); }
+
+/* bulk expand/collapse for the picker's category buckets — a long recipe list is
+   all-manual otherwise (one bucket at a time) */
+.pick-toolbar { display:flex; justify-content:flex-end; margin-bottom:var(--s-2); }
+.pick-expand-toggle {
+  padding:5px 12px; font-size:var(--fs-footnote); color:var(--accent);
+  border:1px solid var(--line-strong); border-radius:var(--r-pill); transition:all 120ms ease-out;
+}
+.pick-expand-toggle:active { background:var(--bg-hover); }
+
+/* selected tray: removable chip per pick, always visible above the list */
+.pick-tray {
+  display:flex; flex-wrap:wrap; align-items:center; gap:var(--s-2);
+  padding:var(--s-2) 0 var(--s-3); margin-bottom:var(--s-2);
+  border-bottom:1px solid var(--line-soft);
+}
+.pick-tray .tray-lbl {
+  font-size:var(--fs-caption); letter-spacing:0.1em; text-transform:uppercase; color:var(--fg-faint);
+  margin-right:var(--s-1);
+}
+.tray-chip {
+  display:inline-flex; align-items:center; gap:var(--s-2); min-height:44px;
+  padding:6px 8px 6px 12px; font-size:var(--fs-subhead); color:var(--bg);
+  background:var(--accent); border:1px solid var(--accent); border-radius:var(--r-pill);
+}
+.tray-chip .tray-x { font-size:var(--fs-footnote); opacity:0.8; }
+.tray-chip:active { opacity:0.85; }
+
+/* picker: a vertical stack of collapsible category buckets */
+.prep-pick { display:flex; flex-direction:column; gap:var(--s-1); margin-bottom:var(--s-5); }
+.pick-group { border-bottom:1px solid var(--line-soft); }
+.pick-cat {
+  display:flex; align-items:center; gap:var(--s-3); width:100%; text-align:left;
+  padding:var(--s-3) var(--s-1);
+}
+.pick-cat:active { background:var(--bg-hover); }
+.pick-chev { flex-shrink:0; font-size:var(--fs-footnote); color:var(--fg-ghost); width:14px; }
+.pick-cat.is-open .pick-chev { color:var(--accent); }
+.pick-cat-label {
+  flex:1; min-width:0; font-family:var(--font-display); font-size:var(--fs-subhead);
+  letter-spacing:0.04em; color:var(--fg);
+}
+.pick-cat-count {
+  flex-shrink:0; font-size:var(--fs-footnote); color:var(--fg-faint);
+  font-variant-numeric:tabular-nums;
+  border:1px solid var(--line); border-radius:var(--r-pill); padding:1px 9px;
+}
+.pick-cat.has-sel .pick-cat-count { color:var(--accent); border-color:var(--accent-faint); }
+.pick-chips { display:flex; flex-wrap:wrap; gap:var(--s-2); padding:var(--s-1) 0 var(--s-4); }
+
+.pick-chip {
+  padding:9px 15px; font-size:var(--fs-subhead); color:var(--fg-dim);
+  border:1px solid var(--line-strong); border-radius:var(--r-pill);
+  transition:all 120ms ease-out;
+}
+.pick-chip.is-on { background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:500; }
+/* add mode: a recipe already on the day can't be re-added — greyed, non-interactive */
+.pick-chip.is-inplan {
+  opacity:0.4; border-style:dashed; text-decoration:line-through;
+  cursor:default; pointer-events:none;
+}
+.prep-build-bar {
+  position:sticky; bottom:env(safe-area-inset-bottom);
+  display:flex; align-items:center; justify-content:space-between; gap:var(--s-4);
+  padding:var(--s-3) 0;
+  background:linear-gradient(to top, var(--bg) 60%, transparent);
+}
+.prep-build-bar .muted { font-size:var(--fs-footnote); font-style:italic; }
+.prep-build-bar .btn-save:disabled { opacity:0.4; }
+.prep-cancel {
+  flex-shrink:0; padding:9px 16px; font-size:var(--fs-subhead); color:var(--fg-dim);
+  border:1px solid var(--line-strong); border-radius:var(--r-pill);
+}
+.prep-cancel:active { background:var(--bg-hover); }
+
+/* active day */
+.prep-active { padding:var(--s-4) var(--s-5) var(--s-6); }
+.prep-head { display:flex; align-items:flex-start; justify-content:space-between; gap:var(--s-4); }
+.prep-head h1 { font-size:var(--fs-large-title); margin-bottom:var(--s-1); }
+.prep-head-actions { flex-shrink:0; display:flex; gap:var(--s-2); margin-top:6px; }
+.prep-add {
+  padding:7px 16px; font-size:var(--fs-subhead); color:var(--accent);
+  border:1px solid var(--line-strong); border-radius:var(--r-pill);
+}
+.prep-add:active { background:var(--bg-hover); }
+.prep-reset {
+  flex-shrink:0; padding:7px 16px; font-size:var(--fs-subhead); color:var(--alert);
+  border:1px solid var(--line-strong); border-radius:var(--r-pill);
+}
+.prep-reset:active { background:var(--bg-hover); }
+.prep-progress {
+  font-size:var(--fs-footnote); font-style:italic; color:var(--fg-faint);
+  font-variant-numeric:tabular-nums; margin:var(--s-2) 0 var(--s-4);
+}
+.prep-progress.is-complete { color:var(--good); font-style:normal; font-weight:500; }
+
+.phase-head {
+  font-family:var(--font-display); font-size:var(--fs-footnote); letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--accent);
+  margin:var(--s-4) 0 var(--s-2); padding-bottom:var(--s-2);
+  border-bottom:1px solid var(--line);
+}
+.phase-head:first-child { margin-top:0; }
+
+/* top-level divider for a queued addition (stage 1+): a standalone block appended
+   after the original plan. Heavier than .phase-head so the boundary reads clearly. */
+.stage-head {
+  font-family:var(--font-display); font-size:var(--fs-subhead); letter-spacing:0.04em;
+  color:var(--fg); font-style:italic;
+  margin:var(--s-6) 0 var(--s-1); padding:var(--s-2) 0 var(--s-1);
+  border-top:2px solid var(--accent);
+}
+
+/* second-level header inside the raw phase: one per prep-order tier
+   (Fresh · Pantry · Alcohol · Dairy) so the fresh→stable sort is visible */
+.tier-head {
+  font-family:var(--font-display); font-size:var(--fs-caption); letter-spacing:0.1em;
+  text-transform:uppercase; color:var(--fg-dim);
+  margin:var(--s-3) 0 var(--s-1);
+}
+
+/* raw-stage gather line — a plain list row, no checkbox column (Stage A3).
+   denser than a step row; name left, quantity right, leader spacer between so it
+   aligns with the checkable step rows below it. */
+.raw-item {
+  display:flex; align-items:baseline; gap:var(--s-3);
+  padding:var(--s-1) 0;
+  border-bottom:1px solid var(--line-soft);
+}
+.raw-name { flex:0 1 auto; min-width:0; font-size:var(--fs-subhead); color:var(--fg-dim); }
+.raw-qty {
+  flex-shrink:0; font-size:var(--fs-subhead); color:var(--fg-faint);
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1,"lnum" 1;
+}
+
+.step-item { border-bottom:1px solid var(--line-soft); }
+.step {
+  display:flex; align-items:center; gap:var(--s-3); width:100%; text-align:left;
+  padding:var(--s-3) 0;
+}
+/* derived progress count in the header's left slot (Stage B — the header is no
+   longer a checkbox; the checkable units are the composition rows below). 26px
+   wide so the label lines up with the old box position. */
+.step-count {
+  flex-shrink:0; width:26px; text-align:center;
+  font-size:var(--fs-footnote); color:var(--fg-dim);
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1,"lnum" 1;
+}
+.step.is-checked .step-count { color:var(--good); }
+.step-label { flex:0 1 auto; min-width:0; font-size:var(--fs-body); color:var(--fg); }
+.step.is-checked .step-label { color:var(--fg-faint); text-decoration:line-through; }
+/* brew-time on a build-up step — its own indented line under the title, blue.
+   Off the title row so it never crowds a long step name; aligned with the
+   composition sub-list and method note below it. Longest-wait preps are already
+   sorted to the top of build-up. */
+.step-lead {
+  margin:0 0 var(--s-3) calc(26px + var(--s-3));
+  font-size:var(--fs-footnote); color:var(--accent, var(--fg-dim));
+}
+.step.is-checked ~ .step-lead { color:var(--fg-ghost); }
+.step-qty {
+  flex-shrink:0; font-size:var(--fs-body); color:var(--fg-dim);
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1,"lnum" 1;
+}
+.step.is-checked .step-qty { color:var(--fg-ghost); }
+
+/* composition sub-list under a build-up / assemble step */
+.step-comps {
+  list-style:none; margin:0; padding:0 0 var(--s-3) calc(26px + var(--s-3));
+}
+/* each composition row is a checkable sub-item button (Stage B). a small box on
+   the left toggles the component; ticking strikes the name through. */
+.comp {
+  display:flex; align-items:center; gap:var(--s-2); width:100%; text-align:left;
+  background:none; border:0; padding:4px 0; min-height:44px; font:inherit; font-size:var(--fs-subhead);
+  color:inherit; cursor:pointer;
+}
+.comp-box {
+  flex-shrink:0; width:20px; height:20px;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:var(--fs-footnote); color:var(--bg);
+  border:1.5px solid var(--line-strong); border-radius:var(--r-pill);
+  transition:all 120ms ease-out;
+}
+.comp.is-checked .comp-box { background:var(--good); border-color:var(--good); }
+.comp-name { flex:0 1 auto; min-width:0; color:var(--fg-dim); }
+.comp.is-checked .comp-name { color:var(--fg-faint); text-decoration:line-through; }
+.comp-qty {
+  flex-shrink:0; color:var(--fg-faint);
+  font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1,"lnum" 1;
+}
+.comp.is-checked .comp-qty { color:var(--fg-ghost); }
+.step.is-checked ~ .step-comps { opacity:0.6; }
+
+/* method / instruction line under a build-up or assemble step */
+.step-note {
+  margin:0 0 var(--s-3) calc(26px + var(--s-3));
+  font-size:var(--fs-footnote); font-style:italic; color:var(--fg-faint); line-height:1.4;
+}
+.step.is-checked ~ .step-note { opacity:0.5; }
+
+/* ===== MAP — structured storage tree ===== */
+.map-wrap { display:flex; flex-direction:column; min-height:calc(100vh - var(--topbar-h) - var(--jc-tabs-h)); }
+.map-wrap h1 { font-size:var(--fs-large-title); margin-bottom:var(--s-2); }
+.map-wrap .muted { font-size:var(--fs-subhead); }
+.map-head { display:flex; align-items:flex-start; justify-content:space-between; gap:var(--s-4); margin-bottom:var(--s-4); }
+.map-head-actions { flex-shrink:0; display:flex; gap:var(--s-2); margin-top:6px; }
+.map-edit-toggle, .map-expand-toggle {
+  flex-shrink:0; padding:7px 18px; font-size:var(--fs-subhead); color:var(--accent);
+  border:1px solid var(--line-strong); border-radius:var(--r-pill); transition:all 120ms ease-out;
+}
+.map-edit-toggle:active, .map-expand-toggle:active { background:var(--bg-hover); }
+.map-edit-toggle.is-on { background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:500; }
+
+.map-tree { display:flex; flex-direction:column; gap:var(--s-5); }
+
+/* a room — accent caps header, matching .phase-head in the prep view */
+.map-area-head {
+  display:flex; align-items:center; gap:var(--s-3);
+  margin-bottom:var(--s-2); padding-bottom:var(--s-2);
+  border-bottom:1px solid var(--line);
+}
+.map-area-name {
+  flex:1; min-width:0;
+  font-family:var(--font-display); font-size:var(--fs-footnote); letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--accent);
+}
+
+/* a fixture — collapsible card */
+.map-units { display:flex; flex-direction:column; gap:var(--s-3); }
+.map-unit {
+  background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--r-card);
+  overflow:hidden;
+}
+.map-unit-head {
+  display:flex; align-items:center; gap:var(--s-3); width:100%; text-align:left;
+  padding:var(--s-3) var(--s-4);
+}
+.map-unit-head:active { background:var(--bg-hover); }
+.map-chev { flex-shrink:0; width:14px; font-size:var(--fs-footnote); color:var(--fg-ghost); transition:color 120ms; }
+.map-unit.is-open .map-chev { color:var(--accent); }
+.map-unit-name {
+  flex:1; min-width:0; font-family:var(--font-display); font-size:var(--fs-body);
+  letter-spacing:0.02em; color:var(--fg);
+}
+.map-unit-name.is-loose { color:var(--fg-dim); font-style:italic; }
+.map-unit-count {
+  flex-shrink:0; font-size:var(--fs-footnote); color:var(--fg-faint);
+  font-variant-numeric:tabular-nums;
+  border:1px solid var(--line); border-radius:var(--r-pill); padding:1px 9px;
+}
+.map-unit-body { padding:0 var(--s-4) var(--s-4); }
+/* a closed unit's body is unmounted by HubCollapse (topbar.jsx), after it glides shut */
+
+/* a shelf/row inside a unit */
+.map-section { margin-top:var(--s-3); }
+.map-section:first-child { margin-top:var(--s-1); }
+.map-section-label {
+  display:flex; align-items:center; gap:var(--s-2);
+  font-family:var(--font-display); font-size:var(--fs-caption); letter-spacing:0.1em;
+  text-transform:uppercase; color:var(--fg-dim); margin-bottom:var(--s-2);
+}
+.map-section-name { flex:1; min-width:0; }
+
+/* a sub-shelf inside a shelf — indented under its parent with a hairline spine.
+   Nests to any depth; each level inherits the same rule and steps in again. */
+.map-section.is-nested {
+  margin-left:var(--s-3); padding-left:var(--s-3);
+  border-left:1px solid var(--line);
+}
+.map-section.is-nested > .map-section-label { text-transform:none; letter-spacing:0.04em; }
+
+/* item chips */
+.map-chips { display:flex; flex-wrap:wrap; gap:var(--s-2); }
+.map-chip {
+  display:inline-flex; align-items:center; gap:var(--s-2);
+  padding:7px 13px; font-size:var(--fs-subhead); color:var(--fg-dim);
+  border:1px solid var(--line-strong); border-radius:var(--r-pill);
+}
+.map-chip .chip-note { color:var(--fg-faint); font-style:italic; font-size:var(--fs-footnote); }
+.map-empty { font-size:var(--fs-footnote); font-style:italic; color:var(--fg-ghost); }
+
+/* ── edit mode ── */
+/* small round tool button (▲ ▼ ✎ ✕ +) shown only while editing. 36px, not the
+   full 44px floor — four of these sit in one row (▲▼✎✕) and going to 44 with a
+   gap wide enough to keep them from crowding into a delete mis-tap would blow out
+   the row width. 36px + a roomier gap is the practical ceiling here; revisit with
+   real hit-area padding if mis-taps get reported. */
+.map-tool {
+  flex-shrink:0; width:36px; height:36px;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:var(--fs-subhead); color:var(--fg-faint);
+  border:1px solid var(--line-strong); border-radius:var(--r-pill);
+  transition:all 120ms ease-out;
+}
+.map-tool:active { background:var(--bg-hover); color:var(--fg); }
+.map-tool.is-danger:active { color:var(--alert); border-color:var(--alert); }
+.map-tool:disabled { opacity:0.25; pointer-events:none; }
+.map-tools { display:inline-flex; align-items:center; gap:var(--s-4); flex-shrink:0; }
+/* a text "add" affordance (+ unit / + shelf / + item) */
+.map-add {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 12px; font-size:var(--fs-footnote); color:var(--accent);
+  border:1px dashed var(--line-strong); border-radius:var(--r-pill);
+  transition:all 120ms ease-out;
+}
+.map-add:active { background:var(--bg-hover); }
+.map-add-item { margin-top:var(--s-2); }
+/* the editable chip in edit mode: shows a delete × and a move control */
+.map-chip.is-edit { border-style:dashed; cursor:pointer; }
+/* real box, not just a 12px glyph, so the × itself is a fair tap target — negative
+   margin claws most of the added size back out of the chip's own padding so the
+   row doesn't visibly grow */
+.map-chip-x {
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:24px; min-height:24px; margin:-6px -4px -6px 2px;
+  font-size:var(--fs-footnote); opacity:0.6;
+}
+.map-chip.is-edit:active { background:var(--bg-hover); }
+/* the map is read-only until the edit toggle is on; tools/adds hide otherwise */
+.map-tree:not(.is-editing) .map-tools,
+.map-tree:not(.is-editing) .map-add,
+.map-tree:not(.is-editing) .map-chip-x { display:none; }
+
+/* item action-menu popover (rename · note · move · delete) */
+.map-menu {
+  position:absolute; z-index:60; min-width:170px;
+  display:flex; flex-direction:column; padding:var(--s-1);
+  background:var(--bg-elev); border:1px solid var(--line-strong);
+  border-radius:var(--r-card); box-shadow:0 8px 28px rgba(0,0,0,0.35);
+}
+.map-menu-item {
+  text-align:left; padding:9px 12px; font-size:var(--fs-subhead); color:var(--fg);
+  border-radius:var(--r-soft, 8px);
+}
+.map-menu-item:active { background:var(--bg-hover); }
+.map-menu-item.is-danger { color:var(--alert); }
+
+.btn-save {
+  padding:11px 22px; font-size:var(--fs-body);
+  background:var(--accent); color:var(--bg); border-radius:var(--r-card); font-weight:500;
+}
+.btn-save:disabled { opacity:0.5; }
+.save-status { font-size:var(--fs-footnote); font-style:italic; color:var(--fg-faint); }
+.save-status.ok { color:var(--good); }
+.save-status.err { color:var(--alert); }
+
+/* The bottom nav is gone. Its three stops became the umbrella's own
+   controls: recipes / prep day are .jc-subtabs inside this panel, the map
+   is a primary .jc-tab beside it. .nav-item survives only as the hook
+   batch.js binds to on those sub-tabs — .jc-tab in jc.css paints them. */
+
+/* ===== COBALT FIELD EXTENSION (bespoke per THEMING-SPEC Rule 2) =====
+   cobalt.css's text-field treatment names the home/jobs field classes, and this
+   page's search box is .recipe-search, so it never reached batch. Fields only:
+   the .btn-save press treatment that used to sit here was a copy of cobalt.css's
+   and had drifted, and themes/cobalt.css's button standard names .btn-save
+   directly now. Do not re-add a button block here — the standard is one file,
+   and dashboard/hub/tests/test_cobalt_button_standard.py enforces it. */
+
+/* thick blunt frame, matching the .ep-input/.field-input group */
+[data-theme="cobalt"] .recipe-search { border-width:2px; border-color:var(--line-strong); }
+/* punched-in focus, matching the .ep-input:focus group. real outline (not
+   outline:none) so this stays on top of the global focus-visible rule instead
+   of fighting it. */
+[data-theme="cobalt"] .recipe-search:focus {
+  box-shadow: inset 4px 4px 0 0 var(--line-strong);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+
+
+/* engineering-grid blueprint texture — the backmost painted layer on this page,
+   same treatment as home/jobs' .col */
+[data-theme="cobalt"] .jc-main {
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--line-soft) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* the map's item action-menu is a popover just like the modules menu — give it
+   the same hard offset shadow instead of the generic soft blur */
+[data-theme="cobalt"] .map-menu { box-shadow:6px 6px 0 0 var(--accent); }

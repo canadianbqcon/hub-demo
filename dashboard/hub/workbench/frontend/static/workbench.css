@@ -1,0 +1,425 @@
+/* workbench: build review on entry-3-pane. Page mods only: the option-set
+   rig, doc prose, wide tables, the quality-gates block, status pips and the
+   order-lock note. Every other part comes from the origin and the plate card. */
+
+body.workbench { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: var(--fs-subhead); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+:where(body.workbench) button, :where(body.workbench) textarea, :where(body.workbench) input { font: inherit; color: inherit; background: none; border: 0; }
+:where(body.workbench) button { cursor: pointer; }
+body.workbench [hidden] { display: none !important; }
+
+.wb-doc { font-size: var(--fs-subhead); line-height: 1.6; color: var(--fg-mute); }
+.wb-doc h1, .wb-doc h2, .wb-doc h3 { font-family: var(--font-display); color: var(--fg); margin: var(--s-4) 0 var(--s-2); }
+.wb-doc h1 { font-size: var(--fs-title); } .wb-doc h2 { font-size: var(--fs-body); } .wb-doc h3 { font-size: var(--fs-subhead); }
+.wb-doc p, .wb-doc ul, .wb-doc ol, .wb-table { margin: 0 0 var(--s-3); }
+.wb-doc ul, .wb-doc ol { padding-left: 1.4em; }
+.wb-doc li { margin-bottom: 4px; }
+.wb-doc a { color: var(--accent); }
+.wb-doc code { overflow-wrap: anywhere; font-size: var(--fs-footnote); padding: 1px 4px; border-radius: 3px; background: var(--bg-elev); }
+.wb-doc pre { padding: var(--s-3); border-radius: var(--r-card); background: var(--bg-elev); overflow-x: auto; }
+.wb-doc pre code { padding: 0; background: none; }
+.wb-doc blockquote { margin: 0 0 var(--s-3); padding-left: var(--s-3); border-left: 3px solid var(--line); color: var(--fg-dim); }
+.wb-doc hr { border: 0; border-top: 1px solid var(--line); margin: var(--s-4) 0; }
+/* workbench.js wraps each table in .wb-table, so a wide one scrolls in its box and keeps its semantics */
+.wb-table { overflow-x: auto; }
+.wb-doc table { width: 100%; border-collapse: collapse; font-size: var(--fs-footnote); }
+.wb-doc table td, .wb-doc table th { padding: 4px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+
+.wb-textarea { width: 100%; min-height: 72px; padding: var(--s-2) var(--s-3); border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-elev); color: var(--fg); font-size: var(--fs-footnote); font-family: inherit; resize: vertical; }
+.wb-textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 900px) { .wb-textarea { min-height: 96px; } }
+
+/* status pips: the mark of a build row and a stage, one colour per verdict */
+.wb-pip { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--fg-faint); }
+.wb-pip.is-approved { background: var(--good); } .wb-pip.is-sent-back { background: var(--warn); }
+.wb-pip.is-waiting { background: var(--accent); }
+.wb-pip.is-abandoned { background: var(--tomato); }
+
+/* quality gates: a second plate card under the plan, same prose as the doc */
+.wb-gates { padding: var(--s-3); }
+
+/* order lock: one line under the plate saying what comes first */
+.wb-lock-note { margin: 0 0 var(--s-3); padding: var(--s-2) var(--s-3); border-left: 3px solid var(--warn); background: var(--bg-elev); color: var(--fg-dim); font-size: var(--fs-footnote); }
+
+/* Option-set stage: the Option Rig chassis, ported (plan Task 5). Scoped under
+   .wb-rig because a set's own markup uses short names (.opt, .stage, .spec). */
+.wb-rig { padding: 4px var(--wb-gut) var(--wb-gut); }
+.wb-rig .rig-head { margin: 0 0 18px; }
+/* the plate already carries the set's <h1> as its title (api.py reads it from there) */
+.wb-rig .rig-head h1 { display: none; }
+.wb-rig .rig-head .context { margin: 0; max-width: 90ch; color: var(--fg-dim); font-size: var(--fs-footnote); line-height: 1.5; }
+/* the head's facts as labelled rows, so a long context reads as a list instead of one paragraph */
+.wb-rig .rig-head .brief { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 18px; margin: 14px 0 0; max-width: 90ch; font-size: var(--fs-footnote); line-height: 1.5; }
+.wb-rig .rig-head .brief dt { color: var(--fg); font-weight: 600; }
+.wb-rig .rig-head .brief dd { margin: 0; color: var(--fg-dim); }
+@media (max-width: 520px) { .wb-rig .rig-head .brief { grid-template-columns: minmax(0, 1fr); gap: 2px; } .wb-rig .rig-head .brief dd { margin-bottom: 8px; } }
+/* a card title the set left outside a .spec sat flush on the card edge */
+.wb-rig .opt > h2 { margin: 16px 16px 0; }
+/* a one-card set is a before/after review: no option card around it, each page its own tile */
+.wb-rig.wb-review .opt, [data-theme="liquid"] .wb-rig.wb-review .opt { border: 0; background: none; box-shadow: none; border-radius: 0; overflow: visible; }
+.wb-rig.wb-review .opt > h2 { display: none; }
+.wb-rig.wb-review .stage, [data-theme="liquid"] .wb-rig.wb-review .stage { padding: 0; background: none; overflow: visible; }
+.wb-rig.wb-review .stage > section { margin: 0 0 16px; padding: 16px; border: 2px solid var(--line-strong); background: var(--bg-elev); }
+.wb-rig.wb-review .stage > section h3 { margin: 0 0 12px; }
+[data-theme="liquid"] .wb-rig.wb-review .stage > section { padding: 18px 20px; border: 0; border-radius: 18px; background: var(--lq-tile); }
+/* one option per row at every width: side-by-side columns squashed every mock */
+.wb-grid { display: grid; gap: 24px; grid-template-columns: minmax(0, 1fr); align-items: start; }
+.wb-rig .opt { min-width: 0; border: 2px solid var(--line-strong); background: var(--bg-elev); display: flex; flex-direction: column; }
+.wb-rig .opt.picked { border-color: var(--good); }
+.wb-rig .opt-head { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 2px solid var(--line-strong); }
+.wb-rig .opt-head .wb-fold { margin-left: auto; }
+/* the card's submission row, last in the card: note box, then the pick under it on the right */
+.wb-rig .opt-submit { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; padding: 14px 16px; border-top: 2px solid var(--line-strong); }
+.wb-rig .opt-submit .wb-textarea { min-height: 56px; }
+.wb-rig .opt-submit .wb-textarea:disabled { opacity: .5; }
+/* collapse an option to its head row so the ones around it sit closer; the title shows in the head only then */
+.wb-fold { flex: none; width: 34px; padding: 0; font-size: var(--fs-body); transition: transform .15s; }
+.wb-rig .opt.folded .wb-fold { transform: rotate(-90deg); }
+.wb-rig .opt.folded > :not(.opt-head) { display: none; }
+.wb-rig .opt.folded > .opt-head { border-bottom: 0; }
+/* collapsed options get a slimmer head; the gap between options is the grid's 24px either way */
+.wb-rig .opt.folded > .opt-head, [data-theme="liquid"] .wb-rig .opt.folded > .opt-head { padding-top: 8px; padding-bottom: 8px; }
+/* preview frames as Desktop / Phone tabs; the tab names the frame, so its own caption goes */
+.wb-lgx-tabs { width: max-content; margin: 0 0 12px; }
+.wb-lgx-tabs .hub-tab[aria-selected="true"] { background: var(--accent-faint); color: var(--fg); }
+.wb-rig .stage .lgx-row.wb-tabbed > [hidden] { display: none; }
+/* width, not flex-basis: under 900px the row stacks, and a 1280px basis becomes 1280px of height */
+.wb-rig .stage .lgx-row.wb-tabbed > .lgx-desk { flex: 0 1 auto; width: min(100%, 1280px); margin: 0 auto; }
+.wb-rig .stage .lgx-row.wb-tabbed > .lgx-phone { flex: none; margin: 0 auto; }
+.wb-rig .stage .lgx-row.wb-tabbed .lgx-cap { display: none; }
+.wb-fold-t { display: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-subhead); font-weight: 600; color: var(--fg); }
+.wb-rig .opt.folded .wb-fold-t { display: block; }
+.wb-rig .spec h2 { font-family: var(--font-display); font-weight: 400; font-size: var(--fs-body); margin: 0; line-height: 1.2; }
+.wb-badge { font-family: var(--font-display); font-size: var(--fs-body); line-height: 1; min-width: 34px; height: 34px; padding: 0 6px; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); flex: none; }
+.wb-rig .stage-wrap { border-bottom: 2px solid var(--line-strong); }
+.wb-rig .stage { padding: 32px; background-color: var(--bg); background-image: radial-gradient(var(--line-soft) 1px, transparent 1px); background-size: 24px 24px; overflow-x: auto; }
+.wb-rig .stage-meta { padding: 6px 12px; border-top: 2px solid var(--line-soft); font-size: var(--fs-caption); letter-spacing: 0.12em; text-transform: uppercase; color: var(--fg-faint); font-variant-numeric: tabular-nums; }
+.wb-rig .spec { padding: 16px; display: flex; flex-direction: column; gap: 14px; flex: 1 1 auto; }
+.wb-rig .what { margin: 0; font-size: var(--fs-subhead); color: var(--fg); max-width: 60ch; }
+.wb-rig .trade { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.wb-rig .trade h3 { font-size: var(--fs-caption); letter-spacing: 0.16em; text-transform: uppercase; margin: 0 0 6px; font-weight: 700; }
+.wb-rig .keeps h3 { color: var(--good); } .wb-rig .costs h3 { color: var(--tomato); }
+.wb-rig .trade ul { margin: 0; padding: 0 0 0 14px; display: flex; flex-direction: column; gap: 5px; }
+.wb-rig .trade li { font-size: var(--fs-footnote); line-height: 1.4; color: var(--fg-dim); }
+.wb-rig .bestwhen { margin: 0; padding: 10px 12px; background: var(--bg-elev-2); border: 2px solid var(--line-soft); font-size: var(--fs-footnote); color: var(--fg-dim); }
+.wb-rig .bestwhen b { color: var(--accent); font-weight: 600; font-size: var(--fs-caption); letter-spacing: 0.14em; text-transform: uppercase; margin-right: 6px; }
+@media (max-width: 520px) { .wb-rig .trade { grid-template-columns: 1fr; } }
+
+/* option rig: select box beside focus/pick, and the checked card's outline */
+.wb-sel { display: inline-flex; align-items: center; cursor: pointer; flex: none; }
+.wb-sel input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.wb-grid .opt.selected { box-shadow: 0 0 0 3px var(--accent); }
+
+/* card plumbing: the plate's button wrapper carries the origin's head-act class, so it
+   drops that class's own button box; the strip and body take the card's padding */
+body.workbench .wb-acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s-2); padding: 0; border: 0; background: none; }
+/* fork / delete / send back wrap under the title on a phone instead of pushing the page sideways */
+@media (max-width: 520px) { body.workbench .hub-plate-card > .hub-section-head { flex-wrap: wrap; } }
+body.workbench .wb-acts:empty { display: none; }
+/* cards breathe: the doc, the plate head and the strip share one 32px gutter (16px on a phone) */
+body.workbench { --wb-gut: 32px; }
+@media (max-width: 900px) { body.workbench { --wb-gut: 16px; } }
+.wb-strip { padding: var(--s-3) var(--wb-gut); border-bottom: 1px solid var(--line); }
+/* 20px under the buttons before the card body (2026-11-03 mark "bottom cushion too skinny") */
+body.workbench .hub-plate-card > .hub-section-head { padding: 20px var(--wb-gut) 20px; align-items: center; }
+body.workbench .wb-card-body.wb-doc { padding: 4px var(--wb-gut) var(--wb-gut); }
+body.workbench .wb-dim { opacity: .45; }
+body.workbench .wb-hist > summary { cursor: pointer; padding: var(--s-2) var(--s-3); }
+
+/* the header: one card holding the title, the progress pill, the three-stage track and the set carousel */
+body.workbench .hub-e3p-head.hub-plate-card { margin: var(--s-4) var(--s-5) 0; padding: 22px var(--wb-gut) 6px; border: 0; background: var(--bg-elev); }
+body.workbench .hub-e3p-head-sep:empty { display: none; }
+body.workbench .hub-e3p-head-t { font-size: var(--fs-title); font-weight: 600; letter-spacing: -.01em; }
+/* a build has no sub line; the empty slot still took the row gap and pushed the title 8px off the cards below */
+body.workbench .hub-e3p-head-sub:empty { display: none; }
+body.workbench .hub-e3p-stages { --wb-stage-gap: 16px; margin-top: 18px; gap: var(--wb-stage-gap); }
+/* always a third of the track: a build with one or two stages keeps the three-stage size, left-aligned */
+body.workbench .hub-e3p-stages > .hub-tab { flex: 0 0 calc((100% - 2 * var(--wb-stage-gap)) / 3); padding: 20px 0 12px; }
+body.workbench .hub-e3p-stages > .hub-tab:disabled { opacity: .5; cursor: default; }
+.wb-stage-t { font-size: var(--fs-subhead); font-weight: 600; color: var(--fg); }
+body.workbench .wb-stage-sub { font-style: normal; font-size: var(--fs-footnote); }
+.wb-opt-car { display: flex; align-items: center; gap: 10px; margin: 4px -14px 10px; padding: 6px; border-radius: 999px; background: var(--bg); }
+.wb-opt-car[hidden] { display: none; }
+.wb-car-arrow { flex: none; width: 32px; padding: 0; border-radius: 50%; font-size: var(--fs-body); }
+.wb-car-t { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; font-size: var(--fs-subhead); font-weight: 600; color: var(--fg); }
+.wb-car-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wb-car-count { flex: none; font-size: var(--fs-footnote); color: var(--fg-dim); font-variant-numeric: tabular-nums; }
+
+/* build list: rounded inset group heads, the title gets the row, the count is a chip */
+body.workbench .hub-e3p-tools { padding: var(--s-4) var(--s-3) var(--s-2); }
+body.workbench .hub-e3p-tools .hub-lf { /* shared list-filter bar markup; renderList filters */ flex: 1 1 auto; min-width: 0; }
+body.workbench .hub-e3p-group { margin: 8px 8px 4px; padding: 6px 12px; min-height: 0; border: 0; border-radius: 12px; }
+body.workbench .hub-e3p-group-n { font-size: var(--fs-footnote); font-weight: 600; color: var(--fg-dim); }
+body.workbench .hub-e3p-entry { grid-template-columns: 8px minmax(0, 1fr) auto; margin: 0 8px; padding: 6px 10px 6px 12px; border-radius: 10px; }
+body.workbench .hub-e3p-entry-t { max-width: none; }
+/* the row he opened: a clear tint and an accent bar; the shared --accent-faint was near-invisible on dark (2026-11-03) */
+body.workbench .hub-e3p-entry.active { background: color-mix(in srgb, var(--accent) 24%, transparent); box-shadow: inset 3px 0 0 var(--accent); }
+body.workbench .hub-e3p-entry-v .hub-pill { height: 20px; min-width: 38px; padding: 0 8px; border-radius: 999px; font-size: var(--fs-caption); font-variant-numeric: tabular-nums; }
+
+/* context rail: the decision log is one card, one inset row per decision */
+body.workbench .hub-e3p-rail { padding: var(--s-4) var(--s-4) var(--s-4) 0; overflow-y: auto; }
+body.workbench .wb-log > .hub-section-head { padding: 16px 18px 8px; }
+body.workbench .wb-rail-row { margin: 0 18px; padding: 10px 0 12px; border-top: 1px solid var(--line); }
+.wb-rail-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.wb-rail-kind { font-size: var(--fs-subhead); font-weight: 600; color: var(--fg); text-transform: capitalize; }
+.wb-rail-when { margin-top: 2px; font-size: var(--fs-footnote); color: var(--fg-dim); font-variant-numeric: tabular-nums; }
+.wb-rail-said { margin-top: 6px; font-size: var(--fs-footnote); line-height: 1.4; color: var(--fg-mute); }
+
+body.workbench .wb-log > .hub-section-head { align-items: center; }
+body.workbench .wb-log-toggle { margin-left: auto; height: 28px; padding: 0 12px; font-size: var(--fs-footnote); }
+/* build list date divider: a quiet label under the sticky group head, never sticky itself */
+.wb-day { margin: 10px 20px 2px; font-size: var(--fs-caption); font-weight: 600; letter-spacing: .02em; color: var(--fg-faint); }
+@media (max-width: 1199px) { body.workbench .hub-e3p-rail { padding: var(--s-4) var(--s-5); } }
+/* half a browser (1280): the rail column goes and the cards take the full width; the log becomes the
+   header card's bottom strip (newest decision), which drops down over the cards with every decision */
+.wb-head-log { display: none; }
+@media (min-width: 901px) and (max-width: 1599px) {
+  body.workbench .hub-e3p-split { grid-template-columns: minmax(0, 1fr); }
+  body.workbench .hub-e3p-rail { display: none; }
+  body.workbench .hub-e3p-head.hub-plate-card { position: relative; z-index: 3; overflow: visible; }
+  .wb-head-log { display: block; margin: 6px calc(-1 * var(--wb-gut)) 0; border-top: 1px solid var(--line); }
+  .wb-head-log > summary { display: flex; align-items: center; gap: 10px; padding: 12px var(--wb-gut) 10px; cursor: pointer; list-style: none; }
+  .wb-head-log > summary::-webkit-details-marker { display: none; }
+  .wb-head-log > summary::after { content: "\25BE"; margin-left: 8px; color: var(--fg-dim); transition: transform .15s; }
+  .wb-head-log[open] > summary::after { transform: rotate(180deg); }
+  .wb-head-log-l { font-size: var(--fs-footnote); font-weight: 600; color: var(--fg-dim); }
+  .wb-head-log-when { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-footnote); color: var(--fg-dim); }
+  .wb-head-log-n { margin-left: auto; flex: none; font-size: var(--fs-footnote); color: var(--fg-dim); }
+  .wb-head-log-list { position: absolute; left: 0; right: 0; top: calc(100% + 8px); max-height: 50vh; overflow-y: auto; padding-bottom: 8px;
+    border-radius: var(--r-card); background: var(--bg-elev); box-shadow: 0 0 0 1px var(--line), 0 16px 40px rgb(0 0 0 / .35); }
+}
+@media (max-width: 900px) {
+  body.workbench .hub-e3p-head.hub-plate-card { margin: var(--s-3) var(--s-3) 0; padding: 16px var(--wb-gut) 4px; }
+  body.workbench .hub-e3p-head-t { font-size: var(--fs-title); }
+  body.workbench .hub-e3p-head-row { flex-wrap: wrap; row-gap: 8px; }
+  body.workbench .hub-e3p-head-row > :first-child { flex-basis: 100%; }
+  body.workbench .hub-e3p-stages { --wb-stage-gap: 8px; }
+  body.workbench .hub-e3p-rail { padding: var(--s-3); }
+}
+
+/* two-frame preview for every option set: desktop page 1280 wide (scaled to fit) beside a 390 phone page; stacks when narrow. Markup: .lgx > .lgx-row > (.lgx-desk | .lgx-phone) > p.lgx-cap + page */
+.wb-rig .stage .lgx { container-type: inline-size; }
+.wb-rig .stage .lgx-row { display: flex; gap: 24px; align-items: flex-start; }
+.wb-rig .stage .lgx-desk { flex: 0 1 1280px; min-width: 0; container-type: inline-size; }
+.wb-rig .stage .lgx-desk > :not(.lgx-cap) { box-sizing: border-box; width: 1280px; zoom: min(1, calc(100cqw / 1280px)); }
+.wb-rig .stage .lgx-phone { flex: 0 0 390px; }
+.wb-rig .stage .lgx-phone > :not(.lgx-cap) { box-sizing: border-box; width: 390px; min-height: 844px; }
+.wb-rig .stage .lgx-cap { margin: 0 0 6px; font: 600 var(--fs-footnote)/1.2 var(--font-body); letter-spacing: .02em; opacity: .6; }
+@container (max-width: 900px) { .wb-rig .stage .lgx-row { flex-direction: column; } .wb-rig .stage .lgx-desk { flex: none; width: 100%; }
+  .wb-rig .stage .lgx-phone { flex: none; width: min(390px, 100%); align-self: center; container-type: inline-size; } .wb-rig .stage .lgx-phone > :not(.lgx-cap) { zoom: min(1, calc(100cqw / 390px)); } }
+/* live preview: a whole Hub page you scroll and click, one viewport tall (desktop 1280x800, phone 390x844) */
+.wb-rig .stage iframe.wb-live { display: block; border: 0; border-radius: 12px; height: 800px; }
+.wb-rig .stage .lgx-phone > iframe.wb-live { height: 844px; }
+/* a lossless still: the frame rules above give it 1280 or 390 CSS px, height follows its pixels */
+.wb-rig .stage img.wb-still { display: block; height: auto; border-radius: 12px; }
+
+/* scrolled cards fade out under the header instead of cutting flat against its rounded corners */
+/* the header scrolls away with the cards instead of floating over them (mark 235445 #1): the main column is the one scroller */
+@media (min-width: 901px) {
+  body.workbench .hub-e3p-main { overflow-y: auto; }
+  body.workbench .hub-e3p-cards { flex: none; overflow: visible; }
+}
+/* the head-to-cards gap matches the gap between cards (send-back on mark 235445 #1; the 28px was room for the old fade) */
+body.workbench .hub-e3p-cards { padding-top: var(--s-4); }
+/* the plates end on the top bar's right edge (its 16px inset), not 4px short of it */
+@media (min-width: 901px) { body.workbench .hub-e3p-cards { padding-right: 16px; } body.workbench .hub-e3p-head.hub-plate-card { margin-right: 16px; } }
+
+/* liquid: the stage track is a three-step stepper (numbered circle, a check once done, the open stage a soft tile) */
+[data-theme="liquid"] body.workbench .hub-e3p-stages { counter-reset: wb-stage; --wb-stage-gap: 8px; }
+[data-theme="liquid"] body.workbench .hub-e3p-stages > .hub-tab { counter-increment: wb-stage; gap: 2px; padding: 12px 14px 12px 52px; border-radius: 14px; box-shadow: none; text-align: left; }
+[data-theme="liquid"] body.workbench .hub-e3p-stages > .hub-tab::before { display: none; }
+[data-theme="liquid"] body.workbench .hub-e3p-stages > .hub-tab.active { background: var(--lq-tile); }
+[data-theme="liquid"] body.workbench .hub-e3p-stage-dot { top: 50%; left: 14px; width: 26px; height: 26px; margin-top: -13px; border: 1.5px solid var(--line-strong); background: none; display: grid; place-items: center; font: 600 var(--fs-footnote)/1 var(--font); color: var(--fg-dim); }
+[data-theme="liquid"] body.workbench .hub-e3p-stage-dot::after { content: counter(wb-stage); }
+[data-theme="liquid"] body.workbench .is-done > .hub-e3p-stage-dot { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+[data-theme="liquid"] body.workbench .is-done > .hub-e3p-stage-dot::after { content: "\2713"; }
+[data-theme="liquid"] body.workbench .is-now > .hub-e3p-stage-dot { border-color: var(--accent); color: var(--accent); box-shadow: none; }
+@media (max-width: 900px) {
+  [data-theme="liquid"] body.workbench .hub-e3p-stages > .hub-tab { padding: 10px 8px 10px 40px; }
+  [data-theme="liquid"] body.workbench .hub-e3p-stage-dot { left: 8px; width: 24px; height: 24px; margin-top: -12px; font-size: var(--fs-footnote); }
+}
+
+/* the walk page's head (mark 231818 #1): the stage track's tiles, read-only, a count in the circle; then a bottom strip like the head log */
+body.workbench .wb-walk-track > .hub-tab { cursor: default; min-width: 0; }
+body.workbench .wb-walk-track .wb-stage-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+[data-theme="liquid"] body.workbench .wb-walk-track .hub-e3p-stage-dot::after { content: attr(data-n); }
+.wb-walk-foot { display: flex; align-items: center; gap: 10px; margin: 6px calc(-1 * var(--wb-gut)) 0; padding: 13px var(--wb-gut) 12px; border-top: 1px solid var(--line); }
+.wb-walk-foot-l { flex: none; font-size: var(--fs-footnote); font-weight: 600; color: var(--fg-dim); }
+.wb-walk-foot-v { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-subhead); font-weight: 600; color: var(--fg); }
+.wb-walk-foot-n { margin-left: auto; flex: none; font-size: var(--fs-footnote); color: var(--fg-dim); font-variant-numeric: tabular-nums; }
+/* phone: a tile is too narrow for the circle and a label; every sub line already says its count */
+@media (max-width: 900px) {
+  .wb-walk-foot-n { display: none; }
+  [data-theme="liquid"] body.workbench .wb-walk-track > .hub-tab { padding-left: 10px; }
+  body.workbench .wb-walk-track .hub-e3p-stage-dot { display: none; }
+}
+
+/* liquid: an option is one rounded card, the preview sits in an inset well, no rules between parts */
+[data-theme="liquid"] .wb-rig .opt { border: 0; border-radius: 22px; background: var(--bg-elev); box-shadow: 0 0 0 1px var(--line), 0 8px 24px rgb(0 0 0 / .05); overflow: hidden; }
+[data-theme="liquid"] .wb-rig .opt.picked { box-shadow: 0 0 0 2px var(--good), 0 8px 24px rgb(0 0 0 / .05); }
+[data-theme="liquid"] .wb-grid .opt.selected { box-shadow: 0 0 0 3px var(--accent); }
+[data-theme="liquid"] .wb-rig .opt-head { padding: 16px 20px; border-bottom: 0; }
+[data-theme="liquid"] .wb-badge { min-width: 30px; height: 30px; padding: 0; border-radius: 50%; font: 600 var(--fs-subhead)/1 var(--font); }
+[data-theme="liquid"] .wb-rig .stage-wrap { margin: 0 16px; border-bottom: 0; border-radius: 16px; background: var(--lq-tile); overflow: hidden; }
+[data-theme="liquid"] .wb-rig .stage { padding: 24px; background: none; }
+[data-theme="liquid"] .wb-rig .stage-meta { padding: 0 16px 10px; border-top: 0; font-size: var(--fs-caption); letter-spacing: 0; text-transform: none; }
+[data-theme="liquid"] .wb-rig .spec { padding: 18px 20px 20px; }
+[data-theme="liquid"] .wb-rig .opt-submit { padding: 0 20px 20px; border-top: 0; }
+[data-theme="liquid"] .wb-rig .trade h3 { font-size: var(--fs-footnote); letter-spacing: 0; text-transform: none; font-weight: 600; }
+[data-theme="liquid"] .wb-rig .bestwhen { border: 0; border-radius: 12px; background: var(--lq-tile); }
+[data-theme="liquid"] .wb-rig .bestwhen b { font-size: var(--fs-footnote); letter-spacing: 0; text-transform: none; }
+
+/* liquid draws a star badge inside filled pills; in the build list the count chip is the whole signal */
+[data-theme="liquid"] body.workbench .hub-e3p-entry-v .hub-pill--filled { padding-left: 8px; }
+[data-theme="liquid"] body.workbench .hub-e3p-entry-v .hub-pill--filled::before { content: none; display: none; }
+
+
+/* nothing selected: showIdle draws the page's own cards as placeholders. A not-found still clears
+   the title, so that case hides the head plate and centres its message in the pane. */
+body.workbench .hub-e3p-main:has(#headTitle:empty) > .hub-e3p-head { display: none; }
+body.workbench .wb-skel { display: grid; gap: 12px; }
+body.workbench .wb-card-body.wb-skel { padding: 0 32px 28px; }
+body.workbench .wb-skel .wb-empty-x { margin-bottom: 6px; color: var(--fg-dim); }
+body.workbench .wb-skel-bar { display: block; height: 12px; border-radius: 6px; background: var(--line); }
+body.workbench .wb-skel-bar:nth-of-type(3n+2) { width: 82%; } body.workbench .wb-skel-bar:nth-of-type(3n) { width: 64%; }
+body.workbench .wb-rail-row.wb-skel { gap: 8px; } body.workbench .wb-rail-row.wb-skel .wb-skel-bar:first-child { width: 40%; }
+body.workbench .wb-empty-t { font-family: var(--font-display); font-size: var(--fs-title); font-weight: 500; color: var(--fg-dim); }
+body.workbench .wb-empty-x { max-width: 420px; font-size: var(--fs-subhead); line-height: 1.55; color: var(--fg-faint); }
+body.workbench .wb-empty-x:empty { display: none; }
+/* marks walk-through: before and after side by side, stacked when narrow */
+/* before and after sit in matching padded tiles, each shot centered, so a small crop is not pinned to a corner */
+/* walk card: one picture at full width (after first), a glass After / Before capsule over its top right */
+.wb-walk-tabs { margin: var(--s-4) 0 0; }
+.wb-walk-pic { position: relative; margin: var(--s-4) 0; padding: var(--s-4); background: var(--bg-hover); border-radius: var(--r-card); min-height: 120px; }
+.wb-walk-pic img { display: block; max-width: 100%; margin: 0 auto; border: 1px solid var(--line); border-radius: var(--r-card); }
+/* the shared segmented control, floated over the picture on glass */
+.hub-tabs--segmented.wb-walk-flip { position: absolute; top: 12px; right: 12px; border: 0; border-radius: 999px; background: var(--lg-ov-fill, var(--bg-elev)); box-shadow: var(--lg-ov-rim, 0 0 0 1px var(--line));
+  -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(calc(var(--lg-thick-blur, 24px) * 1.25)) saturate(var(--lg-thick-sat, 180%)); }
+.wb-walk-flip .hub-tab { border-radius: 999px; }
+/* Motion views: the mark's page at desktop size (1280x800), scaled to the card like the rig's desktop frame */
+.wb-walk-live { margin: var(--s-4) 0; container-type: inline-size; }
+.wb-walk-live iframe { display: block; width: 1280px; height: 800px; border: 0; border-radius: 12px; zoom: min(1, calc(100cqw / 1280px)); }
+/* the open send-back box: field and buttons spaced apart, and the card text clear of the rule under them */
+.wb-strip:not([hidden]) { display: grid; gap: var(--s-3); padding-bottom: var(--s-4); }
+.wb-strip:not([hidden]) + .wb-card-body { padding-top: var(--s-4); }
+
+/* Waiting on you (treatment B): the verb carries the kind, source and age sit under it */
+body.workbench .wb-ask-2l { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+body.workbench .wb-ask-2l > * { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.workbench .wb-ask-meta { font-size: var(--fs-footnote); color: var(--fg-dim); }
+body.workbench .wb-ask { grid-template-columns: 8px minmax(0, 1fr); padding-top: 7px; padding-bottom: 7px; }
+body.workbench .wb-ask .hub-e3p-entry-t { font-weight: 500; }
+body.workbench .wb-ask-verb { font-weight: 700; color: var(--accent); }
+body.workbench .wb-ask-n { margin-left: auto; font-size: var(--fs-footnote); font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+body.workbench .wb-ask-none { margin: 2px 20px 6px; font-size: var(--fs-footnote); color: var(--fg-dim); }
+body.workbench .wb-hist-sub { display: block; font-size: var(--fs-footnote); color: var(--fg-dim); }
+
+/* Marks rows are links to the walk-through; keep them looking like build rows */
+body.workbench a.hub-e3p-entry { color: inherit; text-decoration: none; }
+
+/* Spec and plan layout (docview.py): glance card, folding sections, +/~/− change rows, plan task hunks. */
+.dv { --dv-add: var(--good); --dv-edit: var(--warn); --dv-del: var(--alert); --dv-test: var(--accent); }
+.dv .dv-chip { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px; font-size: var(--fs-footnote); font-weight: 700; background: var(--bg-elev-2); color: var(--fg); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.dv .dv-chip.is-add { background: color-mix(in srgb, var(--dv-add) 16%, transparent); color: var(--dv-add); }
+.dv .dv-chip.is-edit { background: color-mix(in srgb, var(--dv-edit) 18%, transparent); color: var(--dv-edit); }
+.dv .dv-chip.is-del { background: color-mix(in srgb, var(--dv-del) 15%, transparent); color: var(--dv-del); }
+.dv .dv-chip.is-test { background: color-mix(in srgb, var(--dv-test) 14%, transparent); color: var(--dv-test); }
+.dv .dv-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 10px 0 0; color: var(--fg-dim); font-size: var(--fs-footnote); }
+.dv .dv-changes { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.dv .dv-ch { display: grid; grid-template-columns: 12px 34px minmax(0, 1fr) auto; align-items: baseline; gap: 2px 8px; padding: 7px 10px; border-radius: 8px; font-size: var(--fs-footnote); line-height: 1.45; }
+.dv .dv-ch.is-add { background: color-mix(in srgb, var(--dv-add) 9%, transparent); }
+.dv .dv-ch.is-edit { background: color-mix(in srgb, var(--dv-edit) 10%, transparent); }
+.dv .dv-ch.is-del { background: color-mix(in srgb, var(--dv-del) 8%, transparent); }
+.dv .dv-ch.is-test { background: color-mix(in srgb, var(--dv-test) 8%, transparent); }
+.dv .dv-g { font: 700 var(--fs-subhead)/1 ui-monospace, monospace; width: 12px; text-align: center; flex: none; }
+.dv .is-add > .dv-g { color: var(--dv-add); } .dv .is-edit > .dv-g { color: var(--dv-edit); } .dv .is-del > .dv-g { color: var(--dv-del); } .dv .is-test > .dv-g { color: var(--dv-test); }
+.dv .dv-w { font-size: var(--fs-caption); font-weight: 700; text-transform: lowercase; width: 34px; flex: none; color: var(--fg-dim); }
+.dv .dv-ch code { font-size: var(--fs-footnote); overflow-wrap: anywhere; color: var(--fg); background: none; padding: 0; }
+.dv .dv-t { color: var(--fg); font-weight: 600; }
+.dv .dv-note { color: var(--fg-dim); grid-column: 3 / -1; font-size: var(--fs-footnote); }
+.dv .dv-note:empty { display: none; }
+.dv .dv-bar { display: flex; gap: 3px; margin-top: 12px; height: 22px; }
+.dv .dv-seg { background: color-mix(in srgb, var(--accent) 22%, transparent); border-radius: 5px; display: grid; place-items: center; font-size: var(--fs-caption); min-width: 18px; color: var(--fg); }
+.dv details > summary { cursor: pointer; }
+.dv .dva-glance { padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+.dv .dva-goal { font-size: var(--fs-body); line-height: 1.45; font-weight: 600; color: var(--fg); margin: 0 0 12px; max-width: 70ch; text-wrap: pretty; }
+.dv .dva-stats { display: flex; flex-wrap: wrap; gap: 6px; }
+.dv .dva-list { display: flex; flex-direction: column; }
+.dv .dva-fold { border-bottom: 1px solid var(--line-soft, var(--line)); }
+.dv .dva-fold > summary { list-style: none; display: grid; grid-template-columns: 200px minmax(0, 1fr) auto; gap: 16px; align-items: baseline; padding: 12px 4px; border-radius: 8px; }
+.dv .dva-fold > summary::-webkit-details-marker { display: none; }
+.dv .dva-fold > summary:hover { background: var(--bg-hover); }
+.dv .dva-n { font-weight: 700; color: var(--fg); display: flex; gap: 8px; align-items: baseline; }
+.dv .dva-n::before { content: "▸"; color: var(--fg-dim); font-size: var(--fs-caption); transition: transform .18s ease-out; display: inline-block; }
+.dv .dva-fold[open] > summary .dva-n::before { transform: rotate(90deg); }
+.dv .dva-n small { color: var(--fg-dim); font-weight: 600; }
+.dv .dva-s { color: var(--fg-mute); font-size: var(--fs-footnote); }
+.dv .dva-c { display: flex; gap: 4px; }
+.dv .dva-body { padding: 4px 4px 16px 22px; }
+.dv .dve { display: flex; flex-direction: column; gap: 10px; }
+.dv .dve-sum { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.dv .dve-sum b { flex: 1 1 360px; font-size: var(--fs-subhead); }
+.dv .dve-sum > span { display: flex; gap: 8px; align-items: center; }
+.dv .dve-h { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.dv .dve-h > summary { list-style: none; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 9px 12px; background: var(--bg-elev-2); font: 600 var(--fs-footnote)/1.4 ui-monospace, monospace; }
+.dv .dve-h > summary::-webkit-details-marker { display: none; }
+.dv .dve-car { color: var(--fg-dim); transition: transform .18s ease-out; }
+.dv .dve-h[open] .dve-car { transform: rotate(90deg); }
+.dv .dve-t { flex: 1 1 auto; }
+.dv .dve-st { display: flex; gap: 8px; align-items: center; }
+.dv .dve-n { font: 700 var(--fs-footnote) ui-monospace, monospace; }
+.dv .dve-n.is-add { color: var(--dv-add); } .dv .dve-n.is-edit { color: var(--dv-edit); } .dv .dve-n.is-del { color: var(--dv-del); }
+.dv .dve-blk { display: inline-flex; gap: 2px; }
+.dv .dve-blk i { width: 8px; height: 8px; border-radius: 2px; }
+.dv .dve-blk i.is-add { background: var(--dv-add); } .dv .dve-blk i.is-edit { background: var(--dv-edit); } .dv .dve-blk i.is-del { background: var(--dv-del); }
+.dv .dve-plain { font: 400 var(--fs-footnote)/1.4 var(--font-body); color: var(--fg-mute); }
+.dv .dve-l { display: grid; grid-template-columns: 28px minmax(0, 1fr); column-gap: 8px; padding: 4px 12px 4px 0; font-size: var(--fs-footnote); border-top: 1px solid var(--line-soft, var(--line)); }
+.dv .dve-l > span { text-align: center; font: 700 var(--fs-footnote) ui-monospace, monospace; }
+.dv .dve-l code { background: none; padding: 0; color: var(--fg); overflow-wrap: anywhere; }
+.dv .dve-l em { grid-column: 2; font-style: normal; color: var(--fg-dim); }
+.dv .dve-l em:empty { display: none; }
+.dv .dve-l.is-add { background: color-mix(in srgb, var(--dv-add) 10%, transparent); } .dv .dve-l.is-add > span { color: var(--dv-add); }
+.dv .dve-l.is-edit { background: color-mix(in srgb, var(--dv-edit) 11%, transparent); } .dv .dve-l.is-edit > span { color: var(--dv-edit); }
+.dv .dve-l.is-del { background: color-mix(in srgb, var(--dv-del) 9%, transparent); } .dv .dve-l.is-del > span { color: var(--dv-del); }
+.dv .dve-l.is-test > span { color: var(--dv-test); }
+.dv .dvx-how { flex-basis: 100%; padding-left: 22px; font: 400 var(--fs-footnote)/1.45 var(--font-body); color: var(--fg-mute); }
+.dv .dvx-steps { display: flex; flex-direction: column; border-top: 1px solid var(--line-soft, var(--line)); }
+.dv .dvx-step > summary { list-style: none; display: grid; grid-template-columns: 22px auto minmax(0, 1fr); gap: 8px; align-items: baseline; padding: 6px 12px 6px 6px; font-size: var(--fs-footnote); }
+.dv .dvx-step > summary::-webkit-details-marker { display: none; }
+.dv .dvx-step > summary:hover { background: var(--bg-hover); }
+.dv .dvx-step + .dvx-step { border-top: 1px dashed var(--line-soft, var(--line)); }
+.dv .dvx-sn { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--bg-elev-2); font-size: var(--fs-caption); font-weight: 700; color: var(--fg-dim); }
+.dv .dvx-sg { color: var(--fg-mute); }
+.dv .dvx-sb { padding: 2px 12px 10px 36px; font-size: var(--fs-footnote); }
+.dv .dv-changes { padding: 0; margin: 0 0 var(--s-3); }
+.dv .dv-t code, .dv .dv-note code { background: none; padding: 0; }
+.dv .dv-meta b { color: var(--fg); font-weight: 700; }
+.dv .dva-body > .wb-doc > :last-child { margin-bottom: 0; }
+.dv.dve > .dve-h { margin-top: 10px; }
+@media (max-width: 640px) {
+  .dv .dva-fold > summary { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; }
+  .dv .dva-s { grid-column: 1 / -1; grid-row: 2; padding-left: 19px; }
+  .dv .dva-body { padding-left: 4px; }
+  .dv .dva-goal { font-size: var(--fs-subhead); }
+  .dv .dvx-how { padding-left: 0; }
+  .dv .dvx-step > summary { grid-template-columns: 22px minmax(0, 1fr); }
+  .dv .dvx-sg { grid-column: 2; }
+  .dv .dvx-sb { padding-left: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .dv .dva-n::before, .dv .dve-car { transition: none; } }
+.dv .dve-b > .wb-doc { padding: 10px 12px 0; }
+.dv .dve-h > summary .dve-t { flex: 1 1 0; min-width: 12ch; }
+
+/* nothing selected: one placeholder card filling the main column, its line centred (mark 224744 #2) */
+body.workbench .hub-e3p-cards:has(> .wb-idle) { display: flex; flex-direction: column; }
+body.workbench .wb-idle { flex: 1; min-height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 32px; text-align: center; }
+body.workbench .wb-idle .wb-empty-x { max-width: 360px; }
+.wb-idle-g { width: 48px; height: 48px; fill: none; stroke: var(--fg-faint); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+
+
+/* undo toasts: one per write still inside its 5 s hold, stacked above the status bar where the eye
+   lands after a click, not as dim text in the footer (he never saw it there) */
+.wb-holds { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); z-index: 150; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+.wb-holds .hub-toast { position: static; pointer-events: auto; display: flex; align-items: center; gap: 14px; padding: 6px 6px 6px 16px; background: var(--bg-elev); color: var(--fg); font-size: var(--fs-body); white-space: nowrap; }
+[data-theme="liquid"] .wb-holds .hub-toast { border-radius: 999px; }
+.wb-walk-quote { margin: var(--s-4) 0; padding: var(--s-3) var(--s-4); border-left: 3px solid var(--accent); background: var(--bg-hover); border-radius: var(--r); white-space: pre-wrap; font-style: italic; }

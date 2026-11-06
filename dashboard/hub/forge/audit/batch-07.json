@@ -1,0 +1,490 @@
+{
+ "batch": "07",
+ "champions": {
+  "Shen": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Active: Shen dashes to the target location, dealing physical damage to enemy champions and monsters he passes through and taunting them for 1.5 seconds.",
+    "fix": "no wall wording; stays unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Shyvana": [
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Shyvana transforms into Dragon Form and flies with displacement immunity to the target location, breathing fire in a cone along the way that deals magic damage to enemies hit and fears them for 0.75 seconds, as well as slows them by 99% for the same duration.",
+    "fix": "R has no PlayerSelectedDashDirection tag; also drives dive 0, engage 0 (fear not in CC_TAG), wallCrossing false \"no move spell\". Add a move-spell fallback: wiki/tooltip \"flies ... to the target location\""
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Singed": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Sion": [
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "I",
+    "quote": "Innate: Upon taking fatal damage, Sion enters stasis for 1.5 seconds to reanimate into a frenzy, restoring 100% of his maximum health",
+    "fix": "KEYWORDS[revive] add reanimat\\w*|fatal damage (and enters? stasis); the passive tip uses neither \"revive\" word (wiki notes say \"he instantly revives\")"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Sion becomes immune to crowd control and ghosted and, after a brief delay, charges forward in the direction of the cursor for up to 8 seconds",
+    "fix": "R carries no Trait_CCImmune tag; add text rule \"immune to crowd control\" to unstoppable"
+   },
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Sion becomes immune to crowd control and ghosted and, after a brief delay, charges forward in the direction of the cursor for up to 8 seconds",
+    "fix": "R charge has no dash tag, so dive 0, dashes 0, wallCrossing \"no move spell\" (wall: cannot charge through terrain, so false stands). Add \"charges forward\" move-spell fallback"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Passive: Sion gains 4 bonus health whenever he kills an enemy, increased to 15 for large enemies and takedowns against enemy champions.",
+    "fix": "no cap quoted, so only plausible; add a handler for permanent per-kill passives with no stated max, else leave unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "execute"
+    ]
+   }
+  ],
+  "Sivir": [
+   {
+    "trait": "unstoppable",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "Active: Sivir gains a spell shield for 1.5 seconds.",
+    "fix": "basis \"E tagged Trait_CCImmune\": Spell Shield is tagged CCImmune. Gate unstoppable on tooltip text \"immune to crowd control\"/\"unstoppable\", or exclude spell-shield tooltips"
+   },
+   {
+    "trait": "spellShield",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Active: Sivir gains a spell shield for 1.5 seconds.",
+    "fix": "no Trait_Parry on E; add text rule \"gains a spell shield\" to spellShield"
+   },
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "W",
+    "quote": "Ricochet deals 65% damage against minions and executes them if they would be left below 15 health.",
+    "fix": "minion-only execute, not a champion execute; stays unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Skarner": [
+   {
+    "trait": "wallCrossing",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Active: Skarner charges forward in the direction of the cursor for up to 2.75 seconds, during which he gains slow immunity, becomes ghosted, ignores terrain collision",
+    "fix": "wallCrossing says \"no move spell\" but E ignores terrain; E has no dash tag. Add wall wording \"ignores? terrain( collision)?\" and a charge move-spell fallback (also fixes dive 0, dashes 0)"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "E",
+    "quote": "has unobstructed vision of the surrounding 650 units",
+    "fix": "self-vision, not a reveal; stays unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Smolder": [
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "Enemy champions afflicted with the burn are also executed once Smolder deals damage to them that would leave them below 6.5% of their maximum health.",
+    "fix": "regex \\bexecut\\w* would match this wiki line; the bin Q tooltip lacks it. Scan wiki ability text too, not only the bin tooltip"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Active: Smolder takes flight for 1.25 seconds, becoming ghosted and gaining 75% bonus movement speed, unobstructed vision, and the ability to ignore terrain collision.",
+    "fix": "add \"ignore terrain collision|ignores terrain collision\" to wall wording; flight has no dash tag so dive 0, dashes 0 too"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Innate: Smolder generates a stack of Dragon Practice each time he hits an enemy champion with an ability, or whenever Super Scorcher Breath kills a minion or monster.",
+    "fix": "no cap stated in the wiki text, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive"
+    ]
+   }
+  ],
+  "Sona": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Soraka": [
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "EFFECT RADIUS: Global",
+    "fix": "Wish tooltip says \"all allied champions\" with no map word; add a rule on wiki fields EFFECT RADIUS|TARGET RANGE == Global"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "Active: Soraka calls down a star upon the target location that grants sight of the area before landing",
+    "fix": "\"grants sight\" wording: add \\bgrants? sight\\b to KEYWORDS[vision]"
+   }
+  ],
+  "Swain": [
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Soul Fragment: For each stack, Swain gains 15 bonus health permanently.",
+    "fix": "no cap in the wiki text, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute"
+    ]
+   }
+  ],
+  "Sylas": [
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "I",
+    "quote": "Unshackled deals 115% damage to monsters, and executes minions that are secondary targets and would be left below 25 health.",
+    "fix": "minion-only; also R copies Mel (\"will execute targets below the threshold\") conditional on the stolen spell; stays unknown"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Active: Sylas dashes to the target location.",
+    "fix": "no wall wording, E and W dash; stays unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Syndra": [
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "Q",
+    "quote": "There is no limit as to how many Dark Spheres can be active at a time.",
+    "fix": "regex \"no limit\" matches this wiki line, but it is a count of objects, not a stacking buff; not infiniteStacking. Keep unknown"
+   },
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "W",
+    "quote": "Force of Will cleanses the target minion or monster grabbed from all crowd control.",
+    "fix": "cleanse of a minion target only; stays unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "vision",
+     "revive"
+    ]
+   }
+  ],
+  "Tahm Kench": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "W",
+    "quote": "Upon completion of the channel, Tahm Kench blinks to the target location after a 0.15-second delay",
+    "fix": "no wall/terrain wording; unknown"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "granting sight of the area during the channel.",
+    "fix": "\"granting sight\" wording: add \\bgrant(s|ing)? sight\\b to KEYWORDS[vision]"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Taliyah": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "dealing magic damage to nearby enemies and revealing them for 0.5 seconds.",
+    "fix": "KEYWORDS[vision] \\breveal(s|ed|ing)? matches \"revealing\"; this wiki line is not in the bin tooltip. Scan wiki text"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Talon": [
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "Q",
+    "quote": "Active: Talon dashes toward the target enemy, stabbing the target upon arrival to deal physical damage.",
+    "fix": "targeted dashes (Q, E over terrain) carry no PlayerSelectedDashDirection tag, so dashes 0 beside dive 3; count spells whose text says \"dashes\""
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "E",
+    "quote": "during which he gains unobstructed vision.",
+    "fix": "self-vision only; stays unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Taric": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Teemo": [
+   {
+    "trait": "stealth",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "I",
+    "quote": "Innate: Teemo gains invisibility after 1.5 seconds without moving, taking non- over time damage, performing actions that break stealth, channeling, or being in stasis.",
+    "fix": "passive stealth has no spell tag: add text rule \"gains invisibility|stealth\" over the passive tooltip"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "The bounce can occur an indefinite amount of times while Teemo is alive.",
+    "fix": "bounce count, not a stack; regex \"indefinite\" would miss it too; leave unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute"
+    ]
+   }
+  ],
+  "Thresh": [
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "Q",
+    "quote": "EFFECT RADIUS: Global • 3000",
+    "fix": "Q field lists Global beside 3000 for the recast; ambiguous, not a presence mechanic. Do not add fields rule without excluding mixed values"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Thresh automatically collects Souls near him or a placed Dark Passage.",
+    "fix": "Souls give permanent stats but no cap quoted; unclear"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "revive",
+     "execute"
+    ]
+   }
+  ],
+  "Tristana": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "W",
+    "quote": "Tristana can cast any of her abilities during the dash.",
+    "fix": "no wall wording; stays unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Trundle": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ]
+ }
+}

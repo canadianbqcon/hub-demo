@@ -1,0 +1,78 @@
+/* crew: trip access on entry-3-pane. Page mods only: the waiting dot, the identity sheet
+   (initials, inline fields, the code as four keypad digits), history and diff lists, the
+   view-as overlay and the toast's place. Every other part comes from the origin and the
+   shared components. Option F of Workbench set crew-access-page. */
+
+body.crew { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: var(--fs-subhead); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+:where(body.crew) button, :where(body.crew) input, :where(body.crew) select { font: inherit; }
+body.crew [hidden] { display: none !important; }
+
+/* the list: a waiting item carries a dot, the denied fold sits on its group label */
+.crew-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.crew-empty { padding: var(--s-2) var(--s-3); color: var(--fg-dim); font-size: var(--fs-footnote); }
+.crew-fold { margin-left: auto; padding: 1px 8px; font-size: var(--fs-caption); text-transform: none; letter-spacing: 0; }
+
+/* the person's head is a card like the ones under it (liquid strips the origin's head), as on workbench */
+body.crew .hub-e3p-head.hub-plate-card { margin: var(--s-4) var(--s-5) 0; padding: 18px 20px 6px; background: var(--bg-elev); }
+@media (max-width: 900px) { body.crew .hub-e3p-head.hub-plate-card { margin: var(--s-3) var(--s-3) 0; padding: 14px 16px 4px; } }
+
+/* stages are display only (spans, not tabs to press) */
+.crew .hub-e3p-stages > .hub-tab { cursor: default; }
+/* the origin swipes five stages on a phone; four fit if they share the width instead of 88px each */
+@media (max-width: 900px) {
+  .crew .hub-e3p-stages > .hub-tab { flex: 1 1 0; min-width: 0; padding-right: 8px; }
+  .crew .hub-e3p-stages > .is-apart { flex: none; margin-left: 8px; }
+}
+
+/* the identity sheet sizes off its card, not the window: the middle column is narrow at half-snap */
+.crew .hub-plate-card { container-type: inline-size; }
+.crew-body { display: flex; flex-direction: column; gap: var(--s-2); padding: var(--s-3); }
+.crew-body p { margin: 0; }
+.crew-dim { color: var(--fg-dim); font-size: var(--fs-footnote); }
+.crew-note { font-size: var(--fs-footnote); color: var(--fg-dim); }
+.crew-note.is-err { color: var(--alert); }
+.crew-lab { display: flex; flex-direction: column; gap: 3px; min-width: 0; color: var(--fg-dim); font-size: var(--fs-footnote); }
+.crew-code { font-variant-numeric: tabular-nums; letter-spacing: .12em; }
+.crew-big { margin: 0; font-size: var(--fs-title); font-weight: 600; color: var(--good, var(--fg)); }
+.crew-gap { margin-top: var(--s-2); }
+
+/* identity: initials beside the fields; every value reads as text until it is clicked */
+.crew-id { display: flex; gap: var(--s-3); align-items: flex-start; }
+.crew-ini { flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: color-mix(in oklab, var(--accent) 24%, var(--bg)); font-weight: 700; font-size: var(--fs-body); }
+.crew-fields { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px var(--s-2); }
+/* body.crew .hub-input.x outranks liquid's [data-theme][data-surface] .hub-input capsule */
+body.crew .hub-input.crew-edit { min-width: 0; height: auto; padding: 3px 6px; border: 1px solid transparent; border-radius: 8px; background-color: transparent; cursor: text; }
+body.crew .hub-input.crew-edit:hover { border-color: var(--line); }
+body.crew .hub-input.crew-edit:focus { outline: none; background-color: var(--bg-elev); border-color: var(--accent); }
+.crew-edit::placeholder { color: var(--fg-dim); opacity: .6; }
+.crew-edit-first_name, .crew-edit-last_name { font-size: var(--fs-body); font-weight: 600; }
+.crew-edit-address { grid-column: 1 / -1; }
+
+/* the code as the keypad's four digits */
+.crew-keys { display: flex; gap: 10px; }
+body.crew .hub-input.crew-key { width: 52px; height: 60px; padding: 0; border: 1px solid var(--line); border-radius: 12px; text-align: center; font-size: var(--fs-title); font-variant-numeric: tabular-nums; background-color: var(--bg); }
+body.crew .hub-input.crew-key:focus { outline: none; border-color: var(--accent); }
+
+.crew-hist { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.crew-hist li { display: flex; flex-direction: column; }
+
+/* a trip submission: one change per line */
+.crew-diff { margin: 0; padding-left: 18px; font-size: var(--fs-footnote); color: var(--fg-dim); }
+.crew-diff li { padding: 1px 0; overflow-wrap: anywhere; }
+.crew-add { color: var(--accent); }
+.crew-del { text-decoration: line-through; }
+.crew-access { color: var(--fg); }
+
+/* "view as": full window, over everything including the modules modal (1200) */
+.crew-prev { position: fixed; inset: 0; z-index: 1400; display: flex; flex-direction: column; background: var(--bg); }
+.crew-prev-bar { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 14px; border-bottom: 1px solid var(--line-strong); background: var(--bg-elev-2); color: var(--fg-dim); font-size: var(--fs-footnote); }
+.crew-prev-frame { flex: 1; width: 100%; border: 0; }
+
+/* hub-toast has no place of its own; 64px clears the status line */
+.crew .toast { left: 50%; bottom: 64px; transform: translateX(-50%); z-index: 1300; padding: 8px 16px; background: var(--bg-elev-2); max-width: min(36rem, 92vw); }
+
+@container (max-width: 460px) {
+  .crew-fields { grid-template-columns: minmax(0, 1fr); }
+  body.crew .hub-input.crew-key { width: 44px; height: 52px; font-size: var(--fs-title); }
+  .crew-ini { width: 40px; height: 40px; font-size: var(--fs-subhead); }
+}

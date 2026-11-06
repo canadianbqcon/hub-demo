@@ -1,0 +1,891 @@
+{
+ "batch": "08",
+ "champions": {
+  "Tryndamere": [
+   {
+    "trait": "engage/dashes/dive/untargetable/all rubric",
+    "current": "unknown",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Active: Tryndamere dashes to the target location, dealing physical damage to enemies hit",
+    "fix": "Whole rubric row is unknown ('the source does not say'): resolved=False for Tryndamere, so every tag/keyword rule returns None. Fix the champion's spell resolution in the bin reader (E range 660 and R untargetable-like invuln are readable)."
+   },
+   {
+    "trait": "unstoppable",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Undying Rage can be used while affected by cast-inhibiting crowd control.",
+    "fix": "Unresolved row; wiki says Undying Rage is castable under CC, not that it grants CC immunity."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Spinning Slash has no minimum dash range.",
+    "fix": "No wall wording in E; unresolved row so rule_wall never ran."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Ravenous Hydra: Cleave",
+    "fix": "Item texts are not in forge-champions.json; cannot judge. Non-champion items."
+   }
+  ],
+  "Twisted Fate": [
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Active: Twisted Fate marks all targetable enemy champions, revealing them for a duration.",
+    "fix": "Add r'all (targetable )?enemy champions' (map-wide reveal) and treat ability range >= 5000 or 'Global' with a blink/teleport as global."
+   },
+   {
+    "trait": "dashes/dive/wallCrossing",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Recast - Gate: Twisted Fate channels for 1.5 seconds before blinking to the target location",
+    "fix": "Gate (range 5500) is a long blink but wallCrossing says 'no move spell', dive 0, dashes 0. Tag lacks Teleport/dash for the recast; read the 'blinking to the target location' recast as a move spell (range from the 5500 field)."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Rod of Ages: Timeless",
+    "fix": "Item text not in champion file; unclear."
+   }
+  ],
+  "Twitch": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Active: Twitch hurls a cask of corrosive mixture at the target location that breaks upon landing, applying Deadly Venom to enemies in the area and granting sight of it.",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "The bolt projectiles will naturally pass through terrain and enemy structures",
+    "fix": "Projectile passes terrain; no move spell, so False is right for the wallCrossing meaning (a move). Info only."
+   }
+  ],
+  "Udyr": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "The storm grants sight of its surroundings and prioritizes following the last enemy Udyr attacked",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "He also gains immunity to crowd control for 1.5 seconds.",
+    "fix": "unstoppable False 'no spell tagged Trait_CCImmune' but the Awaken recast of E grants CC immunity; recast effects are not tagged. Add keyword fallback r'immun\\w* to crowd control|crowd control (cannot|immun)' on wiki text."
+   },
+   {
+    "trait": "dashes/dive/wallCrossing",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "empowering his basic attacks to have an uncancellable windup and pounce on the target to stun them for 0.75 seconds.",
+    "fix": "dashes 0, dive 0, wallCrossing 'no move spell', yet E (and Q-less stance) pounces; note says 'Udyr cannot dash while grounded or rooted'. Pounce-on-attack dashes (Udyr E, Volibear Q) are untagged; add a handler for 'pounce on the target'."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Spear of Shojin: Dragonforce",
+    "fix": "Item text not in champion file; unclear."
+   }
+  ],
+  "Urgot": [
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Upon completing the channel, the target is executed.",
+    "fix": "KEYWORDS regex \\bexecut\\w* would match; the bin tooltip lacks it. Fall back to wiki ability text (exclude notes naming other champions)."
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "leashing the target for 4 seconds, during which they are revealed and slowed",
+    "fix": "Same: regex would match 'revealed'; bin tip lacks it. Wiki-text fallback."
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "E",
+    "quote": "After the cast time, Urgot dashes in the target direction, though not through terrain",
+    "fix": "Dash explicitly cannot cross terrain. Warning: _WALL matches 'terrain' in 'not through terrain' and would give a false True if wiki text were scanned; add negation guard (r'not through (terrain|walls?)')."
+   },
+   {
+    "trait": "untargetable",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "rendering them untargetable, and preventing them from taking damage from other sources",
+    "fix": "False is right (untargetability is on the enemy). Info only."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "handler_missing",
+    "ability": "W",
+    "quote": "Each attack applies on-hit and on-attack effects, with on-hit and on-attack damage reduced to 50% effectiveness.",
+    "fix": "'W: shots apply on-hit at a reduced rate, left out': a handler could read the 50% factor from this line (fixed 3.0 attack speed in same ability, 4 s duration)."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Each shotgun can fire once before incurring a unique cooldown.",
+    "fix": "'passive: cadence not read': no number for the per-shotgun cooldown in wiki text; damage line '40% - 100% (based on level) AD' is readable but cadence is not. Item rows (Black Cleaver, Sterak's, Steelcaps): unclear."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Varus": [
+   {
+    "trait": "engage/dashes/dive/untargetable/all rubric",
+    "current": "unknown",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Varus unleashes a tendril of corruption in the target direction that infects the first enemy champion hit, dealing magic damage and rooting them for 2 seconds",
+    "fix": "Whole rubric row unknown ('the source does not say'): resolved=False for Varus; engage would read R root 2 s at 1370. Fix spell resolution."
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "rooting them for 2 seconds, during which they are revealed.",
+    "fix": "Row unresolved so keyword rule never ran; regex 'revealed' would match once fallback to wiki text exists."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Statikk Shiv: Electrospark: cadence not read, counted once",
+    "fix": "Item text not in champion file; unclear."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "If the target cleanses the root immediately after it is applied, no stacks will be applied",
+    "fix": "Note about enemy cleansing; wiki-text fallback must not count it as Varus having cleanse."
+   }
+  ],
+  "Vayne": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "Q",
+    "quote": "Active: Vayne dashes a fixed distance in the target direction, though not through terrain",
+    "fix": "Dash cannot cross terrain. Same negation guard as Urgot for _WALL ('though not through terrain' must not match)."
+   },
+   {
+    "trait": "stealth",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Tumble's cast grants Vayne invisibility for 1 second.",
+    "fix": "stealth True 'Q tagged' is correct (Final Hour makes Tumble invisible). Info only."
+   },
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Cleansing the knock back will also end the displacement early.",
+    "fix": "Enemy-side note, not Vayne's cleanse; absent."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Blade of The Ruined King: Clawing Shadows",
+    "fix": "Item text not in champion file; unclear."
+   }
+  ],
+  "Veigar": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "granting sight of the area during the delay and afterwards dealing magic damage to enemies hit.",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Phenomenal Evil: For each stack, Veigar gains 1 ability power.",
+    "fix": "Wiki text states no cap, but also no 'no maximum' wording; cannot confirm either way from the text. Add wiki fallback for 'stacks without limit' phrasing only if present."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Rod of Ages: Timeless",
+    "fix": "Item text not in champion file; unclear."
+   }
+  ],
+  "Vel'Koz": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "dealing magic damage to enemies within and granting sight of the surrounding area for 0.25 seconds.",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "The third stack consumes them all to deal 35 – 205 (based on level) (+ 65% AP) bonus true damage.",
+    "fix": "'passive: cadence not read': the number is readable; cadence = three ability hits (7 s window), derivable from 'stacking up to 3 times' once any ability hits."
+   },
+   {
+    "trait": "vision",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Vel'Koz will reveal himself if the ray is near an enemy champion.",
+    "fix": "Self-reveal, not vision gain; would be a false positive only if wiki fallback hit 'reveal'. Add negation: 'reveal(s) himself|herself'."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Vex": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Shadow stops upon hitting an enemy champion to mark them for 4 seconds, during which they are revealed.",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Recast: Vex dashes towards the marked target with displacement immunity.",
+    "fix": "unstoppable True 'R tagged Trait_CCImmune' but wiki says only displacement immunity (Vi R, same wording, is untagged and False). Tag semantics differ between champions."
+   },
+   {
+    "trait": "engage",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "I",
+    "quote": "Passive - Doom: Periodically, Vex empowers her next basic ability to knock down and fear enemies hit",
+    "fix": "engage 0 'no immobilizing spell'; the passive Doom knockdown+fear is hard CC not counted (it is a passive). Consider counting empowered-ability CC."
+   },
+   {
+    "trait": "dashes",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Recast: Vex dashes towards the marked target with displacement immunity.",
+    "fix": "dashes 0 though R recast is a dash (dive 5 counts it). dashes counts only PlayerSelectedDashDirection; targeted dashes are not counted."
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "She will not stop tracking the target until she reaches them, as there is no maximum tracking distance.",
+    "fix": "No wall wording in the dash; unclear."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Gloom's detonation deals 40 – 162.94 (based on level) (+ 25% AP) bonus magic damage and refunds 25% of Doom's cooldown.",
+    "fix": "'passive: cadence not read': number is readable; needs a dash/blink by an enemy (cannot assume). Shadowflame: Cinderbloom is an item: unclear."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Vi": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "Vault Breaker's dash range extends up to 50 units when going through a wall.",
+    "fix": "rule_wall scans only the bin tip of move spells; this wall wording sits in a wiki note. Scan wiki notes for r'\\bwall'."
+   },
+   {
+    "trait": "dashes",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "Q",
+    "quote": "Recast: Vi dashes in the target direction to deal physical damage to enemies within her path",
+    "fix": "dashes 0, but Q is a player-directed dash (and R a targeted dash). Charged Q is not tagged PlayerSelectedDashDirection; add wiki 'dashes in the target direction'."
+   },
+   {
+    "trait": "unstoppable",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Active: Vi singles out the target enemy champion, dashing with displacement immunity towards them and revealing them.",
+    "fix": "False is right (displacement immunity only), unlike Vex R."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Conqueror: stacks not applied to spell damage",
+    "fix": "Rune/item rows, not wiki-readable. Passive cadence: 'Periodically, Vi's next ability hit grants her a shield' has no cadence number; unclear."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Viego": [
+   {
+    "trait": "unstoppable",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Active: Viego gains displacement immunity over the cast time, then blinks to the target location.",
+    "fix": "True 'R tagged Trait_CCImmune' but wiki says only displacement immunity."
+   },
+   {
+    "trait": "dashes",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Recast: Viego hurls a blast of mist in the target direction and dashes a fixed distance in the same direction, though not through terrain.",
+    "fix": "dashes 0 though W recast dashes in a fixed direction (dive 4 counts it). Charged recast untagged."
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "W",
+    "quote": "dashes a fixed distance in the same direction, though not through terrain",
+    "fix": "W dash is blocked by terrain; R is a blink ('blinks to the target location', range 500) with no wall wording: unclear for R. Negation guard needed for _WALL."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Conqueror: stacks not applied to spell damage",
+    "fix": "Rune/item rows; not wiki-readable."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "The possession will not end prematurely if Viego enters resurrection.",
+    "fix": "Mentions resurrection of Viego from an item/other champion, not a revive of his own; absent."
+   }
+  ],
+  "Viktor": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "deals magic damage to enemies hit and briefly grants sight of the area.",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "granting sight of the area within its radius",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Viktor can cast the ability over the wall and it will not be destroyed or intercepted.",
+    "fix": "No move spell: False fine."
+   }
+  ],
+  "Vladimir": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "Q",
+    "quote": "The Crimson Rush depletes normally while under resurrection effects.",
+    "fix": "Refers to other resurrection sources; absent."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Stormraider's Surge",
+    "fix": "Rune/item row; not wiki-readable."
+   }
+  ],
+  "Volibear": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "granting sight of the area for 1 second after the first second of the delay.",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Cc-immunity: Crowd control cannot be applied during this time.",
+    "fix": "unstoppable False 'no spell tagged Trait_CCImmune' though the R text states CC immunity. Wiki-text fallback r'crowd control cannot be applied|immun\\w* to crowd control'."
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "leaps to the target location with displacement immunity over 1 second",
+    "fix": "Leap, no wall wording; unclear."
+   },
+   {
+    "trait": "dashes",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "Q",
+    "quote": "pounce on the target, dealing bonus physical damage and stunning them",
+    "fix": "dashes 1 counts R only; Q pounce untagged (same gap as Udyr E)."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Lightning Claws: Volibear's claws ignite with lightning, empowering his basic attacks on-hit to deal 11 – 68 (based on level) (+ 20% bonus AD) (+ 45% AP) bonus magic damage",
+    "fix": "'passive: cadence not read': empowered at 5 stacks; stack rule 'stacking up to 5 times' + damage numbers readable, cadence derivable from attacks per 6 s window."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Warwick": [
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Passive: Warwick senses all enemy champions on the map who are damaged below 50% of their maximum health",
+    "fix": "KEYWORDS globalPresence has 'across the map|anywhere on the map'; add r'\\bon the map\\b' and treat range field 'Global' (Q, W both range 'Global') as global."
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "channels for up to 1.5 seconds to suppress, reveal, and deal magic damage",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Warwick leaps in the target direction with crowd control immunity, stopping upon hitting an enemy champion.",
+    "fix": "unstoppable False; R leap grants CC immunity in text but isn't tagged. Wiki fallback r'with crowd control immunity'."
+   },
+   {
+    "trait": "dive",
+    "current": "unknown",
+    "verdict": "handler_missing",
+    "ability": "R",
+    "quote": "250% movement speed",
+    "fix": "R range field is '250% movement speed' (not a number), so dive is unknown; a handler could read the note 'this range increases to 1112 / 1162.25 / 1203.125 / 1234.53125 / 1265.9375' or compute 250% of MS over the leap."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Innate: Warwick deals 6 – 60.76 (based on level) (+ 15% bonus AD) (+ 10% AP) bonus magic damage on-hit.",
+    "fix": "'passive: cadence not read': the passive is plain on-hit, so it can be read per basic attack (as attackSpeedScaling/auto share already do)."
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Active: Warwick leaps in the target direction with crowd control immunity",
+    "fix": "No wall wording; unclear."
+   },
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Infinite Duress covers Warwick's hitbox",
+    "fix": "False-positive risk: wiki-text fallback with r'infinite\\w*' (infiniteStacking) would hit the ability name 'Infinite Duress'; strip ability names before scanning."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Wukong": [
+   {
+    "trait": "pets",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Active: Wukong enters invisibility for 1 second and dashes in the target direction, leaving behind a clone of himself at his casting position for 4 seconds.",
+    "fix": "pets False 'no spell tagged Trait_Pet' but W leaves an autonomous clone ('See Pets for more details about Wukong's clone'). Add wiki rule r'clone of himself|leaving behind a clone'."
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Active: Wukong dashes to the target enemy's location",
+    "fix": "No wall wording in W or E; unclear."
+   },
+   {
+    "trait": "dashes",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Active: Wukong dashes to the target enemy's location and sends out untargetable clones",
+    "fix": "dashes 1 counts W only; targeted dash E not counted (dive counts it)."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Conqueror: stacks not applied to spell damage",
+    "fix": "Rune/item rows; not wiki-readable."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Xayah": [
+   {
+    "trait": "engage",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "A target hit by at least three Feathers is rooted for 1.25 seconds.",
+    "fix": "engage 5 comes from a conditional root with no move spell; may be overstated (needs 3 feathers). Info only."
+   },
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Xayah - Clean Cuts: Attack",
+    "fix": "'Clean Cuts' is a passive name; regex \\bcleans\\w* does not match 'Clean' but note a loose cleanse regex would. Absent."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Yun Tal Wildarrows: Practice Makes Lethal",
+    "fix": "Item rows; not wiki-readable."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Xerath": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "briefly granting sight of the area and dealing magic damage to enemies hit",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "briefly granting sight of the area and dealing magic damage to enemies hit.",
+    "fix": "vision: bin tooltip lacks it; add wiki-text fallback, and add r'grant(s|ing)? sight|sight of' (ward-like sight)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Shadowflame: Cinderbloom",
+    "fix": "Item row; not wiki-readable."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "R",
+    "quote": "5000",
+    "fix": "R range 5000 is long but a cast range, not a map-wide effect; any 'range >= 5000 means global' rule would wrongly flag Xerath (as it correctly would not Warwick's 'Global' field)."
+   }
+  ],
+  "Xin Zhao": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Active: Xin Zhao dashes to the target enemy's location",
+    "fix": "No wall wording; unclear."
+   },
+   {
+    "trait": "dashes",
+    "current": "computed",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Active: Xin Zhao dashes to the target enemy's location, dealing magic damage to them and nearby enemies",
+    "fix": "dashes 0 though E is a dash (dive 2 counts it); targeted dashes not in dashes."
+   },
+   {
+    "trait": "vision",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "W",
+    "quote": "The farthest champion or large monster hit within the thrust's area is also marked as Challenged and is revealed for 3 seconds.",
+    "fix": "True positive: reveals the target. Info only."
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "Conqueror: stacks not applied to spell damage",
+    "fix": "Rune/item rows; not wiki-readable."
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ]
+ }
+}

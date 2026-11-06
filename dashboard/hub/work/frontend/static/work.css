@@ -1,0 +1,131 @@
+/* work portal — tokens only, no raw hex. Matches the home/sibling shell pattern
+   (home `.shell`, trips `.shell`, purchases `.pe-shell`): a 3-row grid that pins
+   the status strip to the bottom and lets the body fill the frame, instead of the
+   old min-height flow that floated two tiles in a void. */
+/* every other hub page zeroes this in its own sheet; work never did, so the UA's
+   8px body margin left a gutter on all four sides and pushed the 100vh shell into
+   a scrollbar. The font/colour half was missing too: base.css carries no `body`
+   selector by design, so `body` computed to Times New Roman on white. Nothing shows
+   it today only because every React component sets its own font — the first
+   unstyled node would have rendered in the UA serif. Same miss that shipped in
+   recipes.css; caught by tests/topbar_parity_check.js. */
+body {
+  margin: 0;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+}
+
+.work-shell {
+  grid-template-rows: auto 1fr var(--status-h);
+  overflow: hidden;
+  background: var(--bg); color: var(--fg);
+}
+
+/* the single scroll region between topbar and status strip — fills the middle
+   row, edge-to-edge with home's gutters (no centered max-width island). */
+.work-body {
+  min-height: 0; overflow-y: auto;
+  padding: var(--s-5) var(--s-5) var(--s-6);
+  background: var(--bg);
+}
+.work-body::-webkit-scrollbar { width: 6px; }
+.work-body::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); }
+.work-body::-webkit-scrollbar-track { background: transparent; }
+
+/* capped width — critique P2: an edge-to-edge section under two tiles read as
+   an unfinished load, not a deliberate index. Committing to a tight column lets
+   the leftover space read as intentional negative space instead. */
+.work-job { margin-bottom: var(--s-6); max-width: 600px; }
+.work-job:last-child { margin-bottom: 0; }
+
+/* cobalt blueprint dot-grid (cobalt.css, applied to every .col) — work never uses
+   .col, so its signature cobalt texture was missing here, part of the "65% dead
+   void" critique. Page-owned override per THEMING-SPEC Rule 1: does not touch
+   the frozen theme file. */
+[data-theme="cobalt"] .work-body {
+  background-image: radial-gradient(var(--line-soft) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* section header in home's panel-head voice: violet lowercase display title +
+   dim italic meta, separated from the tiles by a full-width hairline rule. */
+.work-job-head {
+  display: flex; align-items: baseline; gap: var(--s-3);
+  padding-bottom: var(--s-3); margin-bottom: var(--s-4);
+  border-bottom: 1px solid var(--line);
+}
+.work-job-title {
+  font-family: var(--font); font-feature-settings: var(--feat-display);
+  font-weight: 500; font-size: var(--fs-title); letter-spacing: 0.01em;
+  color: var(--violet-label); text-transform: lowercase;
+  line-height: 1; margin: 0;
+}
+.work-job-meta {
+  font-family: var(--font-body); font-feature-settings: var(--feat-meta);
+  font-style: italic; font-size: var(--fs-footnote); color: var(--fg-dim);
+  letter-spacing: 0.01em;
+}
+
+/* left-aligned tile row — fixed comfortable width so 2 boards read as a section,
+   not stretched edge-to-edge. Reuses the chrome module-launcher tile voice. */
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 260px));
+  gap: var(--s-3);
+}
+/* .launch-tile in chrome.css is a <button> (border:0, no link reset needed);
+   here it's an <a> (work.jsx), so border/color/text-decoration stay page-owned
+   to undo anchor defaults -- not duplicates of chrome's button styling. */
+.work-grid .launch-tile {
+  border: 1px solid var(--line); color: var(--fg); text-decoration: none;
+  min-height: 128px;
+  transition: background 120ms ease-out, border-color 120ms ease-out;
+}
+.work-grid .launch-tile:hover {
+  border-color: var(--accent-dim);
+  background: linear-gradient(135deg, var(--accent-faint) 50%, var(--bg-elev-2) 50%);
+}
+.work-grid .launch-tile:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 2px;
+}
+.work-grid .tile-meta {
+  color: var(--fg-dim); /* accent measured 4.22:1 on bg-elev at this size, fails AA; fg-dim clears at 7.36:1 */
+}
+
+/* ---- phone. Last in the file on purpose: these override the rules above, and
+   a media query carries no extra specificity, so source order is the win. ---- */
+@media (max-width: 640px) {
+  /* the status strip reflows to several rows (chrome.css), so the fixed
+     --status-h track would clip it. */
+  .work-shell { grid-template-rows: auto 1fr auto; }
+  .work-body { padding: var(--s-4) var(--s-4) var(--s-5); }
+  /* the 240–260px tile cap leaves a dead 130px gutter on a 390px screen. */
+  .work-grid { grid-template-columns: minmax(0, 1fr); }
+  .work-job { max-width: none; }
+}
+
+/* ---- liquid. Own block, liquid-scoped (liquid.css is frozen). The vesper voice
+   above (violet lowercase title, hairline under the head, 1px bordered tile on a
+   diagonal hover fill) reads as a different app on liquid: here the head is a
+   sentence-case label on the wallpaper and the board is a solid slab that
+   lifts a step on hover, like the Purchases and Trips cards. ---- */
+[data-theme="liquid"] .work-body { padding: var(--s-2) 18px var(--s-6); }
+[data-theme="liquid"] .work-job-head { border-bottom: 0; padding: 0 0 0 4px; margin-bottom: var(--s-3); gap: var(--s-3); }
+[data-theme="liquid"] .work-job-title {
+  font: 700 var(--fs-title)/1.2 var(--font); letter-spacing: -.01em;
+  text-transform: none; color: var(--fg);
+}
+[data-theme="liquid"] .work-job-meta { font: 500 var(--fs-footnote)/1.2 var(--font); font-style: normal; letter-spacing: 0; color: var(--fg-dim); }
+[data-theme="liquid"] .work-grid { gap: 10px; }
+[data-theme="liquid"] .work-grid .launch-tile {
+  /* head and tile share one left edge */
+  min-height: 0; padding: 16px 18px; gap: 4px;
+  border: 0; border-radius: 26px; background: var(--bg-elev); box-shadow: var(--lq-slab-shade);
+}
+[data-theme="liquid"] .work-grid .launch-tile:hover { border: 0; background: var(--bg-elev-2); }
+[data-theme="liquid"] .work-grid .launch-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* tile copy is stored proper case; the older themes keep their lowercase look */
+:root:not([data-theme="liquid"]) .work-grid .tile-name,
+:root:not([data-theme="liquid"]) .work-grid .tile-desc { text-transform: lowercase; }

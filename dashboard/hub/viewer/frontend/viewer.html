@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/static/assets/favicon.png">
+  <script>
+    /* no-flash theme + surface bootstrap: must run before first paint.
+       Same snippet every hub page carries; see news.html. */
+    (() => {
+      var r = document.documentElement;
+      try {
+        var t = localStorage.getItem("hub.theme");
+        if (t === "glass") t = "liquid";
+        r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+        if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+        let s = localStorage.getItem("hub.surface");
+        if (s !== "light" && s !== "dark") {
+          s = (window.matchMedia?.("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+        }
+        r.setAttribute("data-surface", s);
+      } catch (_e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+    })();
+  </script>
+  <title>HUB · viewer</title>
+  <link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+  <link rel="stylesheet" href="/static/css/base.css?v=6">
+  <link rel="stylesheet" href="/static/css/components.css?v=5">
+  <link rel="stylesheet" href="/static/css/origins/tabbed-3-pane.css?v=1">
+  <link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+  <link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+  <link rel="stylesheet" href="/viewer/static/viewer.css?v=2">
+  <script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
+</head>
+<body class="viewer">
+<div class="hub-shell hub-t3p shell">
+
+  <header class="topbar">
+    <!-- the bar itself (back, brand, toggle, theme, sign-out, modules) is drawn by
+         topbar.jsx; only this page's extras live here, placed by data-slot -->
+    <button data-slot="lead" type="button" class="nav-toggle hub-t3p-nav-toggle" id="navToggle" aria-expanded="false" aria-controls="vwRail" aria-label="sections">
+      <svg class="nav-toggle-g hub-t3p-nav-toggle-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.2 H20 M4 12 H20 M4 16.8 H20"/></svg>
+    </button>
+    <span data-slot="crumb" class="crumb">viewer</span>
+    <span data-slot="crumb" class="crumb-section hub-t3p-crumb-section" id="crumbSection"></span>
+  </header>
+
+  <!-- React renders the rail and the working pane into #viewer-root -->
+  <div class="body hub-t3p-body" id="viewer-root"></div>
+
+  <div class="hub-t3p-scrim" id="vwScrim" hidden></div>
+
+  <footer class="status hub-t3p-status">
+    <span class="status-l hub-t3p-status-l" id="statusMsg">ready</span>
+    <span class="status-r hub-t3p-status-r" id="statusMeta"></span>
+  </footer>
+
+</div>
+<script defer src="/jsx/viewer/frontend/static/viewer.jsx?v=3"></script>
+<script>
+/* load fallback: if the React body never mounted, say so instead of leaving a blank page */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="viewer"]')) return;
+    var host = document.getElementById("viewer-root");
+    if (host) host.innerHTML = '<div class="hub-error">page failed to load</div>';
+  }, 3000);
+});
+</script>
+</body>
+</html>

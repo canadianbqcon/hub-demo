@@ -1,0 +1,200 @@
+/* map.css — Leaflet chrome, one treatment for every map in the Hub.
+
+   Leaflet ships its own light chrome: a white rounded zoom bar, a white tooltip with a
+   pointer, and the raw OSM raster. None of it knows about the theme tokens, so every map
+   surface used to re-dress it locally and they drifted — the trips day map grew a bordered
+   zoom bar and knocked-back tiles that the food map never got.
+
+   This is that treatment, unscoped, plus the marks every map draws: the dot-leader-chip
+   mark, the route stroke and the air stitch. What a mark MEANS on one map (which dot is a
+   stay, which stroke is a subway line) and a zoom-dependent variant still belong in the
+   module's own stylesheet, and outrank these rules on specificity — see `.dayv-map.is-wide`.
+
+   Load order: chrome -> base -> themes -> map -> module. */
+
+.leaflet-container { background: var(--bg-elev); font-family: var(--font-body); }
+
+/* The zoom bar reads as a Hub control, not a floating white pill: one hairline around the
+   pair, square corners on the buttons inside it.
+
+   The doubled selectors are not belt-and-braces. Leaflet gives its own bar rules a
+   `.leaflet-touch` ancestor (`.leaflet-touch .leaflet-bar`, 2px black border) and its corner
+   radii a `:first-child`/`:last-child`, so a single-class rule here loses on specificity no
+   matter what order the files load in. Every override below matches the specificity of the
+   rule it is replacing. `.leaflet-touch` is on the container whenever Leaflet detects touch
+   OR a pointer-coarse device, which is most of the time — the un-prefixed copy is what
+   covers the rest. */
+.leaflet-bar,
+.leaflet-touch .leaflet-bar {
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  box-shadow: none;
+}
+.leaflet-bar a,
+.leaflet-touch .leaflet-bar a {
+  background: var(--bg-elev); color: var(--fg);
+  border-bottom-color: var(--line);
+}
+.leaflet-bar a:first-child, .leaflet-bar a:last-child,
+.leaflet-touch .leaflet-bar a:first-child, .leaflet-touch .leaflet-bar a:last-child {
+  border-radius: 0;
+}
+.leaflet-bar a:hover, .leaflet-bar a:focus,
+.leaflet-touch .leaflet-bar a:hover, .leaflet-touch .leaflet-bar a:focus {
+  background: var(--bg-hover); color: var(--fg);
+}
+.leaflet-bar a.leaflet-disabled,
+.leaflet-touch .leaflet-bar a.leaflet-disabled {
+  background: var(--bg); color: var(--fg-faint);
+}
+
+.leaflet-tooltip {
+  background: var(--bg-elev); color: var(--fg);
+  border: 1px solid var(--line); border-radius: var(--r);
+  box-shadow: none; font-family: var(--font-body); font-size: var(--fs-footnote);
+}
+/* Leaflet's tooltip pointer is drawn in its own hardcoded white and cannot be tokenised. */
+.leaflet-tooltip::before { display: none; }
+
+/* Light takes no filter at all. It used to take a knock-back, because the ground was
+   OSM's standard raster and no theme wanted a tan-and-green tourist map; basemap.js
+   now serves a canvas basemap cut for each surface, so there is nothing to correct.
+
+   Dark takes one number, and only one. Esri's dark cut is a MID-grey canvas, not a
+   near-black one, so against Vesper's ground the card read as a lit slab in a dark
+   room — the map was the brightest thing on a page it is supposed to sit under.
+   brightness alone seats it; contrast is a rounding nudge to keep the road grid off
+   the ground once the whole thing is darker. Note where this does NOT apply: the
+   labels ride in their own pane, so they keep full brightness and stay legible while
+   the ground drops. That separation is the entire reason the labels are a second
+   layer instead of baked into the base. */
+[data-surface="dark"] .leaflet-tile-pane { filter: brightness(0.6) contrast(1.06); }
+
+
+/* ── the mark: a dot with the label hung off it ───────────────────────────────
+   The Hub's one map mark, first built for the trips day map and now the vocabulary
+   every map uses. The dot is 10px and never leaves the true coordinate. Everything
+   that has to move when the map gets crowded is on the chip above it, so a stack of
+   labels climbs while every place stays exactly where it is.
+
+   The chip holds a leading value in `b` and a trailing name in `em`. What the value
+   IS belongs to the module: a clock time on the trips map, a depth score on the food
+   map. `display: block` on .mstop is load-bearing — width and height do not apply to
+   a non-replaced inline element, and a bare span renders the dot at 4px because its
+   absolute inset resolves against the text box instead of the mark. */
+
+.mstop { display: block; position: relative; width: 10px; height: 10px; }
+.mstop .mdot {
+  position: absolute; inset: 0; border-radius: var(--r-pill);
+  background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--line-strong);
+}
+.mstop .mlead {
+  position: absolute; left: 4px; bottom: 8px; width: 1px;
+  height: calc(12px + var(--lift, 0px)); background: var(--line-strong);
+}
+.mstop .mchip {
+  position: absolute; left: 50%; bottom: calc(20px + var(--lift, 0px)); transform: translateX(-50%);
+  padding: 2px 6px; border-radius: var(--r); white-space: nowrap;
+  background: var(--bg); border: 1px solid var(--line-strong); color: var(--fg);
+  font-family: var(--font-body); font-size: var(--fs-caption); line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+.mstop .mchip b { font-family: var(--font-display); font-weight: normal; margin-right: 4px; color: var(--accent); }
+/* the place name: quieter than the clock, and hard capped — past this width a
+   chip stops being a label and becomes a paragraph lying on the map */
+.mstop .mchip em {
+  font-style: normal; color: var(--fg-dim); margin-left: 6px;
+  display: inline-block; max-width: 13ch; overflow: hidden; text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+/* a chip centred on a dot near the frame edge hangs half of itself off the map,
+   so near an edge it anchors to the dot rather than centring on it */
+.mstop .mchip.at-l { left: -4px; transform: none; }
+.mstop .mchip.at-r { left: auto; right: -4px; transform: none; }
+
+/* A mark with no value to lead with goes hollow rather than inventing one: an
+   activity with no time on the trips map, a place nobody qualified has scored on the
+   food map. */
+.mstop.is-anytime .mdot { background: var(--bg); border-color: var(--accent); }
+
+/* ── ROUTE STROKE ────────────────────────────────────────────────────────────
+   A leaflet polyline given a class: a stylesheet rule beats the presentation attribute
+   leaflet writes, so the stroke takes the theme. `is-straight` is drawn as the crow flies;
+   `is-air` a flown leg at --fg-faint (at --fg-mute a coast-to-coast dotted line was the
+   loudest thing on the light map); `is-line` takes the feed colour its chip carries. */
+.mroute { stroke: var(--accent); }
+.mroute.is-straight { stroke: var(--fg-mute); }
+.mroute.is-air { stroke: var(--fg-faint); stroke-linecap: round; }
+
+/* ── STATION MARKS ──────────────────────────────────────────────────────────
+   Where you board and where you get off, on the map.
+
+   Built on `.mstop` above so a station reads as the same kind of object
+   as a pickup — a dot, a leader, a chip — and then differs in the two ways that
+   matter. It is SMALLER, because a station is a waypoint inside the trip and the
+   numbered stops are its ends, and it wears the LINE'S colour rather than the
+   accent, so the mark at the bottom of the stairs is the same yellow as the
+   roundel on the row above it and the line drawn through it.
+
+   The selectors are doubled (`.mstop.mstation`) so the station outranks the base
+   mark on specificity rather than on source order: a plain `.mstation .mdot` ties
+   `.mstop .mdot` and once lost to it, which painted every station dot accent blue —
+   the one thing the mark exists to say, said wrong. */
+.mstop.mstation { width: 8px; height: 8px; }
+.mstop.mstation .mdot { background: var(--tc, var(--fg-mute)); border-width: 1.5px; }
+.mstop.mstation .mlead { left: 3px; bottom: 6px; height: calc(9px + var(--lift, 0px)); }
+.mstop.mstation .mchip { bottom: calc(16px + var(--lift, 0px)); padding: 1px 5px; font-size: var(--fs-caption); }
+.mstop.mstation .mchip b { color: var(--tc, var(--fg-dim)); font-weight: 700; margin-right: 3px; }
+/* Wider than the 13ch the numbered stops get. A station name IS the payload
+   here — "Jackson Hts-Roosevelt Av" clipped to eleven characters is not the
+   thing the mark was added to say — and the tooltip carries the rest. */
+.mstop.mstation .mchip em { max-width: 15ch; margin-left: 4px; }
+/* A transfer is ONE mark, and the dot says so by being a stadium rather than a
+   circle — two platforms' worth of station under one pin. It is stretched
+   sideways from the centre (`inset: 0 -3px` on an 8px box), so the dot stays
+   centred on the point the mark is anchored at and the leader still meets it.
+
+   The chip above it already carries both lines as "F→A"; this is the half of the
+   message that survives at the zoom where the chip is the first thing to be
+   read past. */
+.mstop.mstation.is-xfer .mdot { inset: 0 -3px; border-radius: var(--r-pill); }
+
+.mroute.is-line { stroke: var(--tc, var(--accent)); }
+
+/* ── the stitch ───────────────────────────────────────────────────────────────
+   The heading mark repeats along the flown leg instead of sitting once at its
+   midpoint, each one turned to its own local bearing. Small enough that the row
+   reads as a textured stroke rather than as a queue of arrows.
+   A zero-size divIcon anchors its 0x0 box on the coordinate and the mark centres
+   itself off that, so the rotate can live on the inner element without fighting
+   the translate that centres it. */
+.matpoint { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); }
+.mstitch {
+  display: block; width: 0; height: 0;
+  border-left: 6px solid var(--fg-dim);
+  border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+}
+/* the way home takes the itinerary's warm counterweight, same as its timeline slab */
+.mstitch.is-back { border-left-color: var(--tomato); }
+.mroute.is-air.is-back { stroke: var(--tomato-dim); }
+
+/* ── RECENTER ────────────────────────────────────────────────────────────────
+   Every map here pans and zooms, so every map here gets lost: two drags into a
+   route and the airport is off-screen with no way back but a reload — which on
+   the day-of card also throws away the tab and the stops you just typed.
+
+   It sits under the zoom bar in the same corner and borrows its chrome above, so
+   the two read as one stack of map controls rather than a control and a widget.
+   z-index 400 is leaflet's own control pane; below that and the tile pane covers
+   it, above it and it floats over an open tooltip. */
+.map-recenter {
+  position: absolute; top: 78px; left: 10px; z-index: 400;
+  width: 30px; height: 30px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line-strong, rgb(0 0 0 / 0.2)); border-radius: var(--r, 6px);
+  background: var(--bg-elev); color: var(--fg);
+  font: inherit; font-size: var(--fs-body); line-height: 1; cursor: pointer;
+  transition: background 120ms ease-out, color 120ms ease-out;
+}
+.map-recenter:hover { background: var(--bg); color: var(--accent); }
+.map-recenter:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }

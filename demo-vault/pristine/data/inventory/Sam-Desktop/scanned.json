@@ -1,0 +1,22 @@
+{
+ "winget": {
+  "outcome": "ok",
+  "last_success": "2026-11-06T07:42:10",
+  "error": null
+ },
+ "registry": {
+  "outcome": "ok",
+  "last_success": "2026-11-06T07:42:10",
+  "error": null
+ },
+ "store apps": {
+  "outcome": "ok",
+  "last_success": "2026-11-06T07:42:10",
+  "error": null
+ },
+ "brew": {
+  "outcome": "absent",
+  "last_success": null,
+  "error": null
+ }
+}

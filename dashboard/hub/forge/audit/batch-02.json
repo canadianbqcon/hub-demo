@@ -1,0 +1,670 @@
+{
+ "batch": "02",
+ "champions": {
+  "Caitlyn": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "The recoil can be used to pass through terrain.",
+    "fix": "wiki-notes fallback: _WALL on notes, or treat a recoil/dash spell whose notes say 'pass through terrain'"
+   },
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "R",
+    "quote": "The ability also goes on a 5-second cooldown if Caitlyn enters resurrection during the cast time.",
+    "fix": "none; mentions of resurrection are about the caster dying, not a revive"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "At 5 stacks, or 4 while in brush, her next basic attack consumes all stacks on-attack to become a Headshot.",
+    "fix": "passive cadence is readable: one Headshot per 6th attack (5 stacks), 60/70/80% AD; add a stack-count cadence handler. Hexoptics pieces are item effects, no champion text"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence"
+    ]
+   }
+  ],
+  "Camille": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "revealing them for the duration and disrupting their ongoing channels.",
+    "fix": "bin tooltip for R lacks 'reveal'; use wiki text fallback"
+   },
+   {
+    "trait": "engage",
+    "current": "unknown",
+    "verdict": "handler_missing",
+    "ability": "E",
+    "quote": "Camille stops prematurely upon colliding with an enemy champion, knocking back all nearby enemy champions, though not through terrain, as well as stunning them for 0.75 seconds.",
+    "fix": "E Wall Dive stun 0.75 s is readable from wiki text; also R 'knocking away all other nearby enemies' and the zone. Row says only 'the source does not say'; name the unreadable spell in partial"
+   },
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Active: Camille dashes in the target direction, dealing physical damage to enemies near the landing location.",
+    "fix": "Wall Dive (E recast) has no Trait_PlayerSelectedDashDirection tag in the bin; add wiki 'dashes in the target direction' as fallback so dashes counts 1+"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "true",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "If the grapple collides with terrain, Camille will dash to the collision point and upon arrival attach to the terrain for 1 second, during which she gains the ability to cast Wall Dive.",
+    "fix": "true is defensible (uses walls) but she hooks onto walls rather than crossing; define the trait before trusting"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence",
+     "revive"
+    ]
+   }
+  ],
+  "Cassiopeia": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence",
+     "vision",
+     "revive"
+    ]
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "computed",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "",
+    "fix": "excluded pieces are items (Rod of Ages, Archangel's, Boots), not champion text; no wiki number to read"
+   }
+  ],
+  "Cho'Gath": [
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "If an enemy champion has health below the amount of true damage Feast deals, they will be marked for execution.",
+    "fix": "bin tooltip lacks 'execut'; wiki notes say 'marked for execution'. Wiki-text fallback"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "Q",
+    "quote": "granting sight of the area before dealing magic damage to enemies within",
+    "fix": "'granting sight of the area' is a ground vision grant, not matched by \\breveal\\b or \\bwards?\\b; decide whether 'sight of' counts, then add r'\\bsight of\\b'"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "R",
+    "quote": "Only 6 stacks can be gained from non-epic monsters or minions.",
+    "fix": "none; Feast has caps"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive"
+    ]
+   }
+  ],
+  "Corki": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence",
+     "revive",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "unclear",
+    "ability": "Q",
+    "quote": "reveals enemy champions hit for the same duration",
+    "fix": "true is correct (Q reveals champions hit); listed to confirm not a false positive"
+   }
+  ],
+  "Darius": [
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Active: Darius attempts to execute the target enemy champion, leaping towards them to deal true damage",
+    "fix": "bin tooltip for R lacks 'execut'; wiki text fallback catches it"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "granting sight of the area around them for 2.5 seconds from the start of the cast time",
+    "fix": "same 'sight of' wording as Cho'Gath Q; no reveal word"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "This leap can pass very thin terrain and will otherwise not be able to.",
+    "fix": "only very thin walls; weak present. Notes fallback on 'pass ... terrain'"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "infiniteStacking",
+     "globalPresence",
+     "revive"
+    ]
+   }
+  ],
+  "Diana": [
+   {
+    "trait": "engage",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Diana pulls all nearby enemies towards her, during which they are revealed, then slows them for 2 seconds.",
+    "fix": "R Moonfall pull is a hard displacement (notes: 'Enemies stay in the area for a maximum of approximately 0.5 seconds while being pulled'); 'no immobilizing spell' because the bin lacks Trait_ImmobilizingCCSpell. Count pull/knockup wording from text as CC"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "E",
+    "quote": "Active: Diana dashes to the target enemy's location, and upon completion, she deals them magic damage and consumes Moonlight from all enemies.",
+    "fix": "no wall wording"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence",
+     "revive"
+    ]
+   }
+  ],
+  "Dr. Mundo": [
+   {
+    "trait": "unstoppable",
+    "current": "false",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Periodically, Dr. Mundo gains immunity to the next hostile immobilizing effect to affect him.",
+    "fix": "periodic CC block, not CC immunity during a spell; no Trait_CCImmune tag. Decide if passive immunities count"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence",
+     "vision",
+     "revive"
+    ]
+   }
+  ],
+  "Draven": [
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "does so automatically after the axes hit an enemy champion or the edge of the map.",
+    "fix": "R travels to the map edge; add r'edge of the map' to globalPresence regex (weak, wiki gives no range number)"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "he gains a stack of Adoration.",
+    "fix": "no cap stated for Adoration; note about 150 stacks implies unbounded but no explicit 'no maximum'"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "Q",
+    "quote": "There is no limit to how many axes can be juggled at once, just the limit of 2 of them at a time in Draven's hands.",
+    "fix": "wiki-fallback regex 'no limit' would false-positive here; caps at 2 held"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "revive",
+     "vision"
+    ]
+   }
+  ],
+  "Ekko": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "The dash distance can be extended to up-to 550 units when targeting across terrain.",
+    "fix": "notes fallback: r'across terrain|cross the wall'"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Ekko reveals a time-delayed afterimage of himself that constantly tracks where he was 4 seconds ago.",
+    "fix": "reveals his own afterimage to himself, not enemy vision; W 'grants sight of the area for 2.5 seconds' is ground sight"
+   },
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "R",
+    "quote": "Ekko enters stasis at the start of the cast time, and afterwards heals himself",
+    "fix": "stasis and rewind, not a revive"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence"
+    ]
+   }
+  ],
+  "Elise": [
+   {
+    "trait": "untargetable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Active: Elise and her Spiderlings lift up into the air over 0.6 seconds, immediately becoming untargetable and unable to act",
+    "fix": "Rappel has no Trait_Untargetable tag; add wiki-text fallback on 'becoming untargetable|becomes untargetable'"
+   },
+   {
+    "trait": "pets",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "I",
+    "quote": "Elise gains one dormant Spiderling whenever she hits an enemy with an ability",
+    "fix": "Spiderlings are pets with no Trait_Pet tag on any spell; also W 'summons an untargetable venom-gorged spider'. Add passive/text fallback 'Spiderling'"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "Q",
+    "quote": "If Elise is allowed to dash, Venomous Bite can be used to cross sufficiently thin terrain.",
+    "fix": "'no move spell' is wrong: Venomous Bite pounce and Rappel are move spells with no DIVE_MOVE tag; dive also reads 0 for the same reason"
+   },
+   {
+    "trait": "dive",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Rappel can be recast instantly on a target enemy within the duration",
+    "fix": "Q Venomous Bite pounce and E Rappel descent behind target are untagged moves; dive 0 understates"
+   },
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "stunning the first enemy hit for a few seconds, during which they are also revealed.",
+    "fix": "true is correct; not a false positive"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence",
+     "revive"
+    ]
+   }
+  ],
+  "Evelynn": [
+   {
+    "trait": "stealth",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "I",
+    "quote": "From level 6 onward, Demon Shade also grants camouflage.",
+    "fix": "passive stealth has no spell tag (TAG_FLAGS reads spells only); read passive tags or wiki 'camouflage' / 'Demon Shade'"
+   },
+   {
+    "trait": "dive",
+    "current": "unknown",
+    "verdict": "handler_missing",
+    "ability": "R",
+    "quote": "she blinks 700 units in the opposite direction and becomes targetable again.",
+    "fix": "dive unknown though E Empowered Whiplash 'dashes toward the target enemy' and R blinks 700; two E entries (Whiplash, Empowered Whiplash) likely break the spell lookup"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "R",
+    "quote": "Evelynn reveals her true form",
+    "fix": "reveals herself, not enemies"
+   },
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "R",
+    "quote": "Last Caress is empowered to deal 240% damage against enemies below 30% of their maximum health.",
+    "fix": "bonus damage, not an execute kill"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "infiniteStacking",
+     "globalPresence",
+     "wallCrossing",
+     "revive"
+    ]
+   }
+  ],
+  "Ezreal": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "then fires a homing bolt towards the nearest enemy that deals magic damage and reveals them for 1 second.",
+    "fix": "bin tooltip lacks 'reveal'; wiki text fallback"
+   },
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Trueshot Barrage's projectile has an icon on the mini-map while it is in flight.",
+    "fix": "wiki gives no range; global reach not stated in text"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "revive",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Fiddlesticks": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "R",
+    "quote": "Fiddlesticks channels for 1.5 seconds, then blinks to the target location upon completion",
+    "fix": "blink, no wall wording"
+   },
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "unclear",
+    "ability": "W",
+    "quote": "revealing them in the process.",
+    "fix": "true is correct (also Effigy reveals wards); not a false positive"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence",
+     "revive"
+    ]
+   }
+  ],
+  "Fiora": [
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "Q",
+    "quote": "Lunge can hit structures and wards.",
+    "fix": "regex \\bwards?\\b matched Lunge targeting wards (bin: 'stabs the closest enemy, ward, or structure'); drop bare 'ward' from KEYWORDS vision, keep 'ward' only with place/reveal/true sight context"
+   },
+   {
+    "trait": "dive",
+    "current": "unknown",
+    "verdict": "handler_missing",
+    "ability": "Q",
+    "quote": "Active: Fiora dashes in the target direction, then stabs a nearby enemy based on a priority.",
+    "fix": "Q is a tagged dash yet dive is unknown; cooldown refund 'Stabbing a target reduces Lunge's cooldown by 50%' is in _WIKI_TIMING but dive still unread; check why the move-cast count fails"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "false",
+    "verdict": "unclear",
+    "ability": "W",
+    "quote": "prevents all incoming non- turret damage, and gains debuff immunity.",
+    "fix": "debuff immunity during 0.75 s Riposte, no CCImmune tag"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence",
+     "revive",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Fizz": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "Urchin Strike can only go through walls if the target is on the other side.",
+    "fix": "notes fallback r'go through walls'; conditional only"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence",
+     "revive"
+    ]
+   }
+  ],
+  "Galio": [
+   {
+    "trait": "wallCrossing",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "then dashes to the target location until he hits an enemy champion or terrain.",
+    "fix": "bin line 'Galio's dash stops on hitting terrain' matched _WALL; the dash is stopped by terrain, so it should be false. Reject _WALL matches preceded by stops/hits/collides"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "he gains crowd control immunity for the remaining duration, becomes untargetable, and leaps into the air",
+    "fix": "R has no Trait_CCImmune/Untargetable tag; add wiki fallback 'crowd control immunity' and 'becomes untargetable'"
+   },
+   {
+    "trait": "untargetable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "he gains crowd control immunity for the remaining duration, becomes untargetable, and leaps into the air",
+    "fix": "same tag gap as unstoppable"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "knocks them up for 0.75 seconds as well as reveals them for the same duration.",
+    "fix": "bin E tooltip lacks 'reveal'; wiki fallback"
+   },
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "designating the target allied champion's location at the time of cast as his landing spot.",
+    "fix": "no range stated; global-range ult is not in the text"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "revive"
+    ]
+   }
+  ],
+  "Gangplank": [
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Active: Gangplank consumes a large quantity of citrus fruit, cleansing himself from all crowd control and healing himself.",
+    "fix": "bin W tooltip lacks 'cleans'; wiki fallback catches it"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "The explosions also grant sight of their radiuses for 2 seconds.",
+    "fix": "ground sight; same 'sight of' question; R also 'granting sight of the area'"
+   },
+   {
+    "trait": "globalPresence",
+    "current": "true",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "signaling his ship off-shore to fire upon the target location",
+    "fix": "bin says 'anywhere on the map'; wiki text does not say it, so true rests on the bin line only"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "execute",
+     "revive",
+     "wallCrossing",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Garen": [
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "Active: Garen cleanses himself of all slows and gains 35% bonus movement speed for a duration.",
+    "fix": "slows only; bin Q tooltip lacks 'cleans'; wiki fallback"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "dealing them true damage as well as revealing them for 1 second at the start of the cast time.",
+    "fix": "bin R tooltip has no reveal; wiki fallback"
+   },
+   {
+    "trait": "execute",
+    "current": "true",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Active: Garen calls upon the might of Demacia onto the target enemy champion, dealing them true damage as well as revealing them for 1 second at the start of the cast time.",
+    "fix": "true is right (notes: 'The target will die if they're at least under 20 / 23.08 / 25.93% maximum health'); the hit is the bin variable name ExecuteDamage"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "W",
+    "quote": "stacking up to 150 times",
+    "fix": "capped"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "revive"
+    ]
+   }
+  ],
+  "Gnar": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "E",
+    "quote": "Active: Gnar leaps to the target location, then gains bonus attack speed for 6 seconds.",
+    "fix": "no wall wording; R terrain is knock-into-wall, not crossing"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking",
+     "globalPresence",
+     "vision",
+     "revive"
+    ]
+   }
+  ]
+ }
+}

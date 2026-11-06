@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+<meta charset="UTF-8">
+<!-- maximum-scale/user-scalable bind Android only: WebKit has ignored both for
+     pinch since iOS 10. The gesture handler hub/zoom_lock.py injects is what stops a pinch on
+     an iPhone, and touch-action: manipulation in the CSS stops the double-tap
+     zoom on both. Deliberate: the board is a touch surface, and a stray
+     two-finger drag or double-tap on a row used to leave it zoomed askew. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
+<link rel="manifest" href="/static/assets/manifest-trips.webmanifest">
+<meta name="apple-mobile-web-app-title" content="trips">
+<script>
+  /* no-flash theme init — sets data-theme/data-surface before first paint.
+     Mirrors the jobs page so trips inherits the same theming contract. */
+  (function () {
+    var r = document.documentElement;
+    try {
+      var t = localStorage.getItem("hub.theme");
+      if (t === "glass") t = "liquid";
+      r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+      if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+      var s = localStorage.getItem("hub.surface"); /* unified key across every hub page */
+      if (s !== "light" && s !== "dark") {
+        var old = localStorage.getItem("hub:surface"); /* migrate legacy colon key once */
+        if (old === "light" || old === "dark") { s = old; try { localStorage.setItem("hub.surface", s); } catch (e) {} }
+      }
+      if (s !== "light" && s !== "dark") {
+        s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+
+    /* Preload the active theme's two latin faces, right here, because this is the
+       first code that knows which theme is active. Without it the faces are not
+       discovered until fonts.css has parsed AND layout has reached text that uses
+       them — late enough on a slow link to paint a frame in the fallback stack and
+       reflow, which is the load flash this whole change is about. Two files, ~40 KB. */
+    var FACES = {
+      cobalt: ["/static/vendor/fonts/archivo-black-normal-latin.woff2",
+               "/static/vendor/fonts/space-grotesk-normal-latin.woff2"]
+    };
+    /* whole paths, not a prefix plus a name: test_trips_public scrapes every
+       static-asset literal out of this template and asserts the public mirror
+       serves it, so spelling them out is what puts these four behind that
+       check. (It also means a quoted partial path anywhere in this file reads
+       as an asset and fails there — keep prose out of quotes.) */
+    (FACES[r.getAttribute("data-theme")] || []).forEach(function (href) {
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
+      l.href = href;
+      document.head.appendChild(l);
+    });
+  })();
+</script>
+<title>HUB · trips</title>
+<!-- webfonts: one same-origin, render-blocking stylesheet carrying BOTH themes'
+     faces. Replaces the Google Fonts <link> each head used to inject from JS:
+     cross-origin, a second hop for each woff2, discovered too late to block
+     first paint, and `display=swap` — so the page painted in the fallback stack
+     and reflowed when the real faces landed. That reflow was the load flash.
+     Declaring the inactive theme's faces costs nothing (a @font-face downloads
+     only when a rule uses the family) and makes a live theme switch fetch-free.
+     See static/vendor/fonts/fonts.css; regenerate with tools/vendor-fonts.py. -->
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<!-- leaflet: the day map. Vendored under /static/vendor/ 2026-08-19 — degrades to a
+     "map unavailable" note if it can't load, the rest of the day view never depends on it.
+     Only the stylesheet lives up here; the script sits with the body scripts that use it. -->
+<link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="/trips/static/trips.css?v=145">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=6">
+<link rel="stylesheet" href="/static/css/origins/tabbed-3-pane.css?v=1">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=11">
+<link rel="stylesheet" href="/static/css/map.css?v=5">
+<!-- the food tab is the /food area renderer, mounted into this shell — same script and
+     same stylesheet the /food module loads, so the two surfaces cannot drift apart. -->
+<link rel="stylesheet" href="/static/css/food-view.css?v=5">
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
+</head>
+<body class="trips{% if guest %} guest{% endif %}">
+
+<div class="hub-shell hub-t3p shell">
+
+  <!-- ===== TOPBAR ===== -->
+    <header class="topbar">
+    <!-- the bar itself (back, brand, toggle, theme, sign-out, modules) is drawn by
+         topbar.jsx; only this page's extras live here, placed by data-slot -->
+    <!-- Phone only (hidden above 900px, where the rail is already on screen).
+         The rail costs a tap down here, so the topbar has to answer "where am
+         I" on its own: the drawer takes away the twelve visible tabs and this
+         gives back the one that matters. -->
+    <button data-slot="lead" class="nav-toggle hub-t3p-nav-toggle" id="navToggle" aria-expanded="false" aria-controls="funnelNav" aria-label="sections">
+      <svg class="nav-toggle-g hub-t3p-nav-toggle-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.2 H20 M4 12 H20 M4 16.8 H20"/></svg>
+    </button>
+    <span data-slot="crumb" class="crumb" id="crumbName">—</span>
+    <span data-slot="crumb" class="crumb-section hub-t3p-crumb-section" id="crumbSection"></span>
+    {% if preview %}
+    <!-- The way out of a preview, backed by the session instead of by the
+         overlay. The crew page's "view as" overlay is DOM only, so any
+         top-level reload (a tab Chrome discarded and reloaded on return, a
+         link out and back) would strand the board: preview_slug still set,
+         so it renders as a crew member with no way back. Hidden inside
+         the overlay's own iframe, where the bar above already carries the
+         button and two of them read as two different exits. -->
+    <a data-slot="right" class="launcher" id="previewOut" href="/trips/preview/off">exit preview · {{ preview }}</a>
+    <script>if (window.self !== window.top) document.getElementById("previewOut").remove();</script>
+    {% elif guest %}
+    <!-- The way back into the two preference forms once the completion wall has
+         been passed. Without it "change your answers" means hunting for your own
+         card in a grid of seven. Inside the guest branch, so Hub never renders a
+         link to a route that only exists on the mirror. -->
+    <a data-slot="right" class="launcher launcher-icon" href="/gate/prefs" title="your preferences" aria-label="your preferences"><svg class="launcher-g" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.4" r="3.6"/><path d="M4.8 20.4 C4.8 15.9 8 13.8 12 13.8 C16 13.8 19.2 15.9 19.2 20.4"/></svg></a>
+    {% if trip_id %}<a data-slot="right" class="launcher" href="/trips/{{ trip_id }}/intake" title="plan or change this trip">edit trip</a>{% endif %}
+    <a data-slot="right" class="launcher" href="/gate/logout" title="sign out">sign out</a>
+    {% else %}
+    <!-- Hub's own way in, and the only one there was never a link to: the same
+         account page, at the blueprint route rather than the mirror's /gate one.
+         Unpinned it opens Sam's own answers and carries a roster picker for
+         anyone else's, which is how a crew member's typo gets fixed without
+         borrowing their passcode. -->
+    <a data-slot="right" class="launcher launcher-icon" href="/trips/preferences" title="preferences — yours, or anyone's" aria-label="preferences"><svg class="launcher-g" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.4" r="3.6"/><path d="M4.8 20.4 C4.8 15.9 8 13.8 12 13.8 C16 13.8 19.2 15.9 19.2 20.4"/></svg></a>
+    {% endif %}
+  </header>
+
+  <!-- ===== CALENDAR-SYNC NOTICE (shown when the selected trip's gcal event was deleted) ===== -->
+  <div id="calNotice" class="cal-notice"></div>
+
+  <!-- ===== BODY (section nav on the left | the working pane) ===== -->
+  <div class="body hub-t3p-body">
+
+    <!-- FUNNEL RAIL — vertical section nav. Leads the row: it's the page's primary
+         control, so it reads first in source order and on mobile. -->
+    <section class="col hub-t3p-col funnel hub-t3p-rail" id="funnelCol">
+      <nav class="hub-nav-rail funnel-nav" id="funnelNav">
+        <!-- liftoff is the first thing you open on the morning it all starts: the
+             countdown, the flight you have to catch, what to tick off before you
+             leave, and the clock you are running against. It leads the rail
+             because on the one day it matters it outranks every decision below
+             it, and on every other day it reads as the countdown it is. The tab
+             was "day of" until 2026-08-28: accurate on exactly one day of the
+             year and filler on the other 364. data-mode stays "dayof" — it is
+             the persisted nav key (localStorage trips.nav.<id>) and the CSS
+             split ratio, not a label, same as transport's. -->
+        <button class="fnav hub-t3p-tab hub-nav-item" data-mode="dayof"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4"/><path d="M12 7.2 V12 L15.6 14.4"/></svg>liftoff</span></button>
+        <!-- packing is Sam's own lists — the same rows /checklists holds under
+             "packing" (and the activity-specific ones beside them), read through
+             /trips/api/packing and ticked in place. It sits directly under liftoff
+             because it is the other thing you open on the last night and the
+             morning of: the countdown says when you leave, this says what leaves
+             with you. Hidden on the mirror — a guest's board has no business
+             showing somebody else's toiletries. -->
+        <button class="fnav hub-t3p-tab hub-nav-item" data-mode="packing"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7.8" width="18" height="12.6" rx="1.5"/><path d="M8.4 7.8 V4.8 A1.2 1.2 0 0 1 9.6 3.6 H14.4 A1.2 1.2 0 0 1 15.6 4.8 V7.8"/><path d="M8.4 7.8 V20.4 M15.6 7.8 V20.4"/></svg>packing</span></button>
+        <!-- weather sits beside packing because it is the question packing is
+             answering: what the five days are actually going to be like. -->
+        <button class="fnav hub-t3p-tab hub-nav-item" data-mode="weather"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.4" r="3.6"/><path d="M9 1.8 V3.3 M9 13.5 V15 M3.3 8.4 H1.8 M16.2 8.4 H14.7 M4.95 4.35 L3.9 3.3 M14.05 13.45 L13 12.4 M13.05 4.35 L14.1 3.3 M4.95 12.45 L3.9 13.5"/><path d="M8.4 20.4 A3.6 3.6 0 0 1 8.4 13.2 A5.4 5.4 0 0 1 18.6 14.7 A3 3 0 0 1 18.6 20.4 Z"/></svg>weather</span></button>
+        <button class="fnav hub-t3p-tab hub-nav-item" data-mode="crew"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9.6" cy="8.4" r="3"/><path d="M4.2 19.8 C4.2 16.2 6.6 14.4 9.6 14.4 C12.6 14.4 15 16.2 15 19.8"/><path d="M16.2 6.6 A3 3 0 0 1 16.2 12.6"/><path d="M17.4 14.7 C19.8 15.3 21 17.1 21 19.8"/></svg>crew</span></button>
+        <!-- the section covers flights AND everything that moves you around on the
+             ground, so it reads "transport". data-mode stays "flights": it is
+             the persisted nav key (localStorage trips.nav.<id>) and the CSS split
+             ratio, not a label. -->
+        <button class="fnav hub-t3p-tab hub-nav-item active" data-mode="flights"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M12.6 3 C13.5 3 13.8 4.2 13.8 5.4 V10.2 L22.2 15 V16.2 L13.8 13.8 V18.6 L16.2 19.8 V21 L12.6 19.8 L9 21 V19.8 L11.4 18.6 V13.8 L3 16.2 V15 L11.4 10.2 V5.4 C11.4 4.2 11.7 3 12.6 3 Z"/></svg>transport</span></button>
+        <button class="fnav hub-t3p-tab hub-nav-item" data-mode="housing"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.2 10.2 L12.6 3 L21 10.2 V21 H4.2 Z"/><path d="M10.2 21 V13.8 H15 V21"/></svg>housing</span></button>
+        <!-- the hallmark: the one thing the trip is FOR — a birthday, a festival, a
+             wedding. It sits after housing (2026-09-04, was second in the rail): the
+             tabs above it are what you book, the tabs below are what you do once
+             there, and the event is the first of those. It ships blank and hidden and the trip's own module names it;
+             a trip without one never shows it.
+
+             KEEP THIS COMMENT NEUTRAL — every reader receives it, and what a
+             hallmark page is or is not on any given trip is not this file's story
+             to tell. The mechanism is documented where it belongs: trips/api.py
+             (_HALLMARK, hallmark_asset) and frontend/hallmark/README.md. -->
+        <button class="fnav hub-t3p-tab hub-nav-item fnav-hallmark" data-mode="hallmark" hidden><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 L14.4 9 L21 9.6 L16.2 14.1 L17.6 21 L12 17.6 L6.4 21 L7.8 14.1 L3 9.6 L9.6 9 Z"/></svg><span class="fnav-t" data-hlabel></span></span></button>
+        <!-- the shop you do on arrival. A trip has one grocery run and it happens on
+             a clock nobody writes down — Lost Lands needed distilled water bought
+             in Columbus and the only record of that was somebody's memory of
+             saying it. It sits under housing (with only the hallmark between,
+             when a trip has one) because the booked stay is what the list is
+             derived FROM: the run hangs off that stay's check-in,
+             and the stay's amenities decide what is already covered. -->
+        <button class="fnav hub-t3p-tab hub-nav-item" data-mode="grocery"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.4 4.2 H5.4 L8.4 15.6 H18.6 L21.6 8.4 H6.3"/><circle cx="9.6" cy="19.8" r="1.5"/><circle cx="17.4" cy="19.8" r="1.5"/></svg>grocery</span></button>
+        <button class="fnav hub-t3p-tab hub-nav-item" data-mode="activities"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3 V21"/><path d="M6.6 4.2 H18.6 L15.6 8.4 L18.6 12.6 H6.6"/></svg>activities</span></button>
+        <!-- food is the /food research for wherever the trip goes, served by the
+             trips blueprint itself. It sits after activities because it answers the
+             same question ("what do we do here") one step further in. -->
+        <button class="fnav hub-t3p-tab hub-nav-item" data-mode="food"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3 V8.4 C6.6 9.9 7.8 10.8 9 10.8 C10.2 10.8 11.4 9.9 11.4 8.4 V3"/><path d="M9 10.8 V21"/><path d="M17.4 21 V13.2"/><path d="M17.4 13.2 C15.6 13.2 15 11.4 15.6 7.8 C16 5.4 16.8 3 17.4 3 Z"/></svg>food</span></button>
+        <!-- itinerary is the last of the stages, and #funnelSub (its day list) hangs
+             directly beneath it. Cost then reads under the days. -->
+        <button class="fnav hub-t3p-tab hub-nav-item" data-mode="itinerary"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.2" y="5.4" width="16.8" height="15.6" rx="1.2"/><path d="M4.2 10.2 H21"/><path d="M9 3 V6.6 M16.2 3 V6.6"/></svg>itinerary</span></button>
+        <div class="fsub hub-nav-subrail" id="funnelSub" hidden></div>
+        <!-- cost is a cross-check on every other tab, not a funnel stage, so it does
+             not sit among them. It reads LAST, under the itinerary and under the
+             day list the itinerary expands. That is why it is on the far side of #funnelSub: below
+             the days, not between the tabs. -->
+        <button class="fnav hub-t3p-tab hub-nav-item" data-mode="cost"><span class="fnav-l hub-t3p-tab-label hub-nav-label"><svg class="fnav-g hub-t3p-tab-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21 H22.2 M5.4 21 V16.2 M10.2 21 V13.8 M15 21 V10.2 M19.8 21 V6.6"/></svg>cost</span></button>
+      </nav>
+    </section>
+
+    <!-- WORK PANE — the section header spans both columns, then the section splits
+         into its list and its detail side. There is no fixed-width rail any more:
+         each tab owns its own column ratio (see .focus-split[data-split] in
+         trips.css), because a fare table and a crew card grid don't want the same
+         share of the row. -->
+    <section class="col hub-t3p-col pane hub-t3p-pane" id="pane">
+      <!-- Phone-only host for the day picker. Under 900px the section nav is a
+           closed drawer, and #funnelSub (the itinerary's day list, and the food
+           view's entire filter rail) is no use to anyone parked inside it. JS
+           moves that node here at phone width and puts it back between itinerary
+           and cost above it, so this div is simply empty on desktop. It is a
+           host, not a component: nothing renders into it directly. -->
+      <div class="fsub-host" id="funnelSubHost"></div>
+      <div class="hub-pane-head focus-head hub-t3p-head" id="focusHead"></div>
+      <div class="hub-split focus-split hub-t3p-split" id="focusSplit" data-split="flights">
+
+        <!-- LEFT — the active section's list -->
+        <div class="hub-pane-col focus-col hub-t3p-list-col" id="focusCol">
+          <div class="hub-pane-list focus-list hub-t3p-list" id="focusList"></div>
+        </div>
+
+        <!-- RIGHT — day map on top (itinerary day view only), detail underneath.
+             On mobile the detail becomes a full-viewport slide-over (see
+             trips.css @900px); the close button only shows there. -->
+        <div class="side-pane hub-t3p-side" id="sidePane">
+          <div class="side-map" id="dayMapHost"></div>
+          <section class="hub-detail-rail hub-slide-over context" id="contextCol">
+            <button class="hub-slide-over-close" id="contextMobileClose" aria-label="back to list">← back</button>
+            <div class="hub-detail-rail-inner context-inner hub-t3p-context" id="context"></div>
+          </section>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- The drawer's way out on a phone. The nav slides over 80vw and this takes
+       the tap on what is left, because a touch screen has no Escape key and a
+       nav you can only leave by picking a section is a nav that has trapped you.
+       Hidden outright when closed so it cannot eat taps meant for the page. -->
+  <div class="funnel-scrim hub-t3p-scrim" id="funnelScrim" hidden></div>
+
+  <!-- ===== STATUS BAR ===== -->
+  <footer class="status hub-t3p-status" id="status">
+    <span class="status-l hub-t3p-status-l" id="statusMsg">ready</span>
+    <span class="status-r hub-t3p-status-r" id="statusMeta"></span>
+  </footer>
+
+</div>
+
+<!-- lightweight modal host -->
+<!-- The card editor used to be an overlay here. It is the account page's Card
+     section now (/trips/preferences?s=card), which is where the rest of what a
+     person owns already lives — and it is reachable on the shared mirror, where
+     this overlay's save was rejected as a write the whole time it existed. The
+     crew card's "card →" link navigates there; crewcard.js is what keeps that
+     page's preview the same function as this board's grid. -->
+<div class="hub-modal-scrim" id="modalScrim" hidden><div class="hub-modal" id="modal"></div></div>
+<!-- themed confirm/choice modal (replaces native confirm()/prompt()) -->
+<div class="hub-modal-scrim" id="confirmScrim" hidden><div class="hub-modal" id="confirmModal"></div></div>
+<!-- toast -->
+<div class="hub-toast toast" id="toast" hidden></div>
+
+<script>window.TRIP_ID = {{ trip_id | tojson }};
+/* who is reading this page, as a crew member key. Empty on Hub. */
+window.TRIP_VIEWER = {{ viewer | default("") | tojson }};</script>
+<!-- leaflet, NOT deferred and ahead of its consumers. It used to be a `defer`
+     tag in <head>, which runs AFTER every parser-inserted script below — so
+     boot() could reach the day view before `window.L` existed and the liftoff
+     ride map drew "map unavailable" instead. Warm cache hid it; a cold one did
+     not. Ordering here is the guarantee, not a timing bet. -->
+<script src="/static/vendor/leaflet/leaflet.js"></script>
+<!-- the shared basemap helper: defines hubBasemap(), so it is a consumer of L and
+     a dependency of every map script under it. Same ordering guarantee as above. -->
+<script src="/static/js/basemap.js?v=3"></script>
+<script src="/static/js/food-view.js?v=5"></script>
+<script src="/trips/static/crewcard.js?v=2"></script>
+<script src="/trips/static/triptime.js?v=3"></script>
+<script src="/trips/static/trips-cost.js?v=7"></script>
+<script src="/trips/static/flightchain.js?v=1"></script>
+<!-- The day-of ride card's stop rows are address fields, so they get the same
+     combobox the account page uses. Same file, no second implementation. -->
+<script src="/trips/static/addr-combo.js?v=2"></script>
+<!-- The wifi row builds a join-this-network QR on the phone, so the encoder has
+     to be here and not on a CDN: the one place the code is needed is a house with
+     the wifi you do not have yet. -->
+<script src="/trips/static/qr.js?v=1"></script>
+<script defer src="/jsx/trips/frontend/static/trips-cost.jsx?v=1"></script>
+<script defer src="/jsx/trips/frontend/static/trips-core.jsx?v=1"></script>
+<script defer src="/jsx/trips/frontend/static/trips-nav.jsx?v=2"></script>
+<script defer src="/jsx/trips/frontend/static/trips-transit.jsx?v=1"></script>
+<script defer src="/jsx/trips/frontend/static/trips-money.jsx?v=3"></script>
+<script defer src="/jsx/trips/frontend/static/trips-daymap.jsx?v=1"></script>
+<script defer src="/jsx/trips/frontend/static/trips-flights.jsx?v=3"></script>
+<script defer src="/jsx/trips/frontend/static/trips-tickets.jsx?v=4"></script>
+<script defer src="/jsx/trips/frontend/static/trips-housing.jsx?v=4"></script>
+<script defer src="/jsx/trips/frontend/static/trips-crew.jsx?v=4"></script>
+<script defer src="/jsx/trips/frontend/static/trips-context.jsx?v=2"></script>
+<script defer src="/jsx/trips/frontend/static/trips-board.jsx?v=4"></script>
+<script defer src="/jsx/trips/frontend/static/trips-editors.jsx?v=1"></script>
+<script defer src="/jsx/trips/frontend/static/trips-selfcheck.jsx?v=1"></script>
+<script defer src="/jsx/trips/frontend/static/trips.jsx?v=1"></script>
+<script>
+/* load fallback: trips.jsx mounts React and marks div.hub-shell.hub-t3p */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="trips"]')) return;
+    var d = document.createElement("div");
+    d.className = "hub-error";
+    d.style.cssText = "position:fixed;left:0;right:0;bottom:18px;text-align:center;z-index:5";
+    d.textContent = "page failed to load";
+    document.body.appendChild(d);
+  }, 3000);
+});
+</script>
+<!-- The trip's hallmark module. Absent when the server has nothing to serve
+     here — see trips/api.py. Neutral by the same rule as the nav comment above. -->
+{% if hallmark %}<link rel="stylesheet" href="/trips/{{ trip_id }}/hallmark.css?v={{ hallmark }}">
+<script src="/trips/{{ trip_id }}/hallmark.js?v={{ hallmark }}"></script>{% endif %}
+</body>
+</html>

@@ -1,0 +1,495 @@
+/* home · 2 of 4: subscriptions and the tasks panel.
+   Split from home.css 2026-07-29 (1665 lines). The four load in order from
+   templates/index.html and cascade as one sheet: order between them is
+   load-bearing (the contrast audit block at the end of day.css wins on it). */
+/* ---------------- subscriptions ---------------- */
+.sub-list { display: flex; flex-direction: column; }
+.sub-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: baseline; gap: var(--s-3);
+  padding: 5px 0; border-top: 1px dashed var(--line-soft);
+}
+.sub-row:first-of-type { border-top: 1px solid var(--line); }
+.sub-name {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+  font-size: var(--fs-subhead); color: var(--fg);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.sub-cycle {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-style: italic;
+  font-size: var(--fs-caption);
+  color: var(--fg-dim);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+.sub-amt {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text), var(--feat-tnum);
+  font-size: var(--fs-subhead); color: var(--fg);
+}
+.sub-flag {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta), var(--feat-tnum);
+  font-style: italic;
+  font-size: var(--fs-caption);
+  letter-spacing: 0.04em;
+  color: var(--warn); margin-left: var(--s-2);
+  text-transform: lowercase;
+  opacity: 0.85;
+}
+.sub-flag::before { content: "▲ "; font-style: normal; font-size: var(--fs-caption); }
+
+.sub-row-clickable { cursor: pointer; }
+.sub-row-clickable:hover { background: var(--surface-raised, rgba(255,255,255,0.03)); }
+
+.sub-total-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  padding: 7px 0 2px;
+  margin-top: 2px;
+  border-top: 1px solid var(--line);
+}
+.sub-total-label {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-style: italic;
+  font-size: var(--fs-caption);
+  color: var(--fg-dim);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+.sub-total-amt {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text), var(--feat-tnum);
+  font-size: var(--fs-subhead); color: var(--fg);
+}
+
+/* base.css's .hub-modal-scrim carries the signature; top-anchored like the event
+   panel, and at 200 because it opens over home panels that already sit at 200. */
+.hub-modal-scrim.sub-scrim {
+  z-index: 200;
+  align-items: flex-start;
+  padding-top: 96px;
+}
+.sub-modal {
+  background: var(--bg-elev);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-card);
+  box-shadow: var(--modal-shadow);
+  padding: 24px 28px;
+  min-width: 300px; max-width: 420px; width: 90%;
+}
+.sub-modal-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.sub-modal-name {
+  font-family: var(--font); font-size: var(--fs-body); color: var(--fg);
+}
+.sub-modal-amt {
+  font-family: var(--font-body); font-size: var(--fs-footnote); color: var(--fg-dim);
+  font-style: italic;
+}
+.sub-modal-flag-row { margin-bottom: 12px; }
+.sub-modal-reason {
+  font-family: var(--font-body); font-size: var(--fs-subhead); color: var(--fg-dim);
+  line-height: 1.55; margin: 0 0 20px;
+}
+.sub-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.sub-modal-dismiss, .sub-modal-close {
+  font-family: var(--font-body); font-size: var(--fs-footnote); letter-spacing: 0.04em;
+  padding: 6px 14px; border: 1px solid var(--line); background: none;
+  cursor: pointer; text-transform: lowercase;
+}
+.sub-modal-dismiss { color: var(--warn); border-color: var(--warn); }
+.sub-modal-dismiss:hover { background: rgba(217,160,80,0.08); }
+.sub-modal-close { color: var(--fg-dim); }
+.sub-modal-close:hover { background: var(--surface-raised, rgba(255,255,255,0.04)); }
+
+/* ---------------- tasks ---------------- */
+
+/* The whole planner reads like Apple Reminders (2026-10-20 mark 7): a segmented
+   control for the tabs, round checkboxes, hairline separators inset past the
+   checkbox, bold section heads. */
+
+/* tab bar: segmented control */
+.task-tabs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  padding: 2px; border-radius: 9px;
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+}
+.task-tab {
+  height: 26px; padding: 0 var(--s-3);
+  font-family: var(--font-body); font-feature-settings: var(--feat-text);
+  font-size: var(--fs-footnote); font-weight: 500; color: var(--fg-dim);
+  border: 0; border-radius: 7px; background: none;
+  text-align: center; cursor: pointer;
+  transition: color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+.task-tab:hover { color: var(--fg); }
+.task-tab.active {
+  color: var(--fg); font-weight: 600;
+  background: color-mix(in srgb, var(--fg) 16%, transparent);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06);
+}
+.task-tab-count {
+  font-size: var(--fs-caption); font-weight: 500; color: var(--fg-dim);
+  margin-left: 4px;
+}
+.task-tab.active .task-tab-count { color: var(--fg); }
+
+/* section filter: an Apple-style pop-up button (rounded fill, up/down chevron) over
+   a floating rounded menu with checkmarks, the way macOS draws one (2026-10-20 mark). */
+.task-dd-wrap { position: relative; margin: var(--s-2) 0; }
+.task-dd-trigger {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; height: 30px; padding: 0 10px 0 var(--s-3);
+  font-family: var(--font-body); font-feature-settings: var(--feat-text);
+  font-size: var(--fs-footnote); font-weight: 500; color: var(--fg);
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
+  border: 0; border-radius: 8px; cursor: pointer;
+  transition: background 0.12s;
+}
+.task-dd-trigger:hover { background: color-mix(in srgb, var(--fg) 13%, transparent); }
+.task-dd-label { flex: 1; text-align: left; }
+.task-dd-arrow { display: inline-flex; color: var(--fg-dim); margin-left: 6px; }
+.task-dd-menu {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
+  background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6); backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: 5px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.2);
+}
+.task-dd-group { padding: 2px 0; }
+.task-dd-group + .task-dd-group { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 6px; }
+.task-dd-group-head {
+  padding: 2px 10px 4px 28px;
+  font-family: var(--font-body); font-feature-settings: var(--feat-text);
+  font-size: var(--fs-caption); font-weight: 600; color: var(--fg-dim);
+}
+.task-dd-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px 5px 8px; border-radius: 6px;
+  font-family: var(--font-body); font-feature-settings: var(--feat-text);
+  font-size: var(--fs-footnote); color: var(--fg);
+  cursor: pointer; transition: background 0.1s;
+}
+.task-dd-row input[type="checkbox"] { display: none; }
+.task-dd-row::before { content: ""; width: 14px; flex-shrink: 0; text-align: center; font-weight: 700; color: var(--fg); }
+.task-dd-row.checked::before { content: "✓"; }
+.task-dd-row:hover { background: var(--accent); color: #fff; }
+.task-dd-row:hover::before, .task-dd-row:hover .task-dd-n { color: #fff; }
+.task-dd-sec { flex: 1; }
+.task-dd-n { font-size: var(--fs-caption); color: var(--fg-dim); }
+
+/* task rows */
+.task-list { display: flex; flex-direction: column; }
+.task-section { display: flex; flex-direction: column; }
+.task-section-head {
+  display: flex; align-items: center; gap: 6px;
+  padding: var(--s-3) 0 4px;
+  font-family: var(--font-body); font-feature-settings: var(--feat-text);
+  font-size: var(--fs-body); font-weight: 700; letter-spacing: 0.01em;
+  color: var(--fg);
+  margin-top: var(--s-2);
+  cursor: pointer; user-select: none;
+}
+.task-section-head:hover { color: var(--accent); }
+.task-section:first-child .task-section-head { border-top: none; margin-top: 0; }
+.task-section-caret { font-size: var(--fs-caption); width: 9px; flex-shrink: 0; opacity: 0.7; }
+.task-section-name { flex: 1; }
+.task-section-count { font-size: var(--fs-caption); letter-spacing: 0.06em; color: var(--fg-dim); }
+
+/* group cluster within a section */
+.task-group { display: flex; flex-direction: column; }
+.task-group-head {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 0 3px 6px;
+  font-family: var(--font-body); font-feature-settings: var(--feat-text);
+  font-size: var(--fs-footnote); font-weight: 600; letter-spacing: 0.01em;
+  color: var(--fg-dim);
+  cursor: pointer; user-select: none;
+  border-left: 2px solid var(--accent-faint);
+}
+.task-group-head:hover { color: var(--fg); border-left-color: var(--accent-dim); }
+.task-group-caret { font-size: var(--fs-caption); width: 9px; flex-shrink: 0; opacity: 0.7; }
+.task-group-name { flex: 1; }
+.task-group-count {
+  font-family: var(--font-body); font-feature-settings: var(--feat-meta);
+  font-size: var(--fs-caption); font-weight: 500; color: var(--fg-dim);
+}
+.task-group .task-item { border-left: 2px solid var(--line-soft); }
+.task-group .task-row { padding-left: 8px; }
+
+.task-row {
+  position: relative;
+  display: grid; grid-template-columns: 20px 9px minmax(0, 1fr) auto 60px;
+  align-items: center; gap: var(--s-2);
+  padding: 7px 0;
+}
+/* hairline separator inset past the checkbox column, Reminders style */
+.task-item + .task-item > .task-row::before {
+  content: ""; position: absolute; top: 0; right: 0; left: 28px;
+  border-top: 0.5px solid var(--line);
+}
+.task-check {
+  position: relative;
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--line-strong); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--fs-caption); color: transparent; cursor: pointer;
+  flex-shrink: 0; transition: border-color 0.12s, background 0.12s;
+}
+/* 24px = WCAG 2.5.8 AA min touch target, grown as an invisible overlay so the
+   circle keeps its 18px look and the row does not reflow. -3px per side stays
+   inside the 32px row and only reaches into the column gap, never the name. */
+.task-check::after { content: ""; position: absolute; inset: -3px; }
+.task-row:hover .task-check { border-color: var(--accent-dim); }
+.task-row.done .task-check {
+  background: var(--accent); border-color: var(--accent);
+  color: #fff; font-weight: 700;
+}
+.task-name {
+  font-family: var(--font-body); font-feature-settings: var(--feat-text);
+  font-size: var(--fs-subhead); color: var(--fg); line-height: 1.4;
+  cursor: pointer;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.task-row.done .task-name {
+  color: var(--fg-dim); text-decoration: line-through;
+  text-decoration-color: var(--fg-faint);
+}
+.task-time-chip {
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: var(--ctl-h); padding: 0 10px; line-height: 1; border: 0; border-radius: var(--r-card);
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-size: var(--fs-footnote); font-weight: 600; letter-spacing: 0.02em;
+  color: var(--alert); background: color-mix(in oklab, var(--alert) 30%, transparent);
+  white-space: nowrap; justify-self: end; align-self: center;
+  text-transform: lowercase;
+}
+.task-time-chip.overdue { color: var(--bg); background: var(--alert); font-weight: 700; }
+/* long-stale overdue (30d+, see Tasks.jsx STALE_OVERDUE_DAYS) drops to a neutral
+   tint so a months-old slip does not shout like a 2-day one (home critique P2). */
+.task-time-chip.overdue.stale { color: var(--fg-dim); background: color-mix(in oklab, var(--fg-dim) 30%, transparent); font-weight: 500; }
+.task-row.done .task-time-chip { color: var(--fg-faint); background: var(--line-soft); font-weight: 400; }
+/* empty placeholder reserves the fixed timer column so untimed task titles stop
+   at the same right boundary as timed ones (consistent ragged edge) */
+.task-time-slot { justify-self: end; }
+/* .task-del removed 2026-07-24 — nothing renders the class any more (the row has
+   no delete affordance; deletion goes through the edit modal), so its rules and
+   the audit's "11px delete target" finding were both against dead CSS. */
+.task-empty {
+  font-family: var(--font-body); font-feature-settings: var(--feat-meta);
+  font-style: italic; font-size: var(--fs-footnote); color: var(--fg-faint);
+  padding: var(--s-3) 0;
+}
+.task-item { display: flex; flex-direction: column; }
+.task-detail {
+  padding: 3px var(--s-2) var(--s-2) 28px;
+  font-family: var(--font-body); font-feature-settings: var(--feat-text);
+  font-size: var(--fs-footnote); color: var(--fg-dim); line-height: 1.55;
+}
+.task-detail-empty { font-style: italic; color: var(--fg-faint); }
+.task-row.open .task-name { color: var(--accent-dim); }
+
+/* input pip — how much of Sam a task needs before Claude can finish it.
+   green = none (the /tasks auto-queue), yellow = up to 3 questions, red = full
+   back-and-forth, hollow = never triaged. Color is the only channel here, so
+   every pip also carries a title + aria-label with the tier spelled out. */
+.task-input-pip {
+  width: 7px; height: 7px; border-radius: 50%;
+  flex-shrink: 0; align-self: center;
+  border: 1px solid transparent;
+}
+.task-input-pip.none { background: var(--good); }
+.task-input-pip.low  { background: var(--warn); }
+.task-input-pip.high { background: var(--alert); }
+.task-input-pip.untriaged { background: transparent; border-color: var(--line-strong); }
+.task-input-slot { width: 0; }   /* completed rows keep the grid column, drop the pip */
+
+/* urgency triage chip — critical (alert) vs quick win (high value-to-effort) */
+.task-urgency-slot { width: 0; }
+.task-urgency-chip {
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: var(--ctl-h); padding: 0 10px; line-height: 1; border: 0; border-radius: var(--r-card);
+  font-family: var(--font-body); font-feature-settings: var(--feat-meta);
+  font-size: var(--fs-footnote); font-weight: 600; letter-spacing: 0.04em;
+  white-space: nowrap; align-self: center; text-transform: lowercase;
+}
+.task-urgency-chip.critical { color: var(--bg); background: var(--alert); }
+/* solid accent fill with --on-accent: the theme's AA-proven button pairing. */
+.task-urgency-chip.quickwin { color: var(--on-accent); background: var(--accent); }
+.task-detail-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-2);
+}
+.task-edit-btn {
+  font-family: var(--font-body); font-size: var(--fs-caption); letter-spacing: 0.04em;
+  color: var(--fg-faint); cursor: pointer;
+  opacity: 0; transition: opacity 0.12s;
+  flex-shrink: 0; padding: 0;
+}
+.task-item:hover .task-edit-btn { opacity: 1; }
+
+/* edit modal */
+.task-modal-overlay {
+  position: fixed; inset: 0;
+  background: var(--launch-scrim);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+}
+.task-modal {
+  background: var(--bg-elev);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-card);
+  padding: var(--s-5) var(--s-6);
+  width: min(480px, 90vw);
+  display: flex; flex-direction: column; gap: var(--s-3);
+  box-shadow: var(--modal-shadow);
+}
+.task-modal-label {
+  font-family: var(--font-body); font-size: var(--fs-caption); letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--violet-label);
+}
+.task-edit-input,
+.task-edit-textarea {
+  width: 100%; box-sizing: border-box;
+  font-family: var(--font-body); font-size: var(--fs-subhead); color: var(--fg);
+  background: var(--bg); border: 1px solid var(--line-strong);
+  border-radius: var(--r); padding: 6px 8px;
+  resize: none; outline: none; line-height: 1.4;
+}
+.task-edit-input:focus,
+.task-edit-textarea:focus { border-color: var(--accent-dim); }
+.task-edit-textarea { min-height: 72px; }
+.task-modal-sub {
+  font-family: var(--font-body); font-size: var(--fs-caption); letter-spacing: 0.08em;
+  text-transform: lowercase; color: var(--fg-faint);
+  margin-bottom: calc(-1 * var(--s-2));
+}
+.task-urgency-row { display: flex; gap: var(--s-2); }
+.task-urgency-opt {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-family: var(--font-body); font-feature-settings: var(--feat-text);
+  font-size: var(--fs-footnote); color: var(--fg-dim);
+  padding: 6px 8px; border-radius: var(--r);
+  background: var(--bg); border: 1px solid var(--line-strong);
+  cursor: pointer; transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+.task-urgency-opt:hover { color: var(--fg); }
+.task-urgency-opt.on { color: var(--fg); border-color: var(--accent-dim); }
+.task-urgency-opt.on.critical {
+  color: var(--alert, #d97070);
+  border-color: var(--alert, #d97070);
+  background: var(--alert-faint, rgba(217, 112, 112, 0.14));
+}
+.task-urgency-opt.on.quickwin {
+  color: var(--on-accent);
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.task-edit-actions { display: flex; gap: var(--s-2); }
+.task-edit-save,
+.task-edit-cancel {
+  font-family: var(--font-body); font-size: var(--fs-caption); letter-spacing: 0.04em;
+  padding: 4px 14px; border-radius: var(--r); cursor: pointer;
+  transition: opacity 0.1s;
+}
+.task-edit-save { background: var(--accent-dim); color: var(--bg); border: none; }
+.task-edit-cancel {
+  background: transparent; color: var(--fg-faint);
+  border: 1px solid var(--line-strong);
+}
+.task-edit-save:hover { opacity: 0.85; }
+.task-edit-cancel:hover { color: var(--fg); }
+
+.quick-add {
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid var(--line); background: var(--bg-elev);
+  border-radius: var(--r-card); margin-top: var(--s-3);
+}
+.quick-add:focus-within { border-color: var(--accent-dim); }
+.qa-input {
+  flex: 1;
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+  font-size: var(--fs-subhead); color: var(--fg);
+}
+
+/* ============================================================================
+   TITLED PANELS (home-panel-look A, his 2026-10-16 note). Apple grouped-list
+   header logic: the title shares the leading edge of the body text and is set
+   apart by size and weight (20px semibold), not by indent, band or colour.
+   Structure is unscoped; the liquid fill sits in the next block. Prefixed with
+   .lh-main so it outranks the one-line .lp rules in layout.css.
+   ============================================================================ */
+.lh-main .lp-title, .lh-main .panel-title { font-size: var(--fs-title); font-weight: 600; letter-spacing: 0; text-transform: none; line-height: 1.25; color: var(--fg); }
+.lh-main .lp-title a { color: inherit; text-decoration: none; }
+.lh-main .panel-head, .lh-main .lp-head { background: none; border-bottom: 0; padding: 0; margin: 0 0 var(--s-4); gap: var(--s-3); align-items: baseline; }
+.lh-main .panel-meta, .lh-main .lp-meta { font-size: var(--fs-footnote); font-style: normal; letter-spacing: 0; color: var(--fg-dim); }
+/* inner panels inside a .lp carry no surface of their own */
+.lh-main .lp .panel { border: 0; margin: 0; padding: 0; background: none; }
+.lh-main .lp .panel-body { padding-left: 0; padding-right: 0; }
+/* alignment: every row's text starts on the title's edge. What was moving it:
+   .cc-row, .trip and .news-summary pad their own left side, .task-tab pads its
+   label, and .sub-row and the planner section heads are <button>s, whose UA
+   text-align:center set each name away from the edge inside its 1fr column. */
+.lh-main .lp .cc-row { padding-left: 0; padding-right: 0; }
+.lh-main .lp :is(.trip, .news-summary) { padding-left: 0; padding-right: 0; border: 0; background: none; border-radius: 0; }
+.lh-main .lp :is(.sub-row, .task-section-head, .task-group-head) { text-align: left; }
+/* a day heading is a sub-heading: it stays below the 20px panel title */
+.lh-main .lp .day-label { font-size: var(--title-3); }
+/* small labels in sentence case, every theme (no uppercase eyebrows on home) */
+.lh-main :is(.tb-rail-t, .tb-day-hr-label, .tb-day-allday-k, .tb-day-skip-label, .wx-k, .wx-trip-k, .wx-week-d,
+  .tb-card-name, .gt-btn, .tb-pill, .tb-li-tag, .trip-days-unit, .news-count-unit, .cc-status,
+  .task-section-head, .task-section-name, .task-section-count, .task-section-caret) { text-transform: none; letter-spacing: 0; }
+.lh-main :is(.tb-rail-t, .task-section-count) { font-size: var(--fs-footnote); color: var(--fg-dim); }
+.lh-main .task-section-count { font-weight: 600; }
+/* planner section heads are Reminders list heads: bold, full ink (mark 7) */
+.lh-main .task-section-name { font-size: var(--fs-body); font-weight: 700; color: var(--fg); }
+.lh-main .cc-status { font-size: var(--fs-caption); font-weight: 600; }
+
+/* surface. liquid: solid grouped fill, no edge. vesper and cobalt: the theme's
+   own card radius and a hairline so the panels read as separate objects. */
+.lh-main .lp { background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-card); }
+[data-theme="liquid"] .lh-main .lp { border: 0; border-radius: 20px; }
+@media (max-width: 899px) { [data-theme="liquid"] .lh-main .lp { border-radius: 18px; } }
+
+/* ============================================================================
+   LIQUID: AA text and no stripes (spec Check 11, test_home_layout.py).
+   Home-scoped fixes for liquid's light and dark tokens: accent and alert text on a
+   panel needs the dim ink on light and a lifted ink on dark; filled chips take the
+   -dim fill with white text (or black on the warn and good fills); faint greys that
+   carry words step up to --fg-dim. liquid.css itself is frozen.
+   ============================================================================ */
+[data-theme="liquid"][data-surface="light"] .lh-main { --hm-accent-ink: var(--accent-dim); --hm-alert-ink: var(--alert-dim); }
+[data-theme="liquid"][data-surface="dark"] .lh-main { --hm-accent-ink: color-mix(in srgb, var(--accent) 60%, #fff); --hm-alert-ink: color-mix(in srgb, var(--alert) 60%, #fff); }
+[data-theme="liquid"][data-surface="light"] .lh-main { --hm-warn-ink: color-mix(in srgb, var(--warn-dim) 70%, #000); }
+[data-theme="liquid"][data-surface="dark"] .lh-main { --hm-warn-ink: var(--warn); }
+[data-theme="liquid"] .lh-main :is(.tb-count, .wx-week-r, .day.is-selected .day-label, .tb-day-ev:not(.tinted) .tb-day-ev-time, .wx-precip.is-wet,
+  .gt-when, .gt-route-t, .gt-btn, .gt-more, .tb-li-tag) { color: var(--hm-accent-ink); }
+[data-theme="liquid"] .lh-main .gt-alert-when { color: var(--hm-warn-ink); }
+[data-theme="liquid"] .lh-main .day.is-selected .day-label { font-weight: 700; }
+[data-theme="liquid"] .lh-main :is(.wx-k, .wx-trip-k, .wx-week-d, .task-dd-arrow, .tb-day-allday-k) { color: var(--fg-dim); }
+/* hour labels read at a glance (2026-11-03 mark: make times easier to see) */
+[data-theme="liquid"] .lh-main .tb-day-hr-label { color: var(--fg-mute); }
+[data-theme="liquid"] .lh-main :is(.task-section-caret, .task-group-caret) { color: var(--fg-dim); opacity: 1; }
+[data-theme="liquid"] .lh-main :is(.task-flag, .task-time-chip:not(.overdue)) { color: var(--hm-alert-ink); opacity: 1; }
+/* on a box in its Google color the flag takes the row's ink like the rest of the row; the alert ink above read red on red */
+[data-theme="liquid"] .lh-main .event-row.tinted .task-flag { color: var(--ev-ink, #fff); }
+[data-theme="liquid"] .lh-main .task-time-chip:not(.overdue) { background: color-mix(in oklab, var(--alert) 14%, transparent); }
+[data-theme="liquid"] .lh-main :is(.cc-status.overdue, .task-time-chip.overdue:not(.stale), .task-urgency-chip.critical) { background: var(--alert-dim); color: #fff; }
+[data-theme="liquid"] .lh-main .task-urgency-chip.quickwin { background: var(--accent-dim); color: #fff; }
+[data-theme="liquid"] .lh-main :is(.cc-status.due, .cc-status.paid) { color: #000; }
+/* coloured side stripes go: event blocks and all-day chips take the plain outline, the
+   selected week-ahead day keeps its accent label, group heads sit on the title's edge */
+[data-theme="liquid"] .lh-main :is(.tb-day-ev, .tb-day-chip) { border-left: 1.5px solid var(--line); }
+[data-theme="liquid"] .lh-main .tb-day-ev.is-task { border-style: dashed; }
+[data-theme="liquid"] .lh-main .day.is-selected { border-left: 0; padding-left: 0; margin-left: 0; }
+[data-theme="liquid"] .lh-main .task-group-head { border-left: 0; padding-left: 0; }

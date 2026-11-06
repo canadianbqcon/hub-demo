@@ -1,0 +1,1283 @@
+/* ============================================================
+   hub · finances dashboard
+   standalone page CSS — mirrors the jobs module token conventions.
+   uses vesper theme tokens (var(--bg-elev), var(--fg-dim), etc.)
+   ============================================================ */
+
+*,*::before,*::after{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  background:var(--bg); color:var(--fg);
+  font-family:var(--font-body); font-size:var(--fs-body); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  transition:background 220ms ease-out, color 220ms ease-out;
+}
+button,input,select{font:inherit; color:inherit; background:none; border:0;}
+button{cursor:pointer;}
+
+/* An author `display` beats the UA [hidden] rule at any specificity, so anything in
+   here that sets `display` renders while "hidden". This used to be patched one selector
+   at a time (`.fin-panel[hidden]`), and `.cliffs` was missed — it is display:flex and
+   was rendering hidden. One backstop covers every current and future toggled element. */
+[hidden]{display:none !important;}
+
+.shell{grid-template-rows:auto 1fr var(--status-h,32px);}
+
+/* ===== BODY LAYOUT ===== */
+.finances-body{overflow-y:auto; overflow-x:hidden; padding:var(--s-4,1rem) var(--s-5,1.5rem);}
+.finances-body::-webkit-scrollbar{width:6px;}
+.finances-body::-webkit-scrollbar-thumb{background:var(--line-strong); border-radius:var(--r-pill);}
+
+.finances-main{
+  display:flex; flex-direction:column; gap:var(--s-4,1.25rem);
+  max-width:900px; margin:0 auto;
+}
+
+/* ===== TOTALS STRIP ===== */
+.totals{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s-3,1rem);
+}
+.total-card{
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  border-radius:var(--r-card,8px);
+  padding:var(--s-3,1rem) var(--s-4,1.25rem);
+}
+.total-card h3{
+  margin:0 0 var(--s-2,.5rem);
+  font-size:var(--fs-footnote); letter-spacing:.08em; text-transform:lowercase;
+  font-family:var(--font-body); font-weight:500;
+  color:var(--fg-dim); opacity:.8;
+}
+.total-card .figs{
+  display:flex; flex-direction:column; gap:.2rem;
+  font-variant-numeric:tabular-nums;
+}
+.total-card .figs-loading{
+  font-size:var(--fs-footnote); color:var(--fg-dim); font-style:italic;
+}
+.total-card .net{
+  font-family:var(--font-display); font-size:var(--fs-title); font-weight:600;
+  color:var(--fg); line-height:1.1;
+}
+.total-card .sub{
+  font-size:var(--fs-footnote); color:var(--fg-dim); line-height:1.4;
+}
+
+/* ===== EXPECTED ===== */
+.expected{
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  border-radius:var(--r-card,8px);
+  padding:var(--s-3,1rem) var(--s-4,1.25rem);
+}
+.expected-head{
+  display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap;
+  margin-bottom:var(--s-3,1rem);
+}
+.expected-head h3{
+  font-size:var(--fs-footnote); letter-spacing:.08em; text-transform:lowercase;
+  font-family:var(--font-body); font-weight:500; color:var(--fg-dim);
+}
+.expected-note{font-size:var(--fs-footnote); color:var(--fg-dim); opacity:.75;}
+/* auto-FILL, not auto-fit, the same one-word fix the trips boards carry: auto-fit
+   collapses the tracks nothing landed in and the survivors absorb their width, so
+   one expected month took the whole 1006px pane. min() on the floor so it never
+   overflows a phone.
+   240px, not 190: 190 sat under the card's own intrinsic width (240 measured, set
+   by the widest source row plus padding), which nothing noticed while a lone card
+   was being stretched. Held to a 190px band the figures ran 48px past the card's
+   border. 240 still fits all four months the forecast returns on one row. */
+.expected-months{
+  display:grid; gap:var(--s-3,1rem); align-items:start;
+  grid-template-columns:repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+}
+.exp-month{
+  border:1px solid var(--line); border-radius:var(--r-card,8px);
+  padding:.7rem .85rem;
+}
+.exp-month-head{
+  display:flex; align-items:baseline; justify-content:space-between; gap:.4rem;
+  margin-bottom:.35rem;
+}
+.exp-month h4{
+  font-size:var(--fs-footnote); font-weight:500; color:var(--fg); margin:0;
+}
+.exp-flag{
+  font-size:var(--fs-caption); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:999px; padding:.05rem .4rem; white-space:nowrap; cursor:help;
+}
+/* the other flags qualify a number; this one says the number may be wrong */
+.exp-flag-warn{color:var(--warn); border-color:var(--warn);}
+.exp-total{
+  font-size:var(--fs-title); font-weight:600; color:var(--fg);
+  font-variant-numeric:tabular-nums; line-height:1.1;
+}
+.exp-sub{font-size:var(--fs-footnote); color:var(--fg-dim); margin-top:.2rem;}
+/* per-job lines only earn their keep when there's more than one job */
+.exp-srcs{display:flex; flex-direction:column; gap:.15rem; margin-top:.5rem;}
+/* wrap: the figures are nowrap by design, so a row that will not fit used to push
+   them outside the card border rather than break. Wrapping puts them on their own
+   line instead, which keeps the card whole whatever a job is called. */
+.exp-src{
+  display:flex; justify-content:space-between; gap:.5rem; flex-wrap:wrap;
+  font-size:var(--fs-footnote); font-variant-numeric:tabular-nums;
+}
+.exp-src-name{color:var(--fg-dim);}
+.exp-src-figs{color:var(--fg-dim); opacity:.8; white-space:nowrap;}
+.expected-basis{margin-top:var(--s-3,1rem);}
+.expected-basis summary{
+  font-size:var(--fs-footnote); color:var(--fg-dim); cursor:pointer;
+  list-style:revert; padding:.15rem 0;
+}
+.dow-table{
+  width:100%; border-collapse:collapse; margin-top:.5rem;
+  font-size:var(--fs-footnote); font-variant-numeric:tabular-nums;
+}
+.dow-table th{
+  text-align:left; font-weight:500; font-size:var(--fs-caption); color:var(--fg-dim);
+  text-transform:lowercase; letter-spacing:.05em;
+  padding:.25rem .5rem .25rem 0; border-bottom:1px solid var(--line);
+}
+.dow-table td{
+  padding:.25rem .5rem .25rem 0; border-bottom:1px solid var(--line);
+  color:var(--fg);
+}
+.dow-table tr:last-child td{border-bottom:0;}
+.dow-table .hub-num{padding-right:1rem;}
+.dow-table th.hub-num{text-align:right;}
+.dow-table .win{color:var(--fg-dim); font-size:var(--fs-caption);}
+.dow-table .fb-row td{color:var(--fg-dim);}
+.expected-ui .ui-note{font-size:var(--fs-caption); color:var(--fg-dim); margin:.4rem 0 0;}
+
+/* ===== PAYCHECK CALENDAR ===== */
+.paychecks{margin-top:var(--s-4,1.25rem);}
+.paychecks-head{
+  display:flex; align-items:baseline; gap:.6rem; flex-wrap:wrap; margin-bottom:.5rem;
+}
+.paychecks-head h4{
+  font-size:var(--fs-footnote); letter-spacing:.08em; text-transform:lowercase;
+  font-weight:500; color:var(--fg-dim); margin:0;
+}
+.pay-weeks{list-style:none; display:flex; flex-direction:column; gap:.3rem;}
+.pay-week > details{
+  border:1px solid var(--line); border-radius:var(--r-card,8px);
+  background:var(--bg);
+}
+.pay-week > details[open]{border-color:var(--line-strong);}
+.pay-week summary{
+  display:grid; align-items:center; gap:.15rem .6rem;
+  grid-template-columns:.85rem 3.6rem minmax(0,1fr) auto;
+  grid-template-areas:"caret date track net" ". sub sub sub";
+  padding:.5rem .8rem; cursor:pointer; list-style:none;
+  border-radius:var(--r-card,8px);
+}
+.pay-week summary::-webkit-details-marker{display:none;}
+.pay-week summary:hover{background:var(--bg-elev);}
+.pay-week summary:focus-visible{outline:2px solid var(--accent); outline-offset:-2px;}
+.pw-caret{
+  grid-area:caret; justify-self:center; line-height:1;
+  font-size:var(--fs-caption); color:var(--fg-dim);
+  transition:transform 160ms ease-out;
+}
+.pw-caret::before{content:"\25B8";}
+details[open] .pw-caret{transform:rotate(90deg);}
+.pw-date{
+  grid-area:date; font-size:var(--fs-footnote); font-weight:500; color:var(--fg);
+  font-variant-numeric:tabular-nums;
+}
+/* the bar is the point of this list: the Aug 6 spike and Aug 13 trough read
+   without doing arithmetic across five rows */
+.pw-track{grid-area:track;}
+.hub-track.pw-track{height:5px; background:var(--line);}
+/* scaleX, not width — the bar re-scales live under the buyout slider and a
+   layout property would thrash five rows on every input event */
+.pw-bar{
+  width:100%; border-radius:inherit; transform-origin:left;
+  transform:scaleX(var(--pct,0)); transition:transform 200ms ease-out;
+}
+.pw-net{
+  grid-area:net; font-size:var(--fs-subhead); font-weight:600; color:var(--fg);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.pw-sub{grid-area:sub; font-size:var(--fs-caption); color:var(--fg-dim);}
+.pw-split{
+  font-size:var(--fs-caption); color:var(--fg-dim);
+  padding:0 .8rem .6rem; margin:0; font-variant-numeric:tabular-nums;
+}
+.shift-table{margin:0 .8rem .3rem; width:calc(100% - 1.6rem);}
+.shift-table .dim{color:var(--fg-dim);}
+.shift-table .strong{font-weight:600;}
+.shift-table .sr-dow{color:var(--fg-dim); font-size:var(--fs-caption);}
+.crew{
+  font-size:var(--fs-caption); color:var(--fg-dim); border:1px solid var(--line);
+  border-radius:var(--r-pill,999px); padding:.05rem .4rem;
+  white-space:nowrap; cursor:help;
+}
+.crew-buyout{color:var(--warn); border-color:var(--warn);}
+
+/* ===== BUYOUT KNOB ===== */
+.buyout-knob{
+  margin-top:.6rem; padding:.6rem .8rem;
+  border:1px solid var(--line); border-radius:var(--r-card,8px);
+}
+.knob-line{display:flex; align-items:center; gap:.7rem; flex-wrap:wrap;}
+.knob-line label{
+  font-size:var(--fs-caption); letter-spacing:.06em; text-transform:lowercase; color:var(--fg-dim);
+}
+.knob-line input[type=range]{
+  flex:1 1 12rem; min-width:9rem; accent-color:var(--accent); cursor:pointer;
+}
+.knob-line input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+.knob-line output{
+  font-size:var(--fs-footnote); font-weight:600; color:var(--fg);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.knob-note{font-size:var(--fs-caption); color:var(--fg-dim); margin:.4rem 0 0; max-width:70ch;}
+
+/* ===== MEASURED VS ASSUMED ===== */
+/* nowrap so the tag sits inline on every row — a ragged mix of inline and
+   wrapped tags reads as inconsistent labelling rather than one vocabulary */
+.expected-inputs td:first-child{white-space:nowrap;}
+.expected-inputs .assumed td:first-child{color:var(--fg-dim);}
+/* Same treatment one level up: a projected shift row and the note that totals
+   them read as the same statement as an assumed pricing input. */
+.shift-table tr.assumed td:first-child{color:var(--fg-dim);}
+.pw-assumed{
+  font-size:var(--fs-caption); color:var(--warn);
+  padding:0 .8rem .6rem; margin:-.4rem 0 0; font-variant-numeric:tabular-nums;
+}
+.tag-assumed{
+  font-size:var(--fs-caption); letter-spacing:.05em; text-transform:uppercase;
+  color:var(--warn); border:1px solid var(--warn); border-radius:var(--r-pill,999px);
+  padding:0 .3rem; margin-left:.3rem; white-space:nowrap;
+}
+
+@media (max-width:560px){
+  /* biome-ignore lint/correctness/noInvalidGridAreas: false positive — both rows are 3 cells;
+     biome mis-tokenizes a "." null cell beside a multi-char name and miscounts. Verified with
+     a minimal repro (single-char names + "." pass, any multi-char name + "." fails every time). */
+  .pay-week summary{grid-template-columns:.85rem 3.6rem 1fr; grid-template-areas:"caret date net" ". sub sub";}
+  .hub-track.pw-track{display:none;}
+  .pw-net{justify-self:end;}
+  .shift-table{font-size:var(--fs-caption);}
+}
+@media (prefers-reduced-motion:reduce){
+  .pw-caret, .pw-bar{transition:none;}
+}
+
+/* ===== BY SOURCE ===== */
+.by-source{
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  border-radius:var(--r-card,8px);
+  padding:var(--s-3,1rem) var(--s-4,1.25rem);
+}
+.by-source h3{
+  font-size:var(--fs-footnote); letter-spacing:.08em; text-transform:lowercase;
+  font-family:var(--font-body); font-weight:500;
+  color:var(--fg-dim); margin-bottom:var(--s-2,.5rem);
+}
+.by-source ul{
+  list-style:none; padding:0; margin:.25rem 0 0;
+}
+.by-source li{
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-variant-numeric:tabular-nums; font-size:var(--fs-subhead);
+  padding:.25rem 0; border-bottom:1px solid var(--line);
+}
+.by-source li:last-child{border-bottom:0;}
+.by-source .src-name{color:var(--fg);}
+.by-source .src-figs{color:var(--fg-dim); font-size:var(--fs-footnote);}
+.by-source-empty{font-size:var(--fs-footnote); color:var(--fg-dim); font-style:italic;}
+
+/* ===== PERIODS ===== */
+.periods{
+  background:var(--bg-elev);
+  border:1px solid var(--line);
+  border-radius:var(--r-card,8px);
+  padding:var(--s-3,1rem) var(--s-4,1.25rem);
+}
+.periods-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:var(--s-3,1rem);
+}
+.periods-head h3{
+  font-size:var(--fs-footnote); letter-spacing:.08em; text-transform:lowercase;
+  font-family:var(--font-body); font-weight:500; color:var(--fg-dim);
+}
+#add-toggle,
+#owed-add-toggle{
+  font-size:var(--fs-footnote); padding:9px 10px;
+  border:1px solid var(--line); border-radius:var(--r-pill,999px);
+  color:var(--fg-dim); background:var(--bg-elev);
+  transition:border-color 120ms ease-out, color 120ms ease-out;
+}
+#add-toggle:hover,
+#owed-add-toggle:hover{border-color:var(--accent-dim); color:var(--fg);}
+#add-toggle[aria-expanded="true"],
+#owed-add-toggle[aria-expanded="true"]{border-color:var(--accent-dim); color:var(--accent);}
+
+/* source-type dot legend — dots elsewhere on the page are color-only; this pairs each with text */
+.type-legend{
+  display:flex; flex-wrap:wrap; gap:var(--s-3,1rem);
+  font-size:var(--fs-caption); color:var(--fg-dim);
+  margin-bottom:var(--s-3,1rem);
+}
+
+/* visually-hidden label — keeps placeholder-as-hint but gives every field a real accessible name */
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+}
+
+/* ===== MANUAL ENTRY (collapsed by default — rarely used) ===== */
+/* grid-rows 0fr→1fr trick: animates to an intrinsic height without measuring it in JS */
+.manual-wrap{
+  display:grid; grid-template-rows:0fr;
+  transition:grid-template-rows 220ms cubic-bezier(.16,1,.3,1);
+}
+.manual-wrap.open{grid-template-rows:1fr;}
+/* the collapsing grid item itself must carry no border/padding of its own —
+   those always paint at its border-box edge even at height 0. #manual-form's
+   border/background/padding live one level down, inside this plain wrapper. */
+.manual-panel{overflow:hidden; min-height:0;}
+@media (prefers-reduced-motion: reduce){
+  .manual-wrap{transition:none;}
+}
+
+/* ===== MANUAL ENTRY FORM ===== */
+#manual-form,
+#owed-form{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:var(--s-2,.5rem);
+  padding:var(--s-3,1rem);
+  background:var(--bg-elev,rgba(255,255,255,.03));
+  border:1px solid var(--line);
+  border-radius:var(--r-card,8px);
+}
+#manual-form input,
+#manual-form select,
+#owed-form input{
+  padding:6px 10px; font-size:var(--fs-footnote);
+  border:1px solid var(--line); border-radius:var(--r-card,6px);
+  background:var(--bg); color:var(--fg);
+  transition:border-color 120ms ease-out;
+}
+#manual-form input:focus,
+#manual-form select:focus,
+#owed-form input:focus{border-color:var(--accent-dim);}
+#manual-form input::placeholder,
+#owed-form input::placeholder{color:var(--fg-faint);}
+.form-actions{
+  grid-column:1/-1; display:flex; justify-content:flex-end;
+}
+body.finances .hub-error{margin-bottom:var(--s-2,.5rem);}
+.form-actions button{
+  font-size:var(--fs-footnote); padding:10px 14px;
+  border:1px solid var(--line); border-radius:var(--r-pill,999px);
+  transition:border-color 120ms ease-out, color 120ms ease-out, background 120ms ease-out;
+}
+.form-actions button[type=submit]{
+  border-color:var(--accent-dim); color:var(--accent);
+  background:color-mix(in srgb, var(--accent) 8%, transparent);
+}
+.form-actions button[type=submit]:hover{background:color-mix(in srgb, var(--accent) 18%, transparent);}
+
+/* ===== PERIODS TABLE ===== */
+/* the spending tab's two tables are the same object — numbers right, labels left —
+   so they share these rules rather than restating them under their own ids */
+#periods-table,
+#by-source-table,
+#spend-months-table,
+#spend-txn-table,
+#owed-settled-table,
+#owed-unassigned-table{
+  width:100%; border-collapse:collapse;
+  font-variant-numeric:tabular-nums; font-size:var(--fs-footnote);
+}
+#periods-table th,
+#by-source-table th,
+#spend-months-table th,
+#spend-txn-table th,
+#owed-settled-table th,
+#owed-unassigned-table th{
+  text-align:right; padding:.4rem .6rem;
+  font-size:var(--fs-caption); letter-spacing:.06em; text-transform:lowercase;
+  color:var(--fg-mute); font-weight:500;
+  border-bottom:1px solid var(--line);
+}
+#periods-table td,
+#by-source-table td,
+#spend-months-table td,
+#spend-txn-table td,
+#owed-settled-table td,
+#owed-unassigned-table td{
+  text-align:right; padding:.45rem .6rem;
+  border-bottom:1px solid var(--line);
+  color:var(--fg);
+}
+#periods-table th:first-child,
+#periods-table td:first-child,
+#periods-table th:nth-child(2),
+#periods-table td:nth-child(2),
+#by-source-table th:first-child,
+#by-source-table td:first-child,
+#spend-months-table th:first-child,
+#spend-months-table td:first-child,
+#spend-txn-table th:first-child,
+#spend-txn-table td:first-child,
+#spend-txn-table th:nth-child(2),
+#spend-txn-table td:nth-child(2),
+#spend-txn-table th:nth-child(3),
+#spend-txn-table td:nth-child(3),
+#owed-settled-table th:nth-child(-n+3),
+#owed-settled-table td:nth-child(-n+3),
+#owed-unassigned-table th:nth-child(-n+3),
+#owed-unassigned-table td:nth-child(-n+3){text-align:left;}
+.period-row{cursor:pointer; transition:background 80ms ease-out;}
+.period-row:hover td{background:var(--bg-hover);}
+.period-row td:first-child{color:var(--fg-dim); font-size:var(--fs-footnote); padding-left:2.5rem;}
+.period-row td.col-net, #by-source-table td.col-net{font-weight:600; color:var(--fg);}
+
+/* year/month group headers — collapsible, click-to-toggle */
+.group-row{cursor:pointer; transition:background 80ms ease-out;}
+.group-row td{color:var(--fg);}
+.group-row td:first-child{text-align:left;}
+.group-row:hover td{background:var(--bg-hover);}
+.group-row .caret,
+.period-row .caret{display:inline-block; width:1em; color:var(--fg-mute);}
+/* descending tier ladder so year > month > period read distinctly (not just weight 600 vs 500).
+   each tier steps down on four axes at once: size, weight, text color, indent. */
+/* tier 1 — year: largest, heaviest, full-strength; top rule chunks each year block */
+.year-row td{
+  background:var(--bg-elev-2); border-top:2px solid var(--line-strong);
+  font-size:var(--fs-subhead); font-weight:700; color:var(--fg);
+  padding-top:.55rem; padding-bottom:.55rem;
+}
+/* tier 2 — month: mid weight, muted + uppercase-tracked so "JULY" can't be read as "2026" or a period date */
+.month-row td{
+  background:var(--bg-elev);
+  font-size:var(--fs-caption); font-weight:600; color:var(--fg-mute);
+}
+/* label cell only: the figures beside it must not pick up the tracking/caps */
+.month-row td:first-child{padding-left:1.7rem; letter-spacing:.07em; text-transform:uppercase;}
+.year-row td.col-net,.month-row td.col-net{color:var(--fg);}
+/* tier 3 — period leaf rows keep the dimmest/smallest first cell, indented deepest (see .period-row above) */
+
+/* source-type color dot — quick visual grouping across rows */
+.source-dot{
+  display:inline-block; width:6px; height:6px; margin-right:6px;
+  border-radius:50%; background:var(--fg-ghost);
+  vertical-align:middle;
+}
+.period-row[data-source-type="venture"] .source-dot{background:var(--accent);}
+.period-row[data-source-type="salaried"] .source-dot{background:var(--good);}
+.period-row[data-source-type="tipped_hourly"] .source-dot{background:var(--warn);}
+.period-row[data-source-type="investment"] .source-dot{background:var(--violet-label);}
+.period-row[data-source-type="benefits"] .source-dot{background:var(--series-2);}
+
+/* shift detail row — daily breakdown + withholding, click-revealed */
+.shift-detail td{
+  padding:.3rem .6rem .3rem 2rem;
+  font-size:var(--fs-footnote); color:var(--fg-dim);
+  background:var(--bg-elev,rgba(255,255,255,.02));
+  border-bottom:1px solid var(--line);
+}
+.shift-row-line{
+  padding:.15rem 0;
+}
+.shift-table{
+  width:100%; border-collapse:collapse; font-size:var(--fs-footnote);
+}
+.shift-table th{
+  text-align:right; padding:.1rem .55rem .3rem;
+  font-size:var(--fs-caption); font-weight:500; letter-spacing:.04em;
+  text-transform:lowercase; color:var(--fg-mute);
+}
+.shift-table th:first-child{text-align:left;}
+.shift-table td{
+  text-align:right; padding:.18rem .55rem;
+  color:var(--fg-dim); border-top:1px solid var(--line);
+}
+.shift-table td:first-child{text-align:left;}
+.shift-table td.st-total{font-weight:600; color:var(--fg);}
+.st-times{margin-left:.4rem; color:var(--fg-dim); font-size:var(--fs-caption);}
+.table-empty{
+  padding:.75rem .6rem; text-align:center;
+  font-size:var(--fs-footnote); color:var(--fg-dim); font-style:italic;
+}
+.table-empty-cta{
+  color:var(--accent); text-decoration:underline; cursor:pointer;
+  background:none; border:0; font:inherit; font-style:normal; padding:0;
+}
+.table-empty-cta:hover{color:var(--fg);}
+.detail-sep{
+  border-top:1px solid var(--line); margin:.3rem 0 .2rem;
+}
+.detail-label{
+  font-size:var(--fs-caption); letter-spacing:.06em; text-transform:lowercase;
+  color:var(--fg-mute); font-weight:500; margin-bottom:.1rem;
+}
+
+
+/* ============================================================
+   SECTION TABS + PANELS — the finances umbrella
+   /finances hosts one tab per money surface (earnings, stocks, …).
+   Panels share one measure so the tab bar's left edge lines up with
+   both. Stocks styles below are scoped to #panel-stocks so their
+   generic class names (.num/.empty/.block/.detail) never leak.
+   ============================================================ */
+.fin-tabs,
+.finances-main,
+.spending-main,
+.stocks-main{max-width:1040px;}
+
+.hub-tabs.fin-tabs{gap:var(--s-4,1.25rem); margin:0 auto var(--s-4,1.25rem); overflow-x:auto; scrollbar-width:none;}
+.hub-tab.fin-tab{
+  position:relative; padding:.85rem .15rem;
+  font-family:var(--font-body); font-size:var(--fs-subhead); letter-spacing:.01em;
+  text-transform:lowercase; color:var(--fg-dim);
+}
+/* the live section reads FOREGROUND, not accent: the accent is already carrying
+   the underline, and doubling it made the live tab the loudest thing on a page
+   whose job is the numbers below it. */
+.hub-tab.fin-tab[aria-selected="true"]{color:var(--fg); border-bottom-color:var(--accent);}
+.hub-tab.fin-tab:focus-visible{outline-offset:3px; border-radius:2px;}
+/* [hidden] backstop lives at the top of this file now — see the note there. */
+
+/* ===== SPENDING PANEL (scoped) ===== */
+/* deliberately thin: the panel reuses .totals / .total-card / .by-source / the
+   periods table wholesale, so only the things earnings has no equivalent of
+   (a negative month, a non-consumption row) need rules of their own. */
+.spending-main{
+  display:flex; flex-direction:column; gap:var(--s-4,1.25rem); margin:0 auto;
+}
+#panel-spending .sp-net{color:var(--good);}
+#panel-spending .sp-under{color:var(--alert,var(--warn));}
+#panel-spending .sp-excl{color:var(--fg-faint);}
+#panel-spending .cat-head{
+  display:flex; align-items:center; justify-content:space-between; gap:.6rem;
+}
+#panel-spending .cat-head h3{margin-bottom:0;}
+#panel-spending .cat-head .seg button{font-size:var(--fs-caption); padding:.2rem .55rem;}
+/* not-consumption rows stay legible — they are real money that left the account,
+   just not his cost of living — so they dim rather than grey out. */
+#panel-spending .cat-excluded .src-name,
+#panel-spending .sp-excluded-row td{color:var(--fg-mute);}
+#panel-spending .cat-tag,
+#panel-owed .cat-tag{
+  font-size:var(--fs-caption); color:var(--fg-faint);
+  border:1px solid var(--line); border-radius:999px;
+  padding:.02rem .35rem; margin-left:.35rem; white-space:nowrap;
+}
+#panel-spending .sp-partial td{color:var(--fg-mute);}
+/* a year of outflows is a long table; the header follows the page scroll rather
+   than the table becoming its own scroll box (display:block would drop the
+   column sizing that keeps the amounts in one line) */
+#panel-spending #spend-txn-table thead th{
+  position:sticky; top:0; z-index:1; background:var(--bg-elev);
+}
+
+/* ── committed: the one number the tab exists to state ── */
+.sp-committed{
+  background:var(--bg-elev); border:1px solid var(--line);
+  border-radius:var(--r-card,8px); padding:var(--s-3,1rem) var(--s-4,1.25rem);
+}
+.sp-committed h3{
+  font-size:var(--fs-footnote); letter-spacing:.08em; text-transform:lowercase;
+  font-family:var(--font-body); font-weight:500; color:var(--fg-dim); margin:0;
+}
+.sp-committed-fig{
+  font-size:var(--fs-large-title); font-weight:600; color:var(--fg);
+  font-variant-numeric:tabular-nums; line-height:1.15; margin-top:.15rem;
+}
+.sp-committed-fig span{font-size:var(--fs-subhead); font-weight:500; color:var(--fg-dim);}
+.sp-committed-note{font-size:var(--fs-footnote); color:var(--fg-dim); margin:.3rem 0 0; max-width:70ch;}
+
+/* ── the three bands ── */
+#panel-spending .sp-band-fig{
+  font-size:var(--fs-body); font-weight:600; color:var(--fg); font-variant-numeric:tabular-nums;
+}
+#panel-spending .sp-band-unit{font-size:var(--fs-footnote); font-weight:500; color:var(--fg-dim);}
+#panel-spending .sp-band-note{font-size:var(--fs-caption); color:var(--fg-faint); margin:.15rem 0 .4rem;}
+#panel-spending .sp-rest{font-size:var(--fs-caption); color:var(--fg-dim); margin:.5rem 0 0;}
+/* a category head inside a band: its rows sit under it, its subtotal on the right */
+#panel-spending .sp-group + .sp-group{margin-top:.4rem;}
+#panel-spending .sp-group-head{
+  display:flex; justify-content:space-between; align-items:baseline; gap:.6rem;
+  padding:.15rem .2rem; border-bottom:1px solid var(--line);
+  font-size:var(--fs-footnote); font-weight:600; color:var(--fg-dim);
+  text-transform:uppercase; letter-spacing:.04em;
+}
+#panel-spending .sp-group-fig{font-variant-numeric:tabular-nums; text-transform:none; letter-spacing:0; white-space:nowrap;}
+#panel-spending .sp-group .sp-row{margin-left:.6rem;}
+/* grouped rows run tighter than a plain band (mark 2026-11-03 "tighten") */
+#panel-spending .sp-group .sp-row summary{padding:.18rem .2rem; gap:0 .6rem;}
+#panel-spending .sp-group .sp-sub{line-height:1.25;}
+
+/* one expandable row, shared by every band and by the category list */
+#panel-spending .sp-row{border-bottom:1px solid var(--line);}
+#panel-spending .sp-row:last-child{border-bottom:0;}
+#panel-spending .sp-row summary{
+  display:grid; align-items:baseline; gap:.05rem .6rem;
+  grid-template-columns:.85rem minmax(0,1fr) auto;
+  grid-template-areas:"caret name fig" ". sub sub";
+  padding:.4rem .2rem; cursor:pointer; list-style:none;
+}
+#panel-spending .sp-row summary::-webkit-details-marker{display:none;}
+#panel-spending .sp-row summary:hover{background:var(--bg);}
+#panel-spending .sp-row summary:focus-visible{outline:2px solid var(--accent); outline-offset:-2px;}
+#panel-spending .sp-row .pw-caret{grid-area:caret; justify-self:center;}
+#panel-spending .sp-name{grid-area:name; font-size:var(--fs-subhead); color:var(--fg);}
+#panel-spending .sp-fig{
+  grid-area:fig; font-size:var(--fs-subhead); font-weight:600; color:var(--fg);
+  font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+#panel-spending .sp-sub{grid-area:sub; font-size:var(--fs-caption); color:var(--fg-dim);}
+/* a stopped subscription and a non-consumption category are both still real —
+   they dim rather than grey out, same treatment as the excluded rows above */
+#panel-spending .sp-dim .sp-name,
+#panel-spending .sp-dim .sp-fig{color:var(--fg-mute);}
+#panel-spending .sp-txns{margin:0 0 .5rem 1.45rem; width:calc(100% - 1.45rem);}
+#panel-spending .sp-txns .sp-t-date{white-space:nowrap; color:var(--fg-dim);}
+#panel-spending .sp-txns .sp-t-cat{color:var(--fg-dim);}
+
+/* ── trend ── */
+#panel-spending .sp-movers{display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:.6rem;}
+#panel-spending .sp-mover{
+  display:flex; flex-direction:column; gap:.05rem;
+  border:1px solid var(--line); border-radius:var(--r-card,8px);
+  padding:.3rem .6rem; font-size:var(--fs-footnote); font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+#panel-spending .sp-mover.sp-up{color:var(--alert,var(--warn)); border-color:var(--alert,var(--warn));}
+#panel-spending .sp-mover.sp-down{color:var(--good); border-color:var(--good);}
+#panel-spending .sp-mover-sub{font-size:var(--fs-caption); font-weight:400; color:var(--fg-dim);}
+/* the matrix is as wide as the months it covers; it scrolls itself rather than
+   the page */
+#panel-spending .sp-trend-scroll{overflow-x:auto;}
+#panel-spending #spend-trend-table{min-width:30rem;}
+#panel-spending #spend-trend-table tfoot td{
+  border-top:1px solid var(--line-strong,var(--line)); border-bottom:0;
+  font-weight:600; padding-top:.35rem;
+}
+
+/* ── transactions, collapsed ── */
+#panel-spending #spend-txns > summary,
+#panel-owed details > summary{
+  display:flex; align-items:baseline; gap:.5rem;
+  cursor:pointer; list-style:none;
+  font-size:var(--fs-footnote); letter-spacing:.08em; text-transform:lowercase; color:var(--fg-dim);
+}
+#panel-spending #spend-txns > summary::-webkit-details-marker,
+#panel-owed details > summary::-webkit-details-marker{display:none;}
+#panel-spending #spend-txns > summary:focus-visible,
+#panel-owed details > summary:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+#panel-spending #spend-txns[open] > summary,
+#panel-owed details[open] > summary{margin-bottom:.6rem;}
+
+/* ===== STOCKS PANEL (scoped) ===== */
+.stocks-main{display:flex; flex-direction:column; gap:var(--s-5,1.5rem); margin:0 auto;}
+
+#panel-stocks table.watchlist{background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--r-card,8px); overflow:hidden;}
+#panel-stocks table.watchlist th,
+#panel-stocks table.watchlist td{padding:var(--s-2) var(--s-3); text-align:left; font-size:var(--fs-footnote); border-bottom:1px solid var(--line-soft,var(--line));}
+#panel-stocks table.watchlist thead th{font-size:var(--fs-caption); letter-spacing:.06em; text-transform:uppercase;}
+.watchlist th{color:var(--fg-dim);}
+#panel-stocks table.watchlist tbody tr{cursor:pointer;}
+#panel-stocks table.watchlist tbody tr:hover{background:var(--bg-hover,var(--bg-elev-2));}
+#panel-stocks table.watchlist tbody tr.row-stale .stale-flag{opacity:.55;}
+#panel-stocks .pct-pos{color:var(--good);}
+#panel-stocks .pct-neg{color:var(--alert,var(--warn));}
+#panel-stocks .stale-flag{color:var(--warn); margin-left:4px;}
+#panel-stocks .score-badge{display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; height: var(--ctl-h, 28px); padding: 0 10px; line-height: 1; border: 0; border-radius: var(--r-card); background: color-mix(in oklab, var(--fg-dim) 22%, transparent); color: var(--fg-dim); font-weight: 600;}
+#panel-stocks .verdict-cell{color:var(--fg-dim); max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+#panel-stocks .detail{display:none; background:var(--bg-elev); border:1px solid var(--line-strong,var(--line)); border-radius:var(--r-card); padding:var(--s-5);}
+#panel-stocks .detail.open{display:block;}
+#panel-stocks .detail-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:var(--s-4);}
+#panel-stocks .detail-head h2{font-family:var(--font-display); font-weight:500; font-size:var(--fs-title); margin:0; text-transform:lowercase;}
+#panel-stocks .detail-head .sub{color:var(--fg-dim); font-size:var(--fs-footnote);}
+#panel-stocks .detail-close{border:1px solid var(--line); background:transparent; color:var(--fg-dim); padding:11px 10px; cursor:pointer; border-radius:var(--r-card,6px);}
+#panel-stocks .detail-close:hover{color:var(--fg); border-color:var(--accent-dim);}
+#panel-stocks .detail-close:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+#panel-stocks .case-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--s-3); margin-bottom:var(--s-5);}
+#panel-stocks .case-card{border:1px solid var(--line); border-radius:var(--r-card,6px); padding:var(--s-3); font-size:var(--fs-footnote); line-height:1.5;}
+#panel-stocks .case-card h4{margin:0 0 var(--s-2); font-size:var(--fs-caption); letter-spacing:.08em; text-transform:uppercase;}
+#panel-stocks .case-card.bull h4{color:var(--good);}
+#panel-stocks .case-card.base h4{color:var(--fg-dim);}
+#panel-stocks .case-card.bear h4{color:var(--alert,var(--warn));}
+
+#panel-stocks .block-grid{display:grid; grid-template-columns:1fr 1fr; gap:var(--s-4); margin-bottom:var(--s-5);}
+#panel-stocks .block{border:1px solid var(--line); border-radius:var(--r-card,6px); padding:var(--s-3);}
+#panel-stocks .block h3{margin:0 0 var(--s-3); font-size:var(--fs-footnote); letter-spacing:.04em; text-transform:lowercase; color:var(--accent);}
+#panel-stocks .block dl{margin:0;}
+#panel-stocks .block dt{font-size:var(--fs-caption); color:var(--fg-dim); text-transform:uppercase; letter-spacing:.05em; margin-top:var(--s-2);}
+#panel-stocks .block dd{margin:2px 0 0; font-size:var(--fs-footnote); line-height:1.5;}
+
+#panel-stocks .hist-head{font-size:var(--fs-footnote); letter-spacing:.04em; text-transform:lowercase; color:var(--accent); margin:0 0 var(--s-3);}
+#panel-stocks .history-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:var(--s-2);}
+#panel-stocks .history-list li{display:flex; gap:var(--s-3); font-size:var(--fs-footnote); padding:var(--s-2); border:1px solid var(--line); border-radius:var(--r-card,6px);}
+#panel-stocks .history-list .h-date{color:var(--fg-dim); width:90px; flex-shrink:0;}
+#panel-stocks .history-list .h-score{width:32px; flex-shrink:0; text-align:right;}
+#panel-stocks .history-list .h-verdict{color:var(--fg-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+
+#panel-stocks .empty{color:var(--fg-dim); padding:var(--s-5);}
+#panel-stocks .empty code,
+#panel-stocks .not-advice code{font-family:var(--font-mono,ui-monospace,monospace); font-style:normal;}
+#panel-stocks .not-advice{text-align:center; padding:var(--s-3); font-size:var(--fs-footnote); color:var(--fg-dim); font-style:italic; border-top:1px solid var(--line);}
+
+@media (max-width:640px){
+  #panel-stocks .case-grid,
+  #panel-stocks .block-grid{grid-template-columns:1fr;}
+  #panel-stocks table.watchlist{display:block; overflow-x:auto;}
+  /* required date fields (period start/end) sit in cols 3-4 of the 4-col grid and
+     render off-screen at phone widths — stack to 1 column so every field is reachable. */
+  #manual-form{grid-template-columns:1fr;}
+  /* 7-column table overflows its container with no scroll affordance — same fix already
+     applied to the watchlist table above. */
+  #periods-table{display:block; overflow-x:auto;}
+  /* 3 equal-width cards truncate title + net figure at phone widths. */
+  .totals{grid-template-columns:1fr;}
+
+  /* 490-545px of shift/day-of-week columns inside a 316px <details> — same
+     block-scroller fix as #periods-table and .watchlist above. */
+  .shift-table, .dow-table{display:block; overflow-x:auto;}
+
+  /* display:block + overflow-x:auto makes a table scrollable but does NOT stop it
+     shrinking to the container first, so the columns crushed instead of scrolling:
+     a 59px period cell held "Aug 17 - Aug 23" as five stacked fragments and every
+     row stood 115px tall. nowrap lets each table take its natural width and use the
+     horizontal scroller it already has — rows drop to ~36px. */
+  #periods-table th, #periods-table td,
+  .shift-table th, .shift-table td,
+  .dow-table th, .dow-table td{white-space:nowrap;}
+
+  /* Release the desktop inner-scroller on phones. .shell is a 100vh grid and
+     .finances-body is the element that actually scrolls, which on a 390px screen
+     crammed the 3400px earnings panel into a ~675px porthole while the document
+     ALSO scrolled ~880px of empty background beside it — two nested scrolls, one
+     of them showing nothing. Let the page scroll normally instead; the header and
+     status bar then flow with the content rather than eating a fifth of the screen.
+     Same release jobs.css, food.css, recipes.css and trips.css already do; finances
+     was the only module that kept the fixed shell at phone widths. */
+  html,body{height:auto;}
+  .hub-shell.shell{height:auto; min-height:100vh; grid-template-rows:auto auto auto;}
+  /* min-width:0 is not optional here. .finances-body is a grid item, so its
+     min-width:auto floors the column at the subtree's min-content width (584px
+     against a 390px screen). The old overflow-x:hidden was supplying that floor
+     reset implicitly and clipping the spill; releasing overflow removes both, so
+     the reset has to be stated. The wide descendants (#periods-table, .dow-table,
+     .shift-table, .watchlist) already carry their own overflow-x:auto above. */
+  .finances-body{overflow:visible; min-width:0; padding:var(--s-4,1rem) var(--s-3,1rem);}
+  .finances-main, .spending-main, .stocks-main, .debt-main, .owed-main{min-width:0;}
+}
+
+/* ============================================================
+   COBALT ADAPTATION
+   finances.css was authored vesper-first (soft 8px cards, hairline borders)
+   and doesn't use the shared component classes cobalt.css already targets
+   (.ep-input/.btn-primary/.col/...), so under cobalt it inherited only the
+   square-corner/grotesque tokens for free and none of the brutalist hardware
+   (thick frames, hard offset shadows, blueprint grid, punched-in focus). This
+   block gives the page's OWN card and field selectors that same treatment.
+   BUTTONS ARE NOT HERE: #add-toggle and .form-actions button are named in
+   themes/cobalt.css's button standard, one definition for every module.
+   ============================================================ */
+[data-theme="cobalt"] .total-card,
+[data-theme="cobalt"] .by-source,
+[data-theme="cobalt"] .periods,
+[data-theme="cobalt"] #panel-stocks table.watchlist,
+[data-theme="cobalt"] #panel-stocks .detail,
+[data-theme="cobalt"] #panel-stocks .case-card,
+[data-theme="cobalt"] #panel-stocks .block{
+  border-width:2px; border-color:var(--line-strong);
+  box-shadow:4px 4px 0 0 var(--fg);
+}
+/* blueprint-grid texture under the table, same technique as cobalt's .col */
+[data-theme="cobalt"] .periods{
+  background-color:var(--bg-elev);
+  background-image:radial-gradient(var(--line-soft) 1px, transparent 1px);
+  background-size:24px 24px;
+}
+[data-theme="cobalt"] #manual-form input,
+[data-theme="cobalt"] #manual-form select{
+  border-width:2px; border-color:var(--line-strong);
+}
+/* punched-in focus shadow, same as cobalt's .ep-input/.field-input treatment */
+[data-theme="cobalt"] #manual-form input:focus,
+[data-theme="cobalt"] #manual-form select:focus{
+  box-shadow:inset 4px 4px 0 0 var(--line-strong);
+  outline:2px solid var(--accent); outline-offset:-2px;
+}
+
+
+/* ── DEBT TAB ──────────────────────────────────────────────────────────────────
+   Series colors are two separate palettes, not one flipped for dark mode: each
+   was validated against its own surface with the dataviz palette validator
+   (lightness band, chroma floor, adjacent-pair CVD separation, normal-vision
+   floor, contrast). Reordering these five breaks the CVD check — the pink and
+   teal slots must stay non-adjacent. Re-run the validator before changing any. */
+:root {
+  --series-1: #be7200;  /* amber   */
+  --series-2: #009faa;  /* teal    */
+  --series-3: #7f76dc;  /* violet  */
+  --series-4: #c65b93;  /* pink    */
+  --series-5: #679725;  /* green   */
+}
+:root[data-surface="light"] {
+  --series-1: #b46400;
+  --series-2: #00949f;
+  --series-3: #7368d4;
+  --series-4: #bc4b87;
+  --series-5: #598c00;
+}
+
+.debt-main { display: flex; flex-direction: column; gap: 26px; }
+.debt-main h3 { color: var(--violet-label); font-size: var(--fs-footnote); letter-spacing: .04em; margin: 0 0 10px; }
+
+/* ── headline figures ── */
+/* four across, then two by two, then stacked: never three plus an orphan, and
+   never a display-size figure forced to wrap inside a 170px column */
+.debt-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 760px) { .debt-stats { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 400px) { .debt-stats { grid-template-columns: 1fr; } }
+.debt-stats .stat {
+  background: var(--bg-elev); border: 1px solid var(--line-soft);
+  border-radius: 4px; padding: 14px 16px;
+}
+.debt-stats .stat h3 { margin: 0 0 6px; }
+.debt-stats .stat-v { font-family: var(--font-display); font-size: var(--fs-title); font-weight: 600; line-height: 1.1; }
+.debt-stats .stat-sub { font-size: var(--fs-caption); color: var(--fg-dim); margin-top: 5px; }
+.debt-stats .stat.bad .stat-v { color: var(--alert); }
+
+/* ── promo cliff callouts ── */
+.cliffs { display: flex; flex-direction: column; gap: 8px; }
+/* status reads from the glyph and the rate text, not from a colored slab edge —
+   the icon+label pairing is also what keeps this legible without color */
+.cliff { border: 1px solid var(--line-soft); background: var(--bg-elev); padding: 10px 14px; border-radius: 3px; }
+.cliff.serious { border-color: color-mix(in srgb, var(--alert) 45%, var(--line-soft)); }
+.cliff-h { font-size: var(--fs-footnote); color: var(--fg); font-weight: 600; }
+.cliff-h::before { content: "▲ "; color: var(--warn); }
+.cliff.serious .cliff-h::before { content: "■ "; color: var(--alert); }
+.cliff-b { font-size: var(--fs-footnote); color: var(--fg-mute); margin-top: 3px; }
+
+/* ── trajectory ── */
+.traj-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; }
+.traj-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: var(--fs-footnote); color: var(--fg-dim); }
+.traj-controls input {
+  width: 100px; padding: 5px 8px; font: inherit; font-size: var(--fs-footnote);
+  background: var(--bg-elev); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 3px;
+}
+.traj-basis { font-size: var(--fs-caption); color: var(--fg-dim); margin: 8px 0 0; line-height: 1.5; max-width: 90ch; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+.seg button {
+  font: inherit; font-size: var(--fs-footnote); padding: 5px 11px; cursor: pointer;
+  background: var(--bg-elev); color: var(--fg-dim); border: 0;
+}
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.on { background: var(--accent); color: var(--bg); }
+
+.chart-figure { margin: 12px 0 0; }
+.chart-figure figcaption { font-size: var(--fs-caption); color: var(--fg-faint); margin-top: 8px; max-width: 62ch; }
+.chart-wrap { position: relative; }
+.chart-wrap.chart-empty::after {
+  content: attr(data-empty); display: block; padding: 40px 0;
+  text-align: center; color: var(--fg-faint); font-size: var(--fs-footnote);
+}
+#debt-chart .grid { stroke: var(--line-soft); stroke-width: 1; }
+#debt-chart .axis-x { fill: var(--fg-faint); font-size: var(--fs-caption); }
+#debt-chart .lane-name { fill: var(--fg); font-size: var(--fs-footnote); }
+#debt-chart .lane-bal { fill: var(--fg-dim); font-size: var(--fs-caption); font-variant-numeric: tabular-nums; }
+/* bars are the accent, the one colour that means "this is the thing"; only the
+   stretch past a cliff changes hue, and it changes to the alert, not a second accent */
+#debt-chart .bar { fill: var(--accent); }
+#debt-chart .bar.after-cliff { fill: var(--alert); }
+#debt-chart .bar-end { fill: var(--bg); font-size: var(--fs-caption); font-weight: 600; font-variant-numeric: tabular-nums; }
+#debt-chart .bar-end-out { fill: var(--fg-mute); font-size: var(--fs-caption); font-variant-numeric: tabular-nums; }
+#debt-chart .total-area { fill: var(--accent-faint); }
+#debt-chart .total-line { fill: none; stroke: var(--fg-mute); stroke-width: 1.5; stroke-linejoin: round; }
+#debt-chart .crosshair { stroke: var(--fg-dim); stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
+/* promo cliff: where a 0% window shuts. Alert while the band is still alive there. */
+#debt-chart .cliff-line { stroke: var(--fg-faint); stroke-width: 1; stroke-dasharray: 2 4; pointer-events: none; }
+#debt-chart .cliff-line.owed { stroke: var(--alert); stroke-dasharray: 4 3; }
+#debt-chart .cliff-label { fill: var(--fg-dim); font-size: var(--fs-caption); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; pointer-events: none; }
+#debt-chart .cliff-label.owed { fill: var(--alert); font-weight: 600; }
+#debt-capture { cursor: crosshair; }
+
+.chart-tip {
+  position: absolute; top: 12px; pointer-events: none; z-index: 5;
+  transition: left 120ms ease-out;
+  background: var(--bg-elev-2); border: 1px solid var(--line);
+  border-radius: 4px; padding: 8px 10px; font-size: var(--fs-caption); min-width: 190px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+}
+.chart-tip .tip-head { color: var(--fg); font-weight: 600; margin-bottom: 5px; }
+.chart-tip .tip-row { display: flex; align-items: center; gap: 6px; color: var(--fg-mute); padding: 1px 0; }
+.chart-tip .tip-row b { margin-left: auto; color: var(--fg); font-variant-numeric: tabular-nums; }
+.chart-tip .tip-row.total { border-top: 1px solid var(--line-soft); margin-top: 5px; padding-top: 5px; }
+
+/* ── tables ── */
+.debt-main table { width: 100%; border-collapse: collapse; font-size: var(--fs-footnote); }
+.debt-main th {
+  text-align: left; font-weight: 500; font-size: var(--fs-caption); letter-spacing: .06em;
+  text-transform: uppercase; color: var(--fg-faint);
+  border-bottom: 1px solid var(--line); padding: 0 10px 7px 0;
+}
+.debt-main td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--line-soft); color: var(--fg-mute); vertical-align: top; }
+.debt-main th.hub-num { text-align: right; padding-right: 10px; }
+.debt-main .then { font-size: var(--fs-caption); color: var(--fg-faint); margin-top: 2px; }
+.debt-main .rate { color: var(--fg); font-weight: 600; }
+.debt-main .promo { color: var(--good); }
+.debt-main .bad { color: var(--alert); }
+.debt-main .good { color: var(--good); }
+.debt-main tr.zeroed td { opacity: .5; }
+.debt-main tr.current td { background: var(--bg-elev); }
+.debt-main .tag {
+  font-size: var(--fs-caption); letter-spacing: .06em; text-transform: uppercase;
+  background: var(--accent-faint); color: var(--fg); border-radius: 2px;
+  padding: 1px 5px; margin-left: 6px; vertical-align: middle;
+}
+.debt-main .empty-row { color: var(--fg-faint); text-align: center; padding: 20px 0; }
+
+.card-notes { list-style: none; margin: 10px 0 0; padding: 0; font-size: var(--fs-caption); color: var(--fg-dim); }
+.card-notes li { padding: 3px 0 3px 14px; position: relative; }
+.card-notes li::before { content: "·"; position: absolute; left: 4px; color: var(--fg-faint); }
+.card-notes b { color: var(--fg-mute); font-weight: 600; }
+
+.payments-head { display: flex; align-items: baseline; gap: 10px; }
+.payments-head .pay-note,
+#panel-owed .pay-note, #panel-transactions .pay-note { font-size: var(--fs-caption); color: var(--fg-faint); }
+.payments .kind { color: var(--fg-mute); }
+.payments tr.pk-balance_transfer .kind { color: var(--warn); }
+.payments tr.pk-payment .kind { color: var(--good); }
+
+@media (max-width: 720px) {
+  .debt-main table { font-size: var(--fs-caption); }
+  .traj-head { flex-direction: column; align-items: stretch; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chart-tip { transition: none; }
+}
+
+/* the payment column butts against the date beside it without extra breathing room */
+.scenarios td:first-child, .scenarios th:first-child { padding-right: 26px; }
+.debt-main .rate.promo { color: var(--good); }
+
+
+/* ===== OWED PANEL ===== */
+/* deliberately thin: the panel reuses .totals / .total-card / .periods /
+   .by-source / .manual-wrap wholesale. Only the per-person card is new. */
+.owed-main{display:flex; flex-direction:column; gap:var(--s-4,1.25rem);}
+
+.owed-people{display:flex; flex-direction:column; gap:var(--s-3,1rem);}
+
+.owed-person{
+  border:1px solid var(--line); border-radius:var(--r-card,8px);
+  background:var(--bg); overflow:hidden;
+}
+.owed-person-head{
+  display:flex; align-items:baseline; justify-content:space-between;
+  padding:.5rem .75rem; background:var(--bg-elev-2, var(--bg-elev));
+  border-bottom:1px solid var(--line);
+}
+.owed-person-head h4{margin:0; font-size:var(--fs-subhead); font-weight:600; color:var(--fg);}
+.owed-person-total{
+  font-family:var(--font-display); font-size:var(--fs-body); font-weight:600;
+  color:var(--fg); font-variant-numeric:tabular-nums;
+}
+
+.owed-lines{list-style:none; margin:0; padding:0;}
+/* date | what | amount | actions — the amount column is fixed so every person's
+   figures line up down the page, not just within one card */
+.owed-line{
+  display:grid; align-items:baseline;
+  grid-template-columns:5.5rem 1fr 7rem auto;
+  gap:.5rem; padding:.4rem .75rem;
+  border-bottom:1px solid var(--line);
+  font-size:var(--fs-footnote); font-variant-numeric:tabular-nums;
+}
+.owed-line:last-child{border-bottom:0;}
+.owed-when{color:var(--fg-mute); font-size:var(--fs-footnote);}
+.owed-what{color:var(--fg); min-width:0;}
+.owed-share{color:var(--fg-mute); font-size:var(--fs-footnote);}
+.owed-note{display:block; color:var(--fg-faint); font-size:var(--fs-caption); margin-top:.1rem;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer;}
+/* notes are audit trails, not descriptions: one line until clicked */
+.owed-note.is-open{white-space:normal;}
+.owed-amt{text-align:right; color:var(--fg); font-weight:500;}
+/* money he owes (dir = -1): same line, signed and tinted like a YNAB outflow */
+.owed-line.is-neg .owed-amt, .owed-person-total.is-neg{color:var(--alert,var(--warn));}
+@media (min-width:641px){ #owed-totals{grid-template-columns:repeat(4,1fr);} }
+/* an asked-for debt is waiting on them, not on him — the accent says so without
+   a legend, and the tag beside it carries the same fact in text */
+.owed-line.is-asked{border-left:2px solid var(--accent-dim); margin-left:-2px;}
+
+.owed-acts{display:flex; gap:.25rem; justify-content:flex-end;}
+.owed-acts button{
+  font-size:var(--fs-caption); padding:.15rem .5rem;
+  border:1px solid var(--line); border-radius:var(--r-pill,999px);
+  color:var(--fg-mute); background:transparent; cursor:pointer;
+  transition:border-color 120ms ease-out, color 120ms ease-out;
+}
+.owed-acts button:hover{border-color:var(--accent-dim); color:var(--fg);}
+.owed-acts .owed-del{border-color:transparent; color:var(--fg-faint); padding:.15rem .35rem;}
+.owed-acts .owed-del:hover{border-color:var(--bad, var(--warn)); color:var(--bad, var(--warn));}
+
+#owed-form{grid-template-columns:repeat(3,1fr);}
+
+@media (max-width:640px){
+  .owed-line{grid-template-columns:1fr auto; row-gap:.15rem;}
+  .owed-when{grid-column:1/-1;}
+  .owed-acts{grid-column:1/-1; justify-content:flex-start;}
+  #owed-form{grid-template-columns:1fr;}
+}
+
+/* ── owed: asking, and the money that comes back ─────────────────────────── */
+
+/* The person header now carries the handle and the two whole-balance asks, so
+   it stops being a two-item baseline row and needs the total pushed right. */
+.owed-person-head{gap:.5rem; flex-wrap:wrap;}
+.owed-person-total{margin-left:auto;}
+.owed-handle{color:var(--fg-faint); font-size:var(--fs-caption);}
+.owed-person-acts{display:flex; gap:.25rem;}
+.owed-person-acts button{
+  font-size:var(--fs-caption); padding:.15rem .5rem;
+  border:1px solid var(--line); border-radius:var(--r-pill,999px);
+  color:var(--fg-mute); background:transparent; cursor:pointer;
+  transition:border-color 120ms ease-out, color 120ms ease-out;
+}
+.owed-person-acts button:hover{border-color:var(--accent-dim); color:var(--fg);}
+
+/* An arrival is a decision, not a row: it sits in its own card until he says
+   which debts it closed. Deliberately louder than a settled line — an unmatched
+   payment is the only thing on this tab that is waiting on him. */
+.owed-incoming{display:flex; flex-direction:column; gap:var(--s-2,.5rem);}
+.owed-pay{
+  border:1px solid var(--accent-dim); border-radius:var(--r-card,8px);
+  background:var(--bg-elev, var(--bg)); padding:.6rem .75rem;
+}
+.owed-pay-head{display:flex; align-items:baseline; justify-content:space-between; gap:.5rem;}
+.owed-pay-who{font-size:var(--fs-subhead); font-weight:600; color:var(--fg);}
+.owed-pay-amt{
+  font-family:var(--font-display); font-size:var(--fs-body); font-weight:600;
+  color:var(--fg); font-variant-numeric:tabular-nums;
+}
+.owed-pay-meta{color:var(--fg-mute); font-size:var(--fs-footnote); margin-top:.15rem;}
+.owed-picks{display:flex; flex-direction:column; margin:.5rem 0 .35rem;}
+.owed-pick{
+  display:grid; grid-template-columns:auto 1fr 7rem; align-items:baseline; gap:.5rem;
+  padding:.25rem 0; font-size:var(--fs-footnote); cursor:pointer;
+  border-top:1px solid var(--line);
+}
+.owed-pick-what{color:var(--fg); min-width:0;}
+.owed-pick-amt{text-align:right; font-variant-numeric:tabular-nums; color:var(--fg);}
+.owed-pay-foot{display:flex; align-items:center; gap:.5rem; justify-content:flex-end;}
+/* The selected total against what actually arrived. Muted while they agree,
+   flagged the moment they do not — applying a $700 payment to $580 of lines is
+   the mistake this line exists to catch, and it is silent afterwards. */
+.owed-pay-sum{margin-right:auto; font-size:var(--fs-footnote); color:var(--fg-mute); font-variant-numeric:tabular-nums;}
+.owed-pay-sum.is-off{color:var(--warn, #d08a3a);}
+.owed-pay-foot button{
+  font-size:var(--fs-caption); padding:.2rem .6rem;
+  border:1px solid var(--line); border-radius:var(--r-pill,999px);
+  color:var(--fg-mute); background:transparent; cursor:pointer;
+}
+.owed-pay-foot button[data-pay="apply"]{border-color:var(--accent-dim); color:var(--fg);}
+.owed-pay-foot button:hover{border-color:var(--accent-dim); color:var(--fg);}
+
+/* The message strip doubles as a confirmation ("copied for Zelle", "1 handle
+   saved"), so it needs a non-alarming state — it is the same element the errors
+   use, and the base rule paints an alert-tinted background, not just the text. */
+.hub-error.is-ok{
+  background:color-mix(in srgb, var(--accent-dim) 14%, transparent);
+  border-color:var(--accent-dim); color:var(--fg-mute);
+}
+
+/* One row per debtor, name and field on one line, so the whole list is a single
+   downward pass rather than eight separate dialogs. */
+.owed-handle-rows{display:flex; flex-direction:column; gap:.3rem; margin-bottom:.5rem;}
+.owed-handle-row{
+  display:grid; grid-template-columns:11rem auto 1fr; align-items:center; gap:.35rem;
+  font-size:var(--fs-footnote);
+}
+.owed-handle-who{color:var(--fg); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.owed-handle-at{color:var(--fg-faint);}
+.owed-handle-row input{width:100%;}
+/* transactions tab: the spending ledger's table with editable cells */
+#book-txn-table{width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; font-size:var(--fs-footnote);}
+#book-txn-table th, #book-txn-table td{text-align:left; padding:.4rem .5rem; border-bottom:1px solid var(--line); vertical-align:middle;}
+#book-txn-table th{font-size:var(--fs-caption); letter-spacing:.06em; text-transform:lowercase; color:var(--fg-mute); font-weight:500;}
+#book-txn-table .book-amt{text-align:right; white-space:nowrap;}
+#panel-transactions input, #panel-transactions select{
+  min-width:0; max-width:100%; padding:4px 8px; font-size:var(--fs-footnote);
+  border:1px solid var(--line); border-radius:var(--r-card,6px); background:var(--bg);
+}
+#panel-transactions .book-memo-in{width:100%;}
+#panel-transactions .book-leg-amt{width:6rem;}
+@media (max-width:640px){
+  #book-txn-table thead{display:none;}
+  #book-txn-table tr.book-row{display:flex; flex-wrap:wrap; gap:.25rem .5rem; padding:.5rem 0; border-bottom:1px solid var(--line);}
+  #book-txn-table tr.book-row td{border:0; padding:0;}
+  #book-txn-table .book-payee{flex:1 1 50%;}
+  #book-txn-table .book-memo, #book-txn-table .book-catc{flex:1 1 100%;}
+  #book-txn-table .book-catc select{width:100%;}
+}
+
+/* payee title: click flips between the readable name and the bank name */
+.payee-flip{cursor:pointer;text-decoration:underline dotted;text-decoration-color:color-mix(in srgb,currentColor 35%,transparent);text-underline-offset:3px;}
+
+/* ============================================================
+   liquid theme. Slabs on a gutter over the wallpaper, gray-capsule controls,
+   sentence-case labels, inset hairlines. --bg is #000 on liquid, so nothing
+   here paints with it; nested tiles are fills, never a second outlined card.
+   ============================================================ */
+[data-theme="liquid"] .finances-body { --lq-pane-r:26px; --lq-gap:12px; }
+[data-theme="liquid"] :is(.finances-main, .spending-main, .stocks-main, .debt-main, .owed-main, .book-main) {
+  gap: var(--lq-gap);
+}
+/* debt, owed and transactions ran the full body width while the rest held a
+   column; one reading width for every tab */
+[data-theme="liquid"] :is(.debt-main, .owed-main, .book-main) { max-width: 1040px; margin: 0 auto; }
+
+/* tabs: the capsule stays inside the body at phone width */
+[data-theme="liquid"] .hub-tabs.fin-tabs { max-width: 100%; }
+[data-theme="liquid"] .hub-tabs.fin-tabs .hub-tab.fin-tab { padding: 0 14px; font-size: var(--fs-subhead); letter-spacing: 0; text-transform: capitalize; flex: 0 0 auto; }
+[data-theme="liquid"] .hub-tab.fin-tab[aria-selected="true"] { border-bottom-color: transparent; }
+
+/* slabs */
+[data-theme="liquid"] :is(.total-card, .expected, .by-source, .periods, .sp-committed,
+  .owed-person, .owed-pay, .debt-stats .stat, .traj, .debt-cards, .scenarios, .payments,
+  #panel-stocks .detail, #panel-stocks table.watchlist) {
+  border: 0; border-radius: var(--lq-pane-r); background: var(--bg-elev); box-shadow: var(--lq-slab-shade);
+}
+[data-theme="liquid"] :is(.total-card, .expected, .by-source, .periods, .sp-committed) { padding: 16px 20px; }
+[data-theme="liquid"] .debt-stats .stat { padding: 16px 20px; }
+[data-theme="liquid"] :is(.traj, .debt-cards, .scenarios, .payments) { padding: 18px 20px; overflow-x: auto; }
+[data-theme="liquid"] .debt-main { gap: var(--lq-gap); }
+[data-theme="liquid"] .owed-person { overflow: hidden; }
+[data-theme="liquid"] #panel-stocks .detail { padding: 20px; }
+
+/* tiles inside a slab: fills */
+[data-theme="liquid"] :is(.exp-month, .cliff, #panel-stocks .case-card, #panel-stocks .block) {
+  border: 0; border-radius: 18px; background: var(--lq-tile);
+}
+[data-theme="liquid"] .cliff.serious { background: color-mix(in srgb, var(--alert) 14%, transparent); }
+[data-theme="liquid"] .cliff { padding: 12px 16px; }
+/* the paycheck rows were --bg (black) with an outline */
+[data-theme="liquid"] .pay-week > details { border: 0; border-radius: 18px; background: var(--lq-tile); overflow: hidden; }
+[data-theme="liquid"] .pay-week > details[open] { background: var(--lq-tile); }
+[data-theme="liquid"] .pay-week summary:hover { background: var(--lg-vib); }
+[data-theme="liquid"] .pay-week summary:focus-visible { outline-offset: -2px; border-radius: 18px; }
+[data-theme="liquid"] .owed-person-head { background: var(--lq-tile); }
+[data-theme="liquid"] :is(.owed-line, .owed-pick) { background: none; }
+[data-theme="liquid"] .debt-main tr.current td { background: var(--lq-tile); }
+[data-theme="liquid"] .exp-flag, [data-theme="liquid"] .debt-main .tag, [data-theme="liquid"] .tag-assumed,
+[data-theme="liquid"] .crew, [data-theme="liquid"] #panel-spending .sp-mover, [data-theme="liquid"] .cat-tag {
+  border: 0; background: var(--lq-tile); letter-spacing: 0; text-transform: none;
+}
+
+/* sentence-case labels, size and weight carry rank */
+[data-theme="liquid"] :is(.total-card h3, .expected-head h3, .by-source h3, .periods-head h3, .sp-committed h3,
+  .paychecks-head h4, .debt-stats .stat h3, .debt-main h3, #panel-stocks .block h3, #panel-stocks .hist-head, #panel-stocks .case-card h4) {
+  font-size: var(--fs-footnote); font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--fg-dim);
+}
+[data-theme="liquid"] :is(.debt-main section > h3, .traj-head h3) { font-size: var(--fs-body); font-weight: 600; color: var(--fg); }
+[data-theme="liquid"] .debt-stats .stat h3 { font-size: var(--fs-footnote); color: var(--fg-dim); }
+[data-theme="liquid"] :is(#panel-stocks table.watchlist thead th, #panel-stocks .block dt, #book-txn-table th,
+  #owed-unassigned-table th, .dow-table th, .shift-table th, .debt-main th, #panel-spending #spend-txn-table thead th) {
+  font-size: var(--fs-footnote); font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--fg-dim);
+}
+[data-theme="liquid"] .month-row td:first-child { letter-spacing: 0; text-transform: none; }
+[data-theme="liquid"] .total-card .net, [data-theme="liquid"] .exp-total, [data-theme="liquid"] .debt-stats .stat-v { font-family: var(--font); letter-spacing: -.01em; }
+[data-theme="liquid"] #panel-stocks .detail-head h2 { font-family: var(--font); font-weight: 700; text-transform: none; }
+
+/* rows: inset hairlines, no full-bleed rules */
+[data-theme="liquid"] .by-source li, [data-theme="liquid"] #panel-spending .sp-row, [data-theme="liquid"] .owed-line {
+  border-bottom: 0;
+  background-image: linear-gradient(var(--line-soft), var(--line-soft));
+  background-size: 100% 1px; background-position: 0 100%; background-repeat: no-repeat;
+}
+[data-theme="liquid"] .by-source li:last-child, [data-theme="liquid"] #panel-spending .sp-row:last-child,
+[data-theme="liquid"] .owed-line:last-child { background-image: none; }
+[data-theme="liquid"] #panel-spending .sp-row summary:hover { background: var(--lg-vib); border-radius: 12px; }
+[data-theme="liquid"] :is(.period-row, .group-row):hover td { background: var(--lg-vib); }
+[data-theme="liquid"] #panel-stocks table.watchlist tbody tr:hover { background: var(--lg-vib); }
+[data-theme="liquid"] #book-txn-table :is(th, td) { border-bottom: 0; box-shadow: inset 0 -1px var(--line-soft); }
+[data-theme="liquid"] .debt-main td { border-bottom: 0; box-shadow: inset 0 -1px var(--line-soft); }
+[data-theme="liquid"] .debt-main tr:last-child td, [data-theme="liquid"] #book-txn-table tr:last-child td { box-shadow: none; }
+[data-theme="liquid"] .year-row td { background: var(--lq-tile); }
+
+/* controls: gray capsules, accent for the primary */
+[data-theme="liquid"] :is(#owed-add-toggle, .owed-acts button, .owed-person-acts button, .owed-pay-foot button,
+  .form-actions button, #panel-stocks .detail-close, .seg button) {
+  border: 0; border-radius: 999px; background: var(--lq-fill); color: var(--fg); font-size: var(--fs-footnote); font-weight: 600; letter-spacing: 0;
+}
+[data-theme="liquid"] :is(#owed-add-toggle, .owed-acts button, .owed-person-acts button, .owed-pay-foot button,
+  .form-actions button, #panel-stocks .detail-close):hover { background: var(--lq-fill-hover); color: var(--fg); }
+[data-theme="liquid"] #owed-add-toggle[aria-expanded="true"] { color: var(--accent); }
+[data-theme="liquid"] .owed-acts .owed-del { background: none; color: var(--fg-faint); }
+[data-theme="liquid"] .owed-acts .owed-del:hover { background: var(--lq-fill); color: var(--alert); }
+[data-theme="liquid"] .form-actions button[type=submit], [data-theme="liquid"] .owed-pay-foot button[data-pay="apply"] { background: var(--accent); color: var(--on-accent); }
+[data-theme="liquid"] .seg { border: 0; border-radius: 999px; background: var(--lq-tile); padding: 2px; }
+[data-theme="liquid"] .seg button { padding: 3px 12px; }
+[data-theme="liquid"] .seg button + button { border-left: 0; }
+[data-theme="liquid"] .seg button.on { background: var(--lq-seg-on); color: var(--fg); }
+[data-theme="liquid"] .total-card .figs-loading { font-style: normal; }
+
+/* fields: tiles with an inset accent ring on focus, not a 1px frame */
+[data-theme="liquid"] :is(#owed-form input, #manual-form input, #manual-form select, .traj-controls input,
+  #panel-transactions input, #panel-transactions select, .owed-handle-row input) {
+  border: 0; border-radius: 12px; background: var(--lq-tile); color: var(--fg);
+}
+[data-theme="liquid"] :is(#owed-form input, #manual-form input, #manual-form select, .traj-controls input,
+  #panel-transactions input, #panel-transactions select, .owed-handle-row input):focus,
+[data-theme="liquid"] :is(#owed-form input, #manual-form input, #manual-form select, .traj-controls input,
+  #panel-transactions input, #panel-transactions select, .owed-handle-row input):focus-visible {
+  outline: 0; box-shadow: inset 0 0 0 2px var(--accent);
+}
+[data-theme="liquid"] #panel-transactions :is(#book-q, #book-f-account, #book-f-category) { border-radius: 999px; padding: 6px 14px; }
+
+/* transactions: account chips wrap instead of running off a phone */
+[data-theme="liquid"] #book-chips .hub-btn { height: auto; min-height: 36px; padding: 6px 16px; white-space: normal; text-align: left; max-width: 100%; }
+[data-theme="liquid"] .hub-callout-warn { border: 0; border-radius: 14px; background: color-mix(in srgb, var(--warn) 14%, transparent); }
+
+/* stocks: the table stays in its column; the verdict gives way before the numbers */
+[data-theme="liquid"] #panel-stocks table.watchlist { max-width: 100%; clip-path: inset(0 round var(--lq-pane-r)); }
+[data-theme="liquid"] #panel-stocks table.watchlist td { border-bottom: 0; font-size: var(--fs-subhead); }
+[data-theme="liquid"] #panel-stocks table.watchlist :is(th, td) { padding-inline: 8px; }
+[data-theme="liquid"] #panel-stocks table.watchlist :is(th, td):last-child { white-space: nowrap; }
+[data-theme="liquid"] #panel-stocks .verdict-cell { max-width: 150px; }
+[data-theme="liquid"] #panel-stocks .score-badge { background: var(--lq-tile); }
+[data-theme="liquid"] #panel-stocks .history-list li { border: 0; border-radius: 12px; background: var(--lq-tile); }
+[data-theme="liquid"] #panel-stocks .not-advice { border-top: 0; }
+
+@media (max-width: 640px) {
+  [data-theme="liquid"] .finances-body { padding: var(--s-3) 8px var(--s-4); }
+  [data-theme="liquid"] :is(.total-card, .expected, .by-source, .periods, .sp-committed, .traj, .debt-cards, .scenarios, .payments) { padding: 14px 14px; }
+  [data-theme="liquid"] .hub-tabs.fin-tabs, [data-theme="liquid"] #panel-stocks table.watchlist { overflow-x: auto; }
+}
+[data-theme="liquid"] .book-main { display: flex; flex-direction: column; }
+[data-theme="liquid"] #book-txn-table .book-date { white-space: nowrap; }
+[data-theme="liquid"] #book-chips .hub-btn { font-size: var(--fs-subhead); }
+[data-theme="liquid"] #book-filters { flex-wrap: wrap; align-items: center; }
+[data-theme="liquid"] #book-filters #book-q { flex: 1 1 260px; min-width: 0; }
+[data-theme="liquid"] #book-filters label { font-size: var(--fs-footnote); color: var(--fg-dim); }
+[data-theme="liquid"] #panel-transactions .book-memo-in { min-width: 9rem; }
+[data-theme="liquid"] #book-txn-table .book-memo { min-width: 9rem; }
+@media (max-width: 640px) {
+  /* the block table shrank to the phone and broke words letter by letter; it scrolls sideways instead */
+  [data-theme="liquid"] #panel-stocks table.watchlist :is(th, td) { white-space: nowrap; }
+  [data-theme="liquid"] #panel-stocks .score-badge { min-width: 36px; }
+}
+/* label halo was painted with --bg, which is black in liquid; match the chart slab */
+[data-theme="liquid"] #debt-chart .cliff-label { stroke: var(--bg-elev); }
+
+/* Sentence case in liquid: the copy is lowercase for vesper and cobalt, so liquid
+   capitalises the first letter of headings, labels, tabs and buttons only. */
+[data-theme="liquid"] :is(h2, h3, h4, th, summary, button, .hub-tab, .fin-tab, .periods-head, .expected-head,
+  .paychecks-head, .total-card > :first-child, label:not(.sr-only))::first-letter { text-transform: uppercase; }

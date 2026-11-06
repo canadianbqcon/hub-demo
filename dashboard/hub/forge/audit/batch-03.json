@@ -1,0 +1,637 @@
+{
+ "batch": "03",
+ "champions": {
+  "Gragas": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "granting sight of the area",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source; add `\\bsight of\\b|granting sight` to KEYWORDS[vision] (wiki says 'sight', not 'vision')"
+   },
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "gains damage reduction for 2.5 seconds",
+    "fix": "W is damage reduction plus an empowered attack, not a spell shield; Trait_Parry in TAG_FLAGS[spellShield] is too broad (also hits Irelia W, Jax E, K'Sante W)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Stormraider's Surge, Shadowflame, Ionian Boots) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Graves": [
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "applies nearsight of outside the area to all enemies within every 0.25 seconds",
+    "fix": "bin line is 'blocking their vision' (W nearsight, denies vision). Exclude `blocking (their )?vision|nearsight` from vision hits; no vision grant in the wiki text"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "dealing 70% – 100.01% (based on level) AD physical damage",
+    "fix": "passive is the basic-attack shotgun: cadence = 2 shells plus reload (cut by level and attack speed)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Hubris, Collector, Steelcaps) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Gwen": [
+   {
+    "trait": "execute",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "Q",
+    "quote": "executes them on the first damage instance if they are below 20% health",
+    "fix": "minion-only execute (ExecuteThreshold, 'Minions below'); drop hits whose sentence is about minions"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Gwen's basic attacks on-hit, the center of Snip Snip!, and Needlework deal bonus magic damage equal to 1% (+ 0.6% per 100 AP) of the target's maximum health.",
+    "fix": "passive: on-hit and Q/R centre hits; handler could count the fight's autos"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Conqueror, Dusk and Dawn, Shadowflame, Steelcaps) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Heimerdinger": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "CH-2 Electron Storm Grenade grants vision of target location for 1.25 seconds.",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Conqueror, Liandry's (and R hit count)) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Hecarim": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "revealing them for 1 second",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Hecarim gains bonus attack damage equal to 12% – 24% (based on level) of his bonus movement speed.",
+    "fix": "passive BonusAD from bonus MS: handler reading '% of his bonus movement speed' scaled by the fight's move speed"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Shojin, Death's Dance, Stormraider's, Ionian) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Illaoi": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "revealing them in addition to granting sight of the area around them while the tether remains",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "false",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Illaoi spawns the Tentacle 700 range away from her, unless there's a natural wall blocking the way",
+    "fix": "'no move spell' is right for Illaoi herself; wall wording is Tentacle spawn only, no crossing"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "dealing 9 – 180 (based on level) (+ 110% AD) (+ 40% AP) physical damage to all enemies struck",
+    "fix": "tentacle slam number readable; cadence tied to ability casts"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Grasp healing, Cleaver, Steelcaps) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Irelia": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "Bladesurge will only allow Irelia to dash through walls if there is enough space for her on the other side.",
+    "fix": "rule_wall reads only the bin tip; scan wiki text/notes for `dash(es)? through (walls?|terrain)` too"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "stunning them for 0.75 seconds, during which they are revealed.",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source"
+   },
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "rule_wrong",
+    "ability": "Q",
+    "quote": "Irelia dashes 100 units through the target enemy's location",
+    "fix": "spellShield comes from W Trait_Parry (damage reduction); no wiki line in Irelia's kit mentions a spell shield. Same TAG_FLAGS[spellShield] fix as Gragas"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "At maximum stacks, Irelia's basic attacks are empowered to deal 10 – 61 (based on level) (+ 20% bonus AD) bonus magic damage on-hit",
+    "fix": "needs 4 Ionian Fervor stacks; handler: assume max stacks after Q hits"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Conqueror, BotRK, Hullbreaker, Steelcaps) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Jarvan IV": [
+   {
+    "trait": "wallCrossing",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "R",
+    "quote": "he creates a circle of impassable terrain that knocks aside enemies within the perimeter",
+    "fix": "R only creates terrain; nothing says Jarvan crosses walls. rule_wall matches bare `terrain`; require crossing words (through|over|across|past) and exclude 'not through terrain' (also matches Gragas E, K'Sante W, Janna R wording)"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "granting sight of its surroundings",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Jarvan IV's basic attacks are empowered to deal bonus physical damage equal to 8% of the target's current health, with a minimum threshold of 20",
+    "fix": "per-basic-attack current-health percent with the 20 minimum"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Conqueror, Profane Hydra, Cyclosword, Steelcaps) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Jax": [
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "R",
+    "quote": "The empowered attack will trigger but not be consumed nor apply its effects against wards.",
+    "fix": "hit is Q tooltip 'leaps to a friendly or enemy unit or ward' (a leap target, not a vision grant); wiki only mentions wards as non-targets. Drop bare `wards?` from KEYWORDS[vision] or require place/reveal verbs"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Sundered Sky, Steelcaps) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Jayce": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "granting sight of the area for 1.25 seconds",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source; same 'sight' wording fix"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Stormraider's, Youmuu's, Manamune, Ionian) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Jhin": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "enemies in the area at the time of its trigger becoming revealed for 4 seconds",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "deals bonus physical damage equal to 15% / 20% / 25% (based on level) of the target's missing health",
+    "fix": "fourth-shot cadence readable from 'consume ammunition within 4 rounds' and the 2.5 s reload"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Fleet Footwork, Hubris, Phantom Dancer, Swiftness) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Jinx": [
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Super Mega Death Rocket's projectile has an icon on the mini-map while it is in flight.",
+    "fix": "wiki text never says global/map-wide; a keyword rule cannot catch it. Needs a hand table or reading the bin range placeholder as global"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Hexoptics, Runaan's) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "K'Sante": [
+   {
+    "trait": "wallCrossing",
+    "current": "true",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "If the target is pulled over terrain, K'Sante will vanish during their displacement and reappear near the end of it.",
+    "fix": "value true is supported (R carries K'Sante over terrain), but the stored quote is a knock-back line; also W/E say 'though not through terrain', which the same regex would match. Same crossing-word fix"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "dealing 12 (+ 1% – 2% (based on level) of target's maximum health) bonus physical damage",
+    "fix": "mark consumed by a basic attack after any ability; cadence readable (4 s mark)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Grasp healing, Steelcaps) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Kalista": [
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Kalista cleanses the Oathsworn from all crowd control",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source (ally cleanse, R)"
+   },
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "E",
+    "quote": "The cooldown will not reset if the target is protected by resurrection effects.",
+    "fix": "interaction with enemy resurrection, not a Kalista revive"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Statikk Shiv, Gluttonous Greaves) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Karma": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "forms a tether between her and them for 2 seconds, during which they are revealed.",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Dream Maker, Echoes of Helia, Ionian (and Aery repeat sends)) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Karthus": [
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Karthus channels for 3 seconds, then deals magic damage to all targetable enemy champions upon completion.",
+    "fix": "add `all (targetable )?enemy champions` to KEYWORDS[globalPresence]"
+   },
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Upon taking fatal damage, Karthus enters a zombie state for 7 seconds",
+    "fix": "Death Defied delays death, not a classic revive; decide the definition, then add `fatal damage|zombie state` to KEYWORDS[revive]"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "granting sight of the area and dealing magic damage to all enemies within",
+    "fix": "bin tooltip lacks the line; add wiki ability text/notes as a second keyword source"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Shadowflame) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Hwei": [
+   {
+    "trait": "rubric traits",
+    "current": "None",
+    "verdict": "unclear",
+    "fix": "unstoppable/untargetable/spellShield/terrain/pets/stealth/dashes are value None for Hwei while every other batch champion has them; check view()['resolved'] for Hwei's bin"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "dealing 40 – 285 (based on level) (+ 35% AP) bonus magic damage to enemies in the area after a 0.85-second delay",
+    "fix": "passive mark explosion has a readable number; cadence = one per damaging ability on a marked target (4 s mark)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Shadowflame (and Q dps duration)) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Kai'Sa": [
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "deal 4 – 30 (based on level) (+ 12% AP) additional magic damage plus",
+    "fix": "Plasma stack damage; needs a stack model (fifth stack consumes)"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Ivern": [
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "fix": "remaining pieces (Moonstone, Ionian (and Aery repeat sends)) are item/rune effects or bin-only mechanics; no wiki quote in forge-champions.json, so no verdict"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Janna": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ]
+ }
+}

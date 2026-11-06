@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/static/assets/favicon.png">
+  <script>
+    /* no-flash theme + surface bootstrap: must run before first paint.
+       Same snippet every hub page carries; see news.html. */
+    (() => {
+      var r = document.documentElement;
+      try {
+        var t = localStorage.getItem("hub.theme");
+        if (t === "glass") t = "liquid";
+        r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+        if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+        let s = localStorage.getItem("hub.surface");
+        if (s !== "light" && s !== "dark") {
+          s = (window.matchMedia?.("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+        }
+        r.setAttribute("data-surface", s);
+      } catch (_e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+    })();
+  </script>
+  <title>HUB · inventory</title>
+  <link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+  <link rel="stylesheet" href="/static/css/base.css?v=6">
+  <link rel="stylesheet" href="/static/css/components.css?v=5">
+  <link rel="stylesheet" href="/static/css/origins/tabbed-3-pane.css?v=1">
+  <link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+  <link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+  <link rel="stylesheet" href="/inventory/static/inventory.css?v=3">
+  <script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
+</head>
+<body class="inventory">
+<div class="hub-shell hub-t3p shell">
+
+  <header class="topbar">
+    <button data-slot="lead" type="button" class="nav-toggle hub-t3p-nav-toggle" id="navToggle" aria-expanded="false" aria-label="sections">
+      <svg class="nav-toggle-g hub-t3p-nav-toggle-glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.2 H20 M4 12 H20 M4 16.8 H20"/></svg>
+    </button>
+    <span data-slot="crumb" class="crumb">inventory</span>
+    <span data-slot="crumb" class="crumb-section hub-t3p-crumb-section" id="crumbSection"></span>
+  </header>
+
+  <div class="body hub-t3p-body">
+    <section class="col hub-t3p-col funnel hub-t3p-rail" id="invRail"><nav class="hub-nav-rail" id="invNav" aria-label="computers"></nav></section>
+
+    <section class="col hub-t3p-col hub-t3p-pane" id="pane">
+      <div class="hub-pane-head hub-t3p-head"></div>
+      <div class="hub-split hub-t3p-split">
+        <div class="hub-pane-col hub-t3p-list-col">
+          <div class="inv-head">
+            <input class="hub-input inv-q" id="invQ" type="search" placeholder="Search programs" aria-label="search programs" autocomplete="off">
+            <button type="button" class="hub-btn inv-scan" id="invScan">Scan now</button>
+          </div>
+          <div class="hub-pane-list hub-t3p-list inv-list" id="invList" aria-live="polite"></div>
+        </div>
+        <div class="hub-t3p-side">
+          <section class="hub-detail-rail hub-slide-over">
+            <div class="hub-detail-rail-inner hub-t3p-context" id="invScope"></div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="hub-t3p-scrim" id="invScrim" hidden></div>
+  <div class="hub-modal-scrim" id="invModal" hidden></div>
+
+  <footer class="status hub-t3p-status">
+    <span class="status-l hub-t3p-status-l" id="statusMsg">ready</span>
+    <span class="status-r hub-t3p-status-r" id="statusMeta"></span>
+  </footer>
+
+</div>
+<script defer src="/inventory/static/inventory.js?v=5"></script>
+</body>
+</html>

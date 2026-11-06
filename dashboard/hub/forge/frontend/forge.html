@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<title>Item Set Forge</title>
+<base href="/forge/">
+<!-- Everything this page needs, on the wire from the head.
+
+     An inline <script type="module"> at the bottom of the document does not
+     fetch its imports until the WHOLE document has parsed, and it does not run
+     its own body until those imports land. So the data used to go out on the
+     third serial round trip: document, then stylesheets, then the module's
+     imports, and only then api/stats and friends. Four hops before the first
+     byte of anything worth rendering, which on a phone off the tailnet is most
+     of the load. modulepreload starts the imports beside the stylesheets, and
+     the preflight below starts the data beside both, so one hop covers all of
+     it. The module at the bottom awaits promises that have already settled. -->
+<link rel="modulepreload" href="static/patchstrip.js">
+<link rel="modulepreload" href="static/itemset.js">
+<link rel="modulepreload" href="static/loadout.js">
+<script>
+  (function () {
+    var j = function (u, fb) {
+      return fetch(u).then(function (r) { return r.json(); }).catch(function () { return fb; });
+    };
+    window.__FORGE = {
+      catalog: j('static/catalog.json', { items: [], champs: [] }),
+      stats: j('api/stats', { champions: {}, patch: null }),
+      runes: j('static/runes.json', { runes: {}, trees: {} }),
+      diff: j('api/diff', {}),
+      lola: j('api/lolalytics', { champions: {}, patch: null }),
+      sets: j('api/sets', { sets: [] }),
+      passives: j('api/passives', { items: {} }),
+    };
+  }());
+</script>
+<link rel="stylesheet" href="static/forge-base.css">
+<link rel="stylesheet" href="static/forge-themes.css">
+<link rel="stylesheet" href="static/loadout.css">
+<!-- Before first paint: a theme read after the page has painted is a flash of the
+     previous one. Deliberately not a module - modules defer. -->
+<script>
+  try {
+    var t = localStorage.getItem('forge:theme');
+    if (t) document.documentElement.dataset.theme = t;
+  } catch (e) { /* private mode: the default theme is a fine place to land */ }
+</script>
+
+<style>
+  /* The editor. Palette, controls and top bar are in static/forge-base.css, shared
+     with the landing page; everything below is this page's own.
+
+     Three columns, left to right: the stat filter rail (the client's own shop layout), the
+     shop, and the set you are building with the inspector docked above it and its export
+     below.
+
+     Each column owns its own scrollbar and the document owns none: the shop is a thousand
+     tiles long and the two things you consult while reading it — the filters and the set
+     you are filling — have to stay on screen the whole way down. The whole page is locked
+     to the viewport for that (body is a grid of fixed rows, the last one being the step),
+     and only inside a column does anything move. */
+  body {
+    height: 100dvh; overflow: hidden; display: grid;
+    grid-template-rows: [bar] auto [search] auto [rail] auto [head] auto [steps] auto [pane] minmax(0, 1fr);
+    /* the shell's left rail (forge-base.css "shell") is a column here, beside head..pane;
+       the bottom padding is the status pill's band, so it never sits on a pane's last row */
+    grid-template-columns: [rail] var(--rail-w) [main] minmax(0, 1fr);
+    column-gap: 16px; padding: 0 var(--gut) 64px;
+  }
+  body.builder #forge-root > .fs-search { grid-row: search; }
+  body.builder #forge-root > .frail { grid-row: head / -1; margin-bottom: 0; overflow-y: auto; align-self: stretch; align-content: start; position: static; }
+  .buildhead { grid-row: head; }
+  .stepnav { grid-row: steps; }
+  @media (max-width: 900px) {
+    body { grid-template-columns: [rail main] minmax(0, 1fr); }
+    body.builder #forge-root > .frail { grid-row: rail; align-self: start; margin-bottom: 10px; }
+  }
+  /* the builder is locked to the viewport, so on a phone the rail keeps only the four
+     sections and the status pill goes: search, the tile and the pill's band would take
+     the pane's height (the stats and live patch still show in the patch strip) */
+  @media (max-width: 640px) {
+    body.builder { padding-bottom: 0; }
+    body.builder .fs-status { display: none; }
+    body.builder .frail { padding: 4px; }
+    body.builder .fs-search, body.builder .frail .fs-tilecta { display: none; }
+  }
+  #step1, #step2, #step3 { grid-row: pane; min-height: 0; }
+  #step1, #step3 { overflow-y: auto; }
+  #step2 { display: grid; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; }
+
+  main {
+    display: grid;
+    /* the shop and the set are the same width on purpose: an item is 48px on both sides,
+       so equal columns means a row of six in a block reads at the same rhythm as the shop */
+    grid-template-columns: 214px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 26px;
+    padding: 20px 20px 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  /* the scroller is the column, not the page. The bottom padding is what stops the last
+     shelf and the saved-set list from ending flush against the viewport edge. */
+  .col {
+    min-width: 0; min-height: 0;
+    display: grid; gap: 16px; align-content: start;
+    overflow-y: auto;
+    /* every column is a query container so the things inside it can size off the column
+       they actually live in rather than off the window. See the .ins-body rule below. */
+    container-type: inline-size;
+    padding-bottom: 90px;
+    scrollbar-width: thin;
+  }
+  /* The rail scrolls like every other column. It used to be overflow:hidden on the claim
+     that the filter list is short enough to sit still, which is only true at one size: at a
+     half-monitor width the rail narrows, its labels wrap to two lines, AND the layout drops
+     to two rows that halve every column's height, so 300px of Defense and Boots rows were
+     unreachable. A column locked to the viewport gets a scrollbar, never a crop. */
+  .col-rail { overflow-y: auto; }
+
+  .col-head { display: flex; align-items: baseline; gap: 10px; }
+  .col-head h2 { font-size: var(--t-md); font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  .col-head .count {
+    font: 500 var(--t-xs)/1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+  }
+
+  /* ── stat rail: the client's own shop filter, checkboxes that intersect ── */
+  .rail { display: grid; gap: 14px; }
+  .rail-top { display: flex; align-items: baseline; gap: 8px; }
+  .rail-top h2 { font-size: var(--t-md); font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  #clearStats {
+    margin-left: auto;
+    padding: 2px 8px;
+    font-size: var(--t-xs);
+    color: var(--dim);
+    background: none;
+    border-color: transparent;
+  }
+  #clearStats:hover:not(:disabled) { color: var(--danger); border-color: var(--danger); background: none; }
+
+  .rail-group { display: grid; gap: 1px; }
+  .rail-group > h3 {
+    margin: 0 0 4px;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .stat {
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    gap: 9px;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    padding: 4px 8px;
+    font-size: var(--t-sm);
+    color: var(--ink-2);
+    background: none;
+    border-color: transparent;
+    border-radius: var(--r-sm);
+  }
+  .stat img {
+    width: 22px;
+    height: 22px;
+    display: block;
+    border-radius: 2px;
+    filter: saturate(.75);
+    transition: filter var(--fast) var(--ease);
+  }
+  /* a label with no glyph holds the slot anyway, so labels stay flush */
+  .glyph-none {
+    width: 22px;
+    height: 22px;
+    display: block;
+  }
+  .stat:hover img, .stat[aria-pressed="true"] img { filter: none; }
+  .stat .n {
+    font: 500 var(--t-xs)/1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+  }
+  .stat:hover:not(:disabled) { background: var(--raised); border-color: transparent; color: var(--ink); }
+  .stat[aria-pressed="true"] {
+    background: var(--accent-bg);
+    border-color: var(--accent-lo);
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .stat[aria-pressed="true"] .n { color: var(--accent); }
+  .stat[disabled] { opacity: .3; }
+
+  /* ── inspector: docked above the shop, closable ───────────────────────── */
+  .inspect {
+    background: var(--surface);
+    border: 1px solid var(--line-lit);
+    border-radius: var(--r-lg);
+    padding: 14px 16px 16px;
+    display: grid;
+    gap: 12px;
+  }
+  .inspect[hidden] { display: none; }
+  .ins-top { display: grid; grid-template-columns: 48px 1fr auto auto; gap: 12px; align-items: start; }
+  .ins-top img { width: 48px; height: 48px; border-radius: var(--r-sm); border: 1px solid var(--line); }
+  .ins-top h3 { margin: 0; font-size: var(--t-md); font-weight: 600; letter-spacing: -0.01em; }
+  .ins-top .sub {
+    margin: 1px 0 0;
+    font: 500 var(--t-xs)/1.5 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+  }
+  .ins-top .sub b { color: var(--gold); font-weight: 600; }
+  .ins-top .x { padding: 3px 9px; color: var(--dim); background: none; border-color: transparent; }
+  .ins-top .x:hover { color: var(--danger); border-color: var(--danger); background: none; }
+  .ins-top .put { padding: 4px 11px; font-size: var(--t-sm); white-space: nowrap; }
+
+  .ins-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px 22px; align-items: start; }
+  /* keyed to the column, not the window: the set column is ~1130px on a maximised monitor
+     and ~360px in the three-column half-width layout, and the inspector is docked inside it
+     and only ever sees that. A viewport media query gets this wrong in both directions --
+     the old one fired at 900px, by which point the column had been ~360px for ages. */
+  @container (max-width: 520px) {
+    .ins-body { grid-template-columns: 1fr; }
+    .ins-top { grid-template-columns: 48px minmax(0, 1fr) auto; gap: 8px 12px; }
+    .ins-top .x { grid-area: 1 / 3; }
+    .ins-top .put { grid-area: 2 / 2 / 3 / 4; justify-self: start; }
+  }
+  /* the stat list carries the shop rail's own glyph, so a number in the panel and
+     a row in the filter rail are recognisably the same stat */
+  .ins dl {
+    display: grid;
+    grid-template-columns: 20px auto minmax(0, 1fr);
+    gap: 3px 8px;
+    align-items: center;
+    margin: 0 0 11px;
+  }
+  .ins dl > div { display: contents; }
+  .ins dl img { width: 20px; height: 20px; display: block; border-radius: 2px; }
+  .ins dl .glyph-none { width: 20px; height: 20px; }
+  .ins dt {
+    font: 600 var(--t-sm)/1.5 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    text-align: right;
+  }
+  .ins dd { margin: 0; font-size: var(--t-sm); color: var(--ink-2); }
+  .ins .pas { font-size: var(--t-sm); color: var(--ink-2); margin: 0 0 7px; text-wrap: pretty; }
+  .ins .pas:last-child { margin-bottom: 0; }
+  .ins .pas b { color: var(--accent); font-weight: 600; display: block; }
+
+  /* both sources in full. The tile caption is one number; this is the reading
+     behind it, and the slot-by-slot lolalytics figures that have nowhere else to
+     go - an item bought second and an item bought fifth are different items. */
+  .ins .figs { display: grid; gap: 6px; margin: 0 0 11px; }
+  .ins .figs h4 {
+    margin: 2px 0 0;
+    font-size: var(--t-xs); font-weight: 600;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--dim);
+  }
+  .ins .fline {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 9px;
+    align-items: baseline;
+    font-size: var(--t-sm);
+    color: var(--ink-2);
+  }
+  .ins .fline > .k {
+    font: 500 var(--t-xs)/1.5 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+    text-align: right;
+  }
+  .ins .fline b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ins .fline b.up { color: var(--accent); }
+  .ins .fline b.down { color: var(--danger); }
+  .ins .fline b.thin { color: var(--dim); }
+  .ins .fnote { margin: 0 0 9px; font-size: var(--t-xs); color: var(--dim); text-wrap: pretty; }
+
+  /* build path: what it becomes above, what it is made of below. Each node reads
+     itself - name, gold, stats - rather than hiding it in a tooltip, and each
+     node is draggable, so the part you decided you wanted goes straight to a block. */
+  .tree { display: grid; gap: 8px; align-content: start; }
+  .tier { display: grid; gap: 5px; }
+  .tier .lab {
+    font-size: var(--t-xs); color: var(--dim);
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+  .tier .node {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    gap: 9px;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    padding: 5px 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    cursor: grab;
+  }
+  .tier .node img { width: 34px; height: 34px; display: block; border-radius: 2px; pointer-events: none; }
+  .tier .node .nn { min-width: 0; }
+  .tier .node .nn strong { display: block; font-size: var(--t-sm); font-weight: 600; color: var(--ink); }
+  .tier .node .nn span {
+    display: block;
+    font-size: var(--t-xs); color: var(--dim);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .tier .node .ng {
+    font: 600 var(--t-xs)/1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--gold);
+  }
+  .tier .node:hover { border-color: var(--accent); }
+  .tier .node.self { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
+  .tier .node.dragging { opacity: .4; cursor: grabbing; }
+  .tier.rail-arrow { gap: 0; }
+  .tier.rail-arrow .arrow { color: var(--dim); font-size: var(--t-sm); line-height: 1; padding-left: 14px; }
+
+  /* ── the shop: shelves, each split into the sections the client sells ─── */
+  #shelves { display: grid; gap: 24px; }
+  .shelf { display: grid; gap: 12px; }
+  .shelf-head {
+    display: flex;
+    align-items: baseline;
+    gap: 9px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 6px;
+  }
+  .shelf-head h3 { margin: 0; font-size: var(--t-base); font-weight: 600; }
+  .shelf-head .n, .sub-head .n {
+    font: 500 var(--t-xs)/1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+  }
+  .shelf-head .what { font-size: var(--t-xs); color: var(--dim); margin-left: auto; text-align: right; }
+
+  /* scoped to .shelf on purpose: the inspector's cost line is also a .sub, and an
+     unscoped rule made it a grid and let the filter pass hide it */
+  .shelf .sub { display: grid; gap: 7px; }
+  .sub-head { display: flex; align-items: baseline; gap: 8px; }
+  .sub-head h4 {
+    margin: 0;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  /* A tile is the icon plus a two-line caption: the numbers used to live only in
+     the hover title, which meant reading the shop one tooltip at a time. The
+     caption slot is always rendered, even empty, so tiles in a row keep a common
+     baseline whether or not coachless measured the item. */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, 48px); gap: 7px 7px; }
+  .grid[hidden], .shelf[hidden], .shelf .sub[hidden], .empty[hidden] { display: none; }
+  .item {
+    position: relative;
+    width: 48px;
+    padding: 0 0 1px;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    cursor: grab;
+    transition: border-color var(--fast) var(--ease), transform var(--fast) var(--ease);
+  }
+  .item[data-shelf="Components"] { border-color: var(--line-lit); }
+  .item[data-shelf="Legendary"] { border-color: var(--accent-lo); }
+  .item img { width: 46px; height: 46px; display: block; border-radius: 2px; pointer-events: none; }
+  .item:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .item[aria-current="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
+  .item.dragging { opacity: .4; cursor: grabbing; }
+  .item .cost {
+    position: absolute;
+    right: -2px;
+    top: 26px;
+    font: 600 var(--fs-caption)/1.5 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--gold);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 0 3px;
+    pointer-events: none;
+  }
+  /* the caption: coachless WPA over its sample, both tabular so a column of
+     tiles reads as a column of numbers */
+  .item .fig {
+    display: grid;
+    min-height: 27px;
+    align-content: center;
+    gap: 2px;
+    padding: 3px 0 1px;
+    pointer-events: none;
+  }
+  .item .fig b {
+    font: 600 var(--t-xs)/1.1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-2);
+  }
+  .item .fig i {
+    font: 500 var(--fs-caption)/1.1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    font-style: normal;
+    color: var(--dim);
+  }
+  .item .fig b.up { color: var(--accent); }
+  .item .fig b.down { color: var(--danger); }
+
+  .empty {
+    border: 1px dashed var(--line);
+    border-radius: var(--r-lg);
+    padding: 20px;
+    color: var(--dim);
+    font-size: var(--t-sm);
+    display: grid;
+    gap: 10px;
+    justify-items: start;
+  }
+  .empty b { color: var(--ink); font-weight: 600; font-size: var(--t-base); }
+
+  /* ── your set ─────────────────────────────────────────────────────────── */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 11px 3px 3px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: var(--t-sm);
+    color: var(--ink-2);
+  }
+  .chip:hover { border-color: var(--danger); color: var(--danger); }
+  .chip img { width: 22px; height: 22px; border-radius: 50%; }
+
+  .block {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    margin-bottom: 10px;
+    transition: border-color var(--mid) var(--ease), background var(--mid) var(--ease);
+  }
+  .block[data-active="true"] { border-color: var(--accent-lo); background: var(--accent-bg); }
+  .block.over { border-color: var(--accent); background: var(--accent-bg); }
+  .bhead { display: flex; align-items: center; gap: 5px; padding: 9px 10px; }
+  .bhead input {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--t-base);
+    font-weight: 600;
+    background: none;
+    border-color: transparent;
+    padding: 4px 7px;
+  }
+  .bhead input:hover { border-color: var(--line); }
+  .bhead button { padding: 4px 9px; font-size: var(--t-sm); line-height: 1.2; color: var(--dim); background: none; border-color: transparent; }
+  .bhead button:hover:not(:disabled) { color: var(--ink); background: var(--raised); border-color: var(--line); }
+  .bhead .kill:hover:not(:disabled) { color: var(--danger); border-color: var(--danger); background: none; }
+
+  .slots { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 10px 10px; min-height: 58px; align-content: flex-start; }
+  .slots:not(:has(.slot))::after {
+    content: attr(data-hint);
+    align-self: center;
+    color: var(--dim);
+    font-size: var(--t-sm);
+  }
+  /* A slot reads like a shop tile and behaves like one: click opens it, drag
+     moves it, and the only thing that takes it back out is the small x, which
+     stays hidden until the pointer is on the slot. Clicking used to remove,
+     which meant reading an item in your own set spent it. */
+  .slot {
+    position: relative;
+    width: 48px; height: 48px;
+    cursor: grab;
+  }
+  .slot img {
+    width: 100%; height: 100%;
+    display: block;
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    pointer-events: none;
+  }
+  .slot:hover img { border-color: var(--accent); }
+  .slot[aria-current="true"] img { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
+  .slot.dragging { opacity: .4; cursor: grabbing; }
+  /* the slot a drop would land in front of */
+  .slot.before img { box-shadow: -3px 0 0 0 var(--accent); }
+  .slot .sgold {
+    position: absolute;
+    left: -3px; bottom: -6px;
+    font: 600 var(--fs-caption)/1.5 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--gold);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 0 3px;
+    pointer-events: none;
+  }
+  .slot .count {
+    position: absolute;
+    right: -6px; bottom: -6px;
+    min-width: 18px;
+    font: 600 var(--fs-caption)/16px var(--mono);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    color: var(--accent);
+    background: var(--bg);
+    border: 1px solid var(--accent-lo);
+    border-radius: 999px;
+    pointer-events: none;
+  }
+  .slot .rm {
+    position: absolute;
+    right: -7px; top: -7px;
+    width: 18px; height: 18px;
+    padding: 0;
+    font: 600 var(--fs-caption)/1 var(--mono);
+    color: var(--dim);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity var(--fast) var(--ease);
+  }
+  .slot:hover .rm, .slot .rm:focus-visible { opacity: 1; }
+  .slot .rm:hover:not(:disabled) { color: var(--danger); border-color: var(--danger); background: var(--bg); }
+
+  /* Which item the shop's figures are read out of, marked in the set itself. All
+     four corners of a slot are spoken for — note, x, gold, count — so the marker
+     is a ring on the item plus one line under the row, and the LINE is what
+     carries the state. A ring that only changes colour says "this is the first
+     item" and "no reading came back" in the same breath, which is the thing the
+     shop legend already learned not to do. */
+  .slot[data-first] img { border-width: 2px; }
+  .slot[data-first="read"] img {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent), 0 0 0 3px var(--accent-bg);
+  }
+  .slot[data-first="thin"] img { border-color: var(--danger); box-shadow: 0 0 0 2px var(--danger); }
+  .slot[data-first="pending"] img { border-color: var(--dim); box-shadow: 0 0 0 2px var(--dim); }
+  .fnote {
+    /* .slots already pads 10px below, so this pulls back into it and re-pays the
+       bottom itself; the left pad matches so the arrow lands under slot zero. */
+    margin: -4px 0 0;
+    padding: 0 10px 10px;
+    font-size: var(--t-xs);
+    color: var(--dim);
+    text-wrap: pretty;
+  }
+  .fnote[data-state="read"] { color: var(--accent); }
+
+  .help { color: var(--dim); font-size: var(--t-sm); margin: 0; max-width: 62ch; text-wrap: pretty; }
+  .help b { color: var(--ink-2); font-weight: 600; }
+  kbd {
+    font: 500 var(--t-xs)/1.5 var(--mono);
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: var(--r-sm);
+    padding: 1px 5px;
+    color: var(--ink-2);
+  }
+
+  /* ── export ───────────────────────────────────────────────────────────── */
+  .actions { display: flex; flex-wrap: wrap; gap: 7px; }
+  #out {
+    margin: 0;
+    padding: 12px 14px;
+    font: var(--fs-footnote)/1.6 var(--mono);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    color: var(--ink-2);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 9px; counter-reset: s; }
+  .steps li {
+    display: grid;
+    grid-template-columns: 19px 1fr;
+    gap: 10px;
+    align-items: baseline;
+    color: var(--dim);
+    font-size: var(--t-sm);
+  }
+  .steps li::before {
+    counter-increment: s;
+    content: counter(s);
+    font: 600 var(--fs-caption)/17px var(--mono);
+    text-align: center;
+    color: var(--accent);
+    border: 1px solid var(--accent-lo);
+    border-radius: 50%;
+  }
+  .steps b { color: var(--ink-2); font-weight: 600; }
+
+  .saves ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  .saves li {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 6px;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: 7px 8px 7px 11px;
+  }
+  .saves .nm { min-width: 0; }
+  .saves .nm strong { display: block; font-size: var(--t-sm); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .saves .nm span { font: 500 var(--t-xs)/1.4 var(--mono); font-variant-numeric: tabular-nums; color: var(--dim); }
+  .saves li button { padding: 4px 9px; font-size: var(--t-xs); }
+  .saves li .del:hover:not(:disabled) { color: var(--danger); border-color: var(--danger); }
+  .saves .none, .empty-note { color: var(--dim); font-size: var(--t-sm); margin: 0; }
+
+  /* Three columns are kept as far down as they fit rather than as far down as they are
+     roomy. The rail is 214px and the gaps and padding take 92px, so at 1000px the shop and
+     the set are 347px each: a row of six 48px tiles is 323px, which is the rhythm the
+     three-column layout was designed around in the first place. Dropping to two rows any
+     earlier is the worse trade, because the second row does not add height, it halves it. */
+  @media (max-width: 1000px) {
+    main { grid-template-columns: 190px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+    .col-set { grid-column: 1 / -1; }
+  }
+  @media (max-width: 760px) {
+    main { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
+  }
+
+  /* ── step one: the rune page ──────────────────────────────────────────────
+     An authoring picker with the statistics ON the runes rather than a picker
+     beside a read-only panel: you are choosing while you read, so splitting the
+     two would mean holding a figure in your head to cross a gap.
+
+     One number carries it: WPA, the change in win probability from before the
+     purchase to after. Positive is cyan, negative is red, and sample count is
+     printed beside it, because the highest-WPA rune on any champion is almost
+     always a 200-game outlier. Read the wide marks, not the big numbers.
+
+     Every reading here is keyed to the CHOSEN keystone — a minor rune's WPA only
+     means anything in the context of the keystone above it — so changing the
+     keystone repaints all three columns. */
+  .buildhead {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 11px 20px;
+  }
+  .buildhead #title { width: 260px; font-size: var(--t-base); }
+  .buildhead #champIn { width: 175px; }
+  .buildhead .locked-tag {
+    font: 500 var(--t-xs)/1 var(--mono);
+    letter-spacing: .06em; text-transform: uppercase;
+    color: var(--accent); border: 1px solid var(--accent-lo); background: var(--accent-bg);
+    border-radius: 999px; padding: 4px 9px;
+  }
+  /* An Auto set is read-only (only Autobuild writes it). The guarantee is in JS:
+     persist() and autosave() put the stored set back on any edit. Here the edit-only
+     controls are hidden; the rune and plan pages still scroll and hover. */
+  body.locked .buildhead select, body.locked #champIn, body.locked #champs,
+  body.locked .bhead input { pointer-events: none; }
+  body.locked .bhead button, body.locked .slot .nt, body.locked .slot .rm,
+  body.locked #insAdd, body.locked #addBlock { display: none; }
+
+  .stepnav {
+    position: sticky; top: var(--topbar-h); z-index: var(--z-sticky);
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 10px 20px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+  .stepnav button {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 6px 14px 6px 8px;
+    font-size: var(--t-sm);
+    color: var(--dim);
+    background: none;
+    border-color: transparent;
+  }
+  .stepnav button b {
+    font: 600 var(--fs-caption)/17px var(--mono);
+    width: 18px; text-align: center;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+  .stepnav button:hover:not(:disabled) { color: var(--ink); background: var(--raised); border-color: transparent; }
+  .stepnav button[aria-pressed="true"] {
+    color: var(--accent);
+    background: var(--accent-bg);
+    border-color: var(--accent-lo);
+    font-weight: 600;
+  }
+  .stepnav button[aria-pressed="true"] b { border-color: var(--accent-lo); }
+  .stepnav .why { font-size: var(--t-xs); color: var(--dim); }
+
+  .runepage {
+    display: grid;
+    gap: 16px;
+    margin: 16px 20px 0;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+  }
+  #step1[hidden], #step2[hidden], #step3[hidden] { display: none; }
+  .meta-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .meta-head h2 { font-size: var(--t-md); font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  .meta-head .sub { font-size: var(--t-xs); color: var(--dim); }
+  .meta-note { font-size: var(--t-xs); color: var(--dim); margin: 0; max-width: 68ch; }
+
+  /* Two columns, not three. They still stretch to the taller one, which is what
+     keeps the two column backgrounds the same height, but nothing inside grows
+     into that slack any more: the blocks are sized off the client's ratios and
+     the left column simply ends short. Do not read these boxes to test the
+     layout, they are equal by construction. */
+  .rune-cols {
+    display: grid;
+    /* auto-fit counts tracks off the MAX when the max is a fixed length, so
+       minmax(420px, 640px) dropped to one 640px column below 1302px and left the
+       rest of the row empty. Count off a 1fr max and cap the grid instead. */
+    grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+    max-width: 1302px;        /* two 640px columns and the gap between them */
+    gap: 22px;
+    align-items: stretch;
+  }
+  .rune-side { display: grid; gap: 22px; align-content: start; }
+
+  /* The primary column is a flex column for the gap rhythm only. Nothing in it
+     flexes to fill any more; the keystone row's `flex: 1` is gone. */
+  #primaryCol { display: flex; flex-direction: column; gap: 11px; }
+  #primaryCol .treebody { display: flex; flex-direction: column; gap: 11px; }
+  /* the id in the rule above outranks .treebody[hidden], so the hidden four came
+     back the moment the primary column went flex. Restate it at the same weight. */
+  #primaryCol .treebody[hidden] { display: none; }
+  /* A keystone row is 1.13x a minor row in the client, not 2.33x. It stopped
+     being flexed to fill the column: with four keystones on screen rather than
+     the client's one, filling meant four boxes of mostly empty space. The two
+     columns do NOT finish level as a result, and that is the settled call: the
+     left one ends ~156px short of the shard stack. verify_frontend.py asserts the
+     ratios, not the column heights. */
+  #primaryCol .rrow.keys { display: grid; gap: 2px; }
+
+  /* which lane is which source, printed once per rune column rather than on
+     every row: the numbers repeat 60 times, the labels do not need to */
+  /* The header carries the SAME six columns as a rune row, so every label sits
+     over the number it names: the source spans its pair on the top line, the
+     unit sits on the one under it. It used to run four columns against the row's
+     six, which put "wpa \u00b7 n" over the seam between two figures and left you
+     working out which was which. Everything is right-aligned, headers and
+     figures alike, because that is the edge a column of numbers lines up on. */
+  .srcbar {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 42px 34px 44px 36px;
+    gap: 1px 7px;
+    padding: 0 9px 4px;   /* 8px padding + the 1px border a .rpick has and this does not */
+    font-size: var(--fs-caption);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--dim);
+    border-bottom: 1px solid var(--line);
+  }
+  .srcbar > span { text-align: right; white-space: nowrap; overflow: hidden; }
+  .srcbar .a { grid-area: 1 / 3 / 2 / 5; }
+  .srcbar .b { grid-area: 1 / 5 / 2 / 7; padding-left: 8px; border-left: 1px solid var(--line); }
+  .srcbar .u1 { grid-area: 2 / 3 / 3 / 4; }
+  .srcbar .u2 { grid-area: 2 / 4 / 3 / 5; }
+  .srcbar .u3 { grid-area: 2 / 5 / 3 / 6; padding-left: 8px; border-left: 1px solid var(--line); }
+  .srcbar .u4 { grid-area: 2 / 6 / 3 / 7; }
+  .srcbar .a, .srcbar .u1, .srcbar .u2 { color: var(--dim); }
+  .rune-col { display: grid; gap: 11px; align-content: start; }
+  .rune-col > h3 {
+    margin: 0;
+    font-size: var(--t-xs); font-weight: 600;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--dim);
+  }
+
+  /* The five trees as their own emblems: the pick you make first in the client.
+     The emblem is drawn at 32px and not one pixel larger, because 32x32 is the
+     only size Riot ships it in - not on Data Dragon, not in the raw game assets,
+     not in perkstyles' asset map (every one of those was checked). It used to be
+     stretched to 46px inside this button, which is where the mush came from. The
+     button keeps its 56px hit area; the art just stops being upscaled. */
+  .treepick { display: flex; flex-wrap: wrap; gap: 7px; }
+  .treepick button {
+    width: 56px; height: 56px;
+    display: grid; place-items: center;
+    padding: 5px;
+    background: var(--raised);
+  }
+  .treepick button img { width: 32px; height: 32px; display: block; filter: saturate(.5) opacity(.6); }
+  .treepick button:hover:not(:disabled) img { filter: none; }
+  .treepick button[aria-pressed="true"] { border-color: var(--accent-lo); background: var(--accent-bg); }
+  .treepick button[aria-pressed="true"] img { filter: none; }
+  .treepick button:disabled img { filter: grayscale(1) opacity(.25); }
+
+  .rrow { display: grid; gap: 2px; }
+  .rrow > .lab {
+    font-size: var(--t-xs); color: var(--dim);
+    letter-spacing: .08em; text-transform: uppercase;
+    padding: 4px 6px 1px;
+  }
+  /* Six columns: icon, name, then two fixed reading lanes of (figure, sample).
+     Fixed rather than auto so every row in a column lines its numbers up even
+     when one source has a reading and the other does not. */
+  .rpick {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 42px 34px 44px 36px;
+    gap: 7px;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    padding: 4px 8px;
+    font-size: var(--t-sm);
+    color: var(--ink-2);
+    background: none;
+    border-color: transparent;
+    border-radius: var(--r-sm);
+  }
+  /* the seam between the two sources, so a glance knows which number it is on */
+  .rpick .wpa.lane { border-left: 1px solid var(--line); padding-left: 8px; }
+  /* right edge, same as .rgames and the header above it: a column of numbers
+     lines up on its right or it does not line up at all */
+  .rpick .wpa { text-align: right; }
+  /* Sized off the League client's own rune page, measured against a minor rune:
+     tree emblem 1.27x, keystone 1.4x, minor 1x, shard 0.59x. The keystone used to
+     be 3.3x a minor here, which is not a hierarchy, it is one icon shouting. */
+  .rpick img { width: 36px; height: 36px; display: block; filter: saturate(.6) opacity(.7); }
+  .rpick .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rpick:hover:not(:disabled) { background: var(--raised); border-color: transparent; color: var(--ink); }
+  .rpick:hover:not(:disabled) img { filter: none; }
+  .rpick[aria-pressed="true"] {
+    background: var(--accent-bg);
+    border-color: var(--accent-lo);
+    color: var(--ink);
+  }
+  .rpick[aria-pressed="true"] img { filter: none; }
+  .rpick.key { grid-template-columns: 42px minmax(0, 1fr) 42px 34px 44px 36px; padding: 5px 8px; }
+  .rpick.key img { width: 42px; height: 42px; }
+  .rpick.key .nm { font-size: var(--t-base); font-weight: 500; }
+
+  /* A shard is a stat, not a rune, and the client draws it at .59x a minor. Its
+     first track shrinks with it; the four figure tracks are unchanged, so their
+     right edges still line up with the header above them. */
+  #shardCol .rpick { grid-template-columns: 18px minmax(0, 1fr) 42px 34px 44px 36px; padding: 1px 8px; }
+  #shardCol .rpick img { width: 18px; height: 18px; }
+
+  /* Four of the five trees are built and hidden rather than deleted, so a tree
+     switch is a display toggle and not sixty icons thrown away and re-decoded.
+     Both need the explicit [hidden] rule: their own display wins over the UA's. */
+  .treebody { display: grid; gap: 11px; }
+  .treebody[hidden], .srcbar[hidden] { display: none; }
+
+  /* The picker survives a click now, so the pick can move instead of cutting.
+     Short enough to read as the same gesture, not as an animation. */
+  .rpick, .rpick img, .treepick button, .treepick button img {
+    transition: background-color .12s ease, border-color .12s ease,
+                color .12s ease, filter .12s ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rpick, .rpick img, .treepick button, .treepick button img { transition: none; }
+  }
+  .rgames {
+    font: 500 var(--t-xs)/1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+    min-width: 34px;
+    text-align: right;
+  }
+  .quiet { margin: 0; color: var(--dim); font-size: var(--t-sm); }
+
+  #metaOnly { padding: 3px 9px; font-size: var(--t-xs); }
+  #metaOnly[aria-pressed="true"] {
+    background: var(--accent-bg); border-color: var(--accent-lo); color: var(--accent);
+  }
+
+  /* the WPA figure, shared by runes and items */
+  .wpa {
+    font: 500 var(--t-xs)/1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .wpa.up { color: var(--accent); }
+  .wpa.down { color: var(--danger); }
+  .wpa.thin { color: var(--dim); }
+
+  /* item tiles in the shop carry their WPA as a bottom edge: colour is the
+     direction, width is how much of this champion's games actually bought it */
+  .item .meta-edge {
+    position: absolute;
+    left: 0; bottom: 0; height: 3px;
+    border-bottom-left-radius: var(--r-sm);
+    pointer-events: none;
+  }
+  .item .meta-edge.up { background: var(--accent); }
+  .item .meta-edge.down { background: var(--danger); }
+  .shop-legend {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    font-size: var(--t-xs); color: var(--dim);
+  }
+  .shop-legend b { font-weight: 600; color: var(--ink-2); }
+
+  /* ── hover card ───────────────────────────────────────────────────────────
+     What a rune or an item actually IS, on hover. A picker row has room for an
+     icon, a name and four figures; a 48px shop tile has room for a gold badge and
+     one number. What the thing does fits in neither, and lived in the `title`
+     attribute - which is browser chrome: it takes about a second to appear, it
+     cannot be styled, and on a shop grid it never got read at all. This is the
+     same information, styled, next to the thing, immediately.
+
+     Items lead with their STATS, because that is the question you are asking when
+     your pointer is on a tile: what does this give me. */
+  .hovercard {
+    position: fixed;
+    z-index: 200;
+    width: 330px;
+    padding: 11px 13px;
+    background: var(--surface);
+    border: 1px solid var(--line-lit);
+    border-radius: var(--r-md);
+    box-shadow: 0 12px 34px oklch(0 0 0 / .5);
+    pointer-events: none;
+  }
+  .hovercard[hidden] { display: none; }
+  .hovercard h4 {
+    display: flex; align-items: baseline; gap: 8px;
+    margin: 0 0 7px;
+    font-size: var(--t-sm); font-weight: 600; color: var(--ink);
+  }
+  .hovercard h4 b {
+    margin-left: auto;
+    font: 600 var(--t-xs)/1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--gold);
+  }
+  .hovercard p {
+    margin: 0;
+    font-size: var(--t-xs); line-height: 1.6;
+    color: var(--ink-2);
+    white-space: pre-line;
+    text-wrap: pretty;
+  }
+  /* the stat list, same shape and same glyphs as the inspector's */
+  .hovercard dl {
+    display: grid;
+    grid-template-columns: 18px auto minmax(0, 1fr);
+    gap: 3px 8px;
+    align-items: center;
+    margin: 0 0 8px;
+  }
+  .hovercard dl > div { display: contents; }
+  .hovercard dl img { width: 18px; height: 18px; display: block; border-radius: 2px; }
+  .hovercard dl .glyph-none { width: 18px; height: 18px; }
+  .hovercard dt {
+    font: 600 var(--t-xs)/1.5 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+    text-align: right;
+  }
+  .hovercard dd { margin: 0; font-size: var(--t-xs); color: var(--ink-2); }
+  .hovercard .hc-pas { margin: 0 0 7px; }
+  .hovercard .hc-pas b { color: var(--accent); font-weight: 600; }
+  .hovercard .hc-figs {
+    display: grid;
+    /* capped: a bare `auto` gave Riot's longest label the whole card and left the
+       figures one word per line */
+    grid-template-columns: fit-content(40%) minmax(0, 1fr);
+    gap: 2px 8px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+    font-size: var(--t-xs);
+    color: var(--ink-2);
+  }
+  .hovercard .hc-figs .k {
+    font: 500 var(--fs-caption)/1.6 var(--mono);
+    color: var(--dim);
+    text-align: right;
+  }
+  .hovercard .hc-figs b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .hovercard .hc-figs b.up { color: var(--accent); }
+  .hovercard .hc-figs b.down { color: var(--danger); }
+  .hovercard .hc-figs b.thin { color: var(--dim); }
+  /* the rewritten tooltip lines, struck where they were dropped: the old line has
+     to read as the old line, or a removal looks like current text */
+  .hovercard .hc-txt { margin-top: 8px; }
+  .hovercard .hc-txt p:last-child { margin-bottom: 0; }
+  .hovercard .hc-txt s { text-decoration-thickness: 1px; }
+  /* Riot's own reasoning, last and quietest: it is the longest thing on the card
+     and the strip's question is what moved, not why */
+  .hovercard .hc-why {
+    margin: 8px 0 0;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+    color: var(--dim);
+  }
+
+  /* ── the qualitative layer ───────────────────────────────────
+     A rune id and an item id carry what the build is. They cannot carry the half
+     that makes a build usable by anyone including you in a month: which swap you
+     make, and when. So an alternative and a note are TEXT, sitting next to the
+     thing they are about — never a marker you have to already know the meaning
+     of. The marker only says "there are words here", the words do the work. */
+  /* Capped with the columns above it. A full-bleed list of one-sentence rows
+     reads as a table nobody wrote, and the note is the content — it wants a
+     measure, not the whole window. */
+  .alts { display: grid; gap: 9px; margin: 0; max-width: 1302px; }
+  .alts[hidden] { display: none; }
+  .alts > h3 {
+    margin: 0; font-size: var(--t-sm); font-weight: 600; color: var(--ink);
+  }
+  .alts > .quiet { margin: 0; font-size: var(--t-xs); color: var(--dim); max-width: 78ch; }
+  .alt {
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
+    gap: 2px 11px;
+    align-items: center;
+    padding: 8px 10px;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--accent-lo);
+    border-radius: var(--r-sm);
+  }
+  /* Every cell placed explicitly. Auto-placement puts the items that name a
+     definite ROW down before the ones that name nothing, so the two row-spanning
+     cells claimed columns 1 and 2 and shoved the text into column 3 — the icon,
+     then the buttons, then the name, in that order. */
+  .alt > img { grid-area: 1 / 1 / span 2 / 2; }
+  .alt img { width: 30px; height: 30px; border-radius: 4px; display: block; }
+  .alt .who { grid-area: 1 / 2 / 2 / 3; margin: 0; font-size: var(--t-sm); color: var(--ink); }
+  .alt .who .instead { display: block; color: var(--dim); font-size: var(--t-xs); }
+  .alt .note {
+    grid-area: 2 / 2 / 3 / 3; margin: 0;
+    font-size: var(--t-xs); line-height: 1.6; color: var(--ink-2);
+    white-space: pre-line; text-wrap: pretty;
+  }
+  .alt .note:empty::after { content: 'No note yet.'; color: var(--dim); font-style: italic; }
+  .alt .acts { grid-area: 1 / 3 / span 2 / 4; display: flex; gap: 4px; }
+  .alt .acts button { padding: 3px 7px; font-size: var(--t-xs); }
+  .alt .acts .kill:hover { color: var(--danger); border-color: var(--danger); }
+
+  /* Armed: the next pick is recorded as an alternative instead of taken. The
+     cursor says it and the refused half of the page says it too, because a mode
+     you cannot see is a mode you fire by accident. */
+  #step1[data-arming] .rpick, #step1[data-arming] .treepick button { cursor: copy; }
+  #step1[data-arming] .rrow.keys, #step1[data-arming] #primaryCol .treepick { opacity: .45; }
+  #armAlt[aria-pressed="true"] { color: var(--on-accent); background: var(--accent); border-color: var(--accent); }
+
+  /* The note editor. A textarea, not a prompt(): a note is a sentence or two of
+     guidance and you have to be able to read back what you typed. */
+  dialog.notedlg {
+    width: min(520px, 92vw);
+    padding: 16px 18px;
+    color: var(--ink);
+    background: var(--surface);
+    border: 1px solid var(--line-lit);
+    border-radius: var(--r-lg);
+  }
+  dialog.notedlg::backdrop { background: oklch(0 0 0 / .6); }
+  dialog.notedlg h3 { margin: 0 0 4px; font-size: var(--t-md); font-weight: 600; }
+  dialog.notedlg p { margin: 0 0 10px; font-size: var(--t-xs); color: var(--dim); }
+  dialog.notedlg textarea {
+    width: 100%; min-height: 96px; resize: vertical;
+    padding: 9px 10px;
+    font: 400 var(--t-sm)/1.6 inherit;
+    color: var(--ink); background: var(--bg);
+    border: 1px solid var(--line); border-radius: var(--r-sm);
+  }
+  dialog.notedlg textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  dialog.notedlg .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+
+  /* A slot's note affordance mirrors its x: same size, same corner rhythm, other
+     side. It stays lit once there is a note on it, because the whole point is
+     that you can see which items have something to say before you hover them. */
+  .slot .nt {
+    position: absolute;
+    left: -7px; top: -7px;
+    width: 18px; height: 18px;
+    padding: 0;
+    font: 600 var(--fs-caption)/1 var(--mono);
+    color: var(--dim);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity var(--fast) var(--ease);
+  }
+  .slot:hover .nt, .slot .nt:focus-visible { opacity: 1; }
+  .slot[data-noted] .nt { opacity: 1; color: var(--accent); border-color: var(--accent-lo); }
+  .slot .nt:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* On the card the note comes FIRST, under the name. Everything below it is a
+     measurement; this is the one line on the card that knows why the item is in
+     this build, and it is worth nothing at the bottom of a stat list. */
+  .hovercard .hc-note {
+    margin: 0 0 8px;
+    padding-left: 8px;
+    border-left: 2px solid var(--accent);
+    font-size: var(--t-xs); line-height: 1.6; color: var(--ink);
+    white-space: pre-line; text-wrap: pretty;
+  }
+</style>
+</head>
+<body class="forge builder">
+
+<div id="forge-root" style="display: contents"></div>
+
+<script src="/static/vendor/react.production.min.js"></script>
+<script src="/static/vendor/react-dom.production.min.js"></script>
+<!-- the logic modules (itemset, patchstrip, loadout, build-overlay) reach the JSX through window.ForgeLib -->
+<script type="module" src="static/forge-lib-bridge.js"></script>
+<!-- defer keeps document order: the part files assign into window.ForgeUI, forge.jsx mounts last -->
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/forge-shop.jsx?v=2"></script>
+<script defer src="/jsx/forge/frontend/static/forge-blocks.jsx?v=3"></script>
+<script defer src="/jsx/forge/frontend/static/forge-stats.jsx?v=2"></script>
+<script defer src="/jsx/forge/frontend/static/forge-runes.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/loadout.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/forge.jsx?v=1"></script>
+<script>
+// load fallback: if the React body never mounted, say so instead of leaving a blank page
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="forge"]')) return;
+    var host = document.getElementById("forge-root");
+    if (host) host.innerHTML = '<p style="padding:22px 20px;color:var(--dim)">page failed to load</p>';
+  }, 3000);
+});
+</script>
+</body>
+</html>

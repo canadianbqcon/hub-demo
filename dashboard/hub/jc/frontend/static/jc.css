@@ -1,0 +1,111 @@
+/* ============================================================
+   juniper & co umbrella shell — the tab chrome shared by all three
+   sections (batch prep · bar back · the map).
+
+   This file owns ONLY the shell: the two tab levels and the panels.
+   Everything inside a panel keeps its own stylesheet (batch.css,
+   barback.css), both loaded after this one. Tokens come from the theme
+   files, same as every other hub page.
+
+   Two tab levels, one visual language — that is the whole point of the
+   merge. Primary tabs pick the section; sub-tabs pick the view inside
+   it. A sub-tab is the same control one step quieter, never a different
+   kind of control (the old page had a bottom nav on one side and a top
+   tab bar on the other).
+   ============================================================ */
+
+/* ===== THE STICKY STACK =====
+   Three layers pinned in order: topbar, primary tabs, sub-tabs — then batch's
+   own .recipe-controls under those. Each layer's `top` is the sum of the ones
+   above it, so the heights have to be RIGHT, not approximately right: a value
+   that is too small parks the bar below the viewport edge and lets content
+   scroll through the gap above it.
+
+   So they are measured, not declared. jc.js writes the real
+   getBoundingClientRect heights into these vars on load and on resize; the
+   values here are only a first-paint estimate. Hardcoding them is what broke
+   this the first time — --topbar-h said 60px, the topbar is 88px on desktop
+   and 67px on mobile, and no single literal is right for both. */
+:root {
+  --topbar-h:56px;
+  --jc-tabs-h:46px;
+  --jc-subtabs-h:36px;
+}
+
+/* The Hub's shared .topbar is `position:static` everywhere — no page had a
+   sticky layer under it before, so nothing exposed that. This page does, and
+   the bar has to stay put for the stack below it to mean anything. Scoped to
+   this page deliberately: making every Hub page's topbar sticky is a change
+   nobody asked for. */
+/* SCOPED, not deleted. jc loads theme-switch.js, whose injected sheet declares
+   .topbar last and wins — but it declares no position/top/z-index, so these three
+   are additive and live. */
+body.jc .topbar { position:sticky; top:0; z-index:40; }
+
+.jc-tabs {
+  position:sticky; top:var(--topbar-h); z-index:30;
+  height:var(--jc-tabs-h);
+  align-items:center; gap:var(--s-3);
+  padding:0 var(--s-5); background:var(--bg);
+}
+.jc-subtabs {
+  position:sticky; top:calc(var(--topbar-h) + var(--jc-tabs-h)); z-index:25;
+  height:var(--jc-subtabs-h);
+  display:flex; align-items:center; gap:var(--s-1);
+  padding:0 var(--s-5);
+  /* a different plane, not just a thinner copy — see the note below */
+  background:var(--bg-elev); border-bottom:1px solid var(--line);
+}
+
+/* ===== THE TWO LEVELS MUST NOT LOOK ALIKE =====
+   First cut gave both bars the same control at two font sizes, and the
+   hierarchy did not read — you could not tell "which section am I in" from
+   "which view of it". They now differ on four axes at once: typeface (display
+   vs body), size, plane (page bg vs elevated strip), and — the loudest signal
+   — indicator shape. Primary tabs underline. Sub-tabs fill a pill. Same
+   control drawn two ways is ambiguous; two different controls are not. */
+.jc-tab {
+  background:none; border:0;
+  transition:color 140ms ease-out, border-color 140ms ease-out, background 140ms ease-out;
+}
+
+/* level 1 — which section: big, display face, underlined */
+.hub-tab.jc-tab {
+  position:relative; box-sizing:border-box; justify-content:center; height:var(--ctl-h); padding:0 var(--s-3);
+  line-height:1; border-bottom:0; margin-bottom:0; border-radius:var(--r-pill);
+  font-family:var(--font-display); font-feature-settings:var(--feat-display);
+  font-size:var(--fs-body); font-weight:500; letter-spacing:.01em; text-transform:lowercase;
+  color:var(--fg-dim);
+}
+.hub-tab.jc-tab:hover { background:var(--bg-hover); }
+.hub-tab.jc-tab[aria-selected="true"] { color:var(--on-accent); background:var(--accent); }
+
+/* level 2 — which view: small caps chips on the elevated strip, filled when on */
+.jc-subtabs .jc-tab {
+  display:inline-flex; align-items:center; justify-content:center; box-sizing:border-box;
+  height:var(--ctl-h); padding:0 var(--s-3); line-height:1; border:0; border-radius:var(--r-pill);
+  font-family:var(--font-body); font-feature-settings:var(--feat-meta);
+  font-size:var(--fs-caption); font-weight:500; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--fg-faint);
+}
+.jc-subtabs .jc-tab:hover { color:var(--fg); }
+/* filled in FOREGROUND, not accent: the drinks/preps segmented pill directly
+   below this strip is already an accent-filled control, and stacking two
+   accent-filled pills reproduces the same "which level am I looking at"
+   ambiguity one rung down. Neutral fill reads as selected without competing. */
+.jc-subtabs .jc-tab[aria-selected="true"] { background:var(--fg); color:var(--bg); }
+
+/* inset, because both bars are flush strips: a ring outside the button would be
+   clipped by the sticky edge above it. */
+.hub-tab.jc-tab:focus-visible,
+.jc-subtabs .jc-tab:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; border-radius:2px; }
+
+.jc-panel[hidden] { display:none; }
+.jc-main { padding-bottom:env(safe-area-inset-bottom); }
+
+/* cobalt: structural chrome takes the blunt 2px rule and the square corners the
+   rest of cobalt's hardware uses, instead of a hairline and a pill. */
+[data-theme="cobalt"] .topbar,
+[data-theme="cobalt"] .jc-tabs,
+[data-theme="cobalt"] .jc-subtabs { border-bottom-width:2px; border-bottom-color:var(--line-strong); }
+[data-theme="cobalt"] .jc-subtabs .jc-tab { border-radius:0; }

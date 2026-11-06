@@ -1,0 +1,168 @@
+/* ============================================================
+   hub · origin: entry 3-pane (slug entry-3-pane).
+   A long list of entries down the left (things, not sections),
+   and the picked entry fills the rest: a compact head with its
+   tabs drawn as a stage track, a column of plate cards, a context
+   rail of cards on the right, and a status bar. On a phone it is
+   master-detail: the list is the page until an entry is picked,
+   then the detail shows under a slim pinned bar (back, N of M,
+   previous / next).
+
+   Composes hub-shell, hub-split, hub-tabs, hub-section-head,
+   hub-plate-card and hub-detail-rail from components.css and never
+   restyles them; the status bar is the shared status-strip part.
+   Copies no rule from tabbed-3-pane.css: the two origins share
+   parts, not layout.
+
+   This file holds only the chassis. Keyboard movement, selection,
+   the stage state and the phone flow are the derivative's JS (the
+   origins carry none). Read `blueprints/blueprints.json` -> the
+   entry-3-pane origin and docs/specs/2026-09-25-entry-3-pane-
+   design.md before editing.
+
+   Class prefix is hub-e3p- (e3p = the slug's initials, the same
+   convention as hub-t3p-).
+   ============================================================ */
+
+.hub-e3p {
+  grid-template-rows: auto 1fr var(--status-h);
+  --hub-e3p-list-w: 300px;
+  --hub-e3p-rail-w: 300px;
+  /* the group head's full height, so a row scrolled into view clears it */
+  --hub-e3p-group-h: 34px;
+}
+
+/* THE VIEWPORT LOCK -- keyed on the shell being a direct child of <body>, so
+   the skeleton injected into the blueprints page is never locked. */
+html:has(> body > .hub-e3p), body:has(> .hub-e3p) { height: 100%; }
+body:has(> .hub-e3p) { overflow: hidden; }
+
+/* ===== BODY GRID -- entry list (left) | the working pane ===== */
+.hub-e3p-body { display: grid; grid-template-columns: var(--hub-e3p-list-w) minmax(0, 1fr); min-height: 0; }
+
+/* ===== ENTRY LIST =====
+   Tools pinned on top, one scroll owner under them. */
+.hub-e3p-list-col { display: flex; flex-direction: column; min-height: 0; min-width: 0; border-right: 1px solid var(--line); }
+.hub-e3p-tools { flex: none; display: flex; flex-direction: column; gap: 10px; padding: 12px; border-bottom: 1px solid var(--line-soft); }
+.hub-e3p-entries { flex: 1; min-height: 0; overflow-y: auto; }
+
+/* a plain ruled head: name in sentence case, count beside it. Opaque and
+   above the rows, so nothing paints through it while it is pinned. */
+.hub-e3p-group {
+  position: sticky; top: 0; z-index: 1; background: var(--bg);
+  display: flex; align-items: baseline; gap: 8px; min-height: var(--hub-e3p-group-h);
+  padding: 12px 12px 4px; border-bottom: 1px solid var(--line);
+  font-size: var(--fs-caption); font-weight: 600; line-height: 1.5; color: var(--fg);
+}
+.hub-e3p-group-n { font-weight: 400; color: var(--fg-faint); font-variant-numeric: tabular-nums; }
+
+/* one line per entry: mark | title | subtitle | value. The visibility rule
+   skips layout for rows out of view; the auto intrinsic size remembers each
+   row's real height once drawn. Rows only: on the scroller it would hide the
+   sticky heads. */
+.hub-e3p-entry {
+  display: grid; grid-template-columns: 8px auto minmax(0, 1fr) 30px; align-items: center;
+  column-gap: 8px; min-height: 30px; padding: 6px 12px; cursor: pointer;
+  scroll-margin-top: var(--hub-e3p-group-h);
+  content-visibility: auto; contain-intrinsic-size: auto 30px;
+}
+.hub-e3p-entry:hover { background: var(--bg-elev); }
+.hub-e3p-entry:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.hub-e3p-entry-mark { display: flex; align-items: center; justify-content: center; }
+.hub-e3p-entry-t { max-width: 130px; font-size: var(--fs-footnote); font-weight: 600; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hub-e3p-entry-s { font-size: var(--fs-footnote); color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hub-e3p-entry-v { font-size: var(--fs-footnote); color: var(--accent); font-variant-numeric: tabular-nums; text-align: right; }
+.hub-e3p-entry.active { background: var(--accent-faint); }
+.hub-e3p-entry.active :is(.hub-e3p-entry-t, .hub-e3p-entry-s, .hub-e3p-entry-v) { color: var(--fg); }
+
+/* ===== WORKING PANE -- pinned bar (phone only), then cards | context rail ===== */
+.hub-e3p-pane, .hub-e3p-main { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.hub-e3p-split { grid-template-columns: minmax(0, 1fr) var(--hub-e3p-rail-w); }
+.hub-e3p-cards { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: var(--s-4); padding: var(--s-4) var(--s-5) var(--s-7); }
+.hub-e3p-rail { min-width: 0; overflow-x: hidden; border-left: 1px solid var(--line); }
+/* nothing selected */
+.hub-e3p-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-3); padding: var(--s-7) var(--s-5); text-align: center; color: var(--fg-faint); }
+.hub-e3p-empty[hidden] { display: none; }
+
+/* ===== ENTRY HEAD -- one title row, then the tabs as a stage track ===== */
+.hub-e3p-head { flex: none; padding: 16px 20px 0; border-bottom: 1px solid var(--line); background: var(--bg); }
+.hub-e3p-head-row { display: flex; align-items: center; gap: 12px; min-width: 0; }
+/* the title slot: subtitle, dot, title on one clipped baseline */
+.hub-e3p-head-row > :first-child { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 8px; white-space: nowrap; overflow: hidden; }
+.hub-e3p-head-sub { flex: none; font-size: var(--fs-footnote); color: var(--fg-dim); }
+.hub-e3p-head-sep { flex: none; color: var(--fg-faint); }
+.hub-e3p-head-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; font-family: var(--font-display); font-size: var(--fs-title); color: var(--fg); }
+.hub-e3p-head-acts { flex: none; display: flex; gap: 8px; }
+
+/* THE STAGE TRACK -- a modifier on hub-tabs, the tabs stay hub-tab buttons.
+   A dot on a line above each label. Done fills dot and line, now rings the
+   dot, apart sets an outcome off at the end. The viewed tab is the 2px
+   underline, so viewing a stage and being at one never share a signal. */
+.hub-e3p-stages { margin-top: 14px; gap: 0; border-bottom: 0; }
+.hub-e3p-stages > .hub-tab {
+  position: relative; flex: 1; min-width: 0; margin-bottom: 0; border-bottom: 0;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 18px 0 10px;
+}
+.hub-e3p-stages > .hub-tab::before { content: ""; position: absolute; top: 4px; left: 0; right: 0; height: 2px; background: var(--line); }
+.hub-e3p-stage-dot {
+  position: absolute; top: 0; left: 0; z-index: 1; box-sizing: border-box;
+  width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line-strong); background: var(--bg);
+}
+.hub-e3p-stage-sub { font-style: italic; font-size: var(--fs-caption); color: var(--fg-dim); }
+.hub-e3p-stages > .is-done::before { background: var(--accent); }
+.hub-e3p-stages > .is-done > .hub-e3p-stage-dot { background: var(--accent); border-color: var(--accent); }
+.hub-e3p-stages > .is-now > .hub-e3p-stage-dot { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-faint); }
+.hub-e3p-stages > .is-apart { flex: 0 0 110px; margin-left: 24px; }
+.hub-e3p-stages > .is-apart::before { display: none; }
+.hub-e3p-stages > .is-apart > .hub-e3p-stage-dot { border-style: dashed; }
+.hub-e3p-stages > .hub-tab.active { box-shadow: inset 0 -2px 0 var(--accent); }
+
+/* ===== PHONE BAR -- back, N of M, previous / next. Phone only. ===== */
+.hub-e3p-bar { display: none; }
+.hub-e3p-back, .hub-e3p-nav {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px;
+  background: none; border: 0; color: var(--accent); font: inherit; cursor: pointer;
+}
+.hub-e3p-back { justify-content: flex-start; gap: 6px; padding: 0 8px; }
+.hub-e3p-nav { font-size: var(--fs-title); }
+.hub-e3p-nav:disabled { color: var(--fg-faint); opacity: 0.5; cursor: default; }
+.hub-e3p-pos { margin-left: auto; font-size: var(--fs-footnote); color: var(--fg-dim); font-variant-numeric: tabular-nums; }
+
+/* THE 901-1199 BAND -- the list keeps its column; inside the working pane the
+   rail drops under the cards and the pane scrolls as one column. */
+@media (min-width: 901px) and (max-width: 1199px) {
+  /* max-content rows: auto rows in this fixed-height scroller shared its height out
+     between cards and rail (both min-height:0), and the rail painted over the cards */
+  .hub-e3p-split { grid-template-columns: minmax(0, 1fr); grid-template-rows: max-content; grid-auto-rows: max-content; align-content: start; overflow-y: auto; }
+  .hub-e3p-main, .hub-e3p-cards { overflow: visible; flex: none; }
+  .hub-e3p-rail { overflow: visible; border-left: 0; border-top: 1px solid var(--line); }
+}
+
+@media (max-width: 900px) {
+  /* one document scroll replaces every nested scroller */
+  html:has(> body > .hub-e3p), body:has(> .hub-e3p) { height: auto; }
+  body:has(> .hub-e3p) { overflow: visible; }
+  .hub-e3p { height: auto; min-height: 100dvh; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr auto; }
+  .hub-e3p > * { min-width: 0; }
+  .hub-e3p-body { grid-template-columns: minmax(0, 1fr); }
+  .hub-e3p-entries, .hub-e3p-cards, .hub-e3p-rail { overflow: visible; }
+  .hub-e3p-list-col { border-right: 0; }
+
+  /* MASTER-DETAIL on one state class: no entry open, the list is the page */
+  .hub-e3p:not(.is-detail) .hub-e3p-pane { display: none; }
+  .hub-e3p.is-detail .hub-e3p-list-col { display: none; }
+
+  .hub-e3p-bar {
+    display: flex; align-items: center; gap: 4px; padding: 0 6px;
+    position: sticky; top: 0; z-index: 2;
+    background: var(--bg-elev); border-bottom: 1px solid var(--line);
+  }
+  /* the rail stacks under the cards, so every card stays reachable */
+  .hub-e3p-split { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; align-content: start; }
+  .hub-e3p-rail { border-left: 0; border-top: 1px solid var(--line); }
+  .hub-e3p-head { padding: 14px 16px 0; }
+  .hub-e3p-cards { padding: var(--s-4) var(--s-3) var(--s-5); }
+  /* five stages do not fit a phone at full size: the track swipes */
+  .hub-e3p-stages { overflow-x: auto; scrollbar-width: none; }
+  .hub-e3p-stages > .hub-tab { flex: 0 0 auto; min-width: 88px; padding-right: 12px; }
+}

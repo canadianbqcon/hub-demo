@@ -1,0 +1,1358 @@
+{
+  "_comment": "Natural-key + FK + resolve config for bin/db-merge.py, generated 2026-09-10 from the natural-key inventory (123 tables, 13 live databases; jc.db and barback.db excluded, no tables).",
+  "cards": {
+    "card": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      }
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    }
+  },
+  "checklists": {
+    "checklists": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ],
+      "note": "No updated/created columns exist (inventory: 'table has NO timestamp column'), so no resolve rule applies -- a genuine field conflict here has no tiebreaker and surfaces as a plain conflict. Two triggers (checklists_protect_delete, checklists_protect_identity) RAISE on delete/rename of a protected row -- apply drops/recreates triggers around the merge. 13/16 rows have empty source, so the partial UNIQUE(source) gives no help."
+    },
+    "checklist_items": {
+      "strategy": "keyed",
+      "key": [
+        "checklist_id",
+        "text"
+      ],
+      "fk": {
+        "checklist_id": "checklists"
+      },
+      "resolve": {
+        "checked": "max"
+      },
+      "note": "(checklist_id, text) verified unique on both copies 2026-09-10. section and sort_order are NOT identity: the Mac re-sectioned three lists after the fork, and keying on section made every moved item read as a delete plus an add (72 false conflicts in the first dry run). They merge three-way like any other column; a list rearranged on both sides is a real conflict, settled with --prefer. (checklist_id, sort_order) COLLIDES, never use position as identity. checked has no timestamp; resolve:max means a tick wins over an untick."
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    }
+  },
+  "cs2": {
+    "daily_sale": {
+      "strategy": "keyed",
+      "key": [
+        "market_hash_name",
+        "day"
+      ]
+    },
+    "holding": {
+      "strategy": "keyed",
+      "key": [
+        "market_hash_name"
+      ],
+      "resolve": {
+        "last_seen": "max"
+      },
+      "note": "Inventory also wants first_seen resolved by MIN, but the merge-keys vocabulary only defines newest/max; first_seen is left as default conflict (judgment call -- flag for human review if it ever actually diverges)."
+    },
+    "item_price": {
+      "strategy": "keyed",
+      "key": [
+        "snapshot_id",
+        "market_hash_name",
+        "source",
+        "basis",
+        "window"
+      ],
+      "fk": {
+        "snapshot_id": "snapshot"
+      }
+    },
+    "snapshot": {
+      "strategy": "keyed",
+      "key": [
+        "taken_at",
+        "source"
+      ]
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    }
+  },
+  "earnings": {
+    "earnings": {
+      "strategy": "keyed",
+      "key": [
+        "source",
+        "period_start",
+        "period_end"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      }
+    },
+    "earnings_deductions": {
+      "strategy": "keyed",
+      "key": [
+        "earnings_id",
+        "label"
+      ],
+      "fk": {
+        "earnings_id": "earnings"
+      }
+    },
+    "earnings_pricing_params": {
+      "strategy": "keyed",
+      "key": [
+        "source",
+        "key"
+      ],
+      "resolve": {
+        "verified": "max"
+      }
+    },
+    "earnings_scheduled_shifts": {
+      "strategy": "keyed",
+      "key": [
+        "source",
+        "shift_date"
+      ],
+      "resolve": {
+        "synced": "newest",
+        "priced_at": "newest"
+      },
+      "note": "calendar_event_id is a convention-only external Google Calendar id (no FK) -- a strong secondary match key if the primary ever needs a fallback."
+    },
+    "earnings_shift_crew": {
+      "strategy": "keyed",
+      "key": [
+        "shift_id",
+        "role",
+        "start_at",
+        "label"
+      ],
+      "fk": {
+        "shift_id": "earnings_scheduled_shifts"
+      },
+      "resolve": {
+        "end_at": "newest"
+      }
+    },
+    "earnings_shifts": {
+      "strategy": "keyed",
+      "key": [
+        "earnings_id",
+        "shift_date",
+        "clock_in"
+      ],
+      "fk": {
+        "earnings_id": "earnings"
+      }
+    },
+    "earnings_tip_points": {
+      "strategy": "keyed",
+      "key": [
+        "source",
+        "role"
+      ],
+      "resolve": {
+        "verified": "max"
+      }
+    },
+    "earnings_ui_claim": {
+      "strategy": "keyed",
+      "key": [
+        "source"
+      ],
+      "resolve": {
+        "effective_date": "newest"
+      }
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    }
+  },
+  "food": {
+    "areas": {
+      "strategy": "keyed",
+      "key": [
+        "slug"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest",
+        "scene_researched": "newest"
+      }
+    },
+    "evidence": {
+      "strategy": "content_hash",
+      "fk": {
+        "place_id": "places"
+      },
+      "note": "Identity is really the quote text; a re-scrape with reworded quote text will duplicate rather than conflict (accepted content-hash cost)."
+    },
+    "places": {
+      "strategy": "keyed",
+      "key": [
+        "slug"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest",
+        "researched": "newest",
+        "practical_checked": "newest"
+      }
+    },
+    "runs": {
+      "strategy": "keyed",
+      "key": [
+        "area_slug",
+        "started"
+      ],
+      "resolve": {
+        "finished": "newest"
+      }
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    }
+  },
+  "jobs": {
+    "activities": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover, 0 rows on both sides. SKIP -- do not create rows here."
+    },
+    "activity_opinions": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover, 0 rows on both sides. SKIP -- do not create rows here."
+    },
+    "application_process_steps": {
+      "strategy": "keyed",
+      "key": [
+        "application_id",
+        "label"
+      ],
+      "fk": {
+        "application_id": "applications"
+      },
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      },
+      "note": "(application_id, step_order) is also unique today, but label survives a reorder -- prefer it."
+    },
+    "application_skills": {
+      "strategy": "keyed",
+      "key": [
+        "application_id",
+        "skill_id"
+      ],
+      "fk": {
+        "application_id": "applications",
+        "skill_id": "skills"
+      }
+    },
+    "application_stories": {
+      "strategy": "keyed",
+      "key": [
+        "application_id",
+        "story_id"
+      ],
+      "fk": {
+        "application_id": "applications",
+        "story_id": "stories"
+      }
+    },
+    "applications": {
+      "strategy": "keyed",
+      "key": [
+        "company",
+        "role"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest",
+        "url_verified_at": "newest"
+      },
+      "note": "Root of the whole db -- every child NK resolves through it."
+    },
+    "company_research": {
+      "strategy": "keyed",
+      "key": [
+        "application_id",
+        "category",
+        "subcategory"
+      ],
+      "fk": {
+        "application_id": "applications"
+      },
+      "resolve": {
+        "created": "newest"
+      },
+      "note": "subcategory is NULL on some rows; COALESCE it when matching -- SQLite treats NULLs as distinct in the declared UNIQUE index so it would not actually stop a dup there."
+    },
+    "cover_letters": {
+      "strategy": "keyed",
+      "key": [
+        "application_id",
+        "tone",
+        "angle"
+      ],
+      "fk": {
+        "application_id": "applications"
+      },
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      }
+    },
+    "expenses": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover, 0 rows on both sides. SKIP -- do not create rows here."
+    },
+    "flights": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover, 0 rows on both sides. SKIP -- do not create rows here."
+    },
+    "glossary": {
+      "strategy": "keyed",
+      "key": [
+        "term"
+      ],
+      "resolve": {
+        "known": "max"
+      },
+      "note": "known is a per-machine read flag; inventory calls for OR/take-either semantics -- resolve:max approximates that (judgment call)."
+    },
+    "housing": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover, 0 rows on both sides. SKIP -- do not create rows here."
+    },
+    "interview_qa": {
+      "strategy": "keyed",
+      "key": [
+        "application_id",
+        "question"
+      ],
+      "fk": {
+        "application_id": "applications",
+        "source_template_id": "interview_qa"
+      },
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      },
+      "note": "source_template_id is a SELF-referential surrogate -- remap it in a second pass after this table's own id map exists. Template rows carry application_id NULL + is_template=1, hence the key is really (COALESCE(app NK,'template'), question)."
+    },
+    "interviewers": {
+      "strategy": "keyed",
+      "key": [
+        "application_id",
+        "name"
+      ],
+      "fk": {
+        "application_id": "applications"
+      },
+      "resolve": {
+        "created": "newest"
+      }
+    },
+    "members": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover, 0 rows on both sides. SKIP -- do not create rows here."
+    },
+    "resume_notes": {
+      "strategy": "content_hash",
+      "fk": {
+        "application_id": "applications"
+      },
+      "note": "note is the body, so an edit reads as a new row rather than a conflict (accepted content-hash cost). Only 11 rows -- flag for human review."
+    },
+    "resumes": {
+      "strategy": "keyed",
+      "key": [
+        "file_path"
+      ],
+      "fk": {
+        "application_id": "applications"
+      },
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      },
+      "note": "file_path is the real identity -- it names a file on disk, globally unique."
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "skills": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      }
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    },
+    "stories": {
+      "strategy": "keyed",
+      "key": [
+        "title"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      }
+    },
+    "transportation": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover, 0 rows on both sides. SKIP -- do not create rows here."
+    },
+    "trips": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover, 0 rows on both sides. SKIP -- do not create rows here."
+    }
+  },
+  "news": {
+    "digests": {
+      "strategy": "keyed",
+      "key": [
+        "date"
+      ]
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sources": {
+      "strategy": "keyed",
+      "key": [
+        "id"
+      ]
+    },
+    "topics": {
+      "strategy": "keyed",
+      "key": [
+        "kind",
+        "query"
+      ]
+    }
+  },
+  "owed": {
+    "owed": {
+      "strategy": "keyed",
+      "key": [
+        "person",
+        "what",
+        "incurred"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      },
+      "exclude_compare": [
+        "src",
+        "src_amount"
+      ],
+      "note": "11/66 rows have NULL incurred -- COALESCE it. src embeds trips.db surrogate ids (machine-specific) and is re-derived by the finances module after trips.db merges, so it and src_amount are excluded from comparison. Never overwrite amount from src_amount -- their divergence IS Sam's manual-override flag."
+    },
+    "payment": {
+      "strategy": "keyed",
+      "key": [
+        "ext_id"
+      ],
+      "resolve": {
+        "created": "newest"
+      },
+      "note": "ext_id and msg_id are convention-only external ids (no FK). All 17 rows currently have a non-empty ext_id; inventory's documented fallback for a future NULL ext_id row is (person, amount, received), not currently implemented in this key."
+    },
+    "payment_line": {
+      "strategy": "keyed",
+      "key": [
+        "payment_id",
+        "owed_id"
+      ],
+      "fk": {
+        "payment_id": "payment",
+        "owed_id": "owed"
+      }
+    },
+    "person": {
+      "strategy": "keyed",
+      "key": [
+        "person"
+      ],
+      "resolve": {
+        "updated": "newest"
+      }
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    }
+  },
+  "purchases": {
+    "saved_searches": {
+      "strategy": "keyed",
+      "key": [
+        "query",
+        "sites"
+      ],
+      "resolve": {
+        "last_run": "max",
+        "seeded_at": "max"
+      },
+      "note": "(query, sites) is not UNIQUE in the schema: two saves of the same query and sites read as one key to the merge. last_run/seeded_at are job clocks, resolve:max."
+    },
+    "seen_listings": {
+      "strategy": "keyed",
+      "key": [
+        "search_id",
+        "url"
+      ],
+      "fk": {
+        "search_id": "saved_searches"
+      }
+    },
+    "brands": {
+      "strategy": "keyed",
+      "key": [
+        "decision_id",
+        "name"
+      ],
+      "fk": {
+        "decision_id": "decisions"
+      }
+    },
+    "budget_entries": {
+      "strategy": "keyed",
+      "key": [
+        "decision_id",
+        "label"
+      ],
+      "fk": {
+        "decision_id": "decisions"
+      },
+      "resolve": {
+        "paid_on": "newest"
+      }
+    },
+    "candidate_constraints": {
+      "strategy": "keyed",
+      "key": [
+        "candidate_id",
+        "constraint_id"
+      ],
+      "fk": {
+        "candidate_id": "candidates",
+        "constraint_id": "constraints"
+      },
+      "note": "status/note are the conflict fields, with no clock to break a tie -- left as default conflict."
+    },
+    "candidate_scores": {
+      "strategy": "keyed",
+      "key": [
+        "candidate_id",
+        "criterion_id"
+      ],
+      "fk": {
+        "candidate_id": "candidates",
+        "criterion_id": "criteria"
+      }
+    },
+    "candidates": {
+      "strategy": "keyed",
+      "key": [
+        "decision_id",
+        "name"
+      ],
+      "fk": {
+        "decision_id": "decisions"
+      },
+      "note": "Second-level root: most other NKs resolve through it. No timestamp column, so a genuine field conflict here has no tiebreaker."
+    },
+    "constraints": {
+      "strategy": "keyed",
+      "key": [
+        "decision_id",
+        "name"
+      ],
+      "fk": {
+        "decision_id": "decisions"
+      }
+    },
+    "criteria": {
+      "strategy": "keyed",
+      "key": [
+        "decision_id",
+        "name"
+      ],
+      "fk": {
+        "decision_id": "decisions",
+        "dimension_id": "dimensions"
+      }
+    },
+    "decisions": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ],
+      "fk": {
+        "verdict_candidate_id": "candidates",
+        "project_id": "projects"
+      },
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      },
+      "note": "verdict_candidate_id and project_id are CONVENTION-ONLY (no declared FK, so foreign_key_check will never catch a stale pointer) -- remap both in the second pass after candidates/projects merge."
+    },
+    "dimensions": {
+      "strategy": "keyed",
+      "key": [
+        "decision_id",
+        "name"
+      ],
+      "fk": {
+        "decision_id": "decisions"
+      }
+    },
+    "evidence": {
+      "strategy": "content_hash",
+      "fk": {
+        "decision_id": "decisions",
+        "candidate_id": "candidates"
+      }
+    },
+    "order_emails": {
+      "strategy": "keyed",
+      "key": [
+        "message_id"
+      ],
+      "fk": {
+        "order_id": "orders"
+      },
+      "resolve": {
+        "received": "newest"
+      },
+      "note": "message_id is a Gmail message id -- perfect natural key."
+    },
+    "orders": {
+      "strategy": "keyed",
+      "key": [
+        "vendor",
+        "order_number",
+        "ordered_on",
+        "item"
+      ],
+      "fk": {
+        "decision_id": "decisions"
+      },
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      },
+      "note": "JUDGMENT CALL: inventory's table row proposes (vendor, order_number, ordered_on), but its own note flags 2 live rows with empty order_number where 'vendor alone is doing the work' and explicitly recommends 'include ordered_on and item' -- added item to the key on that basis. ship_status and eta have no resolve rule of their own (they are not clocks); inventory says they should follow whichever side has the newer updated -- the vocabulary has no cross-column resolve, so this is left as a note rather than encoded; the tool will otherwise report ship_status/eta as a plain conflict when they differ."
+    },
+    "price_points": {
+      "strategy": "content_hash",
+      "fk": {
+        "candidate_id": "candidates"
+      },
+      "note": "(candidate_id, vendor, observed_on) COLLIDES -- e.g. candidate 1 / awaytravel.com / 2026-05-15 has two rows ($295 and $206) on both sides. content-hash over price too is what actually de-dups; two same-day observations with no price difference are still indistinguishable by design."
+    },
+    "price_steps": {
+      "strategy": "keyed",
+      "key": [
+        "decision_id",
+        "dimension_id",
+        "label"
+      ],
+      "fk": {
+        "decision_id": "decisions",
+        "dimension_id": "dimensions"
+      }
+    },
+    "projects": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      }
+    },
+    "pros_cons": {
+      "strategy": "content_hash",
+      "fk": {
+        "candidate_id": "candidates"
+      }
+    },
+    "reviews": {
+      "strategy": "content_hash",
+      "fk": {
+        "decision_id": "decisions",
+        "candidate_id": "candidates"
+      },
+      "note": "(decision_id, candidate_id, url, title) COLLIDES -- four Pack Hacker rows share one URL and title (1 positive + 3 negative takeaways); only takeaway separates them, which is exactly why content-hash rather than keyed."
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "specs": {
+      "strategy": "content_hash",
+      "fk": {
+        "candidate_id": "candidates",
+        "criterion_id": "criteria"
+      },
+      "note": "(candidate_id, key) COLLIDES: 2 dup groups on both sides (candidate 41 'Lock', candidate 46 'Interior', each a terse early row plus a later sourced/verbatim row). content-hash over (candidate, key, value) de-dups but will double any row whose value was edited on one machine -- hand Sam the list of candidates whose key repeats so he can collapse them."
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    },
+    "transaction_memos": {
+      "strategy": "content_hash",
+      "note": "recorded_at alone COLLIDES (2 memos on 2026-08-31) -- it is a DATE, not a timestamp. Prefer ynab_transaction_id as the match key when it is set (5/9 rows have it NULL and fall back to the content hash); ynab_transaction_id is convention-only (no FK, not a vault table) so it is informational only, not encoded as fk."
+    }
+  },
+  "stocks": {
+    "analyses": {
+      "strategy": "keyed",
+      "key": [
+        "ticker",
+        "run_date"
+      ]
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    },
+    "stocks": {
+      "strategy": "keyed",
+      "key": [
+        "ticker"
+      ],
+      "fk": {
+        "latest_analysis_id": "analyses"
+      },
+      "resolve": {
+        "last_analyzed": "max"
+      },
+      "note": "latest_analysis_id is a declared surrogate FK -- remap in the second pass, or recompute from the newest run_date. Inventory also wants first_analyzed resolved by MIN and the latest_* fields to follow whichever analysis is newest; the vocabulary has no min rule or cross-column follow, so first_analyzed is left as default conflict (judgment call) and latest_* fields are not separately resolved."
+    }
+  },
+  "tasks": {
+    "briefing_day": {
+      "strategy": "rebuild",
+      "note": "Regenerable weather cache. Take ours and re-run the generator rather than merging rows."
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    },
+    "tasks": {
+      "strategy": "keyed",
+      "key": [
+        "task_key"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest",
+        "completed_date": "newest"
+      },
+      "note": "Best-behaved table in the vault: 0 NULL/empty task_key, 0 dups on either side. status has no resolve rule of its own; inventory says it should follow the newer updated side -- left as a note, not encoded, since the vocabulary has no cross-column resolve. cal_event_id/cal_calendar_id are convention-only external Google Calendar ids (no FK), per-event not per-machine, and survive the merge unchanged."
+    }
+  },
+  "trips": {
+    "activities": {
+      "strategy": "keyed",
+      "key": [
+        "trip_id",
+        "name",
+        "scheduled_date",
+        "scheduled_time"
+      ],
+      "fk": {
+        "trip_id": "trips"
+      },
+      "note": "(trip_id, name) COLLIDES -- 'Leave home base' appears twice per trip on trips 60 and 61; adding the schedule clears it, but rescheduling on one machine reads as a new row. score/true_score are recomputed fields -- inventory says prefer the newer side wholesale, but there is no resolve rule for a non-clock numeric column in this vocabulary, so they are left as default conflict (judgment call). cal_event_id/cal_event_ids are external Google ids."
+    },
+    "activity_opinions": {
+      "strategy": "keyed",
+      "key": [
+        "activity_id",
+        "member_id"
+      ],
+      "fk": {
+        "activity_id": "activities",
+        "member_id": "members"
+      },
+      "resolve": {
+        "created_at": "newest"
+      }
+    },
+    "airports": {
+      "strategy": "keyed",
+      "key": [
+        "iata"
+      ],
+      "resolve": {
+        "resolved_at": "newest"
+      }
+    },
+    "expenses": {
+      "strategy": "keyed",
+      "key": [
+        "trip_id",
+        "description",
+        "amount"
+      ],
+      "fk": {
+        "trip_id": "trips"
+      }
+    },
+    "flights": {
+      "strategy": "keyed",
+      "key": [
+        "trip_id",
+        "direction",
+        "flight_num",
+        "departure_time",
+        "passenger"
+      ],
+      "fk": {
+        "trip_id": "trips"
+      }
+    },
+    "guest_codes": {
+      "strategy": "keyed",
+      "key": [
+        "name",
+        "code",
+        "created_at"
+      ],
+      "resolve": {
+        "last_seen": "max",
+        "decided_at": "newest"
+      },
+      "note": "code alone COLLIDES (7447 is both a denied 'Victor' and an approved 'Victor Lin') and name alone COLLIDES ('Sam Rivera' denied then approved) -- created_at is what actually separates rows. Trigger guest_codes_approved_needs_slug RAISEs on an approved row with no contact_slug; insert with that invariant satisfied or drop/recreate the trigger around the merge."
+    },
+    "guest_gate_stats": {
+      "strategy": "ours",
+      "note": "Singleton row (id=1) of brute-force-gate counters -- no business identity. Machine-local security state; take the live side rather than merging."
+    },
+    "housing": {
+      "strategy": "keyed",
+      "key": [
+        "trip_id",
+        "name",
+        "check_in"
+      ],
+      "fk": {
+        "trip_id": "trips"
+      },
+      "note": "SCHEMA DIFF: live has wifi_ssid/wifi_pass (trips migration 023); the PC snapshot does not. Apply migration 023 to the snapshot before merging, or the tool must tolerate a missing column."
+    },
+    "member_prefs": {
+      "strategy": "keyed",
+      "key": [
+        "kind",
+        "response_id"
+      ],
+      "resolve": {
+        "synced_at": "newest",
+        "submitted_at": "newest"
+      }
+    },
+    "members": {
+      "strategy": "keyed",
+      "key": [
+        "trip_id",
+        "name"
+      ],
+      "fk": {
+        "trip_id": "trips"
+      }
+    },
+    "packing_ticks": {
+      "strategy": "keyed",
+      "key": [
+        "trip_id",
+        "list_id",
+        "item_id"
+      ],
+      "fk": {
+        "trip_id": "trips",
+        "list_id": "checklists.checklists",
+        "item_id": "checklists.checklist_items"
+      },
+      "resolve": {
+        "ticked_at": "newest"
+      },
+      "note": "The one genuinely cross-database dependency. list_id/item_id are checklists.db autoincrement ids with NO declared FK (migration 022 says so deliberately) -- checklists.db must be merged FIRST and its old->new id map kept, or ticks silently point at the wrong items."
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    },
+    "transportation": {
+      "strategy": "keyed",
+      "key": [
+        "trip_id",
+        "type",
+        "description"
+      ],
+      "fk": {
+        "trip_id": "trips"
+      }
+    },
+    "trips": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ],
+      "note": "cal_event_id is an external Google Calendar id (convention-only, declared UNIQUE) -- a good cross-check. cal_status is flagged newer-wins in the inventory but the table has no updated/created timestamp to arbitrate it against -- left as default conflict (judgment call, flag for human review if it ever diverges)."
+    }
+  },
+  "vault_map": {
+    "map_node": {
+      "strategy": "rebuild",
+      "note": "Documented in data/CLAUDE.md as a cache, wiped and repopulated in full on every refresh. Take either side and re-run vault_map.db.refresh()."
+    },
+    "node_description": {
+      "strategy": "keyed",
+      "key": [
+        "path"
+      ],
+      "resolve": {
+        "generated_at": "newest"
+      },
+      "note": "Derived cache; content_sig says whether the description is still valid. Union by path, newer generated_at wins, then refresh."
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    }
+  },
+  "work": {
+    "activities": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover; migration 009 (drop_vestigial_trip_tables) dropped 8 of these tables and left these 8 behind, empty on both sides. SKIP -- do not create rows here."
+    },
+    "activity_opinions": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover; migration 009 (drop_vestigial_trip_tables) dropped 8 of these tables and left these 8 behind, empty on both sides. SKIP -- do not create rows here."
+    },
+    "checklist_run": {
+      "strategy": "keyed",
+      "key": [
+        "template_id",
+        "bar_date"
+      ],
+      "fk": {
+        "template_id": "checklist_template"
+      },
+      "resolve": {
+        "started_at": "newest",
+        "completed_at": "newest"
+      }
+    },
+    "checklist_run_item": {
+      "strategy": "keyed",
+      "key": [
+        "run_id",
+        "section",
+        "text_snapshot"
+      ],
+      "fk": {
+        "run_id": "checklist_run"
+      },
+      "resolve": {
+        "state_at": "newest"
+      },
+      "note": "(run_id, sort_order) is also unique but position is fragile; the snapshot columns make the row self-describing. state doubles as a 0-3 count for kind='fill' rows (migration 017)."
+    },
+    "checklist_template": {
+      "strategy": "keyed",
+      "key": [
+        "key"
+      ]
+    },
+    "checklist_template_item": {
+      "strategy": "keyed",
+      "key": [
+        "template_id",
+        "section",
+        "text"
+      ],
+      "fk": {
+        "template_id": "checklist_template"
+      }
+    },
+    "expenses": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover; migration 009 (drop_vestigial_trip_tables) dropped 8 of these tables and left these 8 behind, empty on both sides. SKIP -- do not create rows here."
+    },
+    "flights": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover; migration 009 (drop_vestigial_trip_tables) dropped 8 of these tables and left these 8 behind, empty on both sides. SKIP -- do not create rows here."
+    },
+    "housing": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover; migration 009 (drop_vestigial_trip_tables) dropped 8 of these tables and left these 8 behind, empty on both sides. SKIP -- do not create rows here."
+    },
+    "ingredient_location": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ]
+    },
+    "ingredient_tier": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ]
+    },
+    "members": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover; migration 009 (drop_vestigial_trip_tables) dropped 8 of these tables and left these 8 behind, empty on both sides. SKIP -- do not create rows here."
+    },
+    "prep_day": {
+      "strategy": "keyed",
+      "key": [
+        "started"
+      ],
+      "resolve": {
+        "cleared": "newest"
+      }
+    },
+    "prep_day_selection": {
+      "strategy": "keyed",
+      "key": [
+        "prep_day_id",
+        "recipe_id"
+      ],
+      "fk": {
+        "prep_day_id": "prep_day",
+        "recipe_id": "recipes"
+      }
+    },
+    "prep_day_step": {
+      "strategy": "keyed",
+      "key": [
+        "prep_day_id",
+        "seq"
+      ],
+      "fk": {
+        "prep_day_id": "prep_day"
+      },
+      "note": "seq is a generated plan order, stable within a prep day -- used as a tiebreak, not treated as a surrogate."
+    },
+    "prep_day_step_component": {
+      "strategy": "keyed",
+      "key": [
+        "step_id",
+        "seq"
+      ],
+      "fk": {
+        "step_id": "prep_day_step"
+      },
+      "resolve": {
+        "checked": "max"
+      }
+    },
+    "recipe_dependencies": {
+      "strategy": "keyed",
+      "key": [
+        "recipe_id",
+        "depends_on_recipe_id"
+      ],
+      "fk": {
+        "recipe_id": "recipes",
+        "depends_on_recipe_id": "recipes"
+      }
+    },
+    "recipe_ingredients": {
+      "strategy": "keyed",
+      "key": [
+        "recipe_id",
+        "ingredient",
+        "sort_order"
+      ],
+      "fk": {
+        "recipe_id": "recipes",
+        "produces_recipe_id": "recipes"
+      },
+      "note": "(recipe_id, ingredient) is also unique today; sort_order is kept only as a tiebreak since a reorder on one machine would otherwise split rows."
+    },
+    "recipes": {
+      "strategy": "keyed",
+      "key": [
+        "kind",
+        "name"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "created": "newest"
+      },
+      "note": "name alone COLLIDES (15 dup groups) -- the same name exists as both a cocktail and a prep recipe. (kind, name) is clean on both sides."
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    },
+    "stock_raw_item": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ]
+    },
+    "storage_area": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ]
+    },
+    "storage_item": {
+      "strategy": "keyed",
+      "key": [
+        "section_id",
+        "text",
+        "sort_order"
+      ],
+      "fk": {
+        "section_id": "storage_section"
+      },
+      "note": "(section_id, text) COLLIDES: 2 dup groups on both sides -- section 58 lists 'Campari' twice (sort 64 and 70) and 'Haku Vodka' twice (14 and 37), i.e. the same bottle genuinely sits in two slots. sort_order is the only thing separating them, and a reorder on one machine changes exactly that column -- a shelf reordered on one machine will duplicate its whole section. Needs human review; consider merging this table by taking one side whole."
+    },
+    "storage_item_cover": {
+      "strategy": "keyed",
+      "key": [
+        "item_id",
+        "product"
+      ],
+      "fk": {
+        "item_id": "storage_item"
+      }
+    },
+    "storage_note": {
+      "strategy": "ours",
+      "note": "Singleton free-text note, one row (id=1). Take the newer updated side, or concatenate the two bodies by hand."
+    },
+    "storage_section": {
+      "strategy": "keyed",
+      "key": [
+        "unit_id",
+        "parent_id",
+        "name"
+      ],
+      "fk": {
+        "unit_id": "storage_unit",
+        "parent_id": "storage_section"
+      },
+      "note": "Self-referential nesting (parent_id) -- resolve parents top-down (parent_id NULL first), then remap children in a second pass."
+    },
+    "storage_unit": {
+      "strategy": "keyed",
+      "key": [
+        "area_id",
+        "name"
+      ],
+      "fk": {
+        "area_id": "storage_area"
+      }
+    },
+    "transportation": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover; migration 009 (drop_vestigial_trip_tables) dropped 8 of these tables and left these 8 behind, empty on both sides. SKIP -- do not create rows here."
+    },
+    "trips": {
+      "strategy": "skip",
+      "note": "Vestigial trip-schema leftover; migration 009 (drop_vestigial_trip_tables) dropped 8 of these tables and left these 8 behind, empty on both sides. SKIP -- do not create rows here."
+    }
+  },
+  "workbench": {
+    "decisions": {
+      "strategy": "keyed",
+      "key": [
+        "id"
+      ],
+      "note": "Append-only sign-off ledger; id is a uuid4 so rows from two machines never collide. seq is per-build and can tie across machines; store.current() breaks ties on decided_at."
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    }
+  },
+  "music": {
+    "tracks": {
+      "strategy": "keyed",
+      "key": [
+        "uri"
+      ],
+      "resolve": {
+        "updated": "newest"
+      }
+    },
+    "playlists": {
+      "strategy": "keyed",
+      "key": [
+        "file_name",
+        "grp",
+        "spotify_id"
+      ],
+      "resolve": {
+        "updated": "newest",
+        "last_seen": "max"
+      },
+      "note": "Export rows are unique by file_name+grp; lists first seen by the pull have no file_name and are told apart by spotify_id. The pull runs on the active_machine only, so a spotify_id filled on one side alone is the PC's link and should win."
+    },
+    "playlist_tracks": {
+      "strategy": "keyed",
+      "key": [
+        "playlist_id",
+        "track_uri"
+      ],
+      "fk": {
+        "playlist_id": "playlists",
+        "track_uri": "tracks"
+      }
+    },
+    "refreshes": {
+      "strategy": "keyed",
+      "key": [
+        "taken_at",
+        "source"
+      ]
+    },
+    "changes": {
+      "strategy": "keyed",
+      "key": [
+        "refresh_id",
+        "playlist_id",
+        "track_uri",
+        "kind"
+      ],
+      "fk": {
+        "refresh_id": "refreshes",
+        "playlist_id": "playlists",
+        "track_uri": "tracks"
+      },
+      "note": "Append-only change log."
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    }
+  },
+  "book": {
+    "account": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ]
+    },
+    "category_group": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ]
+    },
+    "category": {
+      "strategy": "keyed",
+      "key": [
+        "group_id",
+        "name"
+      ],
+      "fk": {
+        "group_id": "category_group"
+      }
+    },
+    "payee": {
+      "strategy": "keyed",
+      "key": [
+        "name"
+      ],
+      "fk": {
+        "transfer_account_id": "account"
+      }
+    },
+    "payee_alias": {
+      "strategy": "keyed",
+      "key": [
+        "raw"
+      ],
+      "fk": {
+        "payee_id": "payee"
+      }
+    },
+    "txn": {
+      "strategy": "keyed",
+      "key": [
+        "uid"
+      ],
+      "fk": {
+        "account_id": "account",
+        "payee_id": "payee",
+        "category_id": "category",
+        "transfer_account_id": "account",
+        "suggested_category_id": "category"
+      }
+    },
+    "split": {
+      "strategy": "keyed",
+      "key": [
+        "txn_id",
+        "ord"
+      ],
+      "fk": {
+        "txn_id": "txn",
+        "category_id": "category",
+        "payee_id": "payee"
+      }
+    },
+    "sync_run": {
+      "strategy": "keyed",
+      "key": [
+        "at"
+      ]
+    },
+    "schema_migrations": {
+      "strategy": "skip"
+    },
+    "sqlite_sequence": {
+      "strategy": "skip"
+    }
+  }
+}

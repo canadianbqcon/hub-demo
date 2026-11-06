@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+<meta charset="UTF-8">
+<!-- maximum-scale/user-scalable bind Android only: WebKit has ignored both for
+     pinch since iOS 10. The gesture handler hub/zoom_lock.py injects is what stops a pinch on
+     an iPhone, and touch-action: manipulation in the CSS stops the double-tap
+     zoom on both. Deliberate: this is a touch surface, and a stray two-finger
+     drag or double-tap on a swatch used to leave it zoomed askew. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
+<link rel="manifest" href="/static/assets/manifest-trips.webmanifest">
+<meta name="apple-mobile-web-app-title" content="trips">
+<script>
+  /* no-flash theme init — same contract as gate.html / trips.html. */
+  (function () {
+    var r = document.documentElement;
+    try {
+      var t = localStorage.getItem("hub.theme");
+      if (t === "glass") t = "liquid";
+      r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+      if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+      var s = localStorage.getItem("hub.surface");
+      if (s !== "light" && s !== "dark") {
+        s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+
+    /* Preload the active theme's two latin faces, right here, because this is the
+       first code that knows which theme is active. Without it the faces are not
+       discovered until fonts.css has parsed AND layout has reached text that uses
+       them — late enough on a slow link to paint a frame in the fallback stack and
+       reflow, which is the load flash this whole change is about. Two files, ~40 KB. */
+    var FACES = {
+      cobalt: ["/static/vendor/fonts/archivo-black-normal-latin.woff2",
+               "/static/vendor/fonts/space-grotesk-normal-latin.woff2"]
+    };
+    /* whole paths, not a prefix plus a name: test_trips_public scrapes every
+       static-asset literal out of this template and asserts the public mirror
+       serves it, so spelling them out is what puts these four behind that
+       check. (It also means a quoted partial path anywhere in this file reads
+       as an asset and fails there — keep prose out of quotes.) */
+    (FACES[r.getAttribute("data-theme")] || []).forEach(function (href) {
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
+      l.href = href;
+      document.head.appendChild(l);
+    });
+  })();
+</script>
+<title>account</title>
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<!-- trips.css whole, not a slice of it. The card on this page is the board's
+     card, same markup, and its styling lives in that file's .ccard blocks. -->
+<link rel="stylesheet" href="/trips/static/trips.css?v=145">
+<link rel="stylesheet" href="/trips/static/account.css?v=17">
+<script defer src="/hub-modules.js"></script>
+<script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
+
+</head>
+<body class="acct{% if wall_mode != 'hub' %} guest{% endif %}">
+
+<header class="topbar">
+  <!-- the bar itself (back, brand, toggle, theme, sign-out, modules) is drawn by
+       topbar.jsx; only this page's extras live here, placed by data-slot -->
+  <span data-slot="crumb" class="crumb" id="crumbName">account</span>
+  {% if wall_mode == "hub" %}
+  <a data-slot="right" class="launcher board-link" href="/trips/" title="the trip board"><span class="launcher-long">back to </span>the board</a>
+  {% else %}
+  <!-- Terser on the mirror because it sits next to a second chip; on Hub it is
+       alone in the bar and says where it goes. -->
+  <a data-slot="right" class="launcher board-link" href="/trips/" title="the trip board">the board</a>
+  <a data-slot="right" class="launcher" href="/gate/out" title="sign out">sign out</a>
+  {% endif %}
+</header>
+
+<!-- The gate strip. Present only while something is still owed, and it is the
+     one piece of chrome on this page that is allowed to be loud, because it is
+     the reason the board is not open yet. -->
+<div class="acct-gate" id="acctGate" hidden></div>
+
+<div class="acct-wrap">
+
+  <!-- LEFT — the card, and the nav under it. Both stick.
+       The card is not an avatar standing in for the person; it is the actual
+       object every section on this page describes, so it stays on screen while
+       you scroll past the things that change it. -->
+  <aside class="acct-aside">
+    <!-- whose account, Hub only: account.js paintWho fills and unhides it -->
+    <div class="acct-who theme-picker" id="acctWho" hidden></div>
+    <div class="acct-cardhost">
+      <div class="crewgrid" id="acctCard"></div>
+      <p class="acct-cardnote" id="acctCardNote"></p>
+    </div>
+    <nav class="acct-nav" id="acctNav" aria-label="account sections"></nav>
+  </aside>
+
+  <!-- RIGHT — the sections. One scroll, no tab state to lose. -->
+  <main class="acct-main" id="acctMain">
+    <div class="acct-load" id="acctLoad">loading your account…</div>
+
+    <section class="asec" id="sec-you" hidden>
+      <h2 class="asec-h">you</h2>
+      <p class="asec-sub" id="youSummary"></p>
+      <div class="ladder" id="youLadder"></div>
+      <p class="asec-foot" id="youFoot"></p>
+    </section>
+
+    <section class="asec" id="sec-details" hidden>
+      <h2 class="asec-h">details</h2>
+      <p class="asec-sub">how Sam reaches you. None of it renders on the shared board.</p>
+      <div id="detailsBody"></div>
+    </section>
+
+    <section class="asec" id="sec-prefs" hidden>
+      <h2 class="asec-h">preferences</h2>
+      <p class="asec-sub">What you answered, and the button to change any of it. These are your
+        standing preferences, not any one trip's — every trip you are on reads the same set.</p>
+      <div id="prefsBody"></div>
+    </section>
+
+    <section class="asec" id="sec-trips" hidden>
+      <h2 class="asec-h">trips</h2>
+      <p class="asec-sub">everything your code opens.</p>
+      <div id="tripsBody"></div>
+      {% if intake_trips %}
+      <!-- The intake form per trip. Server-rendered and mirror only: gate_prefs is
+           the one renderer that passes the list, and Hub 404s the route anyway. -->
+      <p class="asec-sub">plan or change a trip and send it to Sam:</p>
+      {% for t in intake_trips %}
+      <a class="trip" href="/trips/{{ t.id }}/intake"><span><span class="trip-n">edit {{ t.name or "untitled trip" }}</span></span></a>
+      {% endfor %}
+      {% endif %}
+    </section>
+
+    <!-- The form editor. Takes the content column and leaves the card and the nav
+         where they are, so you can still see whose answers these are. -->
+    <section class="asec aform" id="secForm" hidden>
+      <div class="aform-bar">
+        <button class="abtn" id="formBack">← back</button>
+        <span class="aform-who" id="formWho"></span>
+      </div>
+      <div id="formBody"></div>
+      <div class="aform-save">
+        <button class="abtn abtn-accent" id="formSave">save</button>
+        <span class="anote" id="formNote"></span>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+  /* Server-rendered so the page knows who it is before a single fetch lands.
+     Everything else arrives from /trips/api/prefs/account. */
+  var STATE = {{ state | tojson }};
+  /* "hub" on the private port, including while "view as" is running; the mirror
+     renders this template without the variable, which is the guest case. */
+  var MODE = {{ (wall_mode or "guest") | tojson }};
+  /* The signup row, present only on the mirror where the guest owns it. Hub
+     renders this template without it — Sam edits the same five fields from
+     the access panel, and a "view as" preview is a view of someone, not that
+     someone. */
+  var ME = {{ (me or None) | tojson }};
+</script>
+<script src="/trips/static/crewcard.js?v=2"></script>
+<script defer src="/jsx/trips/frontend/static/addr-combo.jsx?v=1"></script>
+<script defer src="/jsx/trips/frontend/static/account-core.jsx?v=1"></script>
+<script defer src="/jsx/trips/frontend/static/account.jsx?v=1"></script>
+<script>
+/* load fallback: account.jsx marks div.acct-wrap once React has mounted */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="account"]')) return;
+    var d = document.createElement("div");
+    d.className = "hub-error";
+    d.style.cssText = "position:fixed;left:0;right:0;bottom:18px;text-align:center;z-index:5";
+    d.textContent = "page failed to load";
+    document.body.appendChild(d);
+  }, 3000);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+/* ============================================================
+   cobalt theme — the loud sibling.
+   saturated electric cobalt + brutalist hardware: square corners,
+   thick borders, hard offset shadows (no blur). own typefaces
+   (Archivo Black titles + Space Grotesk body) — NOT vesper's serifs.
+   user-approved palette + direction 2026-06-05. FROZEN once verified
+   (spec Rule 1). one file, never re-derived.
+   font <link>s (Archivo Black + Space Grotesk) live in each page head.
+   ============================================================ */
+
+/* mode-invariant tokens (structure + type families) */
+[data-theme="cobalt"] {
+  /* own grotesque pairing — brutalist punch, distinct from vesper's serifs */
+  --font:"Archivo Black","Space Grotesk",system-ui,sans-serif;          /* heavy grotesque titles — the brutalist shout */
+  --font-display:"Archivo Black","Space Grotesk",system-ui,sans-serif;
+  --font-body:"Space Grotesk",system-ui,sans-serif;                     /* clean geometric grotesque — reads well at dashboard density */
+  --r:0; --r-card:0; --r-pill:0;                                        /* square everything — the core brutalist tell (vesper uses 2/4/999) */
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-7:32px;
+  --status-h:36px;
+  /* grotesques have no Fraunces opsz/SOFT axes — neutralize the optical tokens in both modes */
+  --feat-display:normal; --feat-text:normal; --feat-meta:normal;
+  --feat-tnum:"tnum" 1,"lnum" 1;                                        /* keep tabular figures for data columns */
+  --lean-c: var(--fg-dim); --lean-p: var(--violet-label);
+}
+
+/* ---------------- brutalist flourish (scoped, bespoke per Rule 2) ----------------
+   the token swaps above square + bolden the whole UI for free; this block adds the
+   two hardware signals tokens can't carry: thick text-field frames and hard offset
+   shadows with a press interaction. :where() keeps specificity flat so source order
+   (cobalt.css loads after the component css) decides the win. */
+
+/* grotesques carry a taller x-height than vesper's serif pair; drop the
+   serif-tuned font-size-adjust clamp so they render at natural proportion */
+[data-theme="cobalt"] body { font-size-adjust: none; }
+
+/* thick blunt frame on every text-entry archetype (home + jobs) */
+[data-theme="cobalt"] :where(.ep-input,.ep-textarea,.ep-select,.qa-input,
+  .task-edit-input,.task-edit-textarea,.quick-add,
+  .field-input,.field-textarea,.funnel-search) {
+  border-width:2px; border-color:var(--line-strong);
+}
+
+/* ================= THE BUTTON STANDARD — one definition, every module =================
+   This used to name two classes (.ep-btn-save, .btn-primary) and nothing else, which
+   meant a module whose primary action had any other name got no cobalt hardware at all.
+   Three modules solved that by copying the press physics into their own stylesheets, and
+   the four copies promptly drifted: batch omitted the hover fill, barback dropped the
+   tomato flash and kept a hardcoded 12px radius, finances added a colour transition.
+   Four buttons, one theme, four behaviours.
+
+   There is now ONE definition. The roster below is the standard's whole surface area:
+   every module's "the one loud action on this page", named once, here.
+
+   NEW PRIMARY ACTION? Add its class to the roster. Do NOT copy the physics into your
+   module's stylesheet — dashboard/hub/tests/test_cobalt_button_standard.py fails if you
+   do, which is the only thing that kept the last four copies from becoming five.
+
+   :is(), not :where(): jc.html loads batch.css and barback.css AFTER this file, so a
+   zero-specificity selector loses to the plain .btn-save it is supposed to be dressing.
+   :is() takes its list's own specificity, so the standard wins on every page regardless
+   of load order. Colour is deliberately NOT set on :hover — every button in the roster
+   already fills with --accent and hovers to --accent-dim on its own, and overriding that
+   flattened barback's filled button to a ground tint. The standard owns the HARDWARE
+   (square frame, hard offset shadow, press travel, flash); the module owns its colour. */
+[data-theme="cobalt"] :is(
+  .ep-btn-save,             /* home — edit-panel save */
+  .btn-primary,             /* jobs, purchases */
+  .btn-save,                /* batch prep */
+  .funnel-add.is-primary,   /* trips — "+ new" */
+  .abtn-accent,             /* trips account — save */
+  .lowout-btn,              /* barback — low/out */
+  .cl-new-btn,              /* checklists — "+ new checklist" */
+  .cl-btn-primary           /* checklists — modal create */
+),
+[data-theme="cobalt"] #add-toggle,                /* finances — kept out of the :is()   */
+[data-theme="cobalt"] .form-actions button {      /* list so its id can't raise all of  */
+  /* border-style, not just width: barback's .lowout-btn ships border:none, so a bare   */
+  /* border-width would have left it frameless. Same reason --r-card is restated — that  */
+  /* button hardcodes a 12px radius the token swap alone never reaches.                  */
+  border: 2px solid var(--accent);
+  border-radius: var(--r-card);
+  box-shadow: 4px 4px 0 0 var(--fg);
+  transition: transform 180ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              box-shadow 180ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
+              background 100ms, border-color 100ms, color 100ms;
+}
+[data-theme="cobalt"] :is(
+  .ep-btn-save,.btn-primary,.btn-save,.funnel-add.is-primary,
+  .abtn-accent,.lowout-btn,.cl-new-btn,.cl-btn-primary
+):hover,
+[data-theme="cobalt"] #add-toggle:hover,
+[data-theme="cobalt"] .form-actions button:hover {
+  transform: translate(2px,2px);
+  box-shadow: 2px 2px 0 0 var(--fg);
+}
+/* ephemeral contrast flash via pure CSS active state */
+[data-theme="cobalt"] :is(
+  .ep-btn-save,.btn-primary,.btn-save,.funnel-add.is-primary,
+  .abtn-accent,.lowout-btn,.cl-new-btn,.cl-btn-primary
+):active,
+[data-theme="cobalt"] #add-toggle:active,
+[data-theme="cobalt"] .form-actions button:active {
+  transform: translate(4px,4px);
+  box-shadow: 0 0 0 0 var(--tomato);
+  background: var(--tomato);
+  border-color: var(--tomato);
+  color: var(--on-accent);
+  transition: none;
+}
+/* A disabled primary is not pressable and must not advertise depth. */
+[data-theme="cobalt"] :is(
+  .ep-btn-save,.btn-primary,.btn-save,.funnel-add.is-primary,
+  .abtn-accent,.lowout-btn,.cl-new-btn,.cl-btn-primary
+):disabled {
+  box-shadow: none;
+  transform: none;
+}
+
+/* Second tier: the outlined actions that sit beside a primary. They take the same blunt
+   2px frame the text fields already take, and nothing else — no shadow, no travel. The
+   whole point is that one button per view carries the hard drop; giving every cancel and
+   every row link the same shadow would say everything is the primary action. */
+[data-theme="cobalt"] :is(
+  .btn,                     /* jobs, purchases, trips detail */
+  .abtn,                    /* trips account */
+  .cl-btn,                  /* checklists */
+  .funnel-add,              /* trips section headers */
+  .hub-modal-btn,           /* shared confirm modal (base.css) */
+  .ep-btn-cancel,.ep-btn-delete,   /* home edit panel */
+  .ctx-link,                /* trips — the pressable rail row */
+  .llink,                   /* trips — outbound row link */
+  .lgroup-act               /* trips — section-group action */
+) {
+  border-width: 2px;
+  border-radius: var(--r-card);
+}
+
+/* launcher tiles + popovers get the same hard drop in the accent */
+[data-theme="cobalt"] .launch-tile { border:2px solid var(--line); transition:box-shadow 80ms ease-out, background 120ms ease-out, transform 80ms ease-out; }
+/* brutalist hard-stop gradient on hover */
+[data-theme="cobalt"] .launch-tile:hover {
+  box-shadow: 6px 6px 0 0 var(--accent);
+  transform: translate(-2px, -2px);
+  border-color: var(--accent);
+  background: linear-gradient(135deg, var(--accent) 50%, var(--bg-elev) 50%);
+}
+/* light (light) — soften the gradient's accent half so tile text stays legible over it */
+[data-theme="cobalt"][data-surface="light"] .launch-tile:hover {
+  background: linear-gradient(135deg, var(--accent-faint) 50%, var(--bg-elev) 50%);
+}
+[data-theme="cobalt"] .modules-menu { box-shadow:6px 6px 0 0 var(--accent); }
+
+/* ---------------- graphical flourishes (bespoke per Rule 2) ----------------
+   four additions, all colour/background/pseudo-state only — zero layout shift.
+   added 2026-06-16, user-directed "spice it up". this reopens the Rule-1 freeze
+   deliberately (author's call); re-freeze once verified. */
+
+/* 1. engineering-grid blueprint texture. NOTE: applied to .col, not body —
+   home's .body grid is gap:0 and every .col paints opaque --bg edge-to-edge,
+   so a body grid would never show. .col is the backmost painted layer in both
+   home and jobs; the dots read through the transparent .panel-body while the
+   opaque .panel-head stays clean. faint by design (--line-soft, 1px @ 24px). */
+[data-theme="cobalt"] .col {
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--line-soft) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* 2. hardware-terminal text selection — high-contrast tomato block */
+[data-theme="cobalt"] ::selection { background: var(--tomato); color: var(--on-accent); }
+
+/* 3. brutalist inset "punched-in" shadow on focused text fields.
+   keeps a real outline so the focus ring stays accessible; :where() holds
+   specificity flat so cobalt's later source order wins over the shared focus css. */
+[data-theme="cobalt"] :where(.ep-input,.ep-textarea,.ep-select,.qa-input,
+  .task-edit-input,.task-edit-textarea,.quick-add,
+  .field-input,.field-textarea,.funnel-search):focus {
+  box-shadow: inset 4px 4px 0 0 var(--line-strong);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* 4. hazard-stripe fill on the currently-selected theme tile (theme picker).
+   2nd stripe is --accent-faint, not --bg-elev-2, so the stripes actually read —
+   --bg-elev/--bg-elev-2 sit too close to show. only visible in the picker. */
+[data-theme="cobalt"] .launch-tile.is-current {
+  background: repeating-linear-gradient(-45deg,
+    var(--bg-elev), var(--bg-elev) 10px,
+    var(--accent-faint) 10px, var(--accent-faint) 20px);
+  border-color: var(--line-strong);
+}
+
+/* DARK (dark) — deep cobalt night */
+[data-theme="cobalt"][data-surface="dark"] {
+  --bg:#0a1230; --bg-elev:#10204e; --bg-elev-2:#162a63; --bg-hover:#1c3370;     /* cobalt-black ground, stepping up in saturation */
+  --line:rgba(90,140,255,0.34); --line-soft:rgba(90,140,255,0.18); --line-strong:rgba(90,140,255,0.65); /* bright cobalt lines — present, not hairline */
+  --fg:#f2f6ff; --fg-mute:rgba(242,246,255,0.86); --fg-dim:rgba(242,246,255,0.68);
+  --fg-faint:rgba(242,246,255,0.45); --fg-ghost:rgba(242,246,255,0.22);
+  --chrome:#3d6fff; --accent:#4d7cff; --accent-dim:#3a63d8; --accent-faint:#2a4aa0; /* electric cobalt */
+  --warn:#ffc24d; --warn-dim:#c8902a; --alert:#ff5c5c; --alert-dim:#c03a3a;       /* bright state colors — AA on the dark ground */
+  --good:#3ddc84; --good-dim:#28a060; --violet-label:#6a93ff;     /* section/header titles — cobalt blue (slot is named violet-label; cobalt fills it with blue, not purple) · 6.3:1 AA */
+  --tomato:#ff6b5c; --tomato-dim:#b8463c;
+  --lean-l:#8fb0e8; --lean-r:#e89a8a;
+  --on-accent:#0a1230;                                                           /* dark text on the bright dark accent fill — 4.9:1 AA */
+  /* home-only extras */
+  --panel-head-line:rgba(90,140,255,0.40);
+  --launch-scrim:rgba(4,10,28,0.82);
+  --modal-shadow:6px 6px 0 0 #4d7cff;                                            /* hard offset, accent — no blur (brutalist) */
+  --select-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(77%2C124%2C255%2C0.75)'/%3E%3C/svg%3E");
+}
+
+/* LIGHT (light) — cobalt on ice */
+[data-theme="cobalt"][data-surface="light"] {
+  --bg:#f4f7ff; --bg-elev:#e6ecfa; --bg-elev-2:#d8e1f5; --bg-hover:#e6ecfa;       /* icy near-white ground */
+  --line:rgba(20,40,110,0.28); --line-soft:rgba(20,40,110,0.14); --line-strong:rgba(20,40,110,0.60); /* deep cobalt-ink lines */
+  --fg:#0a1230; --fg-mute:rgba(10,18,48,0.84); --fg-dim:rgba(10,18,48,0.64);
+  --fg-faint:rgba(10,18,48,0.42); --fg-ghost:rgba(10,18,48,0.20);
+  --chrome:#1e44c8; --accent:#1d4ed8; --accent-dim:#2f5fe0; --accent-faint:#6f8fea; /* strong cobalt */
+  --warn:#8c590e; --warn-dim:#d8a040; --alert:#c0291f; --alert-dim:#d85c50;       /* warn darkened to 5.5:1 AA on the ice ground (mirrors vesper's dark-warn/light-warn-dim light pattern) */
+  --good:#1d7a3f; --good-dim:#3a9a5c; --violet-label:#1d4ed8;     /* section/header titles — deep cobalt blue · 6.3:1 AA */
+  --tomato:#d63a2c; --tomato-dim:#a82c20;
+  --lean-l:#2d5aa0; --lean-r:#a8412f;
+  --on-accent:#ffffff;                                                           /* white text on the strong light accent fill — 6.7:1 AA */
+  /* home-only extras */
+  --panel-head-line:rgba(30,68,200,0.30);
+  --launch-scrim:rgba(20,40,110,0.20);
+  --modal-shadow:6px 6px 0 0 #1d4ed8;                                            /* hard offset, accent — no blur */
+  --select-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(29%2C78%2C216%2C0.65)'/%3E%3C/svg%3E");
+}

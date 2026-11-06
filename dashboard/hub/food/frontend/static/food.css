@@ -1,0 +1,368 @@
+/* food.css — the /food module surface.
+
+   Everything here resolves through the theme tokens (vesper / cobalt / glass ×
+   dark / light). No literal colour, radius, or spacing value appears below.
+
+   The body rule is not boilerplate. base.css deliberately carries no `body`
+   selector — it is theme-agnostic shared behaviour only — so each module owns its
+   own body typography, exactly as trips.css:12 and jobs.css:12 do. Without it the
+   page renders in the browser's default serif on white and nothing else in this
+   file can save it.
+
+   Topbar / brand / crumb / surface-toggle / launcher selectors are injected once by
+   theme-switch.js (injectUniversalCss). Never redefine them here. */
+
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+  font-size: var(--fs-subhead); line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  transition: background 220ms ease-out, color 220ms ease-out;
+}
+button, input, select { font: inherit; color: inherit; background: none; border: 0; }
+
+/* Semantic stacking order. Leaflet's own control layer sits at 1000 and the module
+   launcher scrim at 1200, so the mobile detail sheet has to land between them. */
+:root {
+  --z-map-ui: 400;
+  --z-sticky: 500;
+  --z-sheet: 1100;
+}
+
+.shell { grid-template-rows: auto minmax(0, 1fr); height: 100dvh; }
+#food-root { min-height: 0; display: flex; flex-direction: column; }
+
+/* Same rail width as trips. Food's list is a compact two-line row and its map is
+   the primary spatial read, so the pane split uses trips' activities ratio rather
+   than its list-heavy ones. */
+:root { --funnel-w: 236px; }
+
+/* ============================ area index ============================ */
+
+.index-wrap { overflow-y: auto; padding: var(--s-6) var(--s-5) var(--s-7); }
+.index-head {
+  display: flex; align-items: baseline; gap: var(--s-4);
+  padding-bottom: var(--s-3); margin-bottom: var(--s-2);
+  border-bottom: 1px solid var(--line);
+}
+.index-title {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-weight: 500; font-size: var(--fs-body); line-height: 1;
+  color: var(--violet-label); text-transform: lowercase; letter-spacing: 0.01em;
+}
+.index-count { font-size: var(--fs-footnote); font-style: italic; color: var(--fg-dim); }
+
+/* Rows, not a card grid. Areas differ only in their numbers, and a bordered box
+   around each one adds a frame without adding a distinction. */
+.area-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center; gap: var(--s-3) var(--s-5);
+  padding: var(--s-4) var(--s-3);
+  border-bottom: 1px solid var(--line-soft);
+  text-decoration: none; color: inherit; cursor: pointer;
+  transition: background 150ms ease-out, border-color 150ms ease-out;
+}
+.area-row:hover { background: var(--bg-elev); border-bottom-color: var(--accent-dim); }
+.area-row:hover .area-name { color: var(--accent); }
+.area-row-main { display: flex; align-items: baseline; gap: var(--s-3); flex-wrap: wrap; min-width: 0; }
+.area-name {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-weight: 500; font-size: var(--fs-title); line-height: 1.2; color: var(--fg);
+  letter-spacing: -0.015em;
+}
+/* Nesting is a disclosure: a city holds its boroughs, a borough its neighborhoods,
+   and each opens where it sits. The indent and the rule down the left are what say
+   which doll you are inside once it is open. */
+.area-sum { list-style: none; cursor: default; }
+.area-sum::-webkit-details-marker { display: none; }
+/* The caret is the only part of the row that toggles; the name is still a link. */
+.area-caret {
+  position: relative; width: 20px; height: 20px; flex: none;
+  margin: 0 -2px 0 -4px; cursor: pointer;
+  transition: transform 140ms ease-out;
+}
+/* Box for the pointer, triangle for the eye — a 10px arrow is a miserable target. */
+.area-caret::before {
+  content: ""; position: absolute; top: 50%; left: 6px;
+  margin-top: -5px; width: 0; height: 0;
+  border: 5px solid transparent; border-right-width: 0;
+  border-left-color: var(--fg-mute);
+  transition: border-left-color 140ms ease-out;
+}
+.area-caret:hover::before { border-left-color: var(--accent); }
+.area-node[open] > .area-sum .area-caret { transform: rotate(90deg); }
+/* A closed parent is the only row that has to advertise what is under it, so the
+   count it carries stays visible while its children are not. */
+.area-node[open] > .area-sum > .area-row { border-bottom-color: transparent; }
+
+.area-row-nested {
+  padding-left: calc(var(--s-3) + var(--depth, 1) * 20px);
+  position: relative;
+}
+.area-row-nested::before {
+  content: ""; position: absolute; top: 0; bottom: 0;
+  left: calc(var(--s-3) + (var(--depth, 1) - 1) * 20px + 6px);
+  border-left: 1px solid var(--line);
+}
+.area-row-nested .area-name { font-size: var(--fs-body); }
+.globe-rail .area-row-nested .area-name { font-size: var(--fs-body); }
+
+.area-cuisines { display: flex; flex-wrap: wrap; gap: var(--s-1); margin-top: var(--s-2); }
+.area-stats {
+  display: flex; align-items: baseline; gap: var(--s-5);
+  font-size: var(--fs-footnote); color: var(--fg-dim); white-space: nowrap;
+}
+.area-stats b {
+  font-family: var(--font-display); font-weight: 500; font-size: var(--fs-body); color: var(--fg);
+  font-variant-numeric: tabular-nums lining-nums;
+  margin-right: var(--s-1);
+}
+
+/* ============================ landing globe ============================ */
+
+/* The globe is the index. The rail next to it is the same list as before, kept
+   because a pin cannot carry a place count, a cuisine set, or a research date —
+   and because it is what the page falls back to when maplibre does not load. */
+
+.globe-wrap {
+  display: grid; grid-template-columns: minmax(0, 1fr) 340px;
+  flex: 1; min-height: 0;
+}
+.globe-stage { position: relative; min-width: 0; background: var(--bg); overflow: hidden; }
+#globe { position: absolute; inset: 0; }
+
+/* Space, behind a canvas that is left transparent by the style (no background layer).
+   Dark mode gets the night sky the globe is hanging in: a faint blue-to-black wash
+   plus a starfield. Both are ::before, which paints under #globe because a
+   pseudo-element counts as the stage's first child — so the stars sit behind the
+   planet, never over it. */
+[data-surface="dark"] .globe-stage {
+  background: radial-gradient(120% 100% at 50% 35%, #0b1226 0%, #060a16 55%, #03050d 100%);
+}
+/* A tiled field, not 200 hand-placed dots: four tile sizes with no common factor, so
+   the repeat never lines up into a visible grid at any stage width. Static — a
+   twinkle animation would repaint the whole stage every frame for decoration. */
+[data-surface="dark"] .globe-stage::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1.4px 1.4px at 23% 17%, rgba(255,255,255,.92), transparent 60%),
+    radial-gradient(1.1px 1.1px at 71% 62%, rgba(214,232,255,.75), transparent 60%),
+    radial-gradient(1px 1px at 44% 88%, rgba(255,255,255,.6), transparent 60%),
+    radial-gradient(1.6px 1.6px at 88% 29%, rgba(255,246,224,.85), transparent 60%),
+    radial-gradient(1px 1px at 12% 74%, rgba(255,255,255,.55), transparent 60%),
+    radial-gradient(1.2px 1.2px at 57% 41%, rgba(226,238,255,.7), transparent 60%),
+    radial-gradient(1px 1px at 33% 55%, rgba(255,255,255,.45), transparent 60%),
+    radial-gradient(1.3px 1.3px at 81% 83%, rgba(255,255,255,.6), transparent 60%),
+    /* dust: half-lit and small enough to read as depth rather than as more stars */
+    radial-gradient(.9px .9px at 63% 11%, rgba(255,255,255,.38), transparent 60%),
+    radial-gradient(.9px .9px at 8% 47%, rgba(255,255,255,.3), transparent 60%),
+    radial-gradient(.9px .9px at 36% 79%, rgba(255,255,255,.34), transparent 60%);
+  background-size: 211px 197px, 211px 197px, 317px 289px, 317px 289px,
+                   439px 401px, 439px 401px, 577px 523px, 577px 523px,
+                   149px 137px, 149px 137px, 149px 137px;
+}
+/* Light surface is the same stage an hour earlier, not a hole. It was falling
+   through to the flat page --bg, so a daylit planet sat in a white void while the
+   dark side got a sky. No stars here: the sun is up, so the wash is atmosphere —
+   pale at the centre where the limb glows, deeper toward the frame — and the
+   ::before is the sun, high and off to one side, doing the job the starfield does
+   in the dark. */
+[data-surface="light"] .globe-stage {
+  background: radial-gradient(120% 100% at 50% 35%, #eef5fd 0%, #cfe2f7 48%, #a6c5e8 100%);
+}
+[data-surface="light"] .globe-stage::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(42% 42% at 18% 14%, rgba(255,246,219,.6), transparent 70%);
+}
+.globe-rail { overflow-y: auto; border-left: 1px solid var(--line); padding: var(--s-5) var(--s-4) var(--s-7); }
+/* The rail is 340px, not a page. The index row's side-by-side grid collapses here
+   for the same reason it collapses on mobile — the stats column has nowhere to go
+   and lands on top of the name. */
+.globe-rail .area-row { grid-template-columns: minmax(0, 1fr); gap: var(--s-2); }
+.globe-rail .area-name { font-size: var(--fs-body); }
+.globe-rail .area-stats { gap: var(--s-4); font-size: var(--fs-caption); }
+.globe-rail .area-stats b { font-size: var(--fs-subhead); }
+
+/* The marker element is deliberately zero-sized. maplibre anchors the element's
+   CENTRE on the coordinate, so a [dot][label] row put the true point in the middle
+   of the label and left the dot floating half a label-width west of it — an offset
+   that grew with the name. At zero size the element's origin IS the coordinate, and
+   the dot and label hang off it absolutely, so the dot sits on the point no matter
+   how long the name is. */
+.globe-pin {
+  position: relative; width: 0; height: 0; padding: 0;
+  cursor: pointer; white-space: nowrap;
+  /* opacity ONLY. maplibre positions every marker by rewriting `transform` on this
+     element each frame, so a transition on transform makes the pins ease toward each
+     new position instead of taking it — they lag behind the map during a drag and
+     catch up when it stops. Never transition transform here. */
+  transition: opacity 180ms ease-out;
+}
+/* Gated by zoom, not by proximity: a borough pin at world zoom is noise sitting on
+   top of its own city. It fades rather than vanishing so the transition reads as
+   the map resolving, not as pins appearing from nowhere. */
+.globe-pin.is-far { opacity: 0; pointer-events: none; }
+.globe-pin.is-dot .globe-pin-label { display: none; }
+
+.globe-dot {
+  position: absolute; left: 0; top: 0; transform: translate(-50%, -50%);
+  width: 11px; height: 11px; border-radius: 50%;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--line-strong);
+}
+.globe-dot-city { background: var(--accent); }
+.globe-dot-borough { background: color-mix(in srgb, var(--accent) 55%, var(--fg)); width: 9px; height: 9px; }
+.globe-dot-neighborhood { background: var(--fg-dim); width: 8px; height: 8px; }
+
+.globe-pin-label {
+  position: absolute; left: 11px; top: 0; transform: translateY(-50%);
+  display: inline-flex; align-items: baseline; gap: var(--s-2);
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-size: var(--fs-footnote); font-weight: 500; color: var(--fg);
+  background: var(--bg); border: 1px solid var(--line);
+  border-radius: var(--r-pill); padding: 2px var(--s-3);
+}
+.globe-pin-label em {
+  font-style: normal; font-size: var(--fs-caption); color: var(--fg-dim);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.globe-pin:hover .globe-pin-label { border-color: var(--accent); color: var(--accent); }
+
+.globe-legend {
+  position: absolute; left: var(--s-4); bottom: var(--s-4); z-index: var(--z-map-ui);
+  display: flex; align-items: center; gap: var(--s-4); flex-wrap: wrap;
+  padding: var(--s-2) var(--s-4);
+  background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-pill);
+  font-size: var(--fs-caption); color: var(--fg-dim);
+}
+.globe-legend-k { font-style: italic; }
+.globe-legend-l { display: inline-flex; align-items: center; gap: var(--s-2); }
+/* the legend reuses the pin swatch, but in flow rather than pinned to a coordinate */
+.globe-legend-l .globe-dot { position: static; transform: none; }
+
+.maplibregl-ctrl-group { background: var(--bg); border: 1px solid var(--line); box-shadow: none; }
+.maplibregl-ctrl-group button + button { border-top-color: var(--line); }
+/* maplibre ships its control glyphs as dark SVG background-images, and the control
+   is DOM so the canvas inversion never reaches it. Without this the zoom buttons
+   are black-on-navy in dark mode. */
+[data-surface="dark"] .maplibregl-ctrl-group button .maplibregl-ctrl-icon { filter: invert(1); }
+.maplibregl-ctrl-group button:hover { background: var(--bg-elev); }
+
+@media (max-width: 900px) {
+  .globe-wrap { grid-template-columns: minmax(0, 1fr); grid-template-rows: 46vh minmax(0, 1fr); }
+  .globe-rail { border-left: 0; border-top: 1px solid var(--line); }
+}
+/* The legend wraps to two lines on a phone and eats a third of the map. The hint is
+   the part that has to survive; the swatches are self-evident once pins appear. */
+@media (max-width: 560px) { .globe-legend-l { display: none; } }
+
+/* ============================ two-rail body ============================ */
+
+/* Same skeleton as trips: a funnel rail that drives what the middle column shows,
+   the working column, then the right rail carrying the map over the detail. The
+   detail no longer takes over the list — that was the old one-rail compromise, and
+   with a real right rail there is nothing to compromise. */
+.body {
+  display: grid; grid-template-columns: var(--funnel-w) minmax(0, 1fr);
+  min-height: 0; flex: 1;
+}
+.col {
+  display: flex; flex-direction: column; min-height: 0; min-width: 0;
+  border-right: 1px solid var(--line); background: var(--bg);
+}
+.pane { border-right: 0; }
+/* the split is hub-split; the grid is restated because .col above sets flex
+   and this sheet loads after components.css */
+.focus-split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(380px, 1fr); }
+/* The renderer draws its head into #focusHead and its list into .focus-body; both are
+   this page's boxes, so their flex is this page's business. */
+.focus-body { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.side-pane { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+.side-map { flex: 1 1 auto; min-height: 0; position: relative; }
+/* With a place open the map yields height rather than the detail scrolling in a
+   sliver. The pin stays on screen either way, which is the whole reason the detail
+   is over here and not back in the list column. */
+.side-pane.has-detail .side-map { flex: 0 0 46%; border-bottom: 1px solid var(--line); }
+.funnel { justify-content: flex-start; overflow-y: auto; }
+
+/* The crumb is the way back out of the doll, so its ancestors are links. */
+/* SCOPED, not deleted. Nothing shared declares `.crumb a` at all — chrome.css and
+   the injected sheet style `.crumb` itself, never links inside it. Stage 2 should
+   promote this: link styling in the breadcrumb is chrome, not a food fact. */
+body.food .crumb a { color: inherit; text-decoration: none; opacity: 0.62; }
+body.food .crumb a:hover { opacity: 1; color: var(--accent); }
+.crumb-sep { color: var(--fg-ghost); margin: 0 7px; font-weight: 400; }
+/* The map canvas, the rail's controls, the results list, the place detail and
+   the map's marks all live in the shared static/css/food-view.css — this page and
+   the trips board's food tab draw them with the same renderer. Only the page shell
+   is here. */
+
+
+/* ============================ responsive ============================ */
+
+/* The rail narrows before it goes; the right rail is what gives first, since a
+   380px map under a 340px list is two things too small to use. */
+@media (max-width: 1240px) {
+  :root { --funnel-w: 200px; }
+  .focus-split { grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr); }
+}
+
+@media (max-width: 1000px) {
+  .focus-split { grid-template-columns: minmax(0, 1fr); grid-template-rows: 38vh minmax(0, 1fr); }
+  .side-pane { order: 1; border-bottom: 1px solid var(--line); }
+  .side-pane.has-detail .side-map { flex: 1 1 auto; border-bottom: 0; }
+  .focus { order: 2; }
+  /* The detail cannot share a 38vh strip with the map, so it takes the sheet. */
+  .detail { position: fixed; inset: 0; z-index: var(--z-sheet);
+    animation: sheet-in 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+}
+
+@media (max-width: 680px) {
+  body { font-size: var(--fs-subhead); }
+  .index-wrap { padding: var(--s-4) var(--s-3) var(--s-6); }
+  .area-row { grid-template-columns: minmax(0, 1fr); }
+  .area-stats { gap: var(--s-4); }
+  /* The rail stops being a rail and becomes a strip of controls above the list.
+     What the rail HOLDS gives way in food-view.css; this is only where it sits. */
+  .body { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .funnel { border-right: 0; border-bottom: 1px solid var(--line); }
+  .fvtab { padding: 8px var(--s-3); border-left-width: 3px; }
+}
+
+/* ---------------- phone: the document scrolls, not five nested boxes ----------
+   Rule 4 of wiki/patterns/dashboard-responsive-layout.md. Everything above this
+   point assumes a height-locked shell handing each pane a share of one screen.
+   Once the columns have stacked that is a trap: at 390x844 the topbar, the filter
+   strip and the 38vh map took the whole viewport and #results was left 13px tall
+   with 7270px of restaurants inside it. Nothing clipped, nothing overflowed
+   sideways, and the restaurant database showed no restaurants.
+
+   So on a phone every one of those inner scrollers is released and the page
+   scrolls once, as a document. Two boxes deliberately keep their height: the map,
+   which has no content to size to and would collapse to nothing, and the detail
+   sheet, which is position:fixed over the page and must scroll inside itself. */
+@media (max-width: 680px) {
+  html, body { height: auto; overflow: visible; }
+  .shell { height: auto; min-height: 100dvh; grid-template-rows: auto auto; }
+  #food-root, .body, .col, .pane, .focus-split, .focus, .focus-body, .side-pane { min-height: 0; overflow: visible; }
+  .funnel, .focus-body, .results, .scene-view, .index-wrap, .globe-rail {
+    overflow: visible; flex: none; max-height: none;
+  }
+  .body, .focus-split { grid-template-rows: auto auto; }
+  /* the map is the one pane with no content to size to */
+  .side-map, .side-pane.has-detail .side-map { flex: none; height: 34vh; border-bottom: 1px solid var(--line); }
+  .globe-wrap { grid-template-rows: 46vh auto; }
+  /* order: controls, map, then the list — the list is the long thing, so it goes last */
+  .side-pane { order: 1; }
+  .focus { order: 2; }
+  /* the sheet is fixed over the page, so its body stays a real scroller */
+  .detail-body { overflow-y: auto; }
+}
+
+@keyframes sheet-in { from { transform: translateY(2%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .detail.as-sheet { animation: none; }
+}

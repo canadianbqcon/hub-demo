@@ -1,0 +1,9 @@
+{
+  "hooks": {
+    "PostToolUse": [],
+    "Stop": []
+  },
+  "permissions": {
+    "deny": []
+  }
+}

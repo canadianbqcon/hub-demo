@@ -1,0 +1,534 @@
+{
+ "batch": "09",
+ "champions": {
+  "Yasuo": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Active: Yasuo raises a wall of wind in the target direction for 4 seconds that destroys all hostile non- turret projectiles that collide with it and grants sight of its surroundings.",
+    "fix": "add r'\\bgrants? (sight|vision)|\\bsight of\\b' to KEYWORDS['vision'] and scan the wiki ability text when the bin tooltip lacks the word"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Yasuo passive: cadence not read, counted once",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Yasuo consumes all Flow to grant himself a shield",
+    "fix": "passive is a shield on a distance-traveled meter, no damage line; nothing to read, exclusion is fine. Immortal Shieldbow Lifeline is an item shield on low health, no fight number."
+   }
+  ],
+  "Yone": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "Active: Yone dashes a fixed distance in the target direction, including through terrain, discarding his body and entering Spirit Form for 5 seconds.",
+    "fix": "wallCrossing unknown even though a move spell's wiki text says 'through terrain'; the rule only reads the bin tooltip, so add a wiki-text fallback with _WALL plus r'through terrain'"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "E",
+    "quote": "Soul Unbound will also immediately recast upon death or entering resurrection.",
+    "fix": "'resurrection' here is Zaahen/Zilean/Zac-style effects of others; Yone has no revive. Keep unknown; note \\bresurrect\\w* would hit this line if scanned from wiki text, so wiki fallback must exclude lines about 'entering resurrection' without 'revive'."
+   }
+  ],
+  "Yorick": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "Cursed: The target is revealed and inflicted with armor reduction, and continually raises a Mist Walker from each nearby grave, up to a maximum of 4.",
+    "fix": "bin tooltip lacks the word; fall back to scanning wiki ability text with the same KEYWORDS regex"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "The ring remains for 4 seconds as impassible terrain against enemies, granting sight inside the ring.",
+    "fix": "add r'\\bgrants? (sight|vision)|\\bsight of\\b' to KEYWORDS['vision'] and scan the wiki ability text when the bin tooltip lacks the word"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "terrain",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "The ring remains for 4 seconds as impassible terrain against enemies, granting sight inside the ring.",
+    "fix": "terrain reads only Trait_CreateTerrain; Yorick W (Dark Procession) creates terrain per wiki but lacks the tag. Add a wiki-text fallback r'impassible terrain|impassable terrain'"
+   },
+   {
+    "trait": "pets",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Yorick summons the Maiden of the Mist over 1.5 seconds, along with a number of Mist Walkers surrounding her at the target location, which remain on the battlefield until she or Yorick dies.",
+    "fix": "pets reads only Trait_Pet; R summons Maiden, E/passive raise Mist Walkers. Add a wiki-text fallback r'summons? the Maiden|raises? a Mist Walker' or treat 'Mist Walker' / pet-page link as pet"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Yorick passive: cadence not read, counted once; Grasp of the Undying healing; Spear of Shojin Dragonforce/Focused Will; Plated Steelcaps Plating",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Additionally, a grave is passively raised for every 8th – 2nd (based on level) enemy that dies otherwise near him.",
+    "fix": "passive is a kill-count cadence, no damage number; correct to leave out. Items are item-effect gaps (healing and stack effects), not wiki readable."
+   }
+  ],
+  "Yunara": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Active: Yunara launches a spinning prayer bead in the target direction that briefly grants sight of its surroundings as it travels.",
+    "fix": "add r'\\bgrants? (sight|vision)|\\bsight of\\b' to KEYWORDS['vision'] and scan the wiki ability text when the bin tooltip lacks the word"
+   },
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Arc of Judgment deals 50% / 75% / 100% (based on level) damage against minions and executes them if they would be killed by 6 more damage instances from the linger effect.",
+    "fix": "minion-only execute, not a champion execute; keep unknown or add a note; 'executes' is matched by r'\\bexecut\\w*' only on bin text"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Passive: Arc of Ruin's base damage and Untouchable Shadow's dash speed scale with Transcend One's Self's rank.",
+    "fix": "'no move spell' false: wiki says her R has a dash (Untouchable Shadow); dashes is 0 and wallCrossing false though a move exists. Check why the dash spell has no Trait_PlayerSelectedDashDirection / mSpellTags; no wall wording so result should be unknown, not false"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Yun Tal Wildarrows: Practice Makes Lethal; Flurry cooldown; Runaan's Hurricane Wind's Fury; Gluttonous Greaves Slay",
+    "verdict": "unclear",
+    "ability": "Q",
+    "quote": "Spread attacks deal 250% damage against minions below 30% maximum health.",
+    "fix": "all four are item effects, none from the wiki ability text; Yunara Q spread (30% AD) is a readable line if the fight does not already model it"
+   }
+  ],
+  "Yuumi": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "If the target is a champion, they are also revealed and slowed by 20% for 1 second.",
+    "fix": "bin tooltip lacks the word; fall back to scanning wiki ability text with the same KEYWORDS regex"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "While attached to an ally, Yuumi grants them 2 permanent Friendship stacks whenever they kill enemy champions or minions.",
+    "fix": "no cap stated in this line; 'permanent' not in regex, and no explicit 'no maximum' text. Leave unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "untargetable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Passive: While Yuumi is attached, she is untargetable (except by turrets and inbound projectiles) and casts her abilities from the Anchor's position, empowering them with additional effects.",
+    "fix": "no Trait_Untargetable tag on W; conditional (still hit by turrets); a wiki-text fallback r'is untargetable' would flip it, decide whether partial untargetable counts"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Yuumi passive: cadence not read; Summon Aery repeat sends; Dream Maker; Ionian Insight",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "grants them 2 permanent Friendship stacks whenever they kill enemy champions or minions",
+    "fix": "passive is a stack meter, no damage; others are item effects. Fine to exclude"
+   }
+  ],
+  "Zaahen": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "R",
+    "quote": "Active: Zaahen gains crowd control immunity over the cast time, then launches with displacement immunity into the air to the target location.",
+    "fix": "R is tagged Trait_Parry but the text is CC immunity, not a spell shield; unstoppable reads false though 'crowd control immunity' is stated. Either map Trait_Parry to unstoppable when the text says 'crowd control immunity', or add wiki-text fallback r'crowd control immunity' for unstoppable"
+   },
+   {
+    "trait": "unstoppable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Zaahen gains crowd control immunity over the cast time, then launches with displacement immunity into the air to the target location.",
+    "fix": "no Trait_CCImmune tag on R but wiki says CC immunity; add wiki-text fallback r'crowd control immunity|immune to crowd control'"
+   },
+   {
+    "trait": "untargetable",
+    "current": "false",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "enters resurrection for 4 seconds: becoming invulnerable, untargetable, and unable to act.",
+    "fix": "passive-only, conditional; rubric reads spell tags only, so false is by design. Note"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Conqueror stacks not applied to spell damage; Conqueror healing; Stridebreaker Cleave; Plated Steelcaps",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Determination: For each stack, Zaahen gains bonus attack damage equal to 1.5% – 2.95% (based on level) AD.",
+    "fix": "the Determination AD bonus (up to 12 stacks, doubled at max) is a readable wiki line the fight may not apply; item exclusions are not wiki sourced"
+   }
+  ],
+  "Zac": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "forming a tether between Zac and the target for 2 seconds, during which they are revealed.",
+    "fix": "bin tooltip lacks the word; fall back to scanning wiki ability text with the same KEYWORDS regex"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "I",
+    "quote": "Zac will be executed once all bloblets are killed.",
+    "fix": "this is Zac himself being executed, not an execute on enemies; a wiki-text fallback with r'\\bexecut\\w*' would false-positive here, so require 'executes? (enemies|champions|targets)'"
+   },
+   {
+    "trait": "revive",
+    "current": "true",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "After the duration, Zac is revived with 10 – 50% maximum health.",
+    "fix": "true is correct (verified wiki line); no change"
+   },
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Recast: Zac leaps to the target location within the boundaries of the cone.",
+    "fix": "E leap has no Trait_PlayerSelectedDashDirection tag, so dashes 0 though dive 5; E is a targeted-position move. Add Trait for 'leaps to the target location' or count spells with a move tag from the dive reader"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "R: bounces not read, one hit counted; Conqueror stacks; Conqueror healing; Ionian Insight",
+    "verdict": "handler_missing",
+    "ability": "R",
+    "quote": "Active: Zac bounces after the cast time, then bounces 3 additional times each second over 3 seconds.",
+    "fix": "R hit count is readable: first bounce plus 3 more per second for 3 s (about 10 bounces total). Later bounces on the same enemy: 'ones beyond the first deal 50% damage to them'. Add an R handler for the repeated hit"
+   }
+  ],
+  "Zed": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "vision",
+     "revive",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "W",
+    "quote": "Active: Zed creates a Shadow that dashes to the target location and remains there for 5.25 seconds, being able to mimic Razor Shuriken and Shadow Slash regardless of range.",
+    "fix": "'regardless of range' is the shadow mimic, not a map-wide effect; keep unknown. Do not add it to the regex"
+   },
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "I",
+    "quote": "Innate: Zed's basic attacks on-hit against targets below 50% maximum health are empowered to deal 5% / 7.5% / 10% (based on level) of the target's maximum health as bonus magic damage.",
+    "fix": "bonus damage below a threshold, not an execute; keep unknown"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Zed passive: cadence not read, counted once; Voltaic Cyclosword Galvanize/Firmament; Bastionbreaker Sabotage; Ionian Insight",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Innate: Zed's basic attacks on-hit against targets below 50% maximum health are empowered to deal 5% / 7.5% / 10% (based on level) of the target's maximum health as bonus magic damage.",
+    "fix": "passive has a readable percent number (5/7.5/10% max Health); the missing piece is its cadence (the wiki gives a cooldown field, not read); read the passive cooldown from the wiki 'cooldown' field"
+   }
+  ],
+  "Zeri": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "If the pulse hits terrain, it transforms into a laser in a line that grants sight of the area for 1.75 seconds",
+    "fix": "add r'\\bgrants? (sight|vision)|\\bsight of\\b' to KEYWORDS['vision'] and scan the wiki ability text when the bin tooltip lacks the word"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "terrain",
+    "current": "false",
+    "verdict": "unclear",
+    "ability": "W",
+    "quote": "If the pulse hits terrain, it transforms into a laser in a line",
+    "fix": "W interacts with terrain, does not create it; false is right"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Zeri passive: cadence not read; Yun Tal; Flurry; Runaan's Wind's Fury; Gluttonous Greaves",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "At full charge, Zeri's next attack is empowered to consume all charge to deal 75 – 170 (based on level) (+ 110% AP) (+ 1% – 12.18% (based on level) of target's maximum health) magic damage.",
+    "fix": "charge cadence is readable: 1 charge per 40 units travelled and 10 per Burst Fire cast, cap 100; a handler could count empowered shots"
+   }
+  ],
+  "Ziggs": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Active: Ziggs hurls a charge to the target location, remaining there for 4 seconds and granting sight of the area.",
+    "fix": "add r'\\bgrants? (sight|vision)|\\bsight of\\b' to KEYWORDS['vision'] and scan the wiki ability text when the bin tooltip lacks the word"
+   },
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Turret Explosion: The explosion also executes enemy turrets within that are below a maximum health threshold.",
+    "fix": "turret-only execute; the regex would match but the bin tooltip lacks it; decide whether turret execute counts"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "If this hits Ziggs, he will dash up to 825 units away from the center.",
+    "fix": "'no move spell' false: W recast self-dash exists in wiki (also dashes 0); the dash has no wall wording so result should be unknown, not false. Add wiki-text fallback for 'dash up to'"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Shadowflame: Cinderbloom",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "",
+    "fix": "item effect, not in wiki ability text"
+   }
+  ],
+  "Zilean": [
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Afterwards, they revive while being healed.",
+    "fix": "bin tooltip lacks the word; fall back to scanning wiki ability text with the same KEYWORDS regex (tooltip hit missed even though 'revive' is in the regex)"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "The bomb will attach itself to units that move within the epicenter, or those hit directly at the time of the bomb's landing, revealing them and their surroundings.",
+    "fix": "bin tooltip lacks the word; fall back to scanning wiki ability text with the same KEYWORDS regex"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "false",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "",
+    "fix": "no move spell for Zilean per wiki dash/blink search; E is a speed buff. false is plausible"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Summon Aery repeat sends; Solstice Sleigh; Ionian Insight",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "",
+    "fix": "all item effects, not wiki sourced"
+   }
+  ],
+  "Zoe": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Passive: Whenever an enemy champion casts a specific summoner spell or item active, regardless of distance, they drop the corresponding Spell Shard onto the ground that grants sight over a 100-radius area and remains for 40 seconds.",
+    "fix": "add r'\\bgrants? (sight|vision)|\\bsight of\\b' to KEYWORDS['vision'] and scan the wiki ability text when the bin tooltip lacks the word"
+   },
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "W",
+    "quote": "Passive: Whenever an enemy champion casts a specific summoner spell or item active, regardless of distance, they drop the corresponding Spell Shard",
+    "fix": "'regardless of distance' is shard drop, not a global cast; do not add to regex"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "The bubble can move through terrain only once, but travels the entire distance as bonus range, and will fall short if it would enter terrain again.",
+    "fix": "E is a projectile, not a move spell; R blink has no wall wording. Stays unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Zoe passive: cadence not read, counted once",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Innate: After casting an ability, Zoe empowers her next basic attack or Spell Thief bolt within 5 seconds to become non-projectile and deal 16 – 150 (based on level) (+ 20% AP) bonus magic damage.",
+    "fix": "trigger is 'after casting an ability' so cadence = once per cast; read it as one bonus hit per spell cast"
+   }
+  ],
+  "Zyra": [
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Innate: Periodically, Zyra spawns one or two Seeds nearby that last for 30 seconds, granting sight over the surrounding area for 1 second.",
+    "fix": "true is right (verified)"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "pets",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "If Grasping Roots hits a Seed, it sprouts into a Vine Lasher that lasts for 8 seconds.",
+    "fix": "plants have no Trait_Pet; add wiki-text fallback r'sprouts into a|Vine Lasher|Thorn Spitter'"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "Liandry's Torment: Suffering",
+    "verdict": "unclear",
+    "ability": "",
+    "quote": "",
+    "fix": "item effect, not wiki sourced"
+   }
+  ]
+ }
+}

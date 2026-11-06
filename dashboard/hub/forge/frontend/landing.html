@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<title>Item Set Forge</title>
+<base href="/forge/">
+<!-- Everything this page needs, on the wire from the head.
+
+     An inline <script type="module"> at the bottom of the document does not
+     fetch its imports until the WHOLE document has parsed, and it does not run
+     its own body until those imports land. So the data used to go out on the
+     third serial round trip: document, then stylesheets, then the module's
+     imports, and only then api/stats and friends. Four hops before the first
+     byte of anything worth rendering, which on a phone off the tailnet is most
+     of the load. modulepreload starts the imports beside the stylesheets, and
+     the preflight below starts the data beside both, so one hop covers all of
+     it. The module at the bottom awaits promises that have already settled. -->
+<link rel="modulepreload" href="static/itemset.js">
+<link rel="modulepreload" href="static/build-overlay.js">
+<link rel="modulepreload" href="static/loadout.js">
+<script>
+  (function () {
+    var j = function (u, fb) {
+      return fetch(u).then(function (r) { return r.json(); }).catch(function () { return fb; });
+    };
+    window.__FORGE = {
+      landing: j('api/landing', { champions: [] }),
+      runes: j('static/runes.json', { runes: {}, trees: {} }),
+      sets: j('api/sets', { sets: [] }),
+    };
+  }());
+</script>
+<link rel="stylesheet" href="static/forge-base.css">
+<link rel="stylesheet" href="static/forge-themes.css">
+<link rel="stylesheet" href="static/build-overlay.css">
+<link rel="stylesheet" href="static/loadout.css">
+<!-- Before first paint: a theme read after the page has painted is a flash of the
+     previous one. Deliberately not a module - modules defer. -->
+<script>
+  try {
+    var t = localStorage.getItem('forge:theme');
+    if (t) document.documentElement.dataset.theme = t;
+  } catch (e) { /* private mode: the default theme is a fine place to land */ }
+</script>
+
+<style>
+  /* The front door. One card per champion in the pool, and the card is that
+     champion's own build shelf: the sets you have saved, under the role chip you
+     are looking at, each one a click away from opening.
+
+     No statistics live here. WPA and win rate are for the page where you are
+     choosing an item, and a figure on the front door with nothing to choose
+     between reads as a recommendation the tool never meant to make. */
+  .wrap { max-width: 1500px; margin: 0 auto; padding: 22px 20px 90px; display: grid; gap: 22px; }
+
+  /* status line only (loading, empty pool); the page has no explainer blurb */
+  .lede { margin: 0; max-width: 74ch; color: var(--dim); font-size: var(--t-sm); text-wrap: pretty; }
+  .lede b { color: var(--ink-2); font-weight: 600; }
+
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(430px, 1fr)); gap: 18px; }
+
+  /* a column rather than a grid so the footer's margin-top:auto has somewhere to
+     push into: cards stretch to the tallest in their row and a short card would
+     otherwise leave its button floating mid-card */
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 16px 18px 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    transition: border-color var(--mid) var(--ease);
+  }
+  .card:hover { border-color: var(--line-lit); }
+
+  /* start, not center: a champion played in five roles wraps its chips onto a
+     second line, and centring would float the portrait away from its own name */
+  .card-head { display: grid; grid-template-columns: 62px 1fr; gap: 14px; align-items: start; }
+  .card-head img {
+    width: 62px; height: 62px; display: block;
+    border-radius: var(--r-md);
+    border: 1px solid var(--line-lit);
+  }
+  .card-head h3 { margin: 0 0 5px; font-size: var(--t-lg); font-weight: 600; letter-spacing: -0.015em; }
+
+  /* the chips cycle the list below them, they do not leave the page: the card is
+     one champion's shelf and the role is which shelf of it you are reading. The
+     count is builds, not games - there are no game counts on this page. */
+  .roles { display: flex; flex-wrap: wrap; gap: 6px; }
+  .styles { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .style { font-size: var(--t-xs); line-height: 1; padding: 3px 7px; border-radius: 999px;
+           border: 1px solid var(--line); color: var(--dim); white-space: nowrap; }
+  .style.main { color: var(--ink); border-color: var(--line-lit); font-weight: 600; }
+  .style.niche { border-style: dashed; opacity: .75; }
+  .role {
+    display: inline-flex; align-items: baseline; gap: 7px;
+    padding: 4px 11px;
+    font: inherit;
+    font-size: var(--t-sm);
+    color: var(--ink-2);
+    cursor: pointer;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+  .role:hover { color: var(--accent); border-color: var(--accent-lo); background: var(--accent-bg); }
+  .role[aria-pressed="true"] {
+    color: var(--ink);
+    border-color: var(--line-lit);
+    background: var(--raised-hi);
+  }
+  /* a chip is the lane's glyph (Riot's position icon); the name is its tooltip and label */
+  .role { align-items: center; padding: 4px 9px; }
+  .role .role-ico { width: 18px; height: 18px; display: block; }
+  .role.empty { color: var(--dim); }
+  .role[aria-pressed="true"] .role-ico { color: var(--accent); }
+  .tile .role { padding: 3px 7px; }
+  .tile .role .role-ico { width: 15px; height: 15px; }
+
+  /* the role tabs over the cards */
+  .roletabs { display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; width: fit-content; max-width: 100%;
+    border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+  .roletabs button { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border: 0; border-radius: 999px;
+    background: none; color: var(--dim); font-size: 14px; font-weight: 600; }
+  .roletabs button .role-ico { width: 17px; height: 17px; display: block; }
+  .roletabs button:hover:not(:disabled) { color: var(--ink); background: var(--raised); border: 0; }
+  .roletabs button[aria-pressed="true"] { color: var(--ink); background: var(--raised-hi); box-shadow: 0 2px 8px oklch(0 0 0 / .35); }
+  .roletabs button[aria-pressed="true"] .role-ico { color: var(--accent); }
+  @media (max-width: 640px) {
+    .roletabs { width: 100%; border-radius: 16px; justify-content: space-between; }
+    .roletabs button { padding: 7px 9px; gap: 0; font-size: 0; }
+    .roletabs button:first-child { font-size: 13px; }
+    .roletabs button .role-ico { width: 19px; height: 19px; }
+  }
+
+  .card section { display: grid; gap: 7px; }
+  .card section > h4 {
+    display: flex; align-items: baseline; gap: 8px;
+    margin: 0;
+    font-size: var(--t-xs); font-weight: 600;
+    letter-spacing: .09em; text-transform: uppercase; color: var(--dim);
+  }
+  .card section > h4 .where { letter-spacing: 0; text-transform: none; }
+
+  /* one row per saved build: its keystone, its name, and what is in it. The whole
+     row is the link - a build you can see is a build you should be able to open. */
+  .builds { display: grid; gap: 4px; }
+  .older { margin-top: 6px; padding: 2px 0; font: inherit; font-size: var(--t-xs); color: var(--dim); background: none; border: 0; cursor: pointer; }
+  .older:hover { color: var(--ink-2); text-decoration: underline; }
+  .build {
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    gap: 11px;
+    align-items: center;
+    padding: 6px 9px;
+    border-radius: var(--r-sm);
+    border: 1px solid transparent;
+    text-decoration: none;
+    color: var(--ink-2);
+    background: var(--raised);
+  }
+  .build:hover { border-color: var(--accent-lo); background: var(--accent-bg); color: var(--accent); }
+  .build img { width: 30px; height: 30px; display: block; }
+  .build i.ks-none {
+    width: 30px; height: 30px; border-radius: 999px;
+    border: 1px dashed var(--line-lit);
+  }
+  .build .nm { min-width: 0; display: grid; gap: 2px; }
+  .build .nm strong { font-size: var(--t-sm); font-weight: 600; color: var(--ink); }
+  .build:hover .nm strong { color: var(--accent); }
+  .build .sub {
+    font-size: var(--t-xs); color: var(--dim);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .build .patch {
+    font: 500 var(--t-xs)/1 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+  /* the patch tag only prints when the build is NOT on the live one: on the live
+     patch it would be the same string on every row, and the case worth seeing is
+     the build that has aged past it */
+
+  /* The patch note is not here any more. It is its own surface at /forge/patch,
+     because a 22-entry patch sitting on top of the champion cards pushed the
+     build shelf - the thing you open the tool for - below the fold every second
+     Tuesday. Builds and Patch are peers, so they are tabs in the top bar. */
+
+  .quiet { margin: 0; font-size: var(--t-sm); color: var(--dim); }
+
+  /* cards in a row stretch to the tallest, and a card with no patch note is
+     shorter than one with; margin-top:auto puts every button on the same line */
+  .card-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: auto; }
+  .open {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 14px;
+    font-size: var(--t-sm); font-weight: 600;
+    text-decoration: none;
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-lo);
+    border-radius: var(--r-md);
+    color: var(--accent);
+  }
+  .open:hover { background: var(--accent); border-color: var(--accent); color: oklch(0.18 0.03 205); }
+
+  .fresh {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 14px;
+    font-size: var(--t-sm);
+    text-decoration: none;
+    color: var(--ink-2);
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+  }
+  .fresh:hover { color: var(--ink); border-color: var(--line-lit); background: var(--raised-hi); }
+
+  .loading { color: var(--dim); font-size: var(--t-sm); }
+
+  /* every champion past the pool: a compact tile, its name and role chips are links
+     to that champion's page; the .role chip look is the card's, reused */
+  .roster { margin-top: 36px; }
+  .roster-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 12px; }
+  .roster-head h2 { margin: 0; font-size: var(--t-lg); font-weight: 600; }
+  .roster-head input {
+    flex: 0 1 260px; padding: 6px 10px; font: inherit; font-size: var(--t-sm);
+    color: var(--ink); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-md);
+  }
+  .roster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+  .tile {
+    display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center;
+    padding: 8px; background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-md);
+  }
+  .tile img { width: 40px; height: 40px; border-radius: var(--r-sm); display: block; }
+  .tile .nm { font-weight: 600; color: var(--ink); text-decoration: none; }
+  .tile .nm:hover { color: var(--accent); }
+  .tile .roles { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+  .tile .role { text-decoration: none; }
+
+  @media (max-width: 560px) {
+    .cards { grid-template-columns: 1fr; }
+    .build .sub { display: none; }
+  }
+  /* the shell's panel shape (Workbench pick 2026-11-05, forge-hub-shape-layout B):
+     rounder cards on 16px gaps, pill chips, as the Hub's floating panels */
+  .cards { gap: 16px; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); }
+  .card { border-radius: 20px; padding: 20px 22px 22px; box-shadow: 0 8px 28px oklch(0 0 0 / .28); }
+  .card-head img { border-radius: 14px; }
+  .build { border-radius: 12px; padding: 7px 10px; }
+  .open, .fresh, .role { border-radius: 999px; }
+  .roster { margin-top: 12px; padding: 20px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; }
+  .roster-head input { border-radius: 999px; padding: 7px 14px; }
+  .tile { border-radius: 14px; }
+  @media (max-width: 560px) { .cards { grid-template-columns: minmax(0, 1fr); } .card { min-width: 0; padding: 16px; } }
+</style>
+</head>
+<body class="forge">
+
+<div id="forge-root" style="display:contents"></div>
+
+<dialog id="ov" aria-label="Saved build"></dialog>
+
+<script src="/static/vendor/react.production.min.js"></script>
+<script src="/static/vendor/react-dom.production.min.js"></script>
+<!-- defer keeps document order: the bridge module (ForgeLib), then the bar, then the page body -->
+<script type="module" src="static/forge-lib-bridge.js"></script>
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/build-overlay.jsx?v=3"></script>
+<script defer src="/jsx/forge/frontend/static/landing.jsx?v=7"></script>
+<script>
+/* fallback outside React: if the body never mounted, say so instead of a blank page */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="forge-landing"]')) return;
+    var r = document.getElementById("forge-root");
+    r.style.display = "block";
+    r.innerHTML = '<div class="hub-error">page failed to load</div>';
+  }, 3000);
+});
+</script>
+</body>
+</html>

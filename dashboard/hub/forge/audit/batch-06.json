@@ -1,0 +1,723 @@
+{
+ "batch": "06",
+ "champions": {
+  "Poppy": [
+   {
+    "trait": "wallCrossing",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "If the target hits terrain, she stops to deal the same physical damage again and stuns them for a duration.",
+    "fix": "rule_wall: 'terrain' also matches a stun-into-wall line; require crossing wording (cross|through|over|pass) or a blink/teleport tag"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "enemies hit are knocked back up-to 3400 units toward the enemy team's fountain, during which they are revealed and rendered untargetable.",
+    "fix": "wiki text has it, bin tooltip lacks it: let keyword_row/rule_wall fall back to the wiki ability text"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "16 / 12 / 8 / 6 (based on level)",
+    "fix": "passive 'cadence not read': read fields['STATIC COOLDOWN'] (16/12/8/6 by level) as the cadence",
+    "src": "fields.STATIC COOLDOWN"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Pyke": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "pulling them, during which they are also revealed",
+    "fix": "wiki text has it, bin tooltip lacks it: let keyword_row/rule_wall fall back to the wiki ability text"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "The dash distance can be extended to up to 900 units (estimated) when targeting across terrain.",
+    "fix": "wiki only says the dash extends when aimed across terrain; no explicit 'crosses walls'. Leave unknown unless a pattern 'across terrain' is accepted"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Qiyana": [
+   {
+    "trait": "wallCrossing",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "Active: Qiyana dashes up to 300 units towards the target location to gather the Element of the nearest Brush, River or Terrain she targeted.",
+    "fix": "'terrain' here is the Element she gathers, not a wall she crosses. Require crossing wording; basis was 'dashes towards a nearby brush, terrain,'",
+    "src": "traits.basis"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "and briefly granting sight of the area along its path.",
+    "fix": "KEYWORDS['vision'] add r'\\b(granting|grants?|gains?|gaining) sight\\b' (also catches Sejuani, Ryze, Renata, Senna R)"
+   },
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Active: Qiyana dashes up to 300 units towards the target location",
+    "fix": "W and E both dash (dive counts W+E 3500 units) but dashes=0: the dash tag is missing in the bin for target-location and targeted dashes; count move spells in DIVE_MOVE of kind dash, or fall back to wiki 'dashes' text"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "This effect cannot occur on the same target more than once every few seconds.",
+    "fix": "passive cadence: wiki fields TARGET IMMUNITY=25 but text says 'a few seconds'; contradictory, leave excluded",
+    "src": "fields.TARGET IMMUNITY"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Quinn": [
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "Q",
+    "quote": "reducing their vision radius for @VisionReductionDuration@ seconds",
+    "fix": "basis line is Quinn's nearsight debuff on the enemy; the trait is still correctly true via W 'reveals enemy champions' / passive 'revealed'. Tighten \\bvision\\b so it does not match 'vision radius' / 'sight radius' reductions",
+    "src": "traits.basis"
+   },
+   {
+    "trait": "engage / peel",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "knocking them back a very short distance over 0.5 seconds, and slowing them by 50%",
+    "fix": "no hard CC besides short knockback and a 1.75 s disarm/nearsight; engage/peel are unknown ('the source does not say') where 0 would be right. Rule should give 0 when no spell has a CC word"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "7 – 2.56 (based on critical strike chance)",
+    "fix": "passive Harrier cadence: read fields['STATIC COOLDOWN'] range",
+    "src": "fields.STATIC COOLDOWN"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Rakan": [
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "40 – 12.75 (based on level)",
+    "fix": "Fey Feathers is a shield, read fields['COOLDOWN'] as cadence",
+    "src": "fields.COOLDOWN"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Rammus": [
+   {
+    "trait": "unstoppable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Rammus leaps to the target location with immunity to crowd control.",
+    "fix": "no Trait_CCImmune tag on R in the bin: TAG_FLAGS['unstoppable'] also needs a wiki/tooltip match on r'immun\\w* to crowd control|crowd control immun'; dive's CCImmune step is missed too"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "Enemies hit are then stunned and revealed for 0.4 seconds, as well as slowed for 1 second.",
+    "fix": "wiki text has it, bin tooltip lacks it: let keyword_row/rule_wall fall back to the wiki ability text"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Rek'Sai": [
+   {
+    "trait": "engage / peel",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Active: Rek'Sai becomes Un-Burrowed, gaining access to her Un-Burrowed abilities and emerging from the ground to deal magic damage to nearby enemies and knock them up for 1 second.",
+    "fix": "Unburrow knock up (1 s) ignored: 'no immobilizing spell'. Second-form spells (Unburrow, Tunnel, Void Rush) are not read for CC/dash/dive; include form spells that share a slot"
+   },
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "Active: Rek'Sai dashes in the target direction, leaving behind a Tunnel",
+    "fix": "E Tunnel dash not counted (dive counts only R 1500); include the form-swapped E"
+   },
+   {
+    "trait": "untargetable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "After 0.9 seconds, she blinks to a location near the target, becoming targetable again and emerging from the ground to pounce at them.",
+    "fix": "R makes her untargetable for the vanish; tag missing in bin. Fallback regex on wiki: r'(becom\\w+|rendered) untargetable|becoming targetable again'"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "Rek'Sai can Tunnel through terrain if she dashes close to them and the wall is thin",
+    "fix": "wiki E note; rule_wall reads only the bin tip of the move spell. Add wiki fallback with r'through terrain|through walls?' (but exclude 'though not through terrain')"
+   },
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "reduced vision range, and nearby enemies that move and are otherwise unsee",
+    "fix": "basis line is a self sight reduction; the trait is correct anyway via Q 'revealing them for 5 seconds' and Tremor Sense. Exclude 'vision (radius|range)' reductions",
+    "src": "traits.basis"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Rek'Sai basic attacks generate 25 Fury on-hit",
+    "fix": "Fury is a non-mana resource; Conqueror lines excluded for stacks. No number to read"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Rell": [
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Rell's basic attacks deal bonus magic damage on-hit equal to the sum of 5% of her total armor and 5% of her total magic resistance.",
+    "fix": "passive on-hit scales off her armor/MR (bonus magic damage per auto): a handler could read 5% armor + 5% MR as an on-hit part; needs per-attack cadence"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Renata Glasc": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "roots them for 1 second, during which they are revealed.",
+    "fix": "wiki text has it, bin tooltip lacks it: let keyword_row/rule_wall fall back to the wiki ability text"
+   },
+   {
+    "trait": "revive",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "If the target takes fatal damage while Bailout is active, they are restored to 100% of their maximum health",
+    "fix": "revive-like death save; regex misses. Add r'fatal damage' with 'restored to .* maximum health' (also Bailout note 'takes priority over all resurrection')"
+   },
+   {
+    "trait": "engage / peel",
+    "current": "computed",
+    "verdict": "handler_missing",
+    "ability": "R",
+    "quote": "Enemy champions and minions hit become berserk for a duration.",
+    "fix": "R Hostile Takeover berserk has no readable duration in wiki text; engage uses Q only (1 s root) so it is a floor. Name R in 'partial'"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "1% – 2% (based on level) (+ 2% per 100 AP) of the target's maximum health",
+    "fix": "passive Leverage mark: %max health line readable, 'expires when attacking a new enemy' gives no cadence; could count once per fight on unmarked first hit"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Renekton": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Rengar": [
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "Rengar cleanses himself from all crowd control.",
+    "fix": "W Battle Roar has no block or spell shield; Trait_Parry on W is the cleanse/heal marker. Do not read TAG_FLAGS spellShield from Trait_Parry without wiki wording (spell shield|blocks? the next|parr)",
+    "src": "traits.basis"
+   },
+   {
+    "trait": "engage",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "E",
+    "quote": "The target is rooted instead of slowed.",
+    "fix": "empowered (Ferocity) Bola root is a conditional hard CC; 'no immobilizing spell' ignores it. Low priority"
+   },
+   {
+    "trait": "dashes",
+    "current": "0",
+    "verdict": "rule_wrong",
+    "ability": "I",
+    "quote": "causes him to leap to the target's location if they are beyond his normal basic attack range",
+    "fix": "Unseen Predator leap is a dash but untagged; dive 2 comes from R only"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "stacking up 4 times but not refreshing on subsequent triggers",
+    "fix": "Ferocity empower cadence; no damage number on the passive itself"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Riven": [
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "Third Cast: Riven mimics the first cast's effects in a larger area while also knocking back enemies hit 75 units over 0.5 seconds. This cast can cross terrain.",
+    "fix": "bin Q tip lacks it; add wiki fallback r'can cross terrain'; and r'cannot cross terrain|not through terrain' must stay negative"
+   },
+   {
+    "trait": "dashes",
+    "current": "1",
+    "verdict": "rule_wrong",
+    "ability": "Q",
+    "quote": "First Cast: Riven dashes 225 units in the direction she is currently facing",
+    "fix": "Q Broken Wings dashes on all three casts but only E is tagged; dashes should be 2 (dive already counts Q+E)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Riven's ability casts generate a stack of Charge for 6 seconds, refreshing on subsequent casts and stacking up to 3 times.",
+    "fix": "passive: 30% – 46.76% AD per consumed stack; cadence = one per ability cast up to 3: readable from the text"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Rumble": [
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Rumble's basic ability casts generate Heat",
+    "fix": "passive Overheated (4% max health bonus on-hit) needs Heat state; keep excluded"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing (no move spell, false is right)"
+    ]
+   }
+  ],
+  "Ryze": [
+   {
+    "trait": "untargetable",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Upon completion, Ryze and all allied units within the portal will blink to the location and become rooted, disarmed, silenced and untargetable for 0.75 seconds.",
+    "fix": "tag missing: add wiki/tooltip fallback r'(become|becoming|rendered) untargetable' scoped to self/allies"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "marking the target location as its destination and granting sight of the target area.",
+    "fix": "same 'granting sight' regex as Qiyana"
+   },
+   {
+    "trait": "engage / peel",
+    "current": "2/3",
+    "verdict": "unclear",
+    "ability": "W",
+    "quote": "Active: Ryze seizes the target enemy, dealing magic damage and slowing them by 50% for 1.5 seconds.",
+    "fix": "wiki lists only a slow; engage/peel read a 1.5 s hard CC (root) from the bin. Check the bin status word; if wiki is stale the rule is right"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Samira": [
+   {
+    "trait": "damage10s.excluded",
+    "current": "R: needs a Style rating no fight reads, cast once",
+    "verdict": "handler_missing",
+    "ability": "R",
+    "quote": "At maximum stacks, Samira can cast Inferno Trigger.",
+    "fix": "R is only castable at 6 Style stacks (top grade): assume max rating"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Samira's basic attack against an immobilized target is empowered to have an uncancellable windup and fire 6 bolts over 0.5 seconds, each dealing 17% AD physical damage",
+    "fix": "passive bolt number is readable, needs an immobilized target: unreadable in the fight unless a CC is in her kit (she has none)"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Sejuani": [
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Sejuani's next basic attack or ability against a Frozen enemy will consume the mark to deal bonus magic damage equal to 10% of their maximum health",
+    "fix": "Icebreaker is readable (10% max health once per stun); count once per stun landed"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Senna": [
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Global",
+    "fix": "KEYWORDS['globalPresence'] reads tooltips only; also match wiki field range == 'Global' (fields.TARGET RANGE). Same fix catches Shen, Ashe, Jinx etc.",
+    "src": "fields.TARGET RANGE"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "The shadow wave deals physical damage to enemy champions hit and reveals them for 3 seconds",
+    "fix": "wiki text has it, bin tooltip lacks it: let keyword_row/rule_wall fall back to the wiki ability text"
+   },
+   {
+    "trait": "stealth",
+    "current": "true",
+    "verdict": "unclear",
+    "ability": "E",
+    "quote": "Senna shrouds herself in an aura of Black Mist and gains camouflage for a duration.",
+    "fix": "trait correct, but basis reports 'W tagged Trait_Camouflage'; camouflage is on E (Curse of the Black Mist), W is Last Embrace. Slot label of the tagged spell is off by one"
+   },
+   {
+    "trait": "peel",
+    "current": "unknown",
+    "verdict": "handler_missing",
+    "ability": "Q",
+    "quote": "The light ray heals Senna and allied champions hit.",
+    "fix": "peel unknown: ally heal in Q and R shield ('grants a shield to Senna and allied champions hit') have no number the handler reads, and W root exists; engage is computed from W only"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "revive",
+     "execute",
+     "infiniteStacking (Mist stacks have no stated cap in the wiki text)"
+    ]
+   }
+  ],
+  "Seraphine": [
+   {
+    "trait": "execute",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "Q",
+    "quote": "Against champions and monsters, the damage is increased by 0% – 75% (based on target's missing health).",
+    "fix": "Q is a missing-health damage bonus, not a kill; KEYWORDS['execute'] matched the placeholder name @ExecuteThreshold*100@. Strip @...@ tokens before matching",
+    "src": "traits.basis"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "charms them, during which they are revealed",
+    "fix": "wiki text has it, bin tooltip lacks it: let keyword_row/rule_wall fall back to the wiki ability text"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "There is no limit as to how many times the wave can extend.",
+    "fix": "wave extension, not stacks; do not accept as infiniteStacking if the wiki fallback is added (r'no limit' false hit)"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "At 2 stacks, the next basic ability cast consumes them all to cast an additional time at no cost after a 0.033 seconds delay.",
+    "fix": "Echo: every third basic ability recasts; a handler can add one extra cast per 3 casts"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "wallCrossing (no move spell, false is right)"
+    ]
+   }
+  ],
+  "Sett": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Active: Sett suppresses and reveals the target enemy champion while dashing with displacement immunity to their location",
+    "fix": "wiki text has it, bin tooltip lacks it: let keyword_row/rule_wall fall back to the wiki ability text"
+   },
+   {
+    "trait": "engage / peel / dive / dashes",
+    "current": "1 / 2 / unknown / 0",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Active: Sett suppresses and reveals the target enemy champion while dashing with displacement immunity to their location and attaching them to himself upon arrival.",
+    "fix": "R is a targeted dash plus suppression: dashes=0 and dive unknown miss it; engage counts E only (suppress duration unreadable). Count R as a dash/move spell"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "handler_missing",
+    "ability": "I",
+    "quote": "Sett's basic attacks alternate between his Left Punch and a Right Punch on-attack",
+    "fix": "Right Punch bonus '5 – 100 (based on level) (+ 55% bonus AD)' lands every other attack and attacks at 8x speed: readable cadence"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "R",
+    "quote": "The leap will end and create the impact prematurely upon encountering terrain that cannot be dashed through, whether by distance or invalid space.",
+    "fix": "R stops at undashable terrain; no crossing claim"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Shaco": [
+   {
+    "trait": "execute",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "Active: Shaco throws a dagger at the target enemy that deals magic damage, increased by 50% if they are below 30% of their maximum health, and slows them for 3 seconds.",
+    "fix": "bonus damage under 30% health, not a kill; the match is the placeholder @ExecuteHealthThreshold*100@ / @TotalExecuteDamage@. Strip @...@ tokens before matching",
+    "src": "traits.basis"
+   },
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "It activates when an enemy comes near or when revealed, Fearing nearby enemy Champions",
+    "fix": "'revealed' refers to the box being revealed to enemies; Shaco's kit has no vision or reveal effect. Wiki W: 'The box is invulnerable and untargetable to enemies while stealthed.'",
+    "src": "traits.basis"
+   },
+   {
+    "trait": "dashes",
+    "current": "1",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Shaco vanishes for 0.5 seconds and blinks in the target direction while creating a clone of himself",
+    "fix": "R Hallucinate blink not counted (dashes=1, dive=1 from Q only); include R blink"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "Q",
+    "quote": "Shaco becomes invisible for a duration, and after a 0.125-second delay, he blinks to the target location.",
+    "fix": "blink to location, no wall wording"
+   },
+   {
+    "trait": "damage10s.excluded",
+    "current": "excluded",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "Shaco's basic attacks are empowered to deal 20 – 31.18 (based on level) (+ 20% bonus AD) bonus physical damage when hitting an enemy from behind.",
+    "fix": "Backstab needs a from-behind position; keep excluded or assume behind"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "infiniteStacking"
+    ]
+   }
+  ]
+ }
+}

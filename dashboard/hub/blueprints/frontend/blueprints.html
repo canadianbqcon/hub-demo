@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<script>
+  (() => {
+    var r = document.documentElement;
+    try {
+      var t = localStorage.getItem("hub.theme");
+      if (t === "glass") t = "liquid";
+      r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+      if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+      let s = localStorage.getItem("hub.surface");
+      if (s !== "light" && s !== "dark") {
+        const old = localStorage.getItem("hub:surface");
+        s = (old === "light" || old === "dark") ? old : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { r.setAttribute("data-theme","cobalt"); r.setAttribute("data-surface","dark"); }
+  })();
+</script>
+<title>blueprints</title>
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<!-- order per DESIGN.md: chrome -> base -> themes -> module. Was themes-then-base
+     here, which let base.css win over the theme it was supposed to sit under. -->
+<link rel="stylesheet" href="/static/css/chrome.css?v=12">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/origins/tabbed-3-pane.css">
+<link rel="stylesheet" href="/static/css/origins/entry-3-pane.css">
+<link rel="stylesheet" href="/static/css/origins/tabbed-reader.css">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<link rel="stylesheet" href="/blueprints/static/blueprints.css">
+<!-- hub-modules.js MUST precede theme-switch.js: it defines window.MODULES, which
+     is what builds the modules launcher. Both deferred, like every other page. -->
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
+</head>
+<body>
+
+<!-- dogfooding: this page's own top bar is the blueprint it documents. If the
+     shared component breaks, /blueprints breaks first and most visibly. -->
+<header class="topbar">
+  <!-- the bar itself (back, brand, toggle, theme, sign-out, modules) is drawn by
+       topbar.jsx; only this page's extras live here, placed by data-slot -->
+  <span data-slot="crumb" class="crumb">blueprints</span>
+</header>
+
+<div class="el-wrap" id="bp-root"></div>
+
+<script defer src="/jsx/blueprints/frontend/static/blueprints.jsx?v=4"></script>
+<!-- fallback outside React: if the body never mounted, say so instead of a blank page -->
+<script>
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      if (document.querySelector('[data-react-mounted="blueprints"]')) return;
+      var d = document.createElement("div");
+      d.className = "hub-error";
+      d.textContent = "page failed to load";
+      document.body.appendChild(d);
+    }, 3000);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+/* account.css — the account page's own shell.
+ *
+ * Everything the CARD needs already lives in trips.css and is not repeated here:
+ * .ccard, .cpill, the rarity mark, all seven borders, all nine headers, and (in
+ * components.css) the foil stack with its eight shimmers. This file styles what surrounds it.
+ *
+ * Tokens only, per DESIGN.md — no literal colours, no literal radii. The two
+ * exceptions are the aside width and the scroll-margin, which are layout
+ * geometry rather than palette.
+ */
+
+:root { --acct-aside: 304px; }
+
+/* trips.css pins the board to the viewport (html,body{height:100%},
+   body{overflow:hidden}, .shell{height:100vh}) because the board is a fixed
+   frame with panes that scroll inside it. This page is one long scroll, so it
+   takes those back. Scoped to .acct so the board is untouched. */
+html:has(body.acct), body.acct { height: auto; overflow: visible; }
+
+body.acct { padding-bottom: var(--s-7); }
+body.acct .topbar {
+  position: sticky; top: 0; z-index: 30;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+}
+
+/* ── the gate strip ──────────────────────────────────────────────────────────
+   Only drawn while a form is still owed. It is a full-width band, not a bordered
+   callout with a coloured left edge — the board's cal-notice is the pattern it
+   follows, one row above the content saying the one thing that is true. */
+.acct-gate {
+  display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap;
+  padding: 10px var(--s-5);
+  background: var(--bg-elev); border-bottom: 1px solid var(--line);
+  color: var(--fg); font-size: var(--fs-footnote);
+}
+.acct-gate b { color: var(--warn); font-weight: 600; }
+.acct-gate .acct-gate-sub { color: var(--fg-dim); }
+
+/* ── the two columns ─────────────────────────────────────────────────────── */
+.acct-wrap {
+  display: grid; grid-template-columns: var(--acct-aside) minmax(0, 1fr);
+  gap: var(--s-7);
+  max-width: 1160px; margin: 0 auto; padding: var(--s-6) var(--s-5) 0;
+  align-items: start;
+}
+
+.acct-aside { position: sticky; top: calc(var(--topbar-h, 56px) + var(--s-5)); }
+.acct-cardhost { margin-bottom: var(--s-5); }
+/* The card grid is an auto-fill grid on the board. Here there is exactly one
+   card and it should fill the column, so the auto-fill floor is overridden
+   rather than left to place a 300px card in a 304px slot and centre it. */
+.acct-cardhost .crewgrid { grid-template-columns: minmax(0, 1fr); padding: 0; }
+/* Not a selection control on this page — the board's pointer affordances would
+   promise a detail rail that is not here. */
+.acct-cardhost .ccard { cursor: default; }
+.acct-cardhost .ccard:hover,
+[data-theme="cobalt"] .acct-cardhost .ccard:hover { transform: none; box-shadow: none; }
+.acct-cardnote {
+  margin-top: var(--s-3); color: var(--fg-dim); font-size: var(--fs-footnote); line-height: 1.45;
+  text-wrap: pretty;
+}
+
+/* ── section nav ─────────────────────────────────────────────────────────── */
+.acct-nav { display: flex; flex-direction: column; gap: 1px; }
+.acct-nav a {
+  display: flex; align-items: baseline; gap: var(--s-3);
+  padding: 7px 10px; border: 1px solid transparent; border-radius: var(--r-card);
+  color: var(--fg-dim); font-size: var(--fs-footnote); text-decoration: none;
+  transition: color 140ms var(--e-out-quart), background 140ms var(--e-out-quart),
+              border-color 140ms var(--e-out-quart);
+}
+.acct-nav a:hover { color: var(--fg); background: var(--bg-elev); text-decoration: none; }
+.acct-nav a.on { color: var(--accent); border-color: var(--line); background: var(--bg-elev); }
+/* The count is the section's own scale — "3 answered", "2 trips" — so the nav
+   says how much is behind each entry instead of only naming it. */
+.acct-nav .nav-n { margin-left: auto; color: var(--fg-faint); font-size: var(--fs-caption); }
+.acct-nav a.on .nav-n { color: var(--accent-dim); }
+.acct-nav .nav-owe { color: var(--warn); }
+
+/* ── sections ────────────────────────────────────────────────────────────── */
+.acct-main { min-width: 0; }
+.acct-load { color: var(--fg-dim); font-size: var(--fs-footnote); padding: var(--s-6) 0; }
+/* Every flex/grid box on this page that also ships with [hidden]. An author
+   display: rule beats the UA's [hidden]{display:none} at equal specificity, so
+   without this the dirty-state save bar renders before anything is dirty and
+   the form editor sits under the sections it replaces. */
+.asave[hidden], .aform-save[hidden], .acct-gate[hidden],
+.asec[hidden], .acct-nav[hidden] { display: none !important; }
+
+.asec { padding-bottom: var(--s-7); scroll-margin-top: calc(var(--topbar-h, 56px) + var(--s-5)); }
+.asec + .asec { border-top: 1px solid var(--line); padding-top: var(--s-6); }
+.asec-h {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-size: var(--fs-title); font-weight: 500; line-height: 1.15; color: var(--fg);
+  text-wrap: balance; margin-bottom: 4px;
+}
+.asec-sub { color: var(--fg-dim); font-size: var(--fs-footnote); max-width: 62ch; text-wrap: pretty; }
+.asec-foot { margin-top: var(--s-5); color: var(--fg-faint); font-size: var(--fs-footnote); }
+.asec-sub + * , .asec-h + * { margin-top: var(--s-5); }
+
+/* ── the unlock ladder ───────────────────────────────────────────────────────
+   The spine of the page: three things you can fill in, and the three things each
+   one lights up on the card to the left. Rows, not cards — they are one sequence
+   with a shared left edge, and three boxes would read as three unrelated facts. */
+.ladder { display: flex; flex-direction: column; }
+.lrung {
+  display: grid; grid-template-columns: 22px minmax(0, 1fr) auto auto;
+  gap: var(--s-3); align-items: center;
+  padding: var(--s-3) 0; border-top: 1px solid var(--line-soft);
+}
+/* Without a badge the row is three items in a four-track grid, and the button
+   would sit one track left of where every other rung puts it. */
+.lrung > .lrung-go:nth-child(3) { grid-column: 4; }
+.lrung:last-child { border-bottom: 1px solid var(--line-soft); }
+.lrung-pip {
+  width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid var(--line); color: var(--fg-faint); font-size: var(--fs-caption);
+  transition: border-color 160ms var(--e-out-quart), color 160ms var(--e-out-quart);
+}
+.lrung.done .lrung-pip { border-color: var(--good); color: var(--good); }
+.lrung-t { font-size: var(--fs-subhead); color: var(--fg); }
+.lrung-s { display: block; color: var(--fg-dim); font-size: var(--fs-footnote); margin-top: 1px; }
+.lrung.done .lrung-s { color: var(--fg-dim); }
+.lrung-go {
+  font-size: var(--fs-footnote); color: var(--fg-dim); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: 4px 9px; background: transparent;
+  transition: all 140ms var(--e-out-quart); white-space: nowrap;
+}
+.lrung-go:hover { color: var(--accent); border-color: var(--accent-dim); text-decoration: none; }
+
+/* ── details form ────────────────────────────────────────────────────────── */
+.arow { margin-bottom: var(--s-4); }
+.arow label { display: block; font-size: var(--fs-footnote); color: var(--fg-dim); margin-bottom: 4px; }
+.arow input {
+  width: 100%; font: inherit; font-size: var(--fs-subhead); padding: 8px 10px;
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg-elev); color: var(--fg);
+  transition: border-color 140ms var(--e-out-quart);
+}
+.arow input:hover { border-color: var(--line-strong); }
+.arow input:focus { border-color: var(--accent); }
+.arow input[aria-invalid="true"] { border-color: var(--alert); }
+.arow-err { display: block; margin-top: 4px; font-size: var(--fs-caption); color: var(--alert); }
+
+/* The address field's suggestion list is styled by addr-combo.js, which owns
+   it on both pages that use it. Nothing is needed here any more: the list is
+   appended to <body> and positioned fixed, so it no longer has to outrank the
+   sections around it. That removed a real trap — every .asec is its own
+   stacking context, because the entrance animation runs with `fill-mode: both`
+   and its final `transform: none` computes to the identity matrix, so z-index
+   inside a section only ever sorted within it and a later sibling painted
+   straight over the last two suggestions. */
+.atwo { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0 var(--s-4); }
+
+/* Appears only once something is actually different, so the page is not asking
+   to be saved before it has been changed. */
+
+.abtn {
+  font: inherit; font-size: var(--fs-footnote); padding: 7px 13px;
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg-elev); color: var(--fg); cursor: pointer;
+  transition: all 140ms var(--e-out-quart);
+}
+.abtn:hover:not(:disabled) { border-color: var(--accent-dim); color: var(--accent); }
+.abtn-accent { border-color: var(--accent); color: var(--accent); }
+.abtn-accent:hover:not(:disabled) { background: var(--accent); color: var(--on-accent); }
+.abtn:disabled { opacity: .45; cursor: default; }
+.anote { color: var(--fg-dim); font-size: var(--fs-footnote); }
+.anote-bad { color: var(--alert); }
+.anote-ok { color: var(--good); }
+
+/* ── preference read-back ────────────────────────────────────────────────── */
+.pblock { border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-elev); }
+.pblock + .pblock { margin-top: var(--s-4); }
+.pblock-h {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-3) var(--s-4); border-bottom: 1px solid var(--line);
+}
+.pblock-t { font-size: var(--fs-subhead); color: var(--fg); font-weight: 600; }
+.pblock-when { color: var(--fg-faint); font-size: var(--fs-footnote); }
+.pblock-h .abtn { margin-left: auto; }
+.pblock-body { padding: var(--s-4); }
+.pblock-empty { padding: var(--s-4); color: var(--fg-dim); font-size: var(--fs-footnote); }
+
+/* A form that is IN but holds answers the questions no longer offer. Warn-tinted
+   rather than the body's grey, because the whole point is that nothing else on
+   this page distinguishes it from a finished form. */
+.pblock-owed {
+  padding: var(--s-3) var(--s-4);
+  border-top: 1px solid var(--line);
+  background: color-mix(in oklab, var(--warn) 8%, transparent);
+  color: var(--fg-dim); font-size: var(--fs-footnote); line-height: 1.5;
+}
+.pblock-owed b { color: var(--warn); font-weight: 600; }
+/* The fact grid and the note rows are the crew card's own, reused verbatim, so
+   what you read here and what the crew reads on your card are the same words.
+   Two columns rather than the card's cramped pair — this column is wider. */
+.pblock-body .ccard-facts {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--s-4) var(--s-5);
+}
+.pblock-body .cfact { display: block; }
+.pblock-body .cfact-k { display: block; font-size: var(--fs-caption); color: var(--fg-dim); margin-bottom: 2px; }
+.pblock-body .cfact-v { display: block; font-size: var(--fs-footnote); color: var(--fg); }
+.pblock-body .ccard-pills { margin-bottom: var(--s-4); }
+/* liquid draws facts as grouped label/value rows (liquid.css), and the stacked
+   block layout above split each row into a label up top and a value adrift on the
+   right (Sam 2026-10-12 mark): two columns of those rows instead, the same
+   rows "the three that can wreck a plan" uses under it. */
+[data-theme="liquid"] .pblock-body .ccard-facts { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0 var(--s-5); }
+[data-theme="liquid"] .pblock-body .cfact { display: flex; }
+[data-theme="liquid"] .pblock-body :is(.cfact-k, .cfact-v) { display: inline; margin: 0; font-size: var(--fs-subhead); }
+/* no hairline per row: fourteen in one card (Sam 2026-10-12 mark); spacing groups them */
+[data-theme="liquid"] .pblock-body :is(.cfact, .ccard-notes > *) { background: none; padding-block: 7px; }
+.pblock-body .ccard-notes { margin-top: var(--s-4); padding-top: var(--s-4); gap: 3px; }
+/* The heading already separates it. Keeping the rule's own dashed top as well
+   drew a line under a label with nothing between them. */
+.rb-h + .ccard-notes { margin-top: 0; padding-top: 0; border-top: 0; }
+
+/* ── the full rating spread ──────────────────────────────────────────────────
+   Every tag at the rating actually given, which the card cannot show: only must
+   and want earn a pill there. Two columns of label/value rather than a chip grid,
+   because the value is the point and a chip would bury it in the label.
+
+   NOT .sp / .sp-v: trips.css:1552 already owns those for the cost board's stat
+   pills, and this page loads that whole file. The first version of this block
+   used them and every rating rendered at 26px in the display face, overflowing
+   its cell — invisible in the markup, obvious the moment the page was looked at. */
+.rb-h { font-size: var(--fs-footnote); color: var(--fg-dim); font-weight: 500; margin-bottom: var(--s-3); }
+.ccard-notes + .rb-h, .rateset + .rb-h { margin-top: var(--s-5); }
+.rateset { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 var(--s-5); }
+/* position + the extra 3px of bottom padding are what the .sbar (trips.css) sits
+   in: the bar is out of flow, so the row has to reserve the space itself. */
+.rate {
+  position: relative;
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3);
+  padding: 6px 0 9px; border-bottom: 1px solid var(--line-soft); font-size: var(--fs-footnote);
+}
+.rate-t { color: var(--fg-dim); min-width: 0; }
+/* The rating is the answer, so it carries the weight and the tone. Neutral stays
+   dim on purpose — a page where every row shouts says nothing. */
+.rate-v { color: var(--fg-faint); white-space: nowrap; }
+.rate-must .rate-t, .rate-want .rate-t { color: var(--fg); }
+.rate-must .rate-v { color: var(--good); }
+.rate-want .rate-v { color: var(--fg); }
+.rate-no .rate-v { color: var(--warn); }
+
+/* ── outliers ────────────────────────────────────────────────────────────── */
+.outs { margin-top: var(--s-5); }
+.outs-h { font-size: var(--fs-subhead); color: var(--fg); margin-bottom: 4px; }
+.outs-sub { color: var(--fg-dim); font-size: var(--fs-footnote); max-width: 62ch; }
+.outs-list { margin-top: var(--s-4); }
+.hub-card.out .out-r { color: var(--fg-dim); }
+.hub-card.out-keener .out-r { color: var(--good); }
+.hub-card.out-cooler .out-r { color: var(--warn); }
+
+/* ── card designer ───────────────────────────────────────────────────────────
+   The slot rows and swatches are the board's own (.cp-slot / .cp-sw / .cp-p in
+   trips.css) and are NOT restyled here — same control, same page family. All
+   this column changes is that it is wider than the overlay ever was, so the
+   swatches get room to breathe between slots. */
+.cardpick { margin: 0; }
+.cardpick .cp-slot + .cp-slot {
+  margin-top: var(--s-5); padding-top: var(--s-5); border-top: 1px solid var(--line-soft);
+}
+.cardpick .cp-sws { gap: var(--s-2); }
+
+/* ── trips ───────────────────────────────────────────────────────────────── */
+.trip {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--s-3);
+  align-items: baseline; padding: var(--s-3) 0; border-top: 1px solid var(--line-soft);
+  color: inherit; text-decoration: none;
+}
+.trip:last-child { border-bottom: 1px solid var(--line-soft); }
+.trip:hover { text-decoration: none; }
+.trip:hover .trip-n { color: var(--accent); }
+.trip-n { font-size: var(--fs-subhead); color: var(--fg); transition: color 140ms var(--e-out-quart); }
+.trip-w { display: block; color: var(--fg-dim); font-size: var(--fs-footnote); margin-top: 1px; }
+.trip-r { color: var(--fg-faint); font-size: var(--fs-footnote); white-space: nowrap; }
+
+/* ── the form editor ─────────────────────────────────────────────────────── */
+.aform-bar { display: flex; align-items: baseline; gap: var(--s-4); margin-bottom: var(--s-5); }
+.aform-who { color: var(--fg-dim); font-size: var(--fs-footnote); }
+.aform-who b { color: var(--fg); font-weight: 600; }
+.asave, .aform-save {
+  position: sticky; bottom: 0; z-index: 10;
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: var(--s-4) 0 var(--s-5);
+  /* Opaque from a fifth of the way down, not from forty percent: the top of this
+     box overlaps whatever is scrolling under it, and a mostly-transparent bar
+     printed a heading straight through the save button. */
+  background: linear-gradient(transparent, var(--bg) 22%);
+}
+/* The question vocabulary is the wall's, kept identical on purpose: the server
+   sends one schema and validates the same one on the way back, so the controls
+   that render it should not be a second dialect. */
+.fsec { border: 1px solid var(--line); border-radius: var(--r-card);
+        background: var(--bg-elev); padding: var(--s-4) var(--s-5); margin-bottom: var(--s-3); }
+.fsec-h { font-family: var(--font-display); font-size: var(--fs-subhead); margin: 0 0 var(--s-4);
+          color: var(--fg-dim); text-transform: lowercase; letter-spacing: .02em; }
+.fq { margin-bottom: var(--s-5); }
+.fq:last-child { margin-bottom: 0; }
+.fq-t { display: block; font-size: var(--fs-footnote); margin-bottom: 7px; }
+/* Said once at the top of the form, because the form is reached from a trip and
+   otherwise reads like it is about that trip. Left rule rather than a tinted
+   panel: it is a standing note, not a warning. */
+.fstanding {
+  border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: var(--r-card); background: var(--bg); padding: 10px 12px;
+  margin-bottom: var(--s-5); font-size: var(--fs-footnote); line-height: 1.5; color: var(--fg-mute);
+}
+.fstanding b { color: var(--fg); font-weight: 600; }
+/* The axis in words above the options, so the row reads as a scale while it is
+   being answered and not as an unordered list of phrases. */
+.fq-axis {
+  display: flex; justify-content: space-between; gap: var(--s-3);
+  margin: -2px 0 6px; font-size: var(--fs-caption); line-height: 1.3; color: var(--fg-faint);
+}
+.fq-axis span:last-child { text-align: right; }
+.fq-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+/* The radio itself is hidden, not removed: it stays the thing that holds the
+   value and the thing a keyboard tabs onto, and :focus-visible below draws the
+   ring the native control would have. */
+.fq-opts input { position: absolute; opacity: 0; width: 0; height: 0; }
+.fq-opts label {
+  padding: 6px 11px; border: 1px solid var(--line-soft); border-radius: var(--r-pill);
+  font-size: var(--fs-footnote); cursor: pointer; color: var(--fg-dim); user-select: none;
+  background: transparent; line-height: 1.25;
+  transition: background 120ms var(--e-out-quart), color 120ms var(--e-out-quart),
+              border-color 120ms var(--e-out-quart);
+}
+/* Hover deliberately does NOT touch the accent. It used to, so a hovered option
+   and a chosen one were the same outline and the row read as one blob. Hover is
+   a slightly stronger line; accent means chosen and only chosen. */
+.fq-opts label:hover { border-color: var(--line-strong); color: var(--fg); }
+.fq-opts input:checked + label {
+  background: var(--accent); border-color: var(--accent);
+  color: var(--on-accent); font-weight: 600;
+}
+/* A tick, so the state survives being seen in greyscale or by someone who cannot
+   separate the two colours. ::before, so it is not text to be selected. Only on
+   the options that are NOT points on a scale — the scaled ones keep their dot
+   there and take the tick on the other side (below). */
+.fq-opts input:checked + label:not(.fq-scaled)::before {
+  content: "\2713"; margin-right: 5px; font-weight: 700;
+}
+/* An option that IS a point on the scale carries a swatch of where it sits, from
+   the same ramp the read-back and the group rail use. Only options on the scale
+   get one: "depends on the dish" is a real answer that is not a position, and
+   tinting it would invent an order it does not have. The checked rule above
+   replaces the dot with the tick, so a chosen option reads as chosen and not as
+   two markers. */
+.fq-scaled::before {
+  content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--c); margin-right: 6px; vertical-align: 1px;
+}
+/* Picking an option used to ERASE its position: the accent fill painted over the
+   colour and the tick replaced the dot, so the one answer you had actually chosen
+   was the only one on the row not showing where it sits. The chosen chip now
+   wears its own scale colour — its ring and a wash of the same hue — keeps the
+   dot, and takes the tick after the words instead of on top of them. Selected is
+   still unmistakable: nothing else on the row has a ring or a fill. */
+.fq-opts input:checked + .fq-scaled {
+  background: color-mix(in oklab, var(--c) 20%, transparent);
+  border-color: var(--c);
+  box-shadow: inset 0 0 0 1px var(--c);
+  color: var(--fg); font-weight: 600;
+}
+.fq-opts input:checked + .fq-scaled::after {
+  content: "\2713"; margin-left: 6px; font-weight: 700; color: var(--c);
+}
+/* The dot sits on a wash of its own hue once chosen, which is the one place it
+   could disappear into its own background. A ring in the panel colour separates
+   them without introducing a second colour. */
+.fq-opts input:checked + .fq-scaled::before { box-shadow: 0 0 0 1.5px var(--bg-elev); }
+.fq-opts input:focus-visible + label { outline: 2px solid var(--fg); outline-offset: 2px; }
+.fq input[type="text"], .fq textarea {
+  width: 100%; font: inherit; font-size: var(--fs-subhead); padding: 8px 10px;
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg); color: var(--fg);
+}
+.fq textarea { min-height: 76px; resize: vertical; }
+.fgrid-row { padding: 8px 10px; border-radius: var(--r-card); background: var(--bg); margin-bottom: 6px; }
+.fgrid-row:last-child { margin-bottom: 0; }
+.fgrid-l { display: block; font-size: var(--fs-footnote); font-weight: 600; color: var(--fg); margin-bottom: 6px; }
+
+/* ── the stale-answer markers ────────────────────────────────────────────────
+   One badge, four places: the ladder rung, the preferences block header, the
+   question inside the form, and (as .nav-owe above) the nav rail. They are the
+   pointer half of the nag — the strip at the top of the page says HOW MANY, and
+   these say WHICH, all the way down to the individual grid row. Nothing here
+   locks anything: an owed question is marked, never disabled, because a form
+   the crew cannot finish is worse than one with a stale answer in it. */
+.owe-b {
+  flex: none; font-size: var(--fs-caption); font-weight: 600; line-height: 1;
+  padding: 4px 7px; border-radius: 999px;
+  background: color-mix(in oklab, var(--warn) 20%, transparent);
+  border: 1px solid color-mix(in oklab, var(--warn) 45%, transparent);
+  color: var(--warn);
+}
+/* On a question the badge names the ask instead of counting to one — "1" beside
+   a single question is a number with nothing to compare it to. */
+.owe-b-q { margin-left: var(--s-3); text-transform: none; letter-spacing: 0; }
+
+.lrung.stale .lrung-s { color: var(--warn); }
+.pblock.stale { border-color: color-mix(in oklab, var(--warn) 40%, var(--line)); }
+
+/* The question itself. A left rule rather than a fill: the options underneath
+   carry the scale's own colours and a tinted panel behind them would read as a
+   sixth tint on the ramp. */
+.fq-owe {
+  border-left: 3px solid var(--warn);
+  padding-left: 10px; margin-left: -13px;
+}
+/* A marked row sits inside a grid of twenty-nine that all look alike, and the
+   options in it carry the ramp's own strong colours — so a faint tint loses to
+   its own contents. The left bar is what survives that. */
+.fgrid-row.owe {
+  background: color-mix(in oklab, var(--warn) 14%, var(--bg));
+  border-left: 3px solid var(--warn);
+  padding-left: 7px;
+}
+/* Same shape as .fstanding directly above it, warn where that one is accent:
+   the two are read together, and a different shape would say they are different
+   kinds of note when they are the same kind with different urgency. */
+.fowe {
+  border: 1px solid color-mix(in oklab, var(--warn) 35%, var(--line));
+  border-left: 3px solid var(--warn);
+  border-radius: var(--r-card); background: color-mix(in oklab, var(--warn) 7%, var(--bg));
+  padding: 10px 12px; margin-bottom: var(--s-5);
+  font-size: var(--fs-footnote); line-height: 1.5; color: var(--fg-dim);
+}
+.fowe b { color: var(--warn); font-weight: 600; }
+
+/* ── narrow ──────────────────────────────────────────────────────────────────
+   One column. The card leads, because it is still the subject, but it stops
+   sticking — a 340px card pinned to the top of a phone leaves nothing to read
+   under it. The nav becomes the strip that sticks instead. */
+@media (max-width: 900px) {
+  .acct-wrap { grid-template-columns: minmax(0, 1fr); gap: var(--s-5); padding: var(--s-5) var(--s-4) 0; }
+  .acct-aside { display: contents; }
+  .acct-cardhost { max-width: 340px; margin-inline: auto; }
+  .acct-nav {
+    position: sticky; top: var(--topbar-h, 56px); z-index: 20;
+    flex-direction: row; gap: 4px; overflow-x: auto; scrollbar-width: none;
+    padding: var(--s-3) 0; margin: 0 calc(var(--s-4) * -1); padding-inline: var(--s-4);
+    background: var(--bg); border-bottom: 1px solid var(--line);
+  }
+  .acct-nav::-webkit-scrollbar { display: none; }
+  .acct-nav a { flex: 0 0 auto; }
+  .acct-nav .nav-n { margin-left: 6px; }
+  .asec-h { font-size: var(--fs-title); }
+  body.acct:has(#secForm:not([hidden])) .acct-cardhost { display: none; }
+  /* iOS zooms any control under 16px on focus, and the zoom does not come back. */
+  .arow input, .fq input[type="text"], .fq textarea { font-size: var(--fs-body); }
+}
+
+/* Every reveal on this page is an entrance on already-visible content: the
+   sections ship unhidden and animate in, never the reverse, so a headless render
+   or a background tab still paints the whole page. */
+@keyframes acct-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.asec { animation: acct-in 240ms var(--e-out-quint) both; }
+.asec:nth-child(2) { animation-delay: 40ms; }
+.asec:nth-child(3) { animation-delay: 80ms; }
+.asec:nth-child(4) { animation-delay: 120ms; }
+.asec:nth-child(5) { animation-delay: 160ms; }
+@media (prefers-reduced-motion: reduce) { .asec { animation: none; } }
+
+/* The roster picker, Hub only (account.js paintWho): a full-width button over the
+   card. Its menu is the theme picker's (.theme-picker-menu), opened left-aligned. */
+.acct-aside .acct-who { display: flex; margin-bottom: var(--s-3); }   /* .acct-aside: theme-switch.js injects .theme-picker{inline-flex} after this sheet */
+.acct-who[hidden] { display: none; }
+.acct-who .acct-who-btn { flex: 1; justify-content: flex-start; gap: var(--s-2); height: 40px; padding: 0 14px; font-size: var(--fs-subhead); text-transform: none; letter-spacing: 0; }
+.acct-who .acct-who-k { color: var(--fg-dim); }
+.acct-who-btn .theme-picker-optname { flex: 1; text-align: left; font-weight: 600; }
+.acct-who .theme-picker-opt .theme-picker-optname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.acct-who .theme-picker-menu { left: 0; right: auto; width: 100%; }
+.acct-who .theme-picker-menu[hidden] { display: none; }
+@media (max-width: 900px) { .acct-who { width: 100%; max-width: 340px; margin-inline: auto; } }
+/* Phone dock: the words "the board" are 101px, and with Mark, bell, light/dark, theme and
+   modules they spill onto the bell (2026-10-15). Icon-sized here; the title names it. */
+@media (max-width: 640px) {
+  body.acct .board-link[href] { width: 44px; min-width: 0; padding: 0; flex: none; justify-content: center; font-size: 0; }
+  body.acct .board-link[href]::before { content: "\25A4"; font-size: var(--fs-body); line-height: 1; }
+}

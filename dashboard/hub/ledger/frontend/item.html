@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<script>
+  /* no-flash theme init — same contract as every other hub page. */
+  (function () {
+    var r = document.documentElement;
+    try {
+      var t = localStorage.getItem("hub.theme");
+      if (t === "glass") t = "liquid";
+      r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+      if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+      var s = localStorage.getItem("hub.surface");
+      if (s !== "light" && s !== "dark") {
+        s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+  })();
+</script>
+<title>HUB · ledger</title>
+<!-- webfonts: one same-origin, render-blocking stylesheet carrying BOTH themes'
+     faces. Replaces the Google Fonts <link> this head used to inject from JS:
+     cross-origin, a second hop for each woff2, discovered too late to block
+     first paint, and `display=swap` — so the page painted in the fallback stack
+     and reflowed when the real faces landed. That reflow was the load flash.
+     Declaring the inactive theme's faces costs nothing (a @font-face downloads
+     only when a rule uses the family) and makes a live theme switch fetch-free,
+     which is why window.HUB_FONTS is gone — theme-switch.js no-ops without it.
+     See static/vendor/fonts/fonts.css; regenerate with tools/vendor-fonts.py. -->
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<script>
+  /* Preload the ACTIVE theme's two latin faces. Without this they are not
+     discovered until fonts.css has parsed AND layout has reached text that uses
+     them — late enough on a slow link to paint a frame in the fallback stack and
+     reflow, which is the flash. Two files, ~40 KB. data-theme is already set by
+     the no-flash snippet above, which is why this sits after it. */
+  (function () {
+    var FACES = {
+      cobalt: ["/static/vendor/fonts/archivo-black-normal-latin.woff2",
+               "/static/vendor/fonts/space-grotesk-normal-latin.woff2"]
+    };
+    (FACES[document.documentElement.getAttribute("data-theme")] || []).forEach(function (href) {
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
+      l.href = href;
+      document.head.appendChild(l);
+    });
+  })();
+</script>
+<!-- order per DESIGN.md: chrome -> base -> themes -> module. -->
+<link rel="stylesheet" href="/static/css/chrome.css?v=12">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
+
+<style>
+  /* One item, and the four blocks arrive in the order a doubt does: what the
+     mark is made of, what the series actually did, where it could be sold, and
+     the one input that is missing. */
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: var(--font-body);
+    font-feature-settings: var(--feat-text);
+    font-size: var(--fs-subhead); line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 22px 20px 90px; display: grid; gap: var(--s-7); }
+  a { color: inherit; }
+
+  .hero { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-4); }
+  .hero h1 { margin: 0; font-size: var(--fs-title); font-weight: 700; letter-spacing: -0.01em; }
+  .hero .big { font-size: var(--fs-large-title); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .hero .meta { color: var(--fg-dim); font-size: var(--fs-footnote); }
+
+  section > h2 { margin: 0 0 var(--s-3); font-size: var(--fs-caption); letter-spacing: 0.09em;
+                 text-transform: uppercase; color: var(--violet-label); font-weight: 600; }
+  section > .why { margin: 0 0 var(--s-4); font-size: var(--fs-footnote); color: var(--fg-dim);
+                   line-height: 1.6; max-width: 82ch; }
+
+  table { width: 100%; border-collapse: collapse; font-size: var(--fs-footnote); }
+  th { text-align: left; font-size: var(--fs-caption); letter-spacing: 0.08em; text-transform: uppercase;
+       color: var(--fg-dim); font-weight: 600; padding: 0 var(--s-3) var(--s-2); border-bottom: 1px solid var(--line); }
+  td { padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--line-soft); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  /* The chosen window is marked in the table rather than being the only row shown.
+     Windows disagreeing is the fact the reader came for; resolving it silently
+     behind their back is what this block exists to stop. */
+  tr.chosen td { color: var(--fg); font-weight: 600; }
+  tr.chosen td:first-child::before { content: "▸ "; color: var(--accent); }
+  tr.thin-row td { color: var(--fg-dim); }
+
+  .chip { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; height: var(--ctl-h, 28px); padding: 0 10px; line-height: 1; white-space: nowrap; border: 0; border-radius: var(--r-card); font-size: var(--fs-caption); letter-spacing: 0.05em;
+          text-transform: uppercase; font-weight: 600;
+          background: color-mix(in oklab, var(--fg-dim) 22%, transparent); color: var(--fg-dim); }
+  .chip.solid { background: var(--good); color: var(--bg); }
+  .chip.thin  { background: var(--warn); color: var(--bg); }
+  .chip.stale { background: color-mix(in oklab, var(--fg-dim) 22%, transparent); color: var(--fg-dim); }
+  .chip.na    { background: color-mix(in oklab, var(--fg-faint) 14%, transparent); color: var(--fg-faint); }
+
+  .chart { border: 1px solid var(--line); background: var(--bg-elev); padding: var(--s-4); }
+  .chart svg { width: 100%; height: auto; display: block; touch-action: none; }
+  .line { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linejoin: round; }
+  .bar { fill: var(--fg-faint); opacity: 0.5; }
+  /* A rejected day is drawn, not deleted. The crosshair says why. */
+  .rej { fill: none; stroke: var(--fg-faint); stroke-width: 1.2; }
+  .grid { stroke: var(--line-soft); stroke-width: 1; }
+  .frame { stroke: var(--line); stroke-width: 1; fill: none; }
+  .tick { fill: var(--fg-dim); font-size: var(--fs-caption); font-family: var(--font-body);
+          font-variant-numeric: tabular-nums; }
+  .tick.y { text-anchor: end; }
+  .tick.x { text-anchor: middle; }
+  .rail-label { fill: var(--fg-faint); font-size: var(--fs-caption); font-family: var(--font-body);
+                text-anchor: end; letter-spacing: 0.06em; }
+
+  /* The crosshair: one vertical rule and one dot, both moved by pointer position.
+     Hidden until the pointer is actually over the plot, so the chart does not
+     open asserting a day nobody asked about. */
+  .cross { stroke: var(--fg-dim); stroke-width: 1; stroke-dasharray: 3 3; }
+  .cross-dot { fill: var(--accent); stroke: var(--bg-elev); stroke-width: 1.5; }
+  .chart[data-hover="0"] .cross, .chart[data-hover="0"] .cross-dot { display: none; }
+
+  /* The readout sits above the plot rather than floating over it: a tooltip that
+     follows the pointer covers the very line you are reading. */
+  .readout { display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); align-items: baseline;
+             min-height: 20px; margin-bottom: var(--s-3); font-size: var(--fs-footnote);
+             font-variant-numeric: tabular-nums; }
+  .readout .day { color: var(--fg-dim); }
+  .readout .price { font-weight: 600; }
+  .readout .why { margin: 0; font-size: var(--fs-footnote); color: var(--warn); }
+  .chart[data-hover="0"] .readout .hint { color: var(--fg-faint); }
+  .chart[data-hover="1"] .readout .hint { display: none; }
+
+  .gap { border: 1px solid var(--warn-dim); background: var(--bg-elev); padding: var(--s-4) var(--s-5);
+         font-size: var(--fs-footnote); line-height: 1.65; color: var(--fg-mute); max-width: 82ch; }
+  .gap strong { color: var(--warn); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+    <header class="topbar">
+    <!-- the bar itself (back, brand, toggle, theme, sign-out, modules) is drawn by
+         topbar.jsx; only this page's extras live here, placed by data-slot -->
+    <span data-slot="crumb" class="crumb" id="crumb"><a href="/ledger/">ledger</a></span>
+  </header>
+
+  <main class="wrap"></main>
+</div>
+<script type="application/json" id="ledger-data">{{ {"i": i, "chart": chart, "depth_target": depth_target}|tojson }}</script>
+<script defer src="/jsx/ledger/frontend/static/item.jsx"></script>
+  <script>
+  /* load fallback: the body is drawn by the deferred JSX above; if nothing marked itself mounted, say so */
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      if (document.querySelector("[data-react-mounted]")) return;
+      var m = document.querySelector("main.wrap");
+      if (m) m.textContent = "The page failed to load. Reload to try again.";
+    }, 4000);
+  });
+  </script>
+</body>
+</html>

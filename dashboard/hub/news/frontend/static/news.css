@@ -1,0 +1,123 @@
+/* news: page mods only. The chassis is tabbed-3-pane; the coverage bar, counts,
+   gap and names line are the shared coverage-bar blueprint (components.css).
+   Everything here is the news-only reading: card frame, title/meta type, the
+   digest block and the small tab notes. Token-only, no literal hex. Cards wrap
+   as plain block text (headlines are ordinary sentences), so no phone-specific
+   rule is needed on top of the origin's own stacking. */
+
+/* the origin carries no page reset -- every tabbed-3-pane derivative supplies
+   its own body font/colour and button/input reset (trips.css, workbench.css:
+   same six lines each). Missing here was the T10 defect: the rail tabs are
+   `<button>`s, so with no reset they wore the browser's own button chrome
+   (light face, UA font) instead of the theme, and every other line of text
+   fell back to the browser default serif since nothing ever named
+   --font-body. */
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select { font: inherit; color: inherit; background: none; border: 0; }
+
+.news-select, .news-topic-input {
+  font: inherit; color: var(--fg); background: var(--bg-elev);
+  border: 1px solid var(--line); border-radius: var(--r); padding: 4px 8px;
+}
+.news-select:hover, .news-topic-input:hover { border-color: var(--line-strong); }
+
+.news-card {
+  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-elev); border: 1px solid var(--line); border-left: 2px solid transparent;
+  border-radius: var(--r-card);
+  cursor: pointer;
+}
+.news-card:hover { border-color: var(--line-strong); }
+.news-card.selected { border-left-color: var(--accent); }
+
+.news-card-title { font-size: var(--fs-headline); font-weight: 700; color: var(--fg); line-height: 1.35; }
+.news-card-meta { font-size: var(--fs-footnote); color: var(--fg-faint); }
+
+.news-audience-note {
+  margin: 0 0 var(--s-2); font-size: var(--fs-footnote); font-style: italic; color: var(--fg-dim);
+}
+
+.news-digest {
+  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-card);
+}
+.news-digest-label { font-size: var(--fs-caption); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg-faint); }
+.news-digest-body { display: flex; flex-direction: column; gap: var(--s-1); }
+.news-digest-line { margin: 0; font-size: var(--fs-footnote); line-height: 1.55; color: var(--fg-dim); }
+.news-digest-head { margin-top: var(--s-2); font-size: var(--fs-caption); letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg); }
+.news-digest-line.is-bullet { position: relative; padding-left: var(--s-3); }
+.news-digest-line.is-bullet::before { content: "\2022"; position: absolute; left: 0; color: var(--fg-faint); }
+.news-digest-cite { color: var(--violet-label); text-decoration: none; }
+.news-digest-cite:hover { text-decoration: underline; }
+
+/* a warning line, not a pill: the shared button with its chrome taken off */
+.hub-btn.news-stale {
+  align-self: flex-start; height: auto; min-height: 0; border-radius: 0; background: none;
+  font-size: var(--fs-footnote); font-weight: 400; color: var(--warn);
+  border-left: 2px solid var(--warn); padding: 0 0 0 var(--s-2);
+}
+.hub-btn.news-stale:hover { background: none; text-decoration: underline; }
+.hub-btn.news-stale[hidden] { display: none; }
+
+/* the list's scrollbar takes its own lane instead of riding the cards' right edge */
+.news-list { scrollbar-gutter: stable; }
+
+/* ── context rail: cluster members, sources, topics (Task 11) ───────────────
+   One row shape (news-member) covers both a cluster's member outlets and the
+   Sources tab's own rows -- same head/meta/toggle skeleton, only the body
+   under it differs (a read link vs an enable toggle). */
+#contextDetail > .hub-detail-title { font-size: var(--fs-title); line-height: 1.25; }
+.news-member, .news-source-row, .news-topic-row {
+  display: flex; flex-direction: column; gap: var(--s-1);
+  padding: var(--s-3); border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg-elev);
+}
+.news-member-head { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+.news-member-name { color: var(--fg); font-size: var(--fs-footnote); }
+.news-member-head .hub-pill { font-size: var(--fs-caption); letter-spacing: 0.04em; padding: 1px 6px; }
+.news-lean { font-size: var(--fs-caption); letter-spacing: 0.04em; text-transform: uppercase; }
+.news-member-meta { font-size: var(--fs-footnote); color: var(--fg-faint); }
+.news-source-note { margin: 0; font-size: var(--fs-footnote); font-style: italic; color: var(--fg-dim); }
+
+.news-member-body { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+.news-member-link { color: var(--accent); font-size: var(--fs-footnote); text-decoration: none; }
+.news-member-link:hover { text-decoration: underline; }
+.hub-btn.news-read-btn { text-transform: lowercase; min-height: 0; height: auto; padding: 2px 10px; font-size: var(--fs-footnote); }
+
+.news-reader {
+  display: flex; flex-direction: column; gap: var(--s-2);
+  padding-top: var(--s-2); border-top: 1px dashed var(--line);
+}
+.news-reader-p { margin: 0; font-size: var(--fs-footnote); line-height: 1.6; color: var(--fg-mute); }
+
+.news-member-move { display: flex; align-items: center; gap: var(--s-2); min-width: 0; }
+.news-member-move .news-select { flex: 1; min-width: 0; max-width: 100%; font-size: var(--fs-footnote); padding: 2px 6px; }
+.news-move-label { font-size: var(--fs-caption); color: var(--fg-faint); }
+
+.news-coverage-note {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: var(--s-3) var(--s-4); margin-bottom: var(--s-2);
+  background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-card);
+}
+.news-coverage-line { margin: 0; font-size: var(--fs-footnote); color: var(--fg-dim); }
+
+.news-topic-row { flex-direction: row; align-items: center; gap: var(--s-3); padding: var(--s-1) var(--s-3); }
+.news-topic-row .hub-btn { min-height: 0; height: auto; padding: 2px 10px; font-size: var(--fs-footnote); }
+/* sources and topics carry a toggle on every row: footnote-size, sat at the end of the head line */
+:is(.news-source-row, .news-topic-row) .hub-chip-toggle {
+  min-height: 0; padding: 2px 10px 2px 4px; gap: 6px; font-size: var(--fs-footnote);
+}
+:is(.news-source-row, .news-topic-row) .hub-chip-toggle input { width: 16px; height: 16px; background-size: 12px; }
+.news-source-row .hub-chip-toggle { margin-left: auto; }
+.news-topic-kind { font-size: var(--fs-caption); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-faint); }
+.news-topic-query { flex: 1; color: var(--fg); font-size: var(--fs-footnote); }
+.news-add-topic { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-bottom: var(--s-2); }
+.news-topic-input { flex: 1 1 200px; min-width: 0; }
+
+.hub-btn.news-older { align-self: center; margin: var(--s-2) 0; }

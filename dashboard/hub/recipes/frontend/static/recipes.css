@@ -1,0 +1,228 @@
+/* recipes — module styles.
+   Tokens only: no color, spacing, or radius literal appears below. Per DESIGN.md the
+   accent carries action/selection/state and never decoration. */
+
+/* base.css carries no `body` selector on purpose — it is theme-agnostic shared
+   behaviour only, so every module owns its own page skeleton (food.css:15,
+   jobs.css:12, trips.css:12 all do this). Without these two rules the page renders
+   in the browser's default serif on white and #recipes-root's overflow never
+   constrains, so the 123-card grid becomes one 7,700px wall. */
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+  font-size: var(--fs-subhead); line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  transition: background 220ms ease-out, color 220ms ease-out;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+
+.shell { grid-template-rows: auto minmax(0, 1fr); height: 100dvh; }
+#recipes-root { flex: 1 1 auto; overflow-y: auto; padding: var(--s-5) var(--s-6) var(--s-7); }
+
+/* ── shared ─────────────────────────────────────────────────────────────── */
+
+/* The JS toggles .rx-tray / .rx-grid / .rx-chips with the `hidden` property, and each
+   of those sets `display` below — an author `display` beats the UA [hidden] rule at any
+   specificity, so all three rendered while "hidden": an empty tray pinned to the bottom of
+   every index, and the full 123-card grid still under the pantry matcher. One backstop
+   here rather than a :not([hidden]) on each rule, so a future toggled element is covered. */
+[hidden] { display: none !important; }
+
+.rx-bar {
+  display: flex; align-items: center; gap: var(--s-3);
+  flex-wrap: wrap; margin-bottom: var(--s-5);
+}
+.rx-search {
+  flex: 1 1 260px; min-width: 0;
+  background: var(--bg-elev); color: var(--fg);
+  border: 1px solid var(--line); border-radius: var(--r);
+  padding: var(--s-2) var(--s-3); font: inherit;
+}
+.rx-search::placeholder { color: var(--fg-ghost); }
+.rx-search:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.rx-count { color: var(--fg-dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.rx-chips { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-bottom: var(--s-5); }
+.rx-chip {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  height: var(--ctl-h, 28px); padding: 0 10px; white-space: nowrap;
+  background: var(--bg-elev-2, var(--bg-elev)); color: var(--fg-dim);
+  border: 0; border-radius: var(--r-pill); font: inherit; font-size: var(--fs-footnote); line-height: 1;
+  cursor: pointer; transition: background 160ms ease-out, color 160ms ease-out;
+}
+.rx-chip:hover { background: var(--bg-hover); color: var(--fg); }
+.rx-chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.rx-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rx-chip .n { opacity: .65; margin-left: var(--s-1); font-variant-numeric: tabular-nums; }
+
+.rx-btn {
+  background: var(--bg-elev); color: var(--fg);
+  border: 1px solid var(--line); border-radius: var(--r);
+  padding: var(--s-2) var(--s-3); font: inherit; cursor: pointer;
+  transition: background 160ms ease-out;
+}
+.rx-btn:hover { background: var(--bg-hover); }
+.rx-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.rx-btn[data-primary] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.rx-btn[disabled] { opacity: .45; cursor: default; }
+
+.rx-empty { color: var(--fg-dim); padding: var(--s-7) 0; max-width: 65ch; }
+
+/* ── index grid ─────────────────────────────────────────────────────────── */
+
+.rx-grid {
+  display: grid; gap: var(--s-4);
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+}
+.rx-card {
+  display: flex; flex-direction: column;
+  background: var(--bg-elev); border: 1px solid var(--line);
+  border-radius: var(--r-card); overflow: hidden;
+  text-decoration: none; color: inherit; position: relative;
+  transition: background 160ms ease-out, border-color 160ms ease-out;
+}
+.rx-card:hover { background: var(--bg-hover); border-color: var(--line-strong); }
+.rx-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.rx-card[data-selected="true"] { border-color: var(--accent); }
+
+.rx-thumb {
+  aspect-ratio: 4 / 3; width: 100%; object-fit: cover;
+  background: var(--bg-elev-2); display: block;
+}
+.rx-thumb-none { aspect-ratio: 4 / 3; background: var(--bg-elev-2); display: block; }
+.rx-card-body {
+  padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-1);
+  flex: 1 1 auto;
+}
+/* min-content floor is the longest unbreakable token — "Chickpea/Garbanzo" pushed a
+   163px card to 181px at 390px wide. Breaking anywhere lowers the floor; a min-width
+   would not. */
+.rx-card-title { font-family: var(--font-display); line-height: 1.25; overflow-wrap: anywhere; }
+.rx-card-meta {
+  margin-top: auto; padding-top: var(--s-1);
+  color: var(--fg-dim); font-size: var(--fs-footnote);
+  font-variant-numeric: tabular-nums; display: flex; gap: var(--s-2); flex-wrap: wrap;
+}
+
+.rx-pick {
+  position: absolute; top: var(--s-2); right: var(--s-2);
+  width: var(--ctl-h, 28px); height: var(--ctl-h, 28px); border-radius: var(--r-pill);
+  border: 0; background: var(--bg-elev-2, var(--bg-elev));
+  color: var(--fg-dim); cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.rx-pick[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.rx-pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* selection tray — appears only when something is picked */
+.rx-tray {
+  position: sticky; bottom: 0; margin-top: var(--s-5);
+  display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap;
+  background: var(--bg-elev-2); border: 1px solid var(--line-strong);
+  border-radius: var(--r-card); padding: var(--s-3) var(--s-4);
+}
+.rx-tray strong { font-variant-numeric: tabular-nums; }
+
+/* ── detail ─────────────────────────────────────────────────────────────── */
+
+/* Full bleed and left-anchored, same as the index grid and the topbar above it. A
+   900px column centred in a 2560 window is a strip stranded in white space; capped
+   at 900 and pinned left it wastes the other 1660. The measure is held by the text
+   itself instead, below. */
+.rx-detail { width: 100%; }
+.rx-back { color: var(--fg-dim); text-decoration: none; font-size: var(--fs-subhead); }
+.rx-back:hover { color: var(--fg); }
+
+.rx-title { font-family: var(--font-display); margin: var(--s-3) 0 var(--s-2); line-height: 1.15; }
+/* the note's raw title, under the dish name on the detail page — present, not shouting */
+.rx-origtitle {
+  color: var(--fg-dim); font-size: var(--fs-subhead); line-height: 1.35;
+  margin: calc(var(--s-1) * -1) 0 var(--s-3); max-width: 65ch;
+}
+
+.rx-sub {
+  color: var(--fg-dim); display: flex; gap: var(--s-3); flex-wrap: wrap;
+  font-variant-numeric: tabular-nums; margin-bottom: var(--s-4);
+}
+.rx-hero { width: 100%; max-width: 520px; border-radius: var(--r-card); display: block; margin-bottom: var(--s-5); }
+
+.rx-scaler {
+  display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap;
+  background: var(--bg-elev); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: var(--s-3); margin-bottom: var(--s-5);
+}
+.rx-scaler label { color: var(--fg-dim); }
+.rx-scaler input[type="number"] {
+  width: 5em; background: var(--bg); color: var(--fg);
+  border: 1px solid var(--line); border-radius: var(--r);
+  padding: var(--s-1) var(--s-2); font: inherit; font-variant-numeric: tabular-nums;
+}
+.rx-note { color: var(--fg-dim); font-size: var(--fs-footnote); flex-basis: 100%; }
+
+.rx-cols { display: grid; grid-template-columns: minmax(240px, 340px) minmax(0, 1fr);
+  gap: var(--s-6); align-items: start; }
+/* Directions are prose: the column may be 1600px, the line must not be. */
+.rx-steps { max-width: 80ch; }
+.rx-h { font-family: var(--font-display); margin: 0 0 var(--s-3); }
+
+.rx-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-1); }
+.rx-item { display: flex; gap: var(--s-2); align-items: flex-start; padding: var(--s-1) 0; cursor: pointer; }
+.rx-item input { margin-top: .3em; accent-color: var(--accent); flex: 0 0 auto; }
+.rx-item[data-done="true"] span { color: var(--fg-ghost); text-decoration: line-through; }
+.rx-steps { counter-reset: step; }
+.rx-steps .rx-item::before {
+  counter-increment: step; content: counter(step);
+  color: var(--fg-ghost); font-variant-numeric: tabular-nums;
+  min-width: 1.6em; flex: 0 0 auto;
+}
+
+/* a quantity the scaler could not fully account for — visible, never silent */
+.rx-flag {
+  color: var(--warn); border-bottom: 1px dotted var(--warn);
+  cursor: help; margin-left: var(--s-1); font-size: var(--fs-footnote);
+}
+
+.rx-notes { margin-top: var(--s-6); max-width: 65ch; white-space: pre-wrap; color: var(--fg-dim); }
+.rx-src { margin-top: var(--s-5); font-size: var(--fs-subhead); }
+.rx-src a { color: var(--accent); }
+
+/* ── pantry ─────────────────────────────────────────────────────────────── */
+
+.rx-pantry textarea {
+  width: 100%; min-height: 5em; resize: vertical;
+  background: var(--bg-elev); color: var(--fg);
+  border: 1px solid var(--line); border-radius: var(--r);
+  padding: var(--s-3); font: inherit;
+}
+.rx-pantry textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.rx-cov { font-variant-numeric: tabular-nums; color: var(--accent); }
+
+/* ── responsive ─────────────────────────────────────────────────────────────
+   Breakpoints fire where a column stops FITTING, not where it stops feeling roomy.
+   The two-column detail needs 240px of ingredients + var(--s-6) + a readable
+   directions measure; below ~760px that no longer holds, so it stacks.
+   Per wiki/patterns/dashboard-responsive-layout: on a phone the DOCUMENT scrolls —
+   no inner pane keeps its own scrollbar. */
+
+@media (max-width: 760px) {
+  .rx-cols { grid-template-columns: 1fr; gap: var(--s-5); }
+}
+
+@media (max-width: 560px) {
+  #recipes-root { padding: var(--s-4) var(--s-4) var(--s-6); overflow-y: visible; }
+  body { overflow: auto; }
+  .shell { height: auto; min-height: 100%; }
+  .rx-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-3); }
+  .rx-hero { max-width: 100%; }
+  /* cook mode on a phone: bigger tap targets, the one place density loses */
+  .rx-item { padding: var(--s-2) 0; }
+  .rx-item input { width: 1.15em; height: 1.15em; }
+  .rx-tray { position: sticky; bottom: var(--s-2); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-chip, .rx-card, .rx-btn { transition: none; }
+}

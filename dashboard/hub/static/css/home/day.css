@@ -1,0 +1,584 @@
+/* home · 4 of 4: custom time picker, day navigation, calendar day view, today briefing, column stacks, weather, contrast audit.
+   Split from home.css 2026-07-29 (1665 lines). The four load in order from
+   templates/index.html and cascade as one sheet: order between them is
+   load-bearing (the contrast audit block at the end of day.css wins on it). */
+/* ── custom time picker ──────────────────────────────────────────────────── */
+.time-dropdown-wrap { position: relative; }
+.time-dropdown-trigger {
+  cursor: pointer; user-select: none;
+  display: flex; align-items: center;
+}
+.time-dropdown-trigger.placeholder { color: var(--fg-faint); font-style: italic; }
+.time-dropdown-trigger.open { border-color: var(--accent-dim); }
+.time-dropdown-list {
+  position: absolute; top: calc(100% + 2px); left: 0; right: 0;
+  z-index: 2000;
+  overflow-y: scroll;
+  background: var(--bg-elev);
+  border: 1px solid var(--accent-dim);
+  border-radius: var(--r-card);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+}
+.time-dropdown-item {
+  padding: 0 12px;
+  font-size: var(--fs-subhead); color: var(--fg);
+  cursor: pointer;
+}
+.time-dropdown-item:hover { background: var(--bg-hover, var(--bg-elev)); color: var(--fg); }
+.tb-weekday-name { font-family: var(--font-display); font-size: var(--fs-large-title); line-height: 0.95; color: var(--fg); }
+.tb-datemeta { font-size: var(--fs-footnote); color: var(--fg-dim); margin-top: var(--s-2); letter-spacing: 0.02em; }
+
+/* The old `.tb-weather` topbar tile (38px temp, hard shadow, .tb-wx-top/-bot,
+   .tb-temp/.tb-cond/.tb-hilo/.tb-precip) lived here until 2026-07-27. Every one
+   of those classes was overridden by `.day-weather` further down the file — two
+   rulesets fighting through specificity to style one component — and the tile
+   itself was already unreferenced. Deleted; the weather block now owns its own
+   vocabulary in one place (see "weather block", below `.col-head`). */
+
+/* timeline rail head (shared by the day-view grid below) */
+.tb-rail-head { display: flex; align-items: center; gap: var(--s-2); margin-bottom: var(--s-2); }
+.tb-rail-t { font-family: var(--font-display); font-size: var(--fs-footnote); letter-spacing: 0.2em; text-transform: uppercase; color: var(--fg-mute); }
+.tb-count { font-family: var(--font-display); font-size: var(--fs-caption); color: var(--accent); border: 1.5px solid var(--accent); border-radius: var(--r); padding: 2px 6px; }
+.tb-rail-rule { flex: 1; height: 1px; background: var(--line); }
+
+/* calendar day view — vertical hour grid with events placed by their times */
+.tb-day { max-height: 62vh; overflow-y: auto; padding-top: 12px; }
+/* gutter label + chips, lined up with the hour labels and lines below; the bottom rule and
+   margin keep the first hour label (top: -7px) clear of the chips */
+.tb-day-allday {
+  display: grid; grid-template-columns: 44px 1fr; column-gap: 6px; align-items: center;
+  padding-bottom: var(--s-2); margin-bottom: 16px; border-bottom: 1px solid var(--line-soft);
+}
+.tb-day-allday-k {
+  text-align: right; font-family: var(--font-display); font-size: var(--fs-caption);
+  letter-spacing: 0.04em; color: var(--fg-faint); text-transform: uppercase;
+}
+.tb-day-allday-chips { display: flex; flex-wrap: wrap; gap: var(--s-2); min-width: 0; }
+.tb-day-chip {
+  font-size: var(--fs-footnote); color: var(--fg); text-transform: lowercase;
+  border: 1.5px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--r);
+  background: var(--bg-elev); padding: 3px var(--s-2);
+}
+.tb-day-chip.done { color: var(--fg-dim); text-decoration: line-through; }
+/* the event's own colour, like the timed boxes below (2026-10-21 mark, sent back "color?") */
+.lh-main .tb-day-chip.tinted { background: var(--ev-c); border: 0; color: var(--ev-ink, #fff); font-weight: 600; }
+
+.tb-day-grid { position: relative; }
+/* one hour line + its gutter label */
+.tb-day-hr { position: absolute; left: 0; right: 0; height: 0; }
+.tb-day-hr-label {
+  position: absolute; left: 0; top: -8px; width: 44px; text-align: right;
+  font-family: var(--font-display); font-size: var(--fs-footnote); font-weight: 600; letter-spacing: 0.02em;
+  color: var(--fg-mute); text-transform: uppercase;
+}
+.tb-day-hr-line { position: absolute; left: 50px; right: 0; top: 0; height: 1px; background: var(--line-soft); }
+
+/* the "now" indicator — a line across the grid with a dot in the gutter */
+.tb-day-now { position: absolute; left: 44px; right: 0; height: 0; z-index: 3; pointer-events: none; }
+.tb-day-now::after { content: ""; position: absolute; left: 6px; right: 0; top: 0; height: 1.5px; background: var(--alert); }
+.tb-day-now-dot { position: absolute; left: 0; top: -3px; width: 7px; height: 7px; border-radius: var(--r); background: var(--alert); }
+
+/* "time skip" divider — stands in for a long event's collapsed dead middle.
+   Dashed top/bottom so it reads as a deliberate cut, not a stray panel; the
+   label states the true skipped duration so the event's real length stays
+   legible even though the band itself is a fixed height. */
+.tb-day-skip {
+  position: absolute; left: 50px; right: 0; z-index: 4; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  border-top: 1px dashed var(--line-strong); border-bottom: 1px dashed var(--line-strong);
+  background: var(--bg-elev);
+}
+.tb-day-skip-label {
+  font-size: var(--fs-caption); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: var(--fg-dim); background: var(--bg); padding: 1px var(--s-2); border-radius: var(--r-pill);
+}
+
+/* event blocks live in the lane area right of the gutter; absolute-positioned
+   by start (top) / duration (height), with left+width set per overlap lane */
+.tb-day-lanes { position: absolute; left: 50px; right: 0; top: 0; bottom: 0; }
+.tb-day-ev {
+  position: absolute; box-sizing: border-box; overflow: hidden;
+  display: flex; flex-direction: column; gap: 2px;
+  border: 1.5px solid var(--line); border-left: 4px solid var(--accent); border-radius: var(--r);
+  background: var(--bg-elev); padding: 5px var(--s-2) 5px 10px;
+  margin-right: 5px; margin-bottom: 2px;
+}
+/* lines never shrink: an overflow:hidden child has no min height, so on a
+   40-minute block the name squashed to a sliver (2026-11-03 mark); the block
+   clips from the bottom instead, losing the location first */
+.tb-day-ev > * { flex: none; }
+.tb-day-ev.is-task { border-left-style: dashed; }
+/* Google Calendar look (2026-10-20 mark): the box in the event's own colour, ink
+   from Schedule.jsx eventInk (black where black holds, white on the dark ones). */
+.tb-day-ev.tinted { background: var(--ev-c); border: 0; }
+.tb-day-ev.tinted.has-link:hover { background: color-mix(in srgb, var(--ev-c) 88%, #fff); }
+.lh-main .tb-day-ev.tinted :is(.tb-day-ev-name, .tb-day-ev-time, .tb-day-ev-loc, .tb-day-ev-edit) { color: var(--ev-ink, #fff); }
+.tb-day-ev.tinted .tb-day-ev-name { font-weight: 600; }
+.tb-day-ev.has-link { cursor: pointer; }
+.tb-day-ev.has-link:hover { border-color: var(--accent); }
+.tb-day-ev-name { display: block; font-size: var(--fs-subhead); line-height: 1.3; color: var(--fg); text-transform: lowercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 18px; }
+.tb-day-ev-time { display: block; font-size: var(--fs-caption); color: var(--accent); font-weight: 700; letter-spacing: 0.03em; }
+.tb-day-ev.done .tb-day-ev-name { color: var(--fg-dim); text-decoration: line-through; }
+
+/* clickable location → Google Maps directions; stays on its own line under time */
+.tb-day-ev-loc {
+  display: flex; align-items: center; gap: 4px; margin-top: 1px;
+  font-size: var(--fs-caption); color: var(--fg-mute); text-decoration: none; cursor: pointer;
+  text-transform: lowercase; white-space: nowrap; overflow: hidden;
+}
+.tb-day-ev-loc:hover { color: var(--accent); }
+.tb-day-ev-loc:hover .tb-day-ev-loc-txt { text-decoration: underline; }
+.tb-day-ev-loc-pin { flex: none; opacity: 0.85; }
+.tb-day-ev-loc-txt { overflow: hidden; text-overflow: ellipsis; }
+
+/* pencil edit affordance — top-right, revealed on hover (keyboard-focusable) */
+.tb-day-ev-edit {
+  position: absolute; top: 2px; right: 3px; z-index: 2;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; padding: 0;
+  border: none; background: transparent; color: var(--fg-mute); cursor: pointer;
+  opacity: 0; transition: opacity 0.12s ease;
+}
+/* 18px glyph, 24px hit area (WCAG 2.5.8). Overlay rather than a bigger box so a
+   short event block does not get its corner clipped by the block's overflow:hidden. */
+.tb-day-ev-edit::after { content: ""; position: absolute; inset: -3px; }
+.tb-day-ev:hover .tb-day-ev-edit, .tb-day-ev-edit:focus-visible { opacity: 1; }
+.tb-day-ev-edit:hover { color: var(--accent); }
+
+.tb-card {
+  break-inside: avoid; margin-bottom: 0;
+  border: 2px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg-elev);
+}
+.tb-card-h { display: flex; align-items: center; justify-content: space-between; padding: var(--s-2) var(--s-3); border-bottom: 1px solid var(--line); }
+.tb-card-name { font-family: var(--font-display); font-size: var(--fs-footnote); letter-spacing: 0.16em; text-transform: uppercase; color: var(--fg-mute); }
+.tb-card-alert .tb-card-name { color: var(--alert); }
+.tb-card-badge { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: var(--ctl-h); padding: 0 10px; line-height: 1; border: 0; font-family: var(--font-display); font-size: var(--fs-footnote); font-weight: 600; border-radius: var(--r-card); background: var(--accent); color: var(--on-accent); }
+.tb-card-alert .tb-card-badge { background: var(--alert); color: var(--bg); }
+.tb-card-b { padding: var(--s-2) var(--s-3) var(--s-3); }
+.tb-li { display: flex; gap: var(--s-2); align-items: baseline; font-size: var(--fs-subhead); color: var(--fg); padding: 4px 0; }
+.tb-li + .tb-li { border-top: 1px dashed var(--line-soft); }
+.tb-li::before { content: ""; flex: none; width: 6px; height: 6px; margin-top: 6px; background: var(--accent); border-radius: var(--r); }
+.tb-card-alert .tb-li::before { background: var(--alert); }
+.tb-li-when { font-weight: 700; color: var(--accent); letter-spacing: 0.02em; }
+.tb-li-src { color: var(--fg-faint); font-style: italic; font-size: var(--fs-footnote); }
+/* the due card's next seven days, under today's items */
+.tb-soon { margin-top: var(--s-3); }
+.tb-soon-k { font-size: var(--fs-caption); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-faint); padding-bottom: 2px; }
+.tb-soon-li { color: var(--fg-dim); }
+.tb-card .tb-soon-li::before { background: var(--fg-faint); }
+.tb-soon-t { flex: 1; min-width: 0; }
+.tb-soon-d { flex: none; font-size: var(--fs-footnote); color: var(--fg-faint); }
+[data-theme="liquid"] .lh-main .lp-glance .tb-li { font-size: var(--fs-body); padding: 6px 0; }
+[data-theme="liquid"] .lh-main .lp-glance .tb-soon-k { padding-top: var(--s-2); border-top: 1px solid var(--line-soft); }
+/* liquid Home sets no caps and needs 4.5:1: sentence case on the muted ink, not faint */
+[data-theme="liquid"] .lh-main .tb-soon-k { text-transform: none; letter-spacing: 0; color: var(--fg-mute); }
+[data-theme="liquid"] .lh-main .tb-soon-d { color: var(--fg-mute); }
+.tb-pill { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: var(--ctl-h); padding: 0 10px; line-height: 1; border: 0; font-size: var(--fs-caption); letter-spacing: 0.06em; text-transform: uppercase; background: var(--alert); color: var(--bg); border-radius: var(--r-card); margin-left: auto; align-self: center; }
+.tb-pill-soft { background: var(--warn); color: var(--bg); }
+/* long-stale overdue (30d+) drops the full-alarm red — same red for a 2-day slip
+   and a 4-month one trains the eye to tune the color out entirely (home critique
+   P2: overdue triage). Text carries the actual age so the signal isn't just lost. */
+.tb-pill-stale { background: color-mix(in oklab, var(--fg-dim) 30%, transparent); color: var(--fg); text-transform: none; letter-spacing: 0.02em; }
+.tb-empty { font-size: var(--fs-footnote); color: var(--fg-dim); font-style: italic; margin-bottom: var(--s-4); }
+
+/* tickable checklist rows (bring/prep). Inherit .tb-li layout but swap the
+   decorative bullet for a real checkbox; checking strikes the row through. */
+.tb-check-li { width: 100%; text-align: left; background: none; border: none; cursor: pointer; font: inherit; }
+.tb-check-li::before { display: none; }
+.tb-check {
+  flex: none; width: 15px; height: 15px; margin-top: 1px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--accent); border-radius: var(--r);
+  font-size: var(--fs-caption); line-height: 1; color: var(--on-accent); background: transparent;
+}
+.tb-check-li.is-done .tb-check { background: var(--accent); }
+.tb-check-text { flex: 1; color: var(--fg); }
+.tb-check-li:hover .tb-check-text { color: var(--accent); }
+.tb-check-li.is-done .tb-check-text { color: var(--fg-faint); text-decoration: line-through; }
+.tb-li-tag {
+  font-size: var(--fs-caption); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);
+  border: 1px solid var(--line-strong); border-radius: var(--r); padding: 1px 5px;
+  margin-left: auto; align-self: center; flex: none;
+}
+
+/* narrow windows / phones: drop the 3-up card grid to 2 then 1, and stack the
+   header band. (The .tb-weather min-width reset that used to live here went with
+   the tile itself — the weather block is fluid now and needs no override.) */
+@media (max-width: 780px) {
+  .tb-cards { column-count: 2; }
+}
+.time-dropdown-item.active { color: var(--accent); background: var(--accent-faint); }
+
+/* ---------------- today briefing (structure intact, styling inherited) ----------------
+   The today briefing keeps its original 3-cell structure (calendar / done / prep). The
+   ONLY thing that changed is styling: it inherits the standard uniform page background
+   — no tinted --bg-elev band, no frames — so it reads as part of the same one-shade
+   sheet as everything else. Its cells share the body's column template (--home-cols)
+   and use the SAME divider as .col (var(--line)), so the body columns below follow the
+   today-brief columns as one continuous set of columns (a subtle hairline marks where
+   the briefing ends). (Earlier tries tinted the band, then framed the cells, then
+   dissolved the briefing into the columns — all wrong; the fix is restyle-only.) */
+.today-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: var(--s-4); flex-wrap: wrap;
+  padding: var(--s-3) var(--s-4);
+  background: transparent;
+}
+.th-date { display: flex; flex-direction: column; gap: 0; min-width: 0; }
+.th-weekday { display: flex; align-items: center; gap: var(--s-2); }
+
+/* week strip: seven day chips at the top of the today panel; left inset matches
+   .today-header so the first chip lines up with the weekday name */
+.week-strip { display: grid; grid-template-columns: auto repeat(7, minmax(0, 1fr)) auto; gap: 3px; margin: 0 0 var(--s-2); font-family: var(--font); color: var(--fg); }
+/* label and number pack from the top with a fixed 10px edge and 3px between them (2026-10-19 send-back:
+   centered content left the top edge tight and the inner gap loose); the today dot sits under the number */
+.ws-chip { all: unset; box-sizing: border-box; position: relative; min-width: 0; height: 66px; padding: 10px 0 0; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; cursor: pointer; container-type: inline-size; }
+.ws-chip:hover:not(:disabled) { background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.ws-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-chip:disabled { opacity: .35; cursor: default; }
+/* the arrows are shared buttons (hub-btn) dressed as the strip's slim steppers; scoped under the strip to outrank the theme's button rules */
+/* day steppers: 28px wide with a resting fill so they read as buttons (2026-10-20 mark: wider, was hidden) */
+.week-strip .hub-btn.ws-step { all: unset; box-sizing: border-box; width: 28px; height: 66px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: var(--fs-title); color: var(--fg); background: color-mix(in srgb, var(--fg) 6%, transparent); cursor: pointer; }
+.week-strip .hub-btn.ws-step:hover:not(:disabled) { background: color-mix(in srgb, var(--fg) 8%, transparent); color: var(--fg); }
+.week-strip .hub-btn.ws-step:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.week-strip .hub-btn.ws-step:disabled { opacity: .3; cursor: default; }
+/* off today: a where-you-are line under the strip with the way back (2026-11-03 pick A) */
+.ws-where { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 var(--s-2); padding: 8px 8px 8px 14px; border-radius: 14px; background: color-mix(in srgb, var(--accent) 12%, transparent); font-family: var(--font); font-size: var(--fs-footnote); color: var(--fg); }
+.ws-where-at { color: var(--fg-dim); min-width: 0; overflow-wrap: anywhere; }
+.ws-where .hub-btn.ws-back { all: unset; box-sizing: border-box; flex: none; padding: 7px 12px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 78%, #000); color: #fff; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.ws-where .hub-btn.ws-back:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ws-d { font-size: var(--fs-footnote); line-height: 1.2; color: var(--fg-dim); }
+/* chips run 21-28px wide between 900 and 1050 (narrow today column); the number shrinks with its chip
+   (container-type on .ws-chip above) so two digits never touch */
+.ws-n { margin-top: 3px; font-size: min(var(--fs-title), 85cqi); line-height: 1; font-weight: 600; }
+/* "today" is 34px of text; in a narrower chip today shows its weekday like the rest, the dot still marks it */
+.ws-wd { display: none; }
+@container (max-width: 35px) { .ws-today { display: none; } .ws-wd { display: inline; } }
+.ws-chip.is-today::after { content: ""; position: absolute; bottom: 8px; left: 50%; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--accent); }
+.ws-chip[aria-pressed="true"], .ws-chip[aria-pressed="true"]:hover { background: var(--accent-dim, var(--accent)); color: var(--on-accent); }
+.ws-chip[aria-pressed="true"] .ws-d { color: inherit; }
+.ws-chip[aria-pressed="true"].is-today::after { background: var(--on-accent); }
+@media (max-width: 899px) { .ws-chip, .week-strip .hub-btn.ws-step { height: 68px; } .week-strip .hub-btn.ws-step { width: 24px; } .week-strip { gap: 2px; } }
+
+
+/* uniform surface; a soft hairline (matching the panel separators) marks the end of
+   the briefing. the grid shares the body column template so cells line up with the
+   columns beneath. */
+.today-zone { background: transparent; border-bottom: 1px solid var(--line); }
+.today-zone-grid {
+  display: grid; grid-template-columns: var(--home-cols);
+  align-items: stretch; max-height: 380px;
+}
+.today-cap {
+  min-width: 0; overflow-y: auto;
+  padding: var(--s-3) var(--s-4) var(--s-4);
+  border-right: 1px solid var(--line);   /* same divider as .col, so columns are continuous */
+}
+.today-cap:last-child { border-right: 0; }
+.today-cap::-webkit-scrollbar { width: 6px; }
+.today-cap::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); }
+
+/* ---------------- today blocks ----------------
+   The today calendar (.col-cal), day-view checklist (.col-prep) and bring list
+   (.col-bring) are plain blocks inside the home panels (see layout.css). */
+.col-cal, .col-prep, .col-bring { min-width: 0; padding: var(--s-3) var(--s-4) var(--s-4); }
+/* the day schedule is always fully expanded — no inner scroll on the calendar grid;
+   the whole left column flows and the page scroll handles it. */
+.col-cal .tb-day { max-height: none; overflow: visible; }
+.col-prep .tb-card { margin-top: var(--s-3); }
+.col-prep .tb-card:first-of-type { margin-top: 0; }
+
+/* ---------------------------------------------------------------------------
+   weather block — the top of the right column, above the "tasks" head.
+
+   NOT a card. It was a bordered chip floating over an otherwise unboxed column,
+   which is most of what made it read as unrefined: the only box in the viewport,
+   its left edge off the column's text inset, and no header of its own. Now it is
+   a plain column block on the same var(--s-4) inset as .col-cal / .col-done /
+   .col-bring, closed by the same hairline .col-head uses — the column's opening
+   band instead of an orphan tile.
+
+   Top padding is --s-5 so the temp's first baseline lands on the same line as the
+   "schedule" and "recap" heads in the sibling columns (26px/1.2 title at --s-4 vs
+   20px/1.2 value at --s-5). All three columns now start on one baseline.
+
+   Four tiers, ranked by how fast the number changes:
+     1. .wx-now        right now — temp (--title-2) + condition + the day's rain chip
+     2. .wx-temps      the other temperatures (H/L, feels-like), grouped with the
+                       headline because they are the same KIND of number
+     3. .wxh           twelve two-hour cells
+     4. .wx-cond-meta  the day's standing conditions (wind, uv, sun)
+   Vertical rhythm follows that ranking instead of one uniform gap: 2px inside the
+   temperature group, --s-3 before the chart (a new group), --s-2 after it. No dot
+   separators anywhere — space does the grouping. ------------------------------ */
+.day-weather {
+  padding: var(--s-5) var(--s-4) var(--s-3);
+  border-bottom: 1px solid var(--panel-head-line);
+}
+.wx-void { font-size: var(--fs-footnote); color: var(--fg-dim); font-style: italic; }
+
+.wx-temp {
+  font-family: var(--font-display);
+  font-feature-settings: var(--feat-display), var(--feat-tnum);
+  font-size: var(--title-2); line-height: var(--title-lh); color: var(--fg);
+}
+.wx-cond { font-size: var(--fs-footnote); color: var(--fg-dim); min-width: 0; }
+.wx-temps {
+  display: flex; align-items: baseline; gap: var(--s-2); flex-wrap: wrap;
+  margin-top: 2px; font-size: var(--fs-caption); color: var(--fg-dim); letter-spacing: 0.02em;
+}
+/* feels-like is a different measure from H/L, so it sits one gap further out.
+   Proximity does the grouping that a "·" was being used to fake. */
+.wx-feels { margin-left: var(--s-2); }
+
+/* Two-hour cells: twelve across (six under 900px), time, temperature, rain
+   chance. The rain chance also fills the cell from the bottom, via --p. The
+   current slot is ringed on today. */
+.wxh { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 4px; list-style: none; margin: var(--s-3) 0 0; padding: 0; }
+.wxh li {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: var(--s-2) 0; border-radius: 10px;
+  background: linear-gradient(to top, color-mix(in srgb, var(--accent) 14%, transparent) var(--p), color-mix(in srgb, var(--bg-elev-2) 55%, transparent) var(--p));
+}
+.wxh li.is-now { box-shadow: inset 0 0 0 1.5px var(--fg); }
+/* Each cell is its own size container, so on a wide screen the time, glyph and
+   temperature grow with the cell instead of floating small in a big box (mark
+   2026-11-03 "text should grow with size, the whole graphic"). The floor is the
+   old fixed size, so narrow layouts read exactly as before. */
+.wxh li { container-type: inline-size; }
+.wxh-h { font-size: max(var(--fs-footnote), 15cqi); color: var(--fg-dim); }
+.wxh-t { font-size: max(var(--fs-subhead), 19cqi); font-weight: 600; color: var(--fg); }
+.wxh-r { font-size: max(var(--fs-footnote), 15cqi); font-weight: 600; color: var(--accent-dim); min-height: 1em; }
+.wxh .wxg { width: max(24px, 32cqi); height: max(24px, 32cqi); }
+:root[data-surface="dark"] .wxh-r { color: color-mix(in srgb, var(--accent) 55%, #fff); }
+@media (max-width: 899px) { .wxh { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.wx-cond-meta {
+  display: flex; flex-wrap: wrap; gap: var(--s-3);
+  margin-top: var(--s-2); font-size: var(--fs-caption); color: var(--fg-dim); letter-spacing: 0.02em;
+}
+
+
+/* ---- richer weather (2026-09-03, the morning-glance rework) ----------------
+   The block now heads a two-column-wide box, so it has the width for a hero
+   reading, the rain in words beside it, a taller rail carrying the temperature
+   curve, and a seven-day strip. Same tokens, same restraint: one accent (rain),
+   --warn only for "now", the curve in plain --fg. */
+.wx-hero { display: flex; align-items: center; gap: var(--s-3); }
+.wx-temp { font-size: var(--fs-large-title); line-height: 1; }
+.wx-hero-side { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.wx-hero .wx-cond { font-size: var(--fs-subhead); color: var(--fg); }
+.wx-hero .wx-temps { margin-top: 0; }
+/* the day's rain in words sits at the row's right edge: "moderate rain 2p–6p,
+   heaviest 4p, 0.5 in". Dry days stay muted; a wet day is the one thing in
+   the block that earns the accent as text. */
+.wx-precip {
+  margin: 0 0 0 auto; max-width: 46%; text-align: right;
+  font-size: var(--fs-footnote); line-height: 1.35; color: var(--fg-dim);
+}
+.wx-precip.is-wet { color: var(--accent); font-weight: 600; }
+/* reading labels (humidity / air / pollen / wind / uv / sun / leave / back) */
+.wx-k, .wx-trip-k {
+  font-size: var(--fs-caption); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-faint);
+}
+.wx-trips { display: flex; flex-wrap: wrap; gap: var(--s-4); margin-top: var(--s-2); font-size: var(--fs-footnote); color: var(--fg-dim); }
+/* seven days, today first; only a >=30% day prints its rain chance */
+/* the week is a list beside the hours (2026-10-20 Workbench pick, weather-week-row):
+   day, glyph, rain, low, a low-to-high bar on one scale for the week, high. With the
+   room, the hours drop to two rows of six and the list stretches to their height so
+   both blocks start and end on the same lines; narrower, the list stacks below. */
+.wx-fc { margin-top: var(--s-3); }
+.wx-fc > .wxh { margin-top: 0; }
+@container (min-width: 720px) {
+  .wx-fc { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: var(--s-5); align-items: stretch; }
+  .wx-fc > .wxh { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .wx-fc > .wx-week { margin-top: 0; justify-content: space-between; }
+  /* a past day has no week list: the hours take the full width, all twelve in one row
+     (2026-11-03 send-back "rework it to use the space") */
+  .wx-fc:not(:has(> .wx-week)) { grid-template-columns: minmax(0, 1fr); }
+  .wx-fc:not(:has(> .wx-week)) > .wxh { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+}
+.wx-week { display: flex; flex-direction: column; list-style: none; margin: var(--s-3) 0 0; padding: 0; }
+.wx-week li {
+  display: grid; grid-template-columns: 40px 22px 30px 30px minmax(0, 1fr) 30px; align-items: center; gap: 6px;
+  padding: 4px 0; color: var(--fg-dim);
+}
+.wx-week-d { font-size: var(--fs-footnote); color: var(--fg-dim); }
+.wx-week li.is-today .wx-week-d { color: var(--fg); font-weight: 600; }
+.wx-week-lo, .wx-week-t { font-size: var(--fs-subhead); text-align: right; }
+.wx-week-lo { color: var(--fg-dim); }
+.wx-week-t { font-weight: 600; color: var(--fg); }
+/* muted cool-to-warm, not full strength: the bar is context, the numbers are the read */
+.wx-week-bar { position: relative; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--fg) 8%, transparent); }
+.wx-week-bar i {
+  position: absolute; top: 0; bottom: 0; border-radius: 2px;
+  background: linear-gradient(to right, color-mix(in srgb, var(--accent) 45%, var(--fg-mute)), color-mix(in srgb, var(--warn) 45%, var(--fg-mute)));
+}
+/* forecast glyphs: the trips page's stroke art, drawn two-tone like Apple Weather
+   (2026-10-21 pick, set home-weather-glyphs A). Closed shapes get a light fill of
+   their own colour; in a two-part glyph the last child is the second part (the
+   cloud in front of a sun or moon, the drops, flakes or bolt under a cloud), so it
+   takes its own colour. Ray and fog-line paths stay unfilled. */
+.wxg {
+  width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  color: var(--fg-dim);
+}
+.wxg > * { fill: color-mix(in srgb, currentColor 24%, transparent); }
+.wxg > path:not(:first-child):not(:last-child), .wxg.is-sun > path, .wxg.is-fog > :last-child { fill: none; }
+.wxg.is-sun, .wxg.is-part { color: var(--warn); }
+.wxg.is-moon, .wxg.is-pmoon { color: color-mix(in srgb, var(--fg) 80%, var(--warn)); }
+.wxg.is-part > :last-child, .wxg.is-pmoon > :last-child { stroke: var(--fg); fill: color-mix(in srgb, var(--fg) 30%, var(--bg-elev-2)); }
+.wxg.is-rain > :last-child { stroke: var(--accent); }
+.wxg.is-snow > :last-child { stroke: var(--fg); }
+.wxg.is-storm > :last-child { stroke: var(--warn); }
+.wx-week-r { font-size: var(--fs-caption); color: var(--accent); text-align: right; }
+
+
+/* getting there */
+.gt-next-t { display: flex; align-items: baseline; gap: var(--s-2); font-size: var(--fs-subhead); color: var(--fg); }
+.gt-when { font-weight: 700; color: var(--accent); }
+.gt-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gt-loc { margin-top: 2px; font-size: var(--fs-footnote); color: var(--fg-dim); line-height: 1.4; }
+.gt-btns { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-2); }
+.gt-btn {
+  font-family: var(--font-display); font-size: var(--fs-caption); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent); border: 1.5px solid var(--accent); border-radius: var(--r);
+  padding: 3px 10px; text-decoration: none;
+}
+.gt-btn:hover { background: var(--accent); color: var(--on-accent); }
+.gt-none { font-size: var(--fs-footnote); color: var(--fg-dim); font-style: italic; }
+.gt-lines { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-top: var(--s-2); padding-top: var(--s-2); border-top: 1px dashed var(--line-soft); }
+.gt-lines .wx-k { margin-right: 2px; }
+.gt-ok { margin-left: var(--s-2); font-size: var(--fs-caption); color: var(--fg-dim); }
+/* MTA bullets, the real line colours; an alerted line gets a ring */
+.gt-line {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%; margin: 0 1px;
+  font-family: var(--font-display); font-size: var(--fs-caption); font-weight: 700; line-height: 1;
+}
+.gt-line.is-hit { box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--alert); }
+/* A bus route number ("B61", "M60-SBS") does not fit a roundel, so it wears a
+   pill instead. Same height, so a row of mixed chips still sits on one line. */
+.gt-line.is-wide { width: auto; border-radius: 9px; padding: 0 6px; font-size: var(--fs-caption); letter-spacing: 0.02em; }
+
+/* the actual trains and buses, one row per option */
+.gt-from { margin-top: 2px; font-size: var(--fs-caption); color: var(--fg-dim); }
+.gt-routes { margin-top: var(--s-2); display: flex; flex-direction: column; gap: 4px; }
+.gt-route { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-footnote); }
+.gt-route-t { flex: none; width: 46px; color: var(--accent); font-weight: 700; }
+/* A route is a SEQUENCE, so it has to stay on one line. Wrapped across three
+   lines at phone width the chips lost their order and the walk minutes floated
+   away from the ride they belong to — "5' B61 / 2' 2 2' / N 2' / B70 1'" is not
+   a route anyone can read. It scrolls sideways in its own strip instead, which
+   is the same thing every transit app does with a long itinerary. */
+.gt-route-legs {
+  display: flex; align-items: center; flex-wrap: nowrap; gap: 2px;
+  min-width: 0; flex: 1; overflow-x: auto; padding-bottom: 1px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.gt-route-legs::-webkit-scrollbar { display: none; }
+.gt-route-legs > * { flex: none; }
+.gt-route-dur { flex: none; color: var(--fg-dim); }
+.gt-leg-walk { color: var(--fg-dim); font-size: var(--fs-caption); padding: 0 1px; display: inline-flex; align-items: center; gap: 1px; }
+.gt-leg-walk svg { width: 1.15em; height: 1.15em; }
+.gt-routes-none { margin-top: var(--s-2); font-size: var(--fs-footnote); color: var(--fg-dim); font-style: italic; }
+.gt-alert { display: flex; gap: var(--s-2); align-items: flex-start; margin-top: var(--s-2); font-size: var(--fs-footnote); line-height: 1.4; color: var(--fg); }
+.gt-alert-lines { flex: none; display: flex; gap: 2px; padding-top: 1px; }
+.gt-alert-text { min-width: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.gt-alert-when { color: var(--warn); font-weight: 600; }
+/* 2px top and bottom pad it to the 24px WCAG 2.5.8 target; the top 2px comes out of the margin so the link sits where it did */
+.gt-more {
+  display: block; margin-top: calc(var(--s-2) - 2px); padding: 2px 0; background: none; border: 0; cursor: pointer;
+  font: inherit; font-size: var(--fs-footnote); color: var(--accent); text-decoration: underline; text-align: left;
+}
+
+/* ============================================================================
+   AUDIT (2026-07-24): content-bearing faint text lifted --fg-faint → --fg-dim.
+   --fg-faint fails 4.5:1 on the light surfaces (~2.7:1 cobalt-light); --fg-dim
+   clears it (5.5:1 light / 8.2:1 dark). Placeholders specifically must hit 4.5:1
+   (WCAG 1.4.3). These win by source order (single-class / equal-specificity,
+   later in the file). Purely decorative faint (carets, chevrons, ghost pip) is
+   intentionally recessive and stays on --fg-faint / --fg-ghost.
+   Shared across all themes (home.css is theme-agnostic) — a strict improvement.
+   ============================================================================ */
+input::placeholder,
+.ep-input::placeholder,
+.ep-textarea::placeholder { color: var(--fg-dim); font-style: italic; }
+
+.task-empty, .task-detail-empty, .ghost-time { color: var(--fg-dim); }
+
+/* ============================================================================
+   NARROW WIDTHS — phones and split windows.
+
+   This block is LAST ON PURPOSE. day.css is the last of the four home sheets to
+   load and they cascade as one, so a mobile override written next to the rule it
+   overrides loses to every later rule of equal specificity. That is exactly what
+   happened on the first pass here: the same declarations, written 300 lines up,
+   left the glance grid two columns wide and the route rows as flex. Overrides for
+   this sheet's own components go at the bottom of it.
+   ============================================================================ */
+@media (max-width: 780px) {
+  /* A route on one line needs about 300px and a phone card has it — but only if
+     the clock and the duration are not eating both ends. They move onto their own
+     line and the legs get the full width underneath, still in order. The sideways
+     scroll stays as the backstop for a five-transfer route; it is no longer what
+     an ordinary three-leg trip depends on. */
+  .gt-route {
+    display: grid; grid-template-columns: auto 1fr;
+    grid-template-areas: "time dur" "legs legs";
+    row-gap: 3px; column-gap: var(--s-2);
+  }
+  .gt-route-t { grid-area: time; width: auto; }
+  .gt-route-dur { grid-area: dur; text-align: right; }
+  .gt-route-legs { grid-area: legs; }
+  .gt-routes { gap: var(--s-3); }
+}
+
+/* ============================================================================
+   GLANCE CARDS under liquid (his pick 'Icon-led cards', home-glance-cards E):
+   no top stripe or border, sentence-case labels, alert text and badges dark
+   enough for AA on light (the light --alert is 3.5:1 on white), and a route, bag
+   or clock icon before each title. The uppercase-label fixes for every theme
+   are in panels.css. Last in this sheet so it outranks the card rules above.
+   ============================================================================ */
+[data-theme="liquid"] .lh-main { --gl-alert: var(--alert); --gl-alert-bg: var(--alert); --gl-on-alert: var(--bg); }
+:root[data-surface="light"][data-theme="liquid"] .lh-main { --gl-alert: var(--alert-dim); --gl-alert-bg: var(--alert-dim); --gl-on-alert: #fff; }
+[data-theme="liquid"] .lh-main .lp-glance .tb-card { border: 0; border-radius: var(--r-card); }
+[data-theme="liquid"] .lh-main .tb-card-h { border-bottom: 0; padding: var(--s-3) var(--s-4) var(--s-1); }
+[data-theme="liquid"] .lh-main .tb-card-b { padding: var(--s-1) var(--s-4) var(--s-4); }
+/* card names at the Home panel-title size (mark 2026-11-03 "make headers more pronounced") */
+[data-theme="liquid"] .lh-main .tb-card-name { font-family: var(--font); font-size: var(--fs-title); font-weight: 600; color: var(--fg); display: inline-flex; align-items: center; gap: var(--s-2); }
+[data-theme="liquid"] .lh-main .tb-card-alert .tb-card-name { color: var(--gl-alert); }
+[data-theme="liquid"] .lh-main .tb-card-badge { min-width: 24px; height: 22px; padding: 0 7px; border-radius: 999px; font-family: var(--font); font-size: var(--fs-footnote); background: var(--bg-elev-2); color: var(--fg); }
+[data-theme="liquid"] .lh-main .tb-card-alert .tb-card-badge, [data-theme="liquid"] .lh-main .tb-pill { background: var(--gl-alert-bg); color: var(--gl-on-alert); }
+[data-theme="liquid"] .lh-main .tb-pill { height: 22px; padding: 0 8px; border-radius: 999px; font-size: var(--fs-footnote); font-weight: 600; }
+[data-theme="liquid"] .lh-main .gt-btn { font-size: var(--fs-footnote); font-weight: 600; }
+[data-theme="liquid"] .lh-main .tb-li-tag { font-size: var(--fs-footnote); }
+[data-theme="liquid"] .lh-main .tb-card .wx-k { font-size: var(--fs-footnote); color: var(--fg-dim); }
+[data-theme="liquid"] .lh-main .tb-card-name::before { content: ""; flex: none; width: 24px; height: 24px; background: var(--accent); -webkit-mask: var(--gl-ico) center / contain no-repeat; mask: var(--gl-ico) center / contain no-repeat; }
+[data-theme="liquid"] .lh-main .tb-card-alert .tb-card-name::before { background: var(--gl-alert); }
+[data-theme="liquid"] .lh-main .gt-card { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6' cy='18' r='2'/%3E%3Ccircle cx='18' cy='6' r='2'/%3E%3Cpath d='M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7'/%3E%3C/svg%3E"); }
+[data-theme="liquid"] .lh-main .col-bring .tb-card { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 8h14l-1 12H6L5 8z'/%3E%3Cpath d='M9 8V6a3 3 0 0 1 6 0v2'/%3E%3C/svg%3E"); }
+/* next trip: same icon title as the glance cards */
+[data-theme="liquid"] .lh-main .lp-trip .panel-title { display: inline-flex; align-items: center; gap: var(--s-2); }
+[data-theme="liquid"] .lh-main .lp-trip .panel-title::before { content: ""; flex: none; width: 24px; height: 24px; background: var(--accent); -webkit-mask: var(--gl-ico) center / contain no-repeat; mask: var(--gl-ico) center / contain no-repeat; }
+[data-theme="liquid"] .lh-main .lp-trip { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z'/%3E%3C/svg%3E"); }
+[data-theme="liquid"] .lh-main .col-prep .tb-card { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E"); }
+
+/* Home panel headers, his pick A "Icon on a colour tile" (workbench home-panel-headers, mark 2026-11-03 034933:5) */
+/* one hue per panel, used by every option */
+[data-theme="liquid"] .lh-main .gt-card { --hh: #0a84ff; }
+[data-theme="liquid"] .lh-main .col-prep .tb-card { --hh: #ff9f0a; }
+[data-theme="liquid"] .lh-main .col-prep .tb-card-alert { --hh: var(--gl-alert); }
+[data-theme="liquid"] .lh-main .lp-trip { --hh: #bf5af2; }
+/* A: glyph on a filled colour tile */
+[data-theme="liquid"] .lh-main .tb-card-name, [data-theme="liquid"] .lh-main .lp-trip .panel-title { position: relative; gap: 12px; }
+[data-theme="liquid"] .lh-main .tb-card-name::before, [data-theme="liquid"] .lh-main .lp-trip .panel-title::before { width: 34px; height: 34px; border-radius: 10px; -webkit-mask: none; mask: none;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--hh) 78%, #fff), var(--hh) 55%, color-mix(in srgb, var(--hh) 80%, #000));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 14px color-mix(in srgb, var(--hh) 40%, transparent); }
+[data-theme="liquid"] .lh-main .tb-card-alert .tb-card-name::before { background: linear-gradient(160deg, color-mix(in srgb, var(--hh) 78%, #fff), var(--hh) 55%, color-mix(in srgb, var(--hh) 80%, #000)); }
+[data-theme="liquid"] .lh-main .tb-card-name::after, [data-theme="liquid"] .lh-main .lp-trip .panel-title::after { content: ""; position: absolute; left: 7px; top: 50%; width: 20px; height: 20px; margin-top: -10px; background: #fff;
+  -webkit-mask: var(--gl-ico) center / contain no-repeat; mask: var(--gl-ico) center / contain no-repeat; }
+[data-theme="liquid"] .lh-main .tb-card-alert .tb-card-name { color: var(--fg); }
+[data-theme="liquid"] .lh-main .tb-card-h { padding-top: var(--s-4); padding-bottom: var(--s-2); }
+
+.lp-wx .day-weather { padding: 0; border-bottom: 0; }

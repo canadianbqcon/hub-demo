@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark" data-theme="cobalt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Lost Lands 2026</title>
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<!-- The open Lost Lands page: the hallmark module on its own, no board around it.
+     Reached by a link with a key in it and nothing to type (public_app.py,
+     lostlands_open). It is NOT the trip board with the gate lifted: the board's
+     data call carries the crew's emails and home addresses, the hotel
+     confirmation and wifi password, and flight confirmation numbers. This page
+     is handed the three things the module reads and nothing else, inline, so the
+     whole page is one document plus its files and survives with no signal.
+     The mount below mirrors listHallmark/hallmarkCtx in static/trips.js; the
+     module's ctx contract is documented there. -->
+<script>
+  (function () {
+    var r = document.documentElement;
+    try {
+      var s = localStorage.getItem("hub.surface");
+      if (s !== "light" && s !== "dark") {
+        s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { /* private mode: the dark default stands */ }
+  })();
+</script>
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css">
+<link rel="stylesheet" href="{{ base }}f/components.css">
+<link rel="stylesheet" href="{{ base }}f/trips.css">
+<link rel="stylesheet" href="{{ base }}f/hallmark.css">
+<style>
+  body { margin: 0; background: var(--bg); color: var(--fg); }
+  .ll-open { max-width: 720px; margin: 0 auto; padding: 12px 16px 64px; }
+  .ll-open-h { font-family: var(--font-display, inherit); font-size: 28px; font-weight: 800; margin: 8px 0 0; }
+  .ll-open-s { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-faint); margin: 2px 0 8px; }
+  .ll-open-off { font-size: 12px; color: var(--fg-faint); margin: 0 0 8px; }
+</style>
+</head>
+<body>
+<div id="ll-react-root">
+<main class="ll-open">
+  <h1 class="ll-open-h" data-llopen-title></h1>
+  <div class="ll-open-s" data-llopen-sub></div>
+  <div class="ll-open-off" data-llopen-off></div>
+  <div class="hm" data-llopen-root></div>
+</main>
+</div>
+<script>window.LL_ASSET = "{{ base }}f/"; window.LL_TRIP = {{ trip|tojson }};</script>
+<script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script>
+<script defer src="{{ base }}f/hallmark.js"></script>
+<script defer src="/public/lostlands-open.jsx"></script>
+<script>
+/* Load fallback: no mount marker once everything has loaded means the body never ran. */
+window.addEventListener("load", function () {
+  if (document.querySelector('[data-react-mounted="lostlands-open"]')) return;
+  var r = document.querySelector("[data-llopen-root]");
+  if (r) r.textContent = "The page failed to load. Reload while you have signal.";
+});
+</script>
+</body>
+</html>

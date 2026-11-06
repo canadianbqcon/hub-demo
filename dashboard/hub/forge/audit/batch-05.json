@@ -1,0 +1,560 @@
+{
+ "batch": "05",
+ "champions": {
+  "Maokai": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "reveal them for 3 seconds",
+    "fix": "KEYWORDS.vision: wiki says 'reveal them'; bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Master Yi": [
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "cleanses himself from all slows and cripples",
+    "fix": "bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes ('cleanses' already matches \\bcleans\\w*)"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "grant vision in a 600 radius around it",
+    "fix": "KEYWORDS.vision: add \\bgrants? (vision|sight)\\b; bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes"
+   },
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "gains 70% damage reduction for the first 0.5 seconds",
+    "fix": "Trait_Parry marks damage reduction/dodge/block, not spell-blocking; require wiki 'spell shield' or Trait_SpellShield-type tag"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Mel": [
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "I",
+    "quote": "stacking infinitely",
+    "fix": "KEYWORDS.infiniteStacking already matches 'infinitely'; bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes"
+   },
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Enemies are also revealed for 1 second",
+    "fix": "bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive"
+    ]
+   },
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "Q",
+    "quote": "Both can see through brush and terrain.",
+    "fix": "wiki Wn mentions 'global or near-global range missile' only as a list header with no Mel-specific range; no verdict"
+   }
+  ],
+  "Milio": [
+   {
+    "trait": "cleanse",
+    "current": "true",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "healing and cleansing himself and nearby allied champions of non- airborne crowd control",
+    "fix": "correct hit, no change"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Miss Fortune": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Mordekaiser": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "revealing them over the cast time",
+    "fix": "bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes"
+   },
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "Mordekaiser and the target are cleansed from all forced action effects",
+    "fix": "bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes (note text; minor, only on realm entry)"
+   },
+   {
+    "trait": "engage",
+    "current": "unknown",
+    "verdict": "handler_missing",
+    "ability": "E",
+    "quote": "pulls them over 250 units",
+    "fix": "displacement-only CC (pull, banish) gives unknown engage; count pulls/banish as hard CC with the wiki duration, or return 0 not unknown"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Morgana": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "the targets are revealed and slowed by 20%",
+    "fix": "bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Naafiri": [
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "The bleed executes minions and non-epic monsters",
+    "fix": "bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes; hit is minion/monster-only, a champion-execute flag should require a champion health threshold"
+   },
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "reveals enemy champions within for 4 seconds",
+    "fix": "true is correct"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Nami": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "during which they are revealed",
+    "fix": "bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Nasus": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "E",
+    "quote": "granting sight of the area for 2.5 seconds",
+    "fix": "KEYWORDS.vision: add \\bgrants? sight\\b; bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes"
+   },
+   {
+    "trait": "engage",
+    "current": "unknown",
+    "verdict": "handler_missing",
+    "ability": "W",
+    "quote": "slowing them by 35%",
+    "fix": "every rubric trait on Nasus is unknown ('the source does not say'): spells unresolved in bin; wiki shows only a slow, no hard CC or dash, so engage/peel/dive/dashes are 0; fall back to wiki when view['resolved'] is False"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "Q",
+    "quote": "Nasus permanently gains 4 stacks",
+    "fix": "permanent stacks, no cap stated either way"
+   }
+  ],
+  "Nautilus": [
+   {
+    "trait": "vision",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "reveals them for 1.15 seconds",
+    "fix": "bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "Q",
+    "quote": "If the anchor hits terrain, Nautilus dashes to that location",
+    "fix": "rule_wall matches 'terrain' for any anchor-to-wall pull; require passing through/over wording"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Neeko": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Nidalee": [
+   {
+    "trait": "dashes",
+    "current": 0,
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Nidalee leaps a fixed distance in the target direction",
+    "fix": "form-swap kits: bake only reads the human-form QWER; read the cougar spells (Pounce) too, so dashes/dive/engage are not 0"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Nidalee leaps a fixed distance in the target direction",
+    "fix": "'no move spell' is wrong; Pounce is a move spell the cougar-form gap hides"
+   },
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "present",
+    "ability": "I",
+    "quote": "they are revealed as well as grant sight of a 300-unit radius around them",
+    "fix": "true is correct"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Nilah": [
+   {
+    "trait": "execute",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "Q",
+    "quote": "executes minions left below 20 health",
+    "fix": "bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes; minion-only"
+   },
+   {
+    "trait": "engage",
+    "current": "unknown",
+    "verdict": "handler_missing",
+    "ability": "R",
+    "quote": "pulls them 250 units towards her",
+    "fix": "no hard CC in kit, only pull and 10% slow: return 0 for engage/peel instead of unknown, or count pull"
+   },
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "W",
+    "quote": "dodges all non- turret basic attacks",
+    "fix": "Trait_Parry is not a spell shield; basic-attack dodge only"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "E",
+    "quote": "Dashing to target through a wall within casting range will cancel the dash if wall is longer than dash range.(bug)",
+    "fix": "information only; E does not cross walls"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Nocturne": [
+   {
+    "trait": "vision",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "R",
+    "quote": "nearsighting them for 6 seconds, during which their sight radius is reduced by 300 units",
+    "fix": "vision hit is vision denial; keyword needs 'grants/reveals', not bare 'sight radius'/'vision' (Q note does show a real reveal: 'reveals the location of enemy units even in the fog of war')"
+   },
+   {
+    "trait": "spellShield",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "W",
+    "quote": "Nocturne gains a spell shield for 1.5 seconds",
+    "fix": "W is tagged CCImmune not Parry; add keyword rule on wiki text 'spell shield'"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "false",
+    "verdict": "rule_wrong",
+    "ability": "R",
+    "quote": "Nocturne can cast any of his abilities and item actives during the dash.",
+    "fix": "R is a targeted dash but 'no move spell'; DIVE_MOVE tags miss targeted dashes (also Pantheon W, Maokai W)"
+   },
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "R",
+    "quote": "Nocturne terrorizes all enemy champions",
+    "fix": "R is map-wide target selection; no global/anywhere wording, add wiki-range check if desired"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Nunu & Willump": [
+   {
+    "trait": "cleanse",
+    "current": "unknown",
+    "verdict": "present",
+    "ability": "W",
+    "quote": "Willump cleanses himself from all slows",
+    "fix": "bake_traits.KEYWORDS reads only the bin tooltip; also run keyword_row over the wiki ability text/notes (slows only)"
+   },
+   {
+    "trait": "infiniteStacking",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "The buff has no cap for its maximum total duration.",
+    "fix": "duration cap, not stacks; keyword would false-positive"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "wallCrossing"
+    ]
+   }
+  ],
+  "Olaf": [
+   {
+    "trait": "cleanse",
+    "current": "true",
+    "verdict": "present",
+    "ability": "R",
+    "quote": "cleansing himself of all crowd control",
+    "fix": "true is correct"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Orianna": [
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   },
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "unclear",
+    "ability": "I",
+    "quote": "incurs a 0.01-second global cooldown",
+    "fix": "'global' hits a cooldown, not presence; do not widen globalPresence to bare 'global'"
+   }
+  ],
+  "Ornn": [
+   {
+    "trait": "globalPresence",
+    "current": "unknown",
+    "verdict": "absent",
+    "ability": "I",
+    "quote": "from anywhere on the battlefield",
+    "fix": "item purchase only, not champion presence: leave unknown"
+   },
+   {
+    "trait": "wallCrossing",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "stopping upon colliding with terrain",
+    "fix": "rule_wall matches 'terrain' in ram-into-wall text; require pass-through wording"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "vision",
+     "revive",
+     "execute",
+     "infiniteStacking"
+    ]
+   }
+  ],
+  "Pantheon": [
+   {
+    "trait": "execute",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "Q",
+    "quote": "increased against enemies below 20% of their maximum health",
+    "fix": "bin text 'CritHealthThreshold ... ExecuteDamageCalcModified' is a low-health damage bonus, not a kill; require 'execute' with a kill, or treat 'increased against ... below' as bonus"
+   },
+   {
+    "trait": "absent",
+    "traits": [
+     "cleanse",
+     "globalPresence",
+     "vision",
+     "revive",
+     "infiniteStacking",
+     "wallCrossing"
+    ]
+   },
+   {
+    "trait": "spellShield",
+    "current": "true",
+    "verdict": "false_positive",
+    "ability": "E",
+    "quote": "becomes invulnerable to non- turret damage dealt by enemies from the target direction",
+    "fix": "Trait_Parry is a directional block, not a spell shield"
+   }
+  ]
+ }
+}

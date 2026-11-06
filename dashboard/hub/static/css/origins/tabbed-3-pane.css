@@ -1,0 +1,222 @@
+/* ============================================================
+   hub · origin: tabbed 3-pane (slug tabbed-3-pane).
+   A rail of tabs down the left, a focus column of cards in the
+   middle, a context rail of cards on the right, a status bar, and
+   the phone shape (a slide-out tab drawer, a full-viewport context
+   slide-over). Composes hub-shell, hub-nav-rail, hub-split,
+   hub-pane-*, hub-detail-rail*, hub-slide-over*, hub-section-head
+   from components.css and never restyles them.
+
+   This file holds only the chassis: what any tabbed-3-pane
+   dashboard needs regardless of what it shows. Trip facts (the
+   notice strip, the map slot, per-tab ratios, day rows) stay in
+   trips.css as qualified page mods. Read `blueprints/blueprints.json`
+   -> origins[0] and docs/specs/2026-09-17-layout-
+   blueprints-origin-derivative-design.md before editing.
+
+   Class prefix is hub-t3p- (hub- is the shared-layer convention;
+   t3p is the slug's initials -- the full words belong to the
+   registry and the page, not to thirty class names on one line).
+   ============================================================ */
+
+.hub-t3p {
+  grid-template-rows: auto 1fr var(--status-h);
+  --hub-t3p-rail-w: 236px;
+  --hub-t3p-gutter: var(--s-3);
+}
+
+/* THE VIEWPORT LOCK -- keyed on the shell being a direct child of <body>, so a
+   skeleton injected into the blueprints page (never a body child there) is
+   never locked. A derivative must place its hub-t3p shell as a direct child
+   of <body>. :has() takes its argument's specificity, so this beats a bare
+   `html, body` release at the same breakpoint -- see the phone release below,
+   which reuses the same two selectors for exactly that reason. */
+html:has(> body > .hub-t3p), body:has(> .hub-t3p) { height: 100%; }
+body:has(> .hub-t3p) { overflow: hidden; }
+
+/* ===== BODY GRID -- tab rail (left) | the working pane ===== */
+.hub-t3p-body { display: grid; grid-template-columns: var(--hub-t3p-rail-w) minmax(0,1fr); min-height: 0; }
+.hub-t3p-col { display: flex; flex-direction: column; min-height: 0; min-width: 0; border-right: 1px solid var(--line); background: var(--bg); }
+.hub-t3p-pane { border-right: 0; }
+
+/* ===== TAB RAIL -- vertical section nav (leftmost) =====
+   Deliberately loud: this is the page's primary control, so each entry is a
+   full-height block with a display-face count, not a thin sidebar link. The
+   active one carries a solid accent spine and an elevated ground so which
+   section you're in survives a glance from across the room. */
+/* overflow-y guard: a rail that grows past the shell (a tall count block, a
+   long label) has to scroll in place rather than push the shell past the
+   viewport. */
+.hub-t3p-rail { min-width: 0; justify-content: space-between; overflow-y: auto; }
+.hub-t3p-tab { align-items: center; }
+/* `hidden` alone loses to hub-nav-item's display:flex, so it is spelled out. */
+.hub-t3p-tab[hidden] { display: none !important; }
+/* FILLED, not outlined. The active entry used to be accent text on --bg-elev with
+   an accent-dim frame: in dark that reads, but in light --bg -> --bg-elev is a
+   single small step (#f4f7ff -> #e6ecfa) and the spine was left carrying the state
+   almost alone. A real accent ground fixes both surfaces with one rule -- mixed
+   against the mode's own elev, so it follows whatever theme is loaded instead of
+   pinning a colour. The label then goes to --fg: on a tinted ground, weight and
+   ground carry the state, and accent-on-accent is the half-measure that made this
+   quiet in the first place. The spine deliberately stays 4px -- now that the fill
+   carries the signal, widening it would be decoration. */
+.hub-nav-item.hub-t3p-tab.active { color: var(--fg); background: color-mix(in oklab, var(--accent) 14%, var(--bg-elev)); }
+/* Vesper's accent is a desaturated blue-grey, so 14% of it into the elev ground
+   is nearly the ground. The mix is a percentage of a colour, not of a contrast --
+   a quiet accent needs more of itself to land the same step. */
+[data-theme="vesper"][data-surface="dark"] .hub-t3p-tab.active { background: color-mix(in oklab, var(--accent) 24%, var(--bg-elev)); }
+/* Light vesper mixes the other way: its accent is a dark navy and the ground is
+   cream, so any amount of it reads as mud/disabled rather than as selected.
+   --accent-faint is the same hue arrived at from the light end, so it tints. */
+[data-theme="vesper"][data-surface="light"] .hub-t3p-tab.active { background: color-mix(in oklab, var(--accent-faint) 55%, var(--bg-elev)); }
+/* the section glyph rides inside hub-t3p-tab-label so the label+glyph stay one
+   flex item and the count keeps the right edge (the row is space-between).
+   Same stroke-only, currentColor idiom as the launcher tiles. */
+.hub-t3p-tab-glyph {
+  width: 18px; height: 18px; flex: 0 0 auto;
+  fill: none; stroke: currentColor; stroke-width: 1.4;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.hub-t3p-tab-label { display: inline-flex; align-items: center; gap: 10px; }
+
+/* ===== THE FULL-WIDTH OPTION -- a tab whose body IS the answer, no context
+   rail beside it (day-of, the hallmark, grocery, packing, weather). Toggled
+   in renderFocus() (a derivative's own JS) off its own tab list -- the origin
+   only owns the state class and what it does to the split. One state class
+   replaces what used to be five tab-named rules. ===== */
+.hub-t3p-split.is-full { grid-template-columns: minmax(0, 1fr); }
+.hub-t3p-split.is-full > .hub-t3p-side { display: none; }
+
+/* ===== THE BOARD IS A STACK OF CARDS =====
+   One read, one card, on a shared ground, border and radius. The card frame
+   and the head plate key on the components section head every card's own
+   head already carries beside its derivative's own head class -- no markup
+   change needed for a derivative that already promotes its section heads. */
+.hub-t3p-list:has(> :is(.hub-t3p-card, .hub-t3p-stack)) {
+  display: flex; flex-direction: column; gap: var(--hub-t3p-gutter); padding: var(--hub-t3p-gutter);
+}
+/* a flex column inside a scroller shrinks its children to fit rather than
+   overflowing, which silently cuts the bottom rows off the shorter lists. */
+.hub-t3p-list:has(> :is(.hub-t3p-card, .hub-t3p-stack)) > * { flex: 0 0 auto; }
+/* a nested column of cards inside the list -- same gutter, so a card in a
+   stack has the same margins as a card anywhere else. */
+.hub-t3p-stack { display: flex; flex-direction: column; gap: var(--hub-t3p-gutter); }
+.hub-t3p-stack > * { flex: 0 0 auto; }
+/* the head plate (hub-t3p-card's look) moved to components.css as hub-plate-card
+   on 2026-09-25, when entry-3-pane became a second origin drawing it. */
+
+/* ===== SIDE COLUMN -- context to the right of the list (day map slot, only
+   the map slot itself is a derivative's own; the column is chassis) ===== */
+/* transparent on purpose: hub-t3p-pane is the .col the themes paint, so the
+   split's children must let it through */
+.hub-t3p-side { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
+
+/* ===== CONTEXT RAIL -- a stack of cards on the right =====
+   No :empty variant: the trips.css rule this replaced was qualified
+   `body:not([data-tab="food"]) .context-inner` (0,2,1), one element selector
+   above `.context-inner:empty` (0,2,0) -- so :empty never won a tie it looked
+   like it was meant to, on any tab, ever. A bare `.hub-t3p-context` here is
+   only (0,1,0), which would let :empty (0,2,0) win for the first time and
+   collapse the rail's gutter the moment a full-width tab clears it -- a real
+   behaviour change the walk catches. Dropped rather than reproduced: it did
+   nothing to catch. */
+.hub-t3p-context { padding: var(--hub-t3p-gutter); gap: var(--hub-t3p-gutter); }
+
+@media (max-width: 900px) {
+  /* THE PHONE FIX -- the page scrolls as a document, not as nested portholes.
+     The shell is a 100vh grid, so stacking the columns under 900 didn't give a
+     tabbed 3-pane board its window back: it split the same viewport between
+     the head, the list and whatever the context rail held. Every one of those
+     is content that is present, focusable, and unreachable -- rule 1 of
+     wiki/patterns/dashboard-responsive-layout.
+     So: the shell stops being viewport-locked, every inner scroller is
+     released, and one document scroll replaces all of them. */
+  html:has(> body > .hub-t3p), body:has(> .hub-t3p) { height: auto; }
+  body:has(> .hub-t3p) { overflow: visible; }
+  /* minmax(0, 1fr), not the implicit `auto` column: an auto grid track takes the
+     widest item's MIN-CONTENT as its floor, so one unbreakable string anywhere
+     in the topbar, the board or the status footer sizes the whole shell past the
+     viewport and every one of its children stretches to match. A 0-floor track
+     can never exceed its container, and the overflow has to be solved by
+     whatever actually cannot fit. The origin's own rows are three (topbar,
+     body, status), and the body row takes any spare height so a short page
+     keeps the status bar at the bottom instead of padding every row; a derivative with a strip of its own between topbar and
+     body restates this as a page mod with its own row count. */
+  .hub-t3p { height: auto; min-height: 100dvh; grid-template-rows: auto 1fr auto; grid-template-columns: minmax(0, 1fr); }
+  .hub-t3p > * { min-width: 0; }
+  .hub-t3p-status { min-height: var(--status-h); }
+  .hub-t3p-body { grid-template-columns: minmax(0, 1fr); grid-auto-rows: auto; overflow: visible; }
+
+  /* THE TAB RAIL IS A DRAWER DOWN HERE, NOT A STRIP.
+     Partial width with a scrim, not the full-bleed inset:0 hub-slide-over.is-open
+     uses. That one earns its way back with an explicit close button; a nav with
+     no outside to tap and no Escape key on a phone is a trap. */
+  /* visibility, not transform alone: a drawer parked off-screen by transform
+     keeps every tab in the focus order ahead of the page, and focusing one
+     pans the viewport sideways. */
+  .hub-t3p-rail { position: fixed; inset: 0 auto 0 0; z-index: 90; width: min(80vw, 320px); background: var(--bg); border-right: 1px solid var(--line); transform: translateX(-100%); visibility: hidden; transition: transform 180ms ease-out, visibility 180ms; overflow-y: auto; }
+  .hub-t3p-rail.is-open { transform: translateX(0); visibility: visible; }
+  .hub-nav-item.hub-t3p-tab { width: auto; min-height: 44px; }
+  .hub-t3p-scrim { position: fixed; inset: 0; z-index: 89; background: color-mix(in srgb, var(--bg) 55%, transparent); }
+  /* class-driven, never an inline style, so the lock cannot outlive the drawer */
+  html:has(.hub-t3p-rail.is-open) { overflow: hidden; }
+
+  /* Phone-only, and only this file's own classes: the crumb / crumb-block the
+     nav toggle and crumb section sit beside belong to the shared chrome
+     blueprint, and a module (or this origin) restyling them bare is what
+     test_no_new_module_override_of_a_blueprinted_class exists to stop. */
+  .hub-t3p-nav-toggle { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex: none; color: var(--fg-dim); }
+  .hub-t3p-nav-toggle-glyph { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+  .hub-t3p-crumb-section { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-caption); letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+
+  /* ===== TAP TARGETS AND TYPE IN THE TAB STRIP =====
+     A row of tabs read at caption size across a stacked tab strip is the
+     page's primary control rendered too small to recognise its own shape.
+     11.5px with the row at 52px keeps one row on a narrow phone and is the
+     difference between reading the strip and just seeing it. */
+  .hub-nav-item.hub-t3p-tab:hover, .hub-nav-item.hub-t3p-tab.active { border: 0; border-bottom: 3px solid var(--accent); }
+  .hub-nav-item.hub-t3p-tab:hover { border-bottom-color: var(--line-strong); }
+  /* hub-t3p-tab-label is the span holding the glyph and the word -- it is the
+     flex line */
+  .hub-nav-label.hub-t3p-tab-label {
+    display: inline-flex; align-items: center; gap: 5px; min-width: 0;
+    font-size: var(--fs-caption); letter-spacing: 0.01em; line-height: 1.15;
+  }
+  /* at ~97px a column the glyph fits beside its label again, and a row of icons
+     is what makes the strip scannable instead of read word by word. */
+  .hub-t3p-tab-glyph { display: block; width: 15px; height: 15px; flex: none; }
+  .hub-nav-item.hub-t3p-tab { min-height: 52px; }
+  .hub-nav-label.hub-t3p-tab-label { font-size: var(--fs-caption); letter-spacing: 0.01em; }
+
+  /* ===== FOCUS COLUMN RELEASES ===== */
+  .hub-t3p-list-col { overflow: visible; }
+  .hub-t3p-list { overflow: visible; flex: none; }
+  /* the map is the geographic read on the list under it, so it leads -- after a
+     long list it may as well not exist */
+  .hub-t3p-side { order: -1; }
+  /* stacked, the split's rows sit at their content height; stretched to fill a
+     short page they hand an empty side column a slab of blank space. */
+  .hub-t3p-split { align-content: start; }
+
+  /* the pane head is a slot: a derivative fills it with whatever sits over its
+     list, and down here it only gives back the padding. */
+  .hub-t3p-head { padding: var(--s-2) var(--s-3); gap: 6px; }
+}
+
+/* Above 900px the rail is already on screen, so a toggle that opens what is
+   open and a label naming what the rail highlights are both noise. */
+@media (min-width: 901px) {
+  .hub-t3p-nav-toggle, .hub-t3p-crumb-section { display: none; }
+}
+
+/* THE 901-1199 BAND -- the pane is squeezed but the rail isn't. Under 901 the
+   whole body stacks and the board gets the window back; over 1199 the pane is
+   wide enough to hold the board beside the rail. In between, the rail stops
+   taking a share of the row and sits under the list instead. Needs the eight
+   per-tab ratio rules gated to >=1200px in a derivative's own page mods --
+   unwrapped, their higher-specificity attribute selector would keep outranking
+   this single-class rule at any width, band included. */
+@media (min-width: 901px) and (max-width: 1199px) {
+  .hub-t3p-split { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 3fr) minmax(0, 2fr); }
+  .hub-t3p-list-col { border-right: 0; border-bottom: 1px solid var(--line); }
+}

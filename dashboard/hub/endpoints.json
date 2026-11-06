@@ -1,0 +1,1554 @@
+{
+  "DELETE /api/calendar/events/<event_id>": {
+    "class": "integration",
+    "why": "google calendar delete"
+  },
+  "DELETE /apply": {
+    "class": "read"
+  },
+  "DELETE /apply/": {
+    "class": "read"
+  },
+  "DELETE /apply/<path:rest>": {
+    "class": "read"
+  },
+  "DELETE /batch/api/batch/storage/<kind>/<int:node_id>": {
+    "class": "local-write"
+  },
+  "DELETE /checklists/api/checklists/<int:cid>": {
+    "class": "local-write"
+  },
+  "DELETE /checklists/api/checklists/<int:cid>/items/<int:item_id>": {
+    "class": "local-write"
+  },
+  "DELETE /finances/api/owed/<int:rid>": {
+    "class": "local-write"
+  },
+  "DELETE /finances/api/owed/payments/<int:pid>": {
+    "class": "local-write"
+  },
+  "DELETE /finances/api/owed/payments/<int:pid>/apply": {
+    "class": "local-write"
+  },
+  "DELETE /forge/api/sets/<path:set_id>": {
+    "class": "local-write"
+  },
+  "DELETE /jobs/api/applications/<int:app_id>": {
+    "class": "local-write",
+    "path-pinned": true
+  },
+  "DELETE /jobs/api/applications/<int:app_id>/interviewers/<int:iid>": {
+    "class": "local-write"
+  },
+  "DELETE /jobs/api/applications/<int:app_id>/process-steps/<int:step_id>": {
+    "class": "local-write"
+  },
+  "DELETE /jobs/api/applications/<int:app_id>/research/<int:item_id>": {
+    "class": "local-write"
+  },
+  "DELETE /jobs/api/applications/<int:app_id>/resume-notes/<int:note_id>": {
+    "class": "local-write"
+  },
+  "DELETE /jobs/api/applications/<int:app_id>/skills/<int:skill_id>": {
+    "class": "local-write"
+  },
+  "DELETE /jobs/api/applications/<int:app_id>/stories/<int:story_id>": {
+    "class": "local-write"
+  },
+  "DELETE /jobs/api/glossary/<int:term_id>": {
+    "class": "local-write"
+  },
+  "DELETE /jobs/api/interview-qa/<int:qa_id>": {
+    "class": "local-write"
+  },
+  "DELETE /jobs/api/resumes/<int:resume_id>": {
+    "class": "local-write",
+    "path-pinned": true
+  },
+  "DELETE /jobs/api/skills/<int:skill_id>": {
+    "class": "local-write"
+  },
+  "DELETE /jobs/api/stories/<int:story_id>": {
+    "class": "local-write"
+  },
+  "DELETE /news/api/topics/<int:topic_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/candidates/<int:cid>/scores/<int:criterion_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/candidates/<int:pid>/prices/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/candidates/<int:pid>/pros-cons/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/candidates/<int:pid>/specs/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/decisions/<int:did>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/decisions/<int:pid>/brands/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/decisions/<int:pid>/budget/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/decisions/<int:pid>/candidates/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/decisions/<int:pid>/constraints/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/decisions/<int:pid>/criteria/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/decisions/<int:pid>/dimensions/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/decisions/<int:pid>/evidence/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/decisions/<int:pid>/price-steps/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/decisions/<int:pid>/reviews/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/orders/<int:oid>": {
+    "class": "local-write"
+  },
+  "DELETE /purchases/api/projects/<int:pid>": {
+    "class": "local-write"
+  },
+  "DELETE /trips/api/gate-freeze": {
+    "class": "local-write"
+  },
+  "DELETE /trips/api/guest-codes/<int:code_id>": {
+    "class": "local-write"
+  },
+  "DELETE /trips/api/trips/<int:trip_id>": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "DELETE /trips/api/trips/<int:trip_id>/activities/<int:aid>": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "DELETE /trips/api/trips/<int:trip_id>/expenses/<int:eid>": {
+    "class": "local-write"
+  },
+  "DELETE /trips/api/trips/<int:trip_id>/flights/<int:fid>": {
+    "class": "local-write"
+  },
+  "DELETE /trips/api/trips/<int:trip_id>/grocery/<int:gid>": {
+    "class": "local-write"
+  },
+  "DELETE /trips/api/trips/<int:trip_id>/housing/<int:hid>": {
+    "class": "local-write"
+  },
+  "DELETE /trips/api/trips/<int:trip_id>/members/<int:mid>": {
+    "class": "local-write"
+  },
+  "DELETE /trips/api/trips/<int:trip_id>/transportation/<int:tid>": {
+    "class": "local-write"
+  },
+  "GET /": {
+    "class": "read"
+  },
+  "GET /api/calendar/auth": {
+    "class": "integration",
+    "why": "google calendar oauth"
+  },
+  "GET /api/calendar/calendars": {
+    "class": "integration",
+    "why": "google calendar list"
+  },
+  "GET /api/calendar/callback": {
+    "class": "integration",
+    "why": "google calendar oauth"
+  },
+  "GET /api/docs/auth": {
+    "class": "integration",
+    "why": "google docs oauth"
+  },
+  "GET /api/docs/callback": {
+    "class": "integration",
+    "why": "google docs oauth"
+  },
+  "GET /api/docs/status": {
+    "class": "read"
+  },
+  "GET /api/drive/auth": {
+    "class": "integration",
+    "why": "google drive oauth"
+  },
+  "GET /api/drive/callback": {
+    "class": "integration",
+    "why": "google drive oauth"
+  },
+  "GET /api/drive/status": {
+    "class": "read"
+  },
+  "GET /api/gmail/auth": {
+    "class": "integration",
+    "why": "gmail oauth"
+  },
+  "GET /api/gmail/callback": {
+    "class": "integration",
+    "why": "gmail oauth"
+  },
+  "GET /api/gmail/message/<message_id>": {
+    "class": "integration",
+    "why": "gmail message fetch"
+  },
+  "GET /api/gmail/message/<message_id>/summarize": {
+    "class": "read"
+  },
+  "GET /api/home": {
+    "calls_out": true,
+    "class": "read"
+  },
+  "GET /api/scheduler/status": {
+    "class": "read"
+  },
+  "GET /api/sheets/auth": {
+    "class": "integration",
+    "why": "google sheets oauth"
+  },
+  "GET /api/sheets/callback": {
+    "class": "integration",
+    "why": "google sheets oauth"
+  },
+  "GET /api/sheets/status": {
+    "class": "read"
+  },
+  "GET /api/transit": {
+    "class": "integration",
+    "why": "transit feed and geocode"
+  },
+  "GET /api/wx-extras": {
+    "class": "integration",
+    "why": "pollen api fetch"
+  },
+  "GET /apply": {
+    "class": "read"
+  },
+  "GET /apply/": {
+    "class": "read"
+  },
+  "GET /apply/<path:rest>": {
+    "class": "read"
+  },
+  "GET /artifacts/": {
+    "class": "read"
+  },
+  "GET /artifacts/api/data": {
+    "class": "read"
+  },
+  "GET /artifacts/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /automations/": {
+    "class": "read"
+  },
+  "GET /automations/api/burns": {
+    "class": "read"
+  },
+  "GET /automations/api/decisions": {
+    "class": "read"
+  },
+  "GET /automations/api/feed": {
+    "calls_out": true,
+    "class": "read"
+  },
+  "GET /automations/api/rules": {
+    "class": "read"
+  },
+  "GET /automations/api/updates": {
+    "class": "read"
+  },
+  "GET /automations/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /barback/": {
+    "class": "read"
+  },
+  "GET /barback/api/barback/run/<int:run_id>": {
+    "class": "read"
+  },
+  "GET /barback/api/barback/run/<int:run_id>/lowout": {
+    "class": "read"
+  },
+  "GET /barback/api/barback/run/<int:run_id>/sweep": {
+    "class": "read"
+  },
+  "GET /barback/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /batch/": {
+    "class": "read"
+  },
+  "GET /batch/api/batch/prep-day/active": {
+    "class": "read"
+  },
+  "GET /batch/api/batch/recipe/<int:recipe_id>": {
+    "class": "read"
+  },
+  "GET /batch/api/batch/recipes": {
+    "class": "read"
+  },
+  "GET /batch/api/batch/storage": {
+    "class": "read"
+  },
+  "GET /batch/api/batch/storage/tree": {
+    "class": "read"
+  },
+  "GET /batch/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /blueprints/": {
+    "class": "read"
+  },
+  "GET /blueprints/api/blueprints.json": {
+    "class": "read"
+  },
+  "GET /blueprints/api/budget.json": {
+    "class": "read"
+  },
+  "GET /blueprints/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /capabilities/": {
+    "class": "read"
+  },
+  "GET /capabilities/api/data": {
+    "class": "read"
+  },
+  "GET /capabilities/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /checklists/": {
+    "class": "read"
+  },
+  "GET /checklists/api/checklists": {
+    "class": "read"
+  },
+  "GET /checklists/api/checklists/<int:cid>": {
+    "class": "read"
+  },
+  "GET /checklists/api/grocery": {
+    "class": "read"
+  },
+  "GET /checklists/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /elements/": {
+    "class": "read"
+  },
+  "GET /elements/<path:rest>": {
+    "class": "read"
+  },
+  "GET /favicon.ico": {
+    "class": "read"
+  },
+  "GET /finances/": {
+    "class": "read"
+  },
+  "GET /finances/api/book/accounts": {
+    "class": "read"
+  },
+  "GET /finances/api/book/categories": {
+    "class": "read"
+  },
+  "GET /finances/api/book/sync": {
+    "class": "read"
+  },
+  "GET /finances/api/book/transactions": {
+    "class": "read"
+  },
+  "GET /finances/api/budget": {
+    "class": "read"
+  },
+  "GET /finances/api/debt": {
+    "class": "read"
+  },
+  "GET /finances/api/debt/scenarios": {
+    "class": "read"
+  },
+  "GET /finances/api/earnings": {
+    "class": "read"
+  },
+  "GET /finances/api/earnings/<int:eid>": {
+    "class": "read"
+  },
+  "GET /finances/api/expected": {
+    "class": "read"
+  },
+  "GET /finances/api/owed": {
+    "class": "read"
+  },
+  "GET /finances/api/pricing": {
+    "class": "read"
+  },
+  "GET /finances/api/spending": {
+    "class": "read"
+  },
+  "GET /finances/api/totals": {
+    "class": "read"
+  },
+  "GET /finances/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /food/": {
+    "class": "read"
+  },
+  "GET /food/<path:area_slug>": {
+    "class": "read"
+  },
+  "GET /food/api/area/<path:slug>": {
+    "class": "read"
+  },
+  "GET /food/api/areas": {
+    "class": "read"
+  },
+  "GET /food/api/place/<slug>": {
+    "class": "read"
+  },
+  "GET /food/api/places": {
+    "class": "read"
+  },
+  "GET /food/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /forge/": {
+    "class": "read"
+  },
+  "GET /forge/api/bans/<champ>": {
+    "class": "read"
+  },
+  "GET /forge/api/champion/<champ>": {
+    "class": "read"
+  },
+  "GET /forge/api/conditioned": {
+    "class": "integration",
+    "why": "live coachless fetch"
+  },
+  "GET /forge/api/diff": {
+    "class": "read"
+  },
+  "GET /forge/api/draft": {
+    "class": "read"
+  },
+  "GET /forge/api/draft/history": {
+    "class": "integration",
+    "why": "op.gg fetch"
+  },
+  "GET /forge/api/draft/mock": {
+    "class": "read"
+  },
+  "GET /forge/api/draft/roles": {
+    "class": "read"
+  },
+  "GET /forge/api/landing": {
+    "class": "read"
+  },
+  "GET /forge/api/lolalytics": {
+    "class": "read"
+  },
+  "GET /forge/api/me": {
+    "class": "integration",
+    "why": "op.gg fetch"
+  },
+  "GET /forge/api/passives": {
+    "class": "read"
+  },
+  "GET /forge/api/patchnotes": {
+    "class": "read"
+  },
+  "GET /forge/api/sets": {
+    "class": "read"
+  },
+  "GET /forge/api/stats": {
+    "class": "read"
+  },
+  "GET /forge/c/<champ>": {
+    "class": "read"
+  },
+  "GET /forge/c/<champ>/<role>": {
+    "class": "read"
+  },
+  "GET /forge/c/<champ>/<role>/build": {
+    "class": "read"
+  },
+  "GET /forge/draft": {
+    "class": "read"
+  },
+  "GET /forge/edit": {
+    "class": "read"
+  },
+  "GET /forge/patch": {
+    "class": "read"
+  },
+  "GET /forge/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /forge/stats": {
+    "class": "read"
+  },
+  "GET /guide/": {
+    "class": "read",
+    "demo_only": true,
+    "why": "demo guide page"
+  },
+  "GET /guide/static/<path:filename>": {
+    "class": "read",
+    "demo_only": true,
+    "path-pinned": true,
+    "why": "demo guide css"
+  },
+  "GET /healthz": {
+    "class": "read",
+    "demo_only": true,
+    "why": "demo health check"
+  },
+  "GET /hub-modules.js": {
+    "class": "read"
+  },
+  "GET /inventory/": {
+    "class": "read"
+  },
+  "GET /inventory/api/machines": {
+    "class": "read"
+  },
+  "GET /inventory/api/manual/<machine>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /inventory/api/programs/<machine>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /inventory/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /jc/": {
+    "class": "read"
+  },
+  "GET /jc/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /jobs/": {
+    "class": "read"
+  },
+  "GET /jobs/api/applications": {
+    "class": "read"
+  },
+  "GET /jobs/api/applications/<int:app_id>": {
+    "class": "read"
+  },
+  "GET /jobs/api/applications/<int:app_id>/glossary": {
+    "class": "read"
+  },
+  "GET /jobs/api/applications/<int:app_id>/interview-qa": {
+    "class": "read"
+  },
+  "GET /jobs/api/applications/<int:app_id>/process-steps": {
+    "class": "read"
+  },
+  "GET /jobs/api/applications/<int:app_id>/resumes": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /jobs/api/applications/<int:app_id>/screenshot": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /jobs/api/applications/<int:app_id>/skills": {
+    "class": "read"
+  },
+  "GET /jobs/api/candidate-profile": {
+    "class": "read"
+  },
+  "GET /jobs/api/glossary": {
+    "class": "read"
+  },
+  "GET /jobs/api/interview-qa/template": {
+    "class": "read"
+  },
+  "GET /jobs/api/ready": {
+    "class": "read"
+  },
+  "GET /jobs/api/resumes/<int:resume_id>/download": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /jobs/api/resumes/<int:resume_id>/view": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /jobs/api/resumes/base": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /jobs/api/skills": {
+    "class": "read"
+  },
+  "GET /jobs/api/stories": {
+    "class": "read"
+  },
+  "GET /jobs/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /jsx/<path:rel>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /ledger/": {
+    "class": "read"
+  },
+  "GET /ledger/i/<path:name>": {
+    "class": "read"
+  },
+  "GET /ledger/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /login": {
+    "class": "read"
+  },
+  "GET /mail/": {
+    "class": "read"
+  },
+  "GET /mail/api/attachment/<msg>/<att>": {
+    "class": "integration",
+    "why": "gmail attachment fetch"
+  },
+  "GET /mail/api/labels": {
+    "class": "read"
+  },
+  "GET /mail/api/senders": {
+    "class": "read"
+  },
+  "GET /mail/api/status": {
+    "class": "read"
+  },
+  "GET /mail/api/thread/<thread_id>": {
+    "class": "read"
+  },
+  "GET /mail/api/threads": {
+    "class": "read"
+  },
+  "GET /mail/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /marks/api/png/<session>/<name>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /marks/api/session": {
+    "class": "read"
+  },
+  "GET /marks/api/walk": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /marks/api/walk/sessions": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /marks/frame": {
+    "class": "read"
+  },
+  "GET /news/": {
+    "class": "read"
+  },
+  "GET /news/api/clusters": {
+    "class": "read"
+  },
+  "GET /news/api/clusters/<int:cluster_id>": {
+    "class": "read"
+  },
+  "GET /news/api/digest": {
+    "class": "read"
+  },
+  "GET /news/api/items/<int:item_id>/read": {
+    "class": "integration",
+    "why": "fetches the article url"
+  },
+  "GET /news/api/sources": {
+    "class": "read"
+  },
+  "GET /news/api/status": {
+    "class": "read"
+  },
+  "GET /news/api/topics": {
+    "class": "read"
+  },
+  "GET /news/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /public/<path:rel>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /purchases/": {
+    "class": "read"
+  },
+  "GET /purchases/api/decisions": {
+    "class": "read"
+  },
+  "GET /purchases/api/decisions/<int:did>": {
+    "class": "read"
+  },
+  "GET /purchases/api/node": {
+    "class": "read"
+  },
+  "GET /purchases/api/nodes": {
+    "class": "read"
+  },
+  "GET /purchases/api/orders": {
+    "class": "read"
+  },
+  "GET /purchases/api/projects": {
+    "class": "read"
+  },
+  "GET /purchases/api/projects/<int:pid>": {
+    "class": "read"
+  },
+  "GET /purchases/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /recipes/": {
+    "class": "read"
+  },
+  "GET /recipes/<slug>": {
+    "class": "read"
+  },
+  "GET /recipes/api/grocery": {
+    "class": "read"
+  },
+  "GET /recipes/api/index": {
+    "class": "read"
+  },
+  "GET /recipes/api/photo/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /recipes/api/recipe/<slug>": {
+    "class": "read"
+  },
+  "GET /recipes/photo/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /recipes/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /stocks/": {
+    "class": "read"
+  },
+  "GET /stocks/api/stocks": {
+    "calls_out": true,
+    "class": "read"
+  },
+  "GET /stocks/api/stocks/<ticker>": {
+    "class": "read"
+  },
+  "GET /stocks/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /sw.js": {
+    "class": "read"
+  },
+  "GET /trips/": {
+    "calls_out": true,
+    "class": "read"
+  },
+  "GET /trips/<int:trip_id>": {
+    "class": "read"
+  },
+  "GET /trips/<int:trip_id>/hallmark.<any(js, css):ext>": {
+    "class": "read"
+  },
+  "GET /trips/<int:trip_id>/intake": {
+    "class": "read"
+  },
+  "GET /trips/api/guest-codes": {
+    "class": "read"
+  },
+  "GET /trips/api/intakes": {
+    "class": "read"
+  },
+  "GET /trips/api/packing/<int:trip_id>": {
+    "class": "read"
+  },
+  "GET /trips/api/prefs/account": {
+    "class": "read"
+  },
+  "GET /trips/api/prefs/address-search": {
+    "class": "integration",
+    "why": "geocoder lookup"
+  },
+  "GET /trips/api/prefs/card": {
+    "class": "read"
+  },
+  "GET /trips/api/prefs/form/<kind>": {
+    "class": "read"
+  },
+  "GET /trips/api/prefs/me": {
+    "class": "read"
+  },
+  "GET /trips/api/prefs/unmatched": {
+    "class": "read"
+  },
+  "GET /trips/api/share-url": {
+    "class": "integration",
+    "why": "spawns tailscale"
+  },
+  "GET /trips/api/transit": {
+    "class": "integration",
+    "why": "transit api fetch"
+  },
+  "GET /trips/api/trips": {
+    "calls_out": true,
+    "class": "read"
+  },
+  "GET /trips/api/trips/<int:trip_id>": {
+    "calls_out": true,
+    "class": "read"
+  },
+  "GET /trips/api/trips/<int:trip_id>/food": {
+    "class": "read"
+  },
+  "GET /trips/api/trips/<int:trip_id>/food/place/<path:slug>": {
+    "class": "read"
+  },
+  "GET /trips/api/trips/<int:trip_id>/housing/<int:hid>/nearby": {
+    "class": "integration",
+    "why": "overpass lookup"
+  },
+  "GET /trips/api/trips/<int:trip_id>/preferences": {
+    "class": "read"
+  },
+  "GET /trips/api/trips/roster": {
+    "class": "read"
+  },
+  "GET /trips/api/trips/summary": {
+    "calls_out": true,
+    "class": "read"
+  },
+  "GET /trips/crew": {
+    "class": "read"
+  },
+  "GET /trips/preferences": {
+    "class": "read"
+  },
+  "GET /trips/preview/<int:code_id>": {
+    "class": "read"
+  },
+  "GET /trips/preview/off": {
+    "class": "read"
+  },
+  "GET /trips/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /vault-map/": {
+    "class": "read"
+  },
+  "GET /vault-map/api/tree": {
+    "class": "read"
+  },
+  "GET /vault-map/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /viewer/": {
+    "class": "read"
+  },
+  "GET /viewer/api/feed": {
+    "class": "read"
+  },
+  "GET /viewer/api/terminals": {
+    "class": "integration",
+    "why": "spawns terminal listing"
+  },
+  "GET /viewer/file/<item_id>/<name>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /viewer/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /work/": {
+    "class": "read"
+  },
+  "GET /work/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /workbench/": {
+    "class": "read"
+  },
+  "GET /workbench/api/doc": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /workbench/api/docs": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /workbench/api/history": {
+    "class": "read"
+  },
+  "GET /workbench/api/history/snapshot": {
+    "class": "read"
+  },
+  "GET /workbench/api/option": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /workbench/api/option/asset": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /workbench/api/options": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /workbench/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "PATCH /apply": {
+    "class": "read"
+  },
+  "PATCH /apply/": {
+    "class": "read"
+  },
+  "PATCH /apply/<path:rest>": {
+    "class": "read"
+  },
+  "PATCH /checklists/api/checklists/<int:cid>": {
+    "class": "local-write"
+  },
+  "PATCH /checklists/api/checklists/<int:cid>/items/<int:item_id>": {
+    "class": "local-write"
+  },
+  "PATCH /finances/api/book/transactions/<uid>": {
+    "class": "local-write"
+  },
+  "PATCH /finances/api/owed/<int:rid>": {
+    "class": "local-write"
+  },
+  "PATCH /finances/api/owed/payments/<int:pid>": {
+    "class": "local-write"
+  },
+  "PATCH /jobs/api/applications/<int:app_id>": {
+    "class": "local-write"
+  },
+  "PATCH /jobs/api/applications/<int:app_id>/interviewers/<int:iid>": {
+    "class": "local-write"
+  },
+  "PATCH /jobs/api/applications/<int:app_id>/process-steps/<int:step_id>": {
+    "class": "local-write"
+  },
+  "PATCH /jobs/api/applications/<int:app_id>/research/<int:item_id>": {
+    "class": "local-write"
+  },
+  "PATCH /jobs/api/applications/<int:app_id>/resume-notes/<int:note_id>": {
+    "class": "local-write"
+  },
+  "PATCH /jobs/api/glossary/<int:term_id>": {
+    "class": "local-write"
+  },
+  "PATCH /jobs/api/interview-qa/<int:qa_id>": {
+    "class": "local-write"
+  },
+  "PATCH /jobs/api/resumes/<int:resume_id>": {
+    "class": "local-write",
+    "path-pinned": true
+  },
+  "PATCH /jobs/api/skills/<int:skill_id>": {
+    "class": "local-write"
+  },
+  "PATCH /jobs/api/stories/<int:story_id>": {
+    "class": "local-write"
+  },
+  "PATCH /news/api/sources/<source_id>": {
+    "class": "local-write"
+  },
+  "PATCH /news/api/topics/<int:topic_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/candidates/<int:pid>/prices/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/candidates/<int:pid>/pros-cons/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/candidates/<int:pid>/specs/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:did>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:did>/sections": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:pid>/brands/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:pid>/budget/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:pid>/candidates/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:pid>/constraints/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:pid>/criteria/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:pid>/dimensions/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:pid>/evidence/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:pid>/price-steps/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/decisions/<int:pid>/reviews/<int:sub_id>": {
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/orders/<int:oid>": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "PATCH /purchases/api/projects/<int:pid>": {
+    "class": "local-write"
+  },
+  "PATCH /trips/api/guest-codes/<int:code_id>": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "PATCH /trips/api/packing/<int:trip_id>/<int:cid>/items/<int:item_id>": {
+    "class": "local-write"
+  },
+  "PATCH /trips/api/prefs/unmatched": {
+    "class": "local-write"
+  },
+  "PATCH /trips/api/trips/<int:trip_id>": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "PATCH /trips/api/trips/<int:trip_id>/activities/<int:aid>": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "PATCH /trips/api/trips/<int:trip_id>/expenses/<int:eid>": {
+    "class": "local-write"
+  },
+  "PATCH /trips/api/trips/<int:trip_id>/flights/<int:fid>": {
+    "class": "local-write"
+  },
+  "PATCH /trips/api/trips/<int:trip_id>/grocery/<int:gid>": {
+    "class": "local-write"
+  },
+  "PATCH /trips/api/trips/<int:trip_id>/housing/<int:hid>": {
+    "class": "local-write"
+  },
+  "PATCH /trips/api/trips/<int:trip_id>/members/<int:mid>": {
+    "class": "local-write"
+  },
+  "PATCH /trips/api/trips/<int:trip_id>/transportation/<int:tid>": {
+    "class": "local-write"
+  },
+  "POST /api/briefing/snapshot": {
+    "class": "local-write"
+  },
+  "POST /api/calendar/events": {
+    "class": "integration",
+    "why": "google calendar create"
+  },
+  "POST /api/tasks/add": {
+    "class": "local-write"
+  },
+  "POST /api/tasks/complete": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "POST /api/tasks/delete": {
+    "class": "local-write"
+  },
+  "POST /api/tasks/reopen": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "POST /api/tasks/update": {
+    "class": "local-write"
+  },
+  "POST /apply": {
+    "class": "read"
+  },
+  "POST /apply/": {
+    "class": "read"
+  },
+  "POST /apply/<path:rest>": {
+    "class": "read"
+  },
+  "POST /automations/api/act": {
+    "class": "integration",
+    "why": "gmail modify"
+  },
+  "POST /automations/api/decisions/<int:did>/fix": {
+    "class": "integration",
+    "why": "undoes then redoes a gmail action"
+  },
+  "POST /automations/api/decisions/<int:did>/undo": {
+    "class": "integration",
+    "why": "may reverse a gmail action"
+  },
+  "POST /automations/api/finance/act": {
+    "class": "local-write"
+  },
+  "POST /automations/api/note/<int:nid>/scope": {
+    "class": "local-write"
+  },
+  "POST /automations/api/rules/<int:rid>/<verb>": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "POST /barback/api/barback/run": {
+    "class": "local-write"
+  },
+  "POST /barback/api/barback/run/<int:run_id>/clear": {
+    "class": "local-write"
+  },
+  "POST /batch/api/batch/prep-day": {
+    "class": "local-write"
+  },
+  "POST /batch/api/batch/prep-day/add": {
+    "class": "local-write"
+  },
+  "POST /batch/api/batch/prep-day/reset": {
+    "class": "local-write"
+  },
+  "POST /batch/api/batch/storage/<kind>": {
+    "class": "local-write"
+  },
+  "POST /batch/api/batch/storage/<kind>/<int:node_id>/move": {
+    "class": "local-write"
+  },
+  "POST /batch/api/batch/storage/item/<int:item_id>/reparent": {
+    "class": "local-write"
+  },
+  "POST /checklists/api/checklists": {
+    "class": "local-write"
+  },
+  "POST /checklists/api/checklists/<int:cid>/clear-checked": {
+    "class": "local-write"
+  },
+  "POST /checklists/api/checklists/<int:cid>/items": {
+    "class": "local-write"
+  },
+  "POST /checklists/api/checklists/<int:cid>/items/reorder": {
+    "class": "local-write"
+  },
+  "POST /checklists/api/checklists/<int:cid>/reset": {
+    "class": "local-write"
+  },
+  "POST /checklists/api/checklists/<int:cid>/sections/delete": {
+    "class": "local-write"
+  },
+  "POST /checklists/api/checklists/<int:cid>/sections/rename": {
+    "class": "local-write"
+  },
+  "POST /finances/api/book/link-account": {
+    "class": "local-write"
+  },
+  "POST /finances/api/book/sync": {
+    "class": "integration",
+    "why": "simplefin bank sync plus anthropic categorize"
+  },
+  "POST /finances/api/book/transactions/<uid>/split": {
+    "class": "local-write"
+  },
+  "POST /finances/api/manual": {
+    "class": "local-write"
+  },
+  "POST /finances/api/owed": {
+    "class": "local-write"
+  },
+  "POST /finances/api/owed/handle": {
+    "class": "local-write"
+  },
+  "POST /finances/api/owed/payments/<int:pid>/apply": {
+    "class": "local-write"
+  },
+  "POST /finances/api/owed/payments/scan": {
+    "class": "integration",
+    "why": "reads gmail for payments"
+  },
+  "POST /finances/api/owed/request": {
+    "class": "local-write"
+  },
+  "POST /forge/api/autobuild": {
+    "class": "local-write"
+  },
+  "POST /forge/api/draft/ingame": {
+    "class": "local-write"
+  },
+  "POST /forge/api/draft/pick": {
+    "class": "local-write"
+  },
+  "POST /forge/api/draft/session": {
+    "class": "local-write"
+  },
+  "POST /forge/api/sets": {
+    "class": "local-write"
+  },
+  "POST /inventory/api/scan": {
+    "class": "integration",
+    "why": "spawns inventory-scan process"
+  },
+  "POST /inventory/api/uninstall": {
+    "class": "integration",
+    "why": "runs an uninstall process"
+  },
+  "POST /jobs/api/applications": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/ai-research": {
+    "class": "integration",
+    "why": "anthropic streaming"
+  },
+  "POST /jobs/api/applications/<int:app_id>/answers": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/approve": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/cover-letter": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/interview-qa": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/interview-qa/from-template": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/interviewers": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/mark-sent": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/process-steps": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/process-steps/bulk": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/research": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/resolve": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/resume-notes": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/resumes": {
+    "class": "local-write",
+    "path-pinned": true
+  },
+  "POST /jobs/api/applications/<int:app_id>/skills": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/skip": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/applications/<int:app_id>/stories": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/interview-qa/template": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/ready/approve-all": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/resumes/<int:resume_id>/reveal": {
+    "class": "integration",
+    "path-pinned": true,
+    "why": "spawns explorer.exe"
+  },
+  "POST /jobs/api/resumes/base": {
+    "class": "local-write",
+    "path-pinned": true
+  },
+  "POST /jobs/api/skills": {
+    "class": "local-write"
+  },
+  "POST /jobs/api/stories": {
+    "class": "local-write"
+  },
+  "POST /login": {
+    "class": "read"
+  },
+  "POST /logout": {
+    "class": "read"
+  },
+  "POST /mail/api/act": {
+    "class": "integration",
+    "why": "gmail write"
+  },
+  "POST /mail/api/decision/<int:item_id>": {
+    "class": "integration",
+    "why": "gmail action"
+  },
+  "POST /mail/api/message/<msg_id>/translate": {
+    "class": "integration",
+    "why": "anthropic translate"
+  },
+  "POST /mail/api/sync": {
+    "class": "integration",
+    "why": "gmail sync"
+  },
+  "POST /mail/api/thread/<thread_id>/act": {
+    "class": "integration",
+    "why": "gmail write"
+  },
+  "POST /mail/api/thread/<thread_id>/draft": {
+    "class": "integration",
+    "why": "anthropic draft"
+  },
+  "POST /mail/api/thread/<thread_id>/draft/save": {
+    "class": "integration",
+    "why": "gmail draft save"
+  },
+  "POST /mail/api/thread/<thread_id>/summary": {
+    "class": "integration",
+    "why": "anthropic summary"
+  },
+  "POST /marks/api/mark": {
+    "class": "integration",
+    "path-pinned": true,
+    "why": "headless browser render and git spawn"
+  },
+  "POST /marks/api/walk/decide": {
+    "class": "local-write",
+    "path-pinned": true
+  },
+  "POST /news/api/items/<int:item_id>/move": {
+    "class": "local-write"
+  },
+  "POST /news/api/topics": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/candidates/<int:cid>/constraint-checks": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/candidates/<int:cid>/scores": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/candidates/<int:pid>/prices": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/candidates/<int:pid>/pros-cons": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/candidates/<int:pid>/specs": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions/<int:did>/confirm-priorities": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions/<int:pid>/brands": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions/<int:pid>/budget": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions/<int:pid>/candidates": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions/<int:pid>/constraints": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions/<int:pid>/criteria": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions/<int:pid>/dimensions": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions/<int:pid>/evidence": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions/<int:pid>/price-steps": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/decisions/<int:pid>/reviews": {
+    "class": "local-write"
+  },
+  "POST /purchases/api/orders": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "POST /purchases/api/orders/scan": {
+    "class": "integration",
+    "why": "reads gmail order mail"
+  },
+  "POST /purchases/api/projects": {
+    "class": "local-write"
+  },
+  "POST /recipes/api/grocery/add": {
+    "class": "local-write"
+  },
+  "POST /recipes/api/pantry": {
+    "class": "read"
+  },
+  "POST /trips/api/intakes/<int:intake_id>/approve": {
+    "class": "local-write"
+  },
+  "POST /trips/api/intakes/<int:intake_id>/reject": {
+    "class": "local-write"
+  },
+  "POST /trips/api/packing/<int:trip_id>/<int:cid>/reset": {
+    "class": "local-write"
+  },
+  "POST /trips/api/prefs/card": {
+    "class": "local-write"
+  },
+  "POST /trips/api/prefs/submit": {
+    "class": "local-write"
+  },
+  "POST /trips/api/prefs/sync": {
+    "class": "integration",
+    "why": "google forms fetch"
+  },
+  "POST /trips/api/trips": {
+    "calls_out": true,
+    "class": "local-write"
+  },
+  "POST /trips/api/trips/<int:trip_id>/activities": {
+    "class": "local-write"
+  },
+  "POST /trips/api/trips/<int:trip_id>/activities/<int:aid>/opinions": {
+    "class": "local-write"
+  },
+  "POST /trips/api/trips/<int:trip_id>/expenses": {
+    "class": "local-write"
+  },
+  "POST /trips/api/trips/<int:trip_id>/flights": {
+    "class": "local-write"
+  },
+  "POST /trips/api/trips/<int:trip_id>/flights/search": {
+    "class": "integration",
+    "why": "spawns fare search process"
+  },
+  "POST /trips/api/trips/<int:trip_id>/geocode": {
+    "class": "integration",
+    "why": "geocoder lookups"
+  },
+  "POST /trips/api/trips/<int:trip_id>/grocery": {
+    "class": "local-write"
+  },
+  "POST /trips/api/trips/<int:trip_id>/housing": {
+    "class": "local-write"
+  },
+  "POST /trips/api/trips/<int:trip_id>/intake": {
+    "class": "local-write"
+  },
+  "POST /trips/api/trips/<int:trip_id>/interests/analyze": {
+    "calls_out": true,
+    "class": "read"
+  },
+  "POST /trips/api/trips/<int:trip_id>/members": {
+    "class": "local-write"
+  },
+  "POST /trips/api/trips/<int:trip_id>/transportation": {
+    "class": "local-write"
+  },
+  "POST /vault-map/api/refresh": {
+    "class": "local-write"
+  },
+  "POST /viewer/api/send": {
+    "class": "integration",
+    "why": "types into a terminal via subprocess"
+  },
+  "POST /viewer/api/upload": {
+    "class": "integration",
+    "path-pinned": true,
+    "why": "may spawn RAW preview process"
+  },
+  "POST /workbench/api/decide": {
+    "class": "local-write",
+    "path-pinned": true
+  },
+  "POST /workbench/api/option/delete": {
+    "class": "local-write",
+    "path-pinned": true
+  },
+  "POST /workbench/api/short-titles": {
+    "class": "integration",
+    "why": "anthropic naming"
+  },
+  "PUT /api/calendar/events/<event_id>": {
+    "class": "integration",
+    "why": "google calendar update"
+  },
+  "PUT /apply": {
+    "class": "read"
+  },
+  "PUT /apply/": {
+    "class": "read"
+  },
+  "PUT /apply/<path:rest>": {
+    "class": "read"
+  },
+  "PUT /barback/api/barback/run/item/<int:item_id>": {
+    "class": "local-write"
+  },
+  "PUT /batch/api/batch/prep-day/component/<int:cid>": {
+    "class": "local-write"
+  },
+  "PUT /batch/api/batch/storage": {
+    "class": "local-write"
+  },
+  "PUT /batch/api/batch/storage/<kind>/<int:node_id>": {
+    "class": "local-write"
+  },
+  "PUT /batch/api/batch/storage/item/<int:item_id>/note": {
+    "class": "local-write"
+  },
+  "PUT /forge/api/bans/<champ>": {
+    "class": "local-write"
+  }
+}

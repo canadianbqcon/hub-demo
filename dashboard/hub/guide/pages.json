@@ -1,0 +1,209 @@
+{
+  "tour": [
+    "home",
+    "jobs",
+    "workbench",
+    "trips",
+    "finances",
+    "news",
+    "capabilities"
+  ],
+  "lede": "A working copy of a personal dashboard, built with Claude Code and running here on fake data. Click anything; edits are shared and reset daily.",
+  "pages": [
+    {
+      "group": "Start",
+      "name": "home",
+      "href": "/",
+      "what": "The day at a glance: schedule, tasks, cards, news.",
+      "try": [
+        "Tick a task off today's list",
+        "Open the morning briefing"
+      ],
+      "ai": "A Claude-written morning briefing; the scheduler refreshes it at 06:00."
+    },
+    {
+      "group": "Today",
+      "name": "news",
+      "href": "/news/",
+      "what": "Stories grouped across outlets, balanced left to right.",
+      "try": [
+        "Open a story cluster",
+        "Read the daily digest"
+      ],
+      "ai": "Sonnet writes the digest and cites every line to a story card."
+    },
+    {
+      "group": "Today",
+      "name": "checklists",
+      "href": "/checklists/",
+      "what": "Reusable lists: packing, prep, routines.",
+      "try": [
+        "Tick a packing list"
+      ],
+      "ai": "Claude drafts lists from a trip or a prep day."
+    },
+    {
+      "group": "Today",
+      "name": "automations",
+      "href": "/automations/",
+      "what": "Background lanes and what waits on a yes.",
+      "try": [
+        "Approve a queued action"
+      ],
+      "ai": "Headless Claude runs (claude -p) do the work; nothing ships without a click."
+    },
+    {
+      "group": "Today",
+      "name": "mail",
+      "href": "/mail/",
+      "what": "Inbox by sender: read, sort, summarize, draft. Never sends.",
+      "try": [
+        "Open a sender",
+        "Read a drafted reply"
+      ],
+      "ai": "Claude summarizes threads and drafts replies for review."
+    },
+    {
+      "group": "Life",
+      "name": "finances",
+      "href": "/finances/",
+      "what": "Earnings, the transaction book, stocks, who owes what.",
+      "try": [
+        "Filter the book by category"
+      ],
+      "ai": "Transactions categorized from payee history and email receipts."
+    },
+    {
+      "group": "Life",
+      "name": "purchases",
+      "href": "/purchases/",
+      "what": "Buy-or-skip research, seven stages to a verdict.",
+      "try": [
+        "Open a purchase mid-pipeline"
+      ],
+      "ai": "A research skill fills each stage with sourced findings."
+    },
+    {
+      "group": "Life",
+      "name": "trips",
+      "href": "/trips/",
+      "what": "Trip planner: flights, housing, day-by-day plans.",
+      "try": [
+        "Open a trip's day view"
+      ],
+      "ai": "Fare and stay research skills price options; friends' adds get researched."
+    },
+    {
+      "group": "Life",
+      "name": "food",
+      "href": "/food/",
+      "what": "Restaurants worth it, with the evidence per score.",
+      "try": [
+        "Sort by score"
+      ],
+      "ai": "Claude scores each place with the sources behind it."
+    },
+    {
+      "group": "Life",
+      "name": "recipes",
+      "href": "/recipes/",
+      "what": "A family recipe library: scale it, shop it, cook it.",
+      "try": [
+        "Scale a recipe to 6"
+      ],
+      "ai": "Transcribed from photographed cards."
+    },
+    {
+      "group": "Career",
+      "name": "work",
+      "href": "/work/",
+      "what": "Shift dashboards: batch prep and bar back.",
+      "try": [
+        "Open today's prep list"
+      ],
+      "ai": "Prep quantities computed from par levels."
+    },
+    {
+      "group": "Career",
+      "name": "jobs",
+      "href": "/jobs/",
+      "what": "Application pipeline: intake, research, interview prep.",
+      "try": [
+        "Open an application",
+        "Read its company research"
+      ],
+      "ai": "A daily sweep scores postings and drafts tailored materials."
+    },
+    {
+      "group": "System",
+      "name": "workbench",
+      "href": "/workbench/",
+      "what": "Specs, plans and design picks to approve or send back.",
+      "try": [
+        "Read a spec",
+        "See a design pick"
+      ],
+      "ai": "Every Claude build stops here for sign-off. This demo was built that way."
+    },
+    {
+      "group": "System",
+      "name": "blueprints",
+      "href": "/blueprints/",
+      "what": "The shared UI parts, read live off the CSS.",
+      "try": [
+        "Open a component"
+      ],
+      "ai": "Claude reads these before building any screen."
+    },
+    {
+      "group": "System",
+      "name": "capabilities",
+      "href": "/capabilities/",
+      "what": "Every skill on the machine and what it does.",
+      "try": [
+        "Search for research"
+      ],
+      "ai": "The skills are the AI workflows themselves."
+    },
+    {
+      "group": "System",
+      "name": "inventory",
+      "href": "/inventory/",
+      "what": "Every program on each computer, and how to restore it.",
+      "try": [
+        "Open a machine"
+      ],
+      "ai": "Scanners plus a Claude-kept list of hand-built tools."
+    },
+    {
+      "group": "System",
+      "name": "artifacts",
+      "href": "/artifacts/",
+      "what": "Published pages, grouped by category.",
+      "try": [
+        "Browse a category"
+      ],
+      "ai": "Pages Claude wrote and published."
+    },
+    {
+      "group": "System",
+      "name": "viewer",
+      "href": "/viewer/",
+      "what": "What Claude shows, full size, and a drop box back.",
+      "try": [
+        "Open an image full screen"
+      ],
+      "ai": "Claude's screenshots and files land here."
+    },
+    {
+      "group": "System",
+      "name": "vault map",
+      "href": "/vault-map/",
+      "what": "Every file in the notes vault, classified.",
+      "try": [
+        "Search the map"
+      ],
+      "ai": "Claude classified and described each file."
+    }
+  ]
+}

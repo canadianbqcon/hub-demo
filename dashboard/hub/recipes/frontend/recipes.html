@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<script>
+  /* no-flash theme init — sets data-theme/data-surface before first paint.
+     Same contract as every other hub page. */
+  (function () {
+    var r = document.documentElement;
+    try {
+      var t = localStorage.getItem("hub.theme");
+      if (t === "glass") t = "liquid";
+      r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+      if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+      var s = localStorage.getItem("hub.surface");
+      if (s !== "light" && s !== "dark") {
+        s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+  })();
+</script>
+<title>HUB · recipes</title>
+<!-- webfonts: one same-origin, render-blocking stylesheet carrying BOTH themes'
+     faces. Replaces the Google Fonts <link> this head used to inject from JS:
+     cross-origin, a second hop for each woff2, discovered too late to block
+     first paint, and `display=swap` — so the page painted in the fallback stack
+     and reflowed when the real faces landed. That reflow was the load flash.
+     Declaring the inactive theme's faces costs nothing (a @font-face downloads
+     only when a rule uses the family) and makes a live theme switch fetch-free,
+     which is why window.HUB_FONTS is gone — theme-switch.js no-ops without it.
+     See static/vendor/fonts/fonts.css; regenerate with tools/vendor-fonts.py. -->
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<script>
+  /* Preload the ACTIVE theme's two latin faces. Without this they are not
+     discovered until fonts.css has parsed AND layout has reached text that uses
+     them — late enough on a slow link to paint a frame in the fallback stack and
+     reflow, which is the flash. Two files, ~40 KB. data-theme is already set by
+     the no-flash snippet above, which is why this sits after it. */
+  (function () {
+    var FACES = {
+      cobalt: ["/static/vendor/fonts/archivo-black-normal-latin.woff2",
+               "/static/vendor/fonts/space-grotesk-normal-latin.woff2"]
+    };
+    (FACES[document.documentElement.getAttribute("data-theme")] || []).forEach(function (href) {
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
+      l.href = href;
+      document.head.appendChild(l);
+    });
+  })();
+</script>
+<!-- order per DESIGN.md: chrome -> base -> themes -> module. -->
+<link rel="stylesheet" href="/static/css/chrome.css?v=12">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<link rel="stylesheet" href="{{ url_for('recipes.static', filename='recipes.css') }}?v=8">
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script><script defer src="/jsx/recipes/frontend/static/recipes.jsx?v=1"></script>
+</head>
+<body>
+
+<div class="hub-shell shell">
+
+    <header class="topbar">
+    <!-- the bar itself (back, brand, toggle, theme, sign-out, modules) is drawn by
+         topbar.jsx; only this page's extras live here, placed by data-slot -->
+    <span data-slot="crumb" class="crumb" id="crumb">recipes</span>
+  </header>
+
+  <main id="recipes-root" data-view="{{ view }}" data-slug="{{ slug or '' }}"></main>
+
+</div>
+
+<script>
+/* load fallback: if the React body never mounted, say so instead of leaving a blank page */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="recipes"]')) return;
+    var host = document.getElementById("recipes-root");
+    if (host) host.innerHTML = '<div class="hub-error">page failed to load</div>';
+  }, 3000);
+});
+</script>
+</body>
+</html>

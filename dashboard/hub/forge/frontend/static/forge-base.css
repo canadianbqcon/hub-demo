@@ -1,0 +1,316 @@
+/* Shared shell for both Forge surfaces: the champion landing page and the editor.
+   Scene: 11pm, dark room, League client on the other monitor. Dark is forced by the
+   environment. Restrained palette: item icons are the content and they are already
+   riotously saturated, so the chrome runs near-monochrome, cold-tinted toward the
+   accent. Two saturated colours, one meaning each. Accent (hextech cyan) = selection
+   and state, chosen over League gold because item art is full of gold and a gold ring
+   vanishes into it. Gold = money and only money, which makes it self-documenting. */
+:root {
+  color-scheme: dark;
+
+  --bg:         oklch(0.17 0.012 250);
+  --surface:    oklch(0.21 0.014 250);
+  --raised:     oklch(0.25 0.016 250);
+  --raised-hi:  oklch(0.30 0.018 250);
+  --line:       oklch(0.31 0.018 250);
+  --line-lit:   oklch(0.42 0.020 250);
+  --ink:        oklch(0.94 0.008 250);
+  --ink-2:      oklch(0.78 0.014 250);
+  --dim:        oklch(0.66 0.018 250);
+
+  --accent:     oklch(0.78 0.140 205);
+  --accent-lo:  oklch(0.50 0.090 205);
+  --accent-bg:  oklch(0.27 0.045 205);
+  --gold:       oklch(0.80 0.110  85);
+  --danger:     oklch(0.66 0.170  25);
+
+  /* Direction, and only direction. Green went up for you, red went down, amber
+     moved sideways. These three are never used for anything else on the page -
+     a colour that means two things means neither. Every one of them is paired
+     with a glyph or a word in the markup, because a red number and a green
+     number are the same number to about 8% of men. */
+  --buff:       oklch(0.78 0.150 152);
+  --buff-bg:    oklch(0.28 0.048 152);
+  --nerf:       oklch(0.70 0.165  25);
+  --nerf-bg:    oklch(0.28 0.050  25);
+  --rework:     oklch(0.81 0.115  85);
+  --rework-bg:  oklch(0.29 0.042  85);
+
+  --font: "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
+
+  /* Hub type scale, same block as static/css/base.css (forge pages don't load it) */
+  --fs-caption: 11px;
+  --fs-footnote: 13px;
+  --fs-subhead: 15px;
+  --fs-body: 17px;
+  --fs-headline: 17px;
+  --fs-title: 22px;
+  --fs-large-title: 34px;
+
+  --t-xs:   var(--fs-caption);
+  --t-sm:   var(--fs-footnote);
+  --t-base: var(--fs-subhead);
+  --t-md:   var(--fs-body);
+  --t-lg:   var(--fs-title);
+
+  --r-sm: 3px;
+  --r-md: 5px;
+  --r-lg: 9px;
+
+  --z-sticky: 10;
+  --z-header: 20;
+
+  /* One number for the bar's height, read by everything that sticks under it.
+     It used to be a 52px literal in forge.html's .stepnav while the bar itself
+     was auto-height and taller than that on the builder, so the step tabs stuck
+     four pixels up under it. */
+  --topbar-h: 56px;   /* the Hub bar's height (chrome.css .topbar min-height) */
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fast: 140ms;
+  --mid: 200ms;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: var(--t-base)/1.5 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-sm); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 1ms !important; animation-duration: 1ms !important; }
+}
+
+/* ── controls ─────────────────────────────────────────────────────────── */
+input, button {
+  font: inherit;
+  color: var(--ink);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 7px 10px;
+  transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease),
+              color var(--fast) var(--ease);
+}
+input::placeholder { color: var(--dim); }
+button { cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--line-lit); background: var(--raised-hi); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 7px 10px;
+}
+select:hover { border-color: var(--line-lit); }
+
+.btn-primary {
+  background: var(--accent-bg);
+  border-color: var(--accent-lo);
+  color: var(--accent);
+  font-weight: 600;
+}
+.btn-primary:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: var(--on-accent, oklch(0.18 0.03 205)); }
+
+/* ── the shell: header, left rail, status pill ────────────────────────────
+   Picked on Workbench 2026-11-05 (set forge-hub-shape-layout, B "Left rail, like
+   Jobs"): the Hub's shape in Forge's own colours. ForgeUI.Bar (forge-bar.jsx) renders
+   the three parts; this block seats them. On the five scrolling pages #forge-root is
+   the grid (two columns: rail, page). The builder locks to the viewport, so there the
+   body's named-row grid gains a rail column instead (forge.html). Under 900px the rail
+   folds into a strip above the page: the four sections, the new-set tile. The search is
+   its own full-width row between the header and both columns. */
+body.forge { --topbar-h: 0px; --gut: 24px; --rad: 20px; --rail-w: 272px; }
+
+body.forge:not(.builder) #forge-root {
+  display: grid !important;   /* beats the inline display:contents two templates carry */
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  column-gap: 16px; row-gap: 0;
+  padding: 0 var(--gut);
+  align-items: start;
+}
+#forge-root > .topbar { grid-column: 1 / -1; grid-row: 1; margin: 0 calc(-1 * var(--gut)); }
+#forge-root > .fs-search { grid-column: 1 / -1; grid-row: 2; }
+#forge-root > .frail { grid-column: 1; grid-row: 3 / span 8; }
+#forge-root > :not(.topbar):not(.frail):not(.fs-search) { grid-column: 2; min-width: 0; }
+#forge-root > .wrap { max-width: none; width: 100%; margin: 0; grid-template-columns: minmax(0, 1fr); padding-top: 0; padding-left: 0; padding-right: 0; padding-bottom: 96px; }
+
+/* header: brand tile, page name, then the page's action and Theme */
+body.forge .topbar { display: flex; align-items: center; gap: 14px; padding: 14px var(--gut); min-width: 0; }
+.fh-brand { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; }
+.fh-brand h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+.fh-tile { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; flex: none; color: var(--accent);
+  background: linear-gradient(145deg, var(--raised-hi), var(--accent-bg)); border: 1px solid var(--line-lit); box-shadow: 0 6px 18px oklch(0 0 0 / .35); }
+.fh-tile svg { width: 22px; height: 22px; }
+.fh-sep { width: 1px; height: 24px; background: var(--line-lit); flex: none; }
+.fh-page { font-size: 22px; font-weight: 500; color: var(--ink-2); white-space: nowrap; }
+.grow { flex: 1 1 0; }
+.topbar .act { padding: 11px 18px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--ink); }
+
+/* the search: one wide bar across rail and page, under the header */
+.fs-search { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 0 22px; height: 56px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--line); color: var(--dim); box-shadow: 0 8px 28px oklch(0 0 0 / .28); }
+.fs-search:focus-within { border-color: var(--accent-lo); }
+.fs-search svg { width: 20px; height: 20px; flex: none; }
+.fs-search input { flex: 1; min-width: 0; border: 0; padding: 0; background: none; color: var(--ink); font-size: 17px; outline: none; }
+
+/* the rail */
+.frail { position: sticky; top: 12px; display: grid; gap: 12px; padding: 12px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--rad); box-shadow: 0 8px 28px oklch(0 0 0 / .28); }
+.frail .navtabs { display: grid; gap: 2px; }
+.frail .navtabs a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 12px; border: 0;
+  color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 600; }
+.frail .navtabs a .ic svg { width: 17px; height: 17px; display: block; }
+.frail .navtabs a:hover { background: var(--raised); color: var(--ink); }
+.frail .navtabs a[aria-current="page"] { background: var(--raised-hi); color: var(--ink); }
+.frail .navtabs a[aria-current="page"] .ic { color: var(--accent); }
+.fs-cap { margin: 0; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--dim); }
+.fs-pool { display: grid; gap: 1px; margin: 0 -4px; max-height: 46vh; overflow-y: auto; }
+.fs-pool a { display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; align-items: center; padding: 4px 8px; border-radius: 10px;
+  color: var(--ink-2); text-decoration: none; font-size: 13px; font-weight: 600; }
+.fs-pool a img, .fs-pool a i { width: 24px; height: 24px; border-radius: 7px; display: block; background: var(--line); }
+.fs-pool a em { font: 500 12px/1 var(--mono); font-style: normal; color: var(--accent); }
+.fs-pool a em.z { color: var(--dim); opacity: .6; }
+.fs-pool a:hover { background: var(--raised); color: var(--ink); }
+.fs-tilecta { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 14px;
+  background: var(--raised); text-decoration: none; color: var(--ink); }
+.fs-tilecta:hover { background: var(--raised-hi); }
+.fs-tilecta b { font-size: 28px; font-weight: 700; color: var(--accent); line-height: 1; }
+.fs-tilecta strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.fs-tilecta span { font-size: 12px; color: var(--dim); }
+
+/* the status pill: the page's patch chips, then where you are */
+.fs-status { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: var(--z-header);
+  display: flex; align-items: center; gap: 14px; padding: 9px 18px; border-radius: 999px; white-space: nowrap;
+  font: 500 12px/1 var(--mono); color: var(--dim);
+  background: color-mix(in oklab, var(--surface) 92%, transparent); border: 1px solid var(--line-lit);
+  box-shadow: 0 10px 30px oklch(0 0 0 / .45); backdrop-filter: blur(10px); }
+.fs-status .meta { font: inherit; color: var(--ink); font-variant-numeric: tabular-nums; }
+.fs-status .meta:empty { display: none; }
+.fs-status .meta + .meta { font-weight: 600; }
+.fs-status .meta:first-child:not(:last-of-type) { color: var(--dim); }
+.fs-status .dot { display: inline-block; width: 7px; height: 7px; border-radius: 9px; background: var(--buff); margin-right: 6px; }
+.fs-where { color: var(--ink-2); }
+
+/* Narrow: the rail folds into a strip above the page, the pool list goes */
+@media (max-width: 900px) {
+  body.forge:not(.builder) #forge-root { grid-template-columns: minmax(0, 1fr); }
+  #forge-root > .frail { grid-column: 1; grid-row: 3; position: static; margin-bottom: 14px; }
+  #forge-root > :not(.topbar):not(.frail):not(.fs-search) { grid-column: 1; }
+  .frail { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .frail .navtabs { grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .frail .navtabs a { justify-content: center; }
+  .fs-tilecta { white-space: nowrap; }
+  .frail .fs-cap, .frail .fs-pool { display: none; }
+  .fs-tilecta { padding: 8px 12px; }
+}
+@media (min-width: 641px) and (max-width: 900px) { .fs-tilecta span { display: none; } }
+@media (max-width: 640px) {
+  body.forge { --gut: 14px; }
+  body.forge .topbar { gap: 10px; padding: 12px var(--gut); }
+  .fh-brand h1, .fh-page { font-size: 19px; }
+  .fh-tile { width: 38px; height: 38px; border-radius: 11px; }
+  .fs-search { height: 48px; padding: 0 16px; margin-bottom: 12px; }
+  .fs-search input { font-size: 16px; }
+  .topbar .act { display: none; }
+  .frail { grid-template-columns: minmax(0, 1fr); }
+  .frail .navtabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .frail .navtabs a { flex-direction: column; gap: 4px; padding: 8px 2px; font-size: 12px; }
+  .fs-status { font-size: 11px; gap: 10px; padding: 8px 14px; bottom: 12px; }
+  .fs-status .fs-where, .fs-status .fs-tot { display: none; }
+}
+
+/* a chip-shaped link: the page's one action, and the builder's contextual back */
+.back, .act {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  font-size: var(--t-sm);
+  color: var(--dim);
+  text-decoration: none;
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.back:hover, .act:hover { color: var(--ink); border-color: var(--line-lit); background: var(--raised-hi); }
+.act { flex: none; }
+/* the accent variant, for a surface whose one action is the thing you came to do.
+   Same box, same place - only the colour differs, so it never moves the bar. */
+.act.go { color: var(--accent); background: var(--accent-bg); border-color: var(--accent-lo); font-weight: 600; }
+.act.go:hover { background: var(--accent); border-color: var(--accent); color: oklch(0.18 0.03 205); }
+
+/* ── the patch strip, shared by both surfaces ─────────────────────────────
+   What the newest Data Dragon patch changed since the one the statistics were
+   measured on. Small on purpose: it is a caveat on the numbers above it, not a
+   feature of its own. */
+.patchstrip {
+  display: grid;
+  gap: 9px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+}
+.patchstrip[hidden] { display: none; }
+.patchstrip > h3 {
+  margin: 0;
+  font-size: var(--t-xs); font-weight: 600;
+  letter-spacing: .09em; text-transform: uppercase; color: var(--dim);
+}
+.changes { display: flex; flex-wrap: wrap; gap: 7px; }
+/* One icon per changed item, and the edge says which way it moved. The numbers
+   are a hover away, in a card, because reading nine of them at once was never the
+   point of the strip — spotting that something under your figures moved is. */
+.change {
+  display: block;
+  padding: 2px;
+  background: var(--raised);
+  border: 2px solid var(--line);
+  border-radius: var(--r-md);
+  cursor: help;
+  /* items this champion does not buy are context, not the caveat */
+  opacity: .5;
+  transition: opacity var(--fast, .12s) ease;
+}
+.change.mine, .change:hover, .change:focus-visible { opacity: 1; }
+.change[data-verdict="buff"]   { border-color: var(--buff); }
+.change[data-verdict="nerf"]   { border-color: var(--nerf); }
+.change[data-verdict="rework"] { border-color: var(--rework); }
+.change img { width: 32px; height: 32px; display: block; border-radius: 2px; }
+/* the champion leads the strip and is not an item, so it reads round */
+.change.champ img { border-radius: 50%; }
+.change > i { display: block; width: 32px; height: 32px; background: var(--line); border-radius: 2px; }
+/* the word, in the card the icon opens — the colour is never on its own */
+.hovercard .verdict {
+  font: 600 var(--t-xs)/1 var(--mono);
+  letter-spacing: .08em;
+  padding: 3px 6px;
+  border: 1px solid currentColor;
+  border-radius: var(--r-sm);
+}
+.hovercard .verdict[data-verdict="buff"]   { color: var(--buff);   background: var(--buff-bg); }
+.hovercard .verdict[data-verdict="nerf"]   { color: var(--nerf);   background: var(--nerf-bg); }
+.hovercard .verdict[data-verdict="rework"] { color: var(--rework); background: var(--rework-bg); }
+.hovercard .was { color: var(--dim); }
+.patch-none { margin: 0; font-size: var(--t-sm); color: var(--dim); }
+
+/* A stat ratio inside a passive sentence -- the glyph, then the number in that
+ * stat's own colour. The hue is Riot's, sampled off the glyph artwork, and it is
+ * mixed toward --ink rather than used raw: frost's ink is DARK, so the mix pulls
+ * every hue down to something legible on a light surface, while the four dark
+ * themes have near-white ink and the same mix lifts it. One rule, no colour table
+ * per theme, and nothing here can go invisible when a theme changes.
+ */
+.ratio { color: color-mix(in oklab, var(--sc, var(--ink)) 72%, var(--ink)); font-weight: 600; white-space: nowrap; }
+.ratio img { width: 1em; height: 1em; vertical-align: -0.15em; margin-right: 0.15em; }

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+<meta charset="UTF-8">
+<!-- maximum-scale/user-scalable bind Android only: WebKit has ignored both for
+     pinch since iOS 10. The gesture handler hub/zoom_lock.py injects is what stops a pinch on
+     an iPhone, and touch-action: manipulation in the CSS stops the double-tap
+     zoom on both. Deliberate: the board is a touch surface, and a stray
+     two-finger drag or double-tap on a row used to leave it zoomed askew. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
+<link rel="manifest" href="/static/assets/manifest-trips.webmanifest">
+<meta name="apple-mobile-web-app-title" content="trips">
+<script>
+  /* no-flash theme init — sets data-theme/data-surface before first paint.
+     Same contract as trips.html / jobs.html; keep the three in step. */
+  (function () {
+    var r = document.documentElement;
+    try {
+      var t = localStorage.getItem("hub.theme");
+      if (t === "glass") t = "liquid";
+      r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+      if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+      var s = localStorage.getItem("hub.surface");
+      if (s !== "light" && s !== "dark") {
+        var old = localStorage.getItem("hub:surface");
+        if (old === "light" || old === "dark") { s = old; try { localStorage.setItem("hub.surface", s); } catch (e) {} }
+      }
+      if (s !== "light" && s !== "dark") {
+        s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+
+    /* Preload the active theme's two latin faces, right here, because this is the
+       first code that knows which theme is active. Without it the faces are not
+       discovered until fonts.css has parsed AND layout has reached text that uses
+       them — late enough on a slow link to paint a frame in the fallback stack and
+       reflow, which is the load flash this whole change is about. Two files, ~40 KB. */
+    var FACES = {
+      cobalt: ["/static/vendor/fonts/archivo-black-normal-latin.woff2",
+               "/static/vendor/fonts/space-grotesk-normal-latin.woff2"]
+    };
+    /* whole paths, not a prefix plus a name: test_trips_public scrapes every
+       static-asset literal out of this template and asserts the public mirror
+       serves it, so spelling them out is what puts these four behind that
+       check. (It also means a quoted partial path anywhere in this file reads
+       as an asset and fails there — keep prose out of quotes.) */
+    (FACES[r.getAttribute("data-theme")] || []).forEach(function (href) {
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
+      l.href = href;
+      document.head.appendChild(l);
+    });
+  })();
+</script>
+<title>HUB · trips</title>
+<!-- webfonts: one same-origin, render-blocking stylesheet carrying BOTH themes'
+     faces. Replaces the Google Fonts <link> each head used to inject from JS:
+     cross-origin, a second hop for each woff2, discovered too late to block
+     first paint, and `display=swap` — so the page painted in the fallback stack
+     and reflowed when the real faces landed. That reflow was the load flash.
+     Declaring the inactive theme's faces costs nothing (a @font-face downloads
+     only when a rule uses the family) and makes a live theme switch fetch-free.
+     See static/vendor/fonts/fonts.css; regenerate with tools/vendor-fonts.py. -->
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<link rel="stylesheet" href="/trips/static/trips-landing.css?v=8">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
+</head>
+<body class="trips{% if guest %} guest{% endif %}">
+
+<div class="hub-shell shell">
+
+    <header class="topbar">
+    <!-- the bar itself (back, brand, toggle, theme, sign-out, modules) is drawn by
+         topbar.jsx; only this page's extras live here, placed by data-slot -->
+    <span data-slot="crumb" class="crumb">trips</span>
+    {% if preview %}
+    <!-- The way out of a preview, backed by the session instead of by the
+         overlay. The crew page's "view as" overlay is DOM only, so any
+         top-level reload (a tab Chrome discarded and reloaded on return, a
+         link out and back) would strand the board: preview_slug still set,
+         so it renders as a crew member with no way back. Hidden inside
+         the overlay's own iframe, where the bar above already carries the
+         button and two of them read as two different exits. -->
+    <a data-slot="right" class="launcher" id="previewOut" href="/trips/preview/off">exit preview · {{ preview }}</a>
+    <script>if (window.self !== window.top) document.getElementById("previewOut").remove();</script>
+    {% elif guest %}
+    <!-- The way back into the two preference forms once the completion wall has
+         been passed. Without it "change your answers" means hunting for your own
+         card in a grid of seven. Inside the guest branch, so Hub never renders a
+         link to a route that only exists on the mirror. -->
+    <a data-slot="right" class="launcher launcher-icon" href="/gate/prefs" title="your preferences" aria-label="your preferences"><svg class="launcher-g" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.4" r="3.6"/><path d="M4.8 20.4 C4.8 15.9 8 13.8 12 13.8 C16 13.8 19.2 15.9 19.2 20.4"/></svg></a>
+    <a data-slot="right" class="launcher" href="/gate/logout" title="sign out">sign out</a>
+    {% else %}
+    <!-- trip access: who holds a code, and what is waiting on Sam (code
+         requests plus trip submissions), counted server-side -->
+    <a data-slot="right" class="launcher" href="/trips/crew" title="who can get into the trips">crew{% if waiting %} · {{ waiting }} waiting{% endif %}</a>
+    <!-- Hub's own way in, and the only one there was never a link to: the same
+         account page, at the blueprint route rather than the mirror's /gate one.
+         Unpinned it opens Sam's own answers and carries a roster picker for
+         anyone else's, which is how a crew member's typo gets fixed without
+         borrowing their passcode. -->
+    <a data-slot="right" class="launcher launcher-icon" href="/trips/preferences" title="preferences — yours, or anyone's" aria-label="preferences"><svg class="launcher-g" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.4" r="3.6"/><path d="M4.8 20.4 C4.8 15.9 8 13.8 12 13.8 C16 13.8 19.2 15.9 19.2 20.4"/></svg></a>
+    {% endif %}
+  </header>
+
+  <main class="landing" id="landing">
+    <div class="spine-loading">loading trips…</div>
+  </main>
+
+  <footer class="status" id="status">
+    <span class="status-l" id="statusMsg">ready</span>
+    <span class="status-r" id="statusMeta"></span>
+  </footer>
+
+</div>
+
+<div class="hub-toast toast" id="toast" hidden></div>
+
+<script>/* who is reading this page, as a crew member key. Empty on Hub. */
+window.TRIP_VIEWER = {{ viewer | default("") | tojson }};</script>
+<script src="/trips/static/triptime.js?v=3"></script>
+<script src="/trips/static/trips-cost.js?v=5"></script>
+<script defer src="/jsx/trips/frontend/static/trips-cost.jsx?v=1"></script>
+<script defer src="/jsx/trips/frontend/static/trips-landing.jsx?v=1"></script>
+<script>
+/* load fallback: trips-landing.jsx marks main#landing once React has mounted */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="trips-landing"]')) return;
+    var d = document.createElement("div");
+    d.className = "hub-error";
+    d.style.cssText = "position:fixed;left:0;right:0;bottom:18px;text-align:center;z-index:5";
+    d.textContent = "page failed to load";
+    document.body.appendChild(d);
+  }, 3000);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+/* ============================================================
+   vesper theme — the canonical baseline.
+   colors = jobs.css palette (both modes). type-feature axes + home
+   extras preserved from the home shell so home keeps its refinement.
+   FROZEN once verified (spec Rule 1). One file, never re-derived.
+   ============================================================ */
+
+/* mode-invariant tokens (structure + type families) */
+[data-theme="vesper"] {
+  --font:"Cormorant Garamond","Fraunces",Georgia,serif;
+  --font-display:"Cormorant Garamond","Fraunces",Georgia,serif;
+  --font-body:"Fraunces",Georgia,serif;
+  --r:2px; --r-card:4px; --r-pill:999px;
+  --s-1:4px; --s-2:8px; --s-3:12px; --s-4:16px; --s-5:20px; --s-6:24px; --s-7:32px;
+  --status-h:36px;
+  --feat-tnum:"tnum" 1,"lnum" 1;
+  --tomato:#d97070; --tomato-dim:#8c4848;
+  --lean-c: var(--fg-dim); --lean-p: var(--violet-label);
+}
+
+/* DARK (dark) — jobs.css :root palette */
+[data-theme="vesper"][data-surface="dark"] {
+  --bg:#1a1f3a; --bg-elev:#232846; --bg-elev-2:#2a3052; --bg-hover:#2a3052;
+  --line:rgba(240,216,168,0.14); --line-soft:rgba(240,216,168,0.08); --line-strong:rgba(240,216,168,0.28);
+  --fg:#f4dcb0; --fg-mute:rgba(244,220,176,0.88); --fg-dim:rgba(244,220,176,0.72);
+  --fg-faint:rgba(244,220,176,0.48); --fg-ghost:rgba(244,220,176,0.24);
+  --chrome:#3a4878; --accent:#a4b3d8; --accent-dim:#8a9bc8; --accent-faint:#6a7ba8;
+  --on-accent:#1a1f3a;   /* the mode's own bg, dark-on-light-accent — 7.7:1 on --accent, 5.8:1 on --accent-dim */
+  --warn:#e8cc88; --warn-dim:#b89858; --alert:#e07878; --alert-dim:#a05050;
+  --good:#a8c488; --good-dim:#789558; --violet-label:#b094d4;
+  --lean-l:#8fb0e8; --lean-r:#e89a8a;
+  /* home-only extras (preserved from current vesper.css dark) */
+  --feat-display:normal; --feat-text:normal; --feat-meta:normal;
+  --panel-head-line:rgba(153,117,200,0.30);
+  --launch-scrim:rgba(10,12,20,0.78);
+  --modal-shadow:0 24px 64px -16px rgba(0,0,0,0.7);
+  --select-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(138%2C155%2C200%2C0.6)'/%3E%3C/svg%3E");
+}
+
+/* LIGHT (light) — jobs.css [data-surface="light"] palette */
+[data-theme="vesper"][data-surface="light"] {
+  --bg:#fdf3df; --bg-elev:#f6e8c6; --bg-elev-2:#f0dba8; --bg-hover:#f6e8c6;
+  --line:rgba(58,48,104,0.16); --line-soft:rgba(58,48,104,0.08); --line-strong:rgba(58,48,104,0.32);
+  --fg:#231848; --fg-mute:rgba(35,24,72,0.84); --fg-dim:rgba(35,24,72,0.66);
+  --fg-faint:rgba(35,24,72,0.42); --fg-ghost:rgba(35,24,72,0.22);
+  --chrome:#b0a070; --accent:#3a4878; --accent-dim:#5a6898; --accent-faint:#8898c8;
+  --on-accent:#fdf3df;   /* the mode's own bg, cream-on-navy — 8.0:1 on --accent, 4.9:1 on --accent-dim */
+  --warn:#a87818; --warn-dim:#c89848; --alert:#a83838; --alert-dim:#c86868;
+  --good:#5a7825; --good-dim:#7a984a; --violet-label:#5a3878;
+  --lean-l:#2d5aa0; --lean-r:#a8412f;
+  /* home-only extras (preserved from current vesper.css light) */
+  --feat-display:"opsz" 144,"SOFT" 50; --feat-text:"opsz" 14,"SOFT" 30; --feat-meta:"opsz" 9,"SOFT" 0;
+  --panel-head-line:rgba(112,80,168,0.22);
+  --launch-scrim:rgba(58,48,104,0.18);
+  --modal-shadow:0 20px 56px -16px rgba(58,48,104,0.32);
+  --select-chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(61%2C47%2C92%2C0.45)'/%3E%3C/svg%3E");
+}

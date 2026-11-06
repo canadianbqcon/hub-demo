@@ -1,0 +1,2046 @@
+{
+ "batch": "03",
+ "rubricVersion": 1,
+ "champions": {
+  "Gragas": {
+   "engage": {
+    "value": 3,
+    "basis": "Gragas: E Body Slam stun and R Explosive Cask knockback hit areas; W damage reduction"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "Gragas: E Body Slam stun and R Explosive Cask knockback hit areas; W damage reduction"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "Gragas: E Body Slam stun and R Explosive Cask knockback hit areas; W damage reduction"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "Gragas: E Body Slam stun and R Explosive Cask knockback hit areas; W damage reduction"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Gragas: E Body Slam stun and R Explosive Cask knockback hit areas; W damage reduction"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Gragas: E Body Slam stun and R Explosive Cask knockback hit areas; W damage reduction"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Gragas: E Body Slam stun and R Explosive Cask knockback hit areas; W damage reduction"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "Gragas: share of area CC in E Body Slam stun and R Explosive Cask knockback hit areas; W damage reduction"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Gragas: power curve of E Body Slam stun and R Explosive Cask knockback hit areas; W damage reduction"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Gragas: main-role build from E Body Slam stun and R Explosive Cask knockback hit areas; W damage reduction"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Gragas uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Gragas: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Graves": {
+   "engage": {
+    "value": 1,
+    "basis": "Graves: E Quickdraw dash, W Smoke Screen slow area, shotgun autos"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Graves: E Quickdraw dash, W Smoke Screen slow area, shotgun autos"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "Graves: E Quickdraw dash, W Smoke Screen slow area, shotgun autos"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "Graves: E Quickdraw dash, W Smoke Screen slow area, shotgun autos"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Graves: E Quickdraw dash, W Smoke Screen slow area, shotgun autos"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Graves: E Quickdraw dash, W Smoke Screen slow area, shotgun autos"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Graves: E Quickdraw dash, W Smoke Screen slow area, shotgun autos"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "Graves: share of area CC in E Quickdraw dash, W Smoke Screen slow area, shotgun autos"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Graves: power curve of E Quickdraw dash, W Smoke Screen slow area, shotgun autos"
+   },
+   "scaling": {
+    "value": "lethality",
+    "basis": "Graves: main-role build from E Quickdraw dash, W Smoke Screen slow area, shotgun autos"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Graves uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Graves: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Gwen": {
+   "engage": {
+    "value": 2,
+    "basis": "Gwen: E Skip n Slash dash, R Manicure chain, W Mist zone"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Gwen: E Skip n Slash dash, R Manicure chain, W Mist zone"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Gwen: E Skip n Slash dash, R Manicure chain, W Mist zone"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Gwen: E Skip n Slash dash, R Manicure chain, W Mist zone"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Gwen: E Skip n Slash dash, R Manicure chain, W Mist zone"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Gwen: E Skip n Slash dash, R Manicure chain, W Mist zone"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Gwen: E Skip n Slash dash, R Manicure chain, W Mist zone"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Gwen: share of area CC in E Skip n Slash dash, R Manicure chain, W Mist zone"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Gwen: power curve of E Skip n Slash dash, R Manicure chain, W Mist zone"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Gwen: main-role build from E Skip n Slash dash, R Manicure chain, W Mist zone"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Gwen uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Gwen: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Hecarim": {
+   "engage": {
+    "value": 4,
+    "basis": "Hecarim: R Onslaught of Shadows charge and fear, E knockback"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "Hecarim: R Onslaught of Shadows charge and fear, E knockback"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Hecarim: R Onslaught of Shadows charge and fear, E knockback"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "Hecarim: R Onslaught of Shadows charge and fear, E knockback"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Hecarim: R Onslaught of Shadows charge and fear, E knockback"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Hecarim: R Onslaught of Shadows charge and fear, E knockback"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "Hecarim: R Onslaught of Shadows charge and fear, E knockback"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "Hecarim: share of area CC in R Onslaught of Shadows charge and fear, E knockback"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Hecarim: power curve of R Onslaught of Shadows charge and fear, E knockback"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Hecarim: main-role build from R Onslaught of Shadows charge and fear, E knockback"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Hecarim uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Hecarim: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Heimerdinger": {
+   "engage": {
+    "value": 1,
+    "basis": "Heimerdinger: turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "Heimerdinger: turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Heimerdinger: turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Heimerdinger: turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "zoneControl": {
+    "value": 5,
+    "basis": "Heimerdinger: turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Heimerdinger: turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "Heimerdinger: turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "Heimerdinger: share of area CC in turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Heimerdinger: power curve of turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Heimerdinger: main-role build from turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Heimerdinger uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": true,
+    "basis": "Heimerdinger: turrets, E grenade stun, R upgrade; kit holds ground"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Heimerdinger: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Hwei": {
+   "engage": {
+    "value": 1,
+    "basis": "Hwei: E fear/root and W zones; no mobility"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "Hwei: E fear/root and W zones; no mobility"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Hwei: E fear/root and W zones; no mobility"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Hwei: E fear/root and W zones; no mobility"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "Hwei: E fear/root and W zones; no mobility"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Hwei: E fear/root and W zones; no mobility"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "Hwei: E fear/root and W zones; no mobility"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "Hwei: share of area CC in E fear/root and W zones; no mobility"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Hwei: power curve of E fear/root and W zones; no mobility"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Hwei: main-role build from E fear/root and W zones; no mobility"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Hwei uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Hwei: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Illaoi": {
+   "engage": {
+    "value": 2,
+    "basis": "Illaoi: passive and R tentacles, E spirit pull, no gap close"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Illaoi: passive and R tentacles, E spirit pull, no gap close"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Illaoi: passive and R tentacles, E spirit pull, no gap close"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "Illaoi: passive and R tentacles, E spirit pull, no gap close"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "Illaoi: passive and R tentacles, E spirit pull, no gap close"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Illaoi: passive and R tentacles, E spirit pull, no gap close"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Illaoi: passive and R tentacles, E spirit pull, no gap close"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Illaoi: share of area CC in passive and R tentacles, E spirit pull, no gap close"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Illaoi: power curve of passive and R tentacles, E spirit pull, no gap close"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Illaoi: main-role build from passive and R tentacles, E spirit pull, no gap close"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Illaoi uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": true,
+    "basis": "Illaoi: passive and R tentacles, E spirit pull, no gap close"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Illaoi: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Irelia": {
+   "engage": {
+    "value": 2,
+    "basis": "Irelia: Q resets on marked targets, E stun, R blades"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Irelia: Q resets on marked targets, E stun, R blades"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "Irelia: Q resets on marked targets, E stun, R blades"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Irelia: Q resets on marked targets, E stun, R blades"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Irelia: Q resets on marked targets, E stun, R blades"
+   },
+   "dashes": {
+    "value": 4,
+    "basis": "Irelia: Q resets on marked targets, E stun, R blades"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Irelia: Q resets on marked targets, E stun, R blades"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "Irelia: share of area CC in Q resets on marked targets, E stun, R blades"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Irelia: power curve of Q resets on marked targets, E stun, R blades"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Irelia: main-role build from Q resets on marked targets, E stun, R blades"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Irelia uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Irelia: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Ivern": {
+   "engage": {
+    "value": 1,
+    "basis": "Ivern: Q root, E shield, Daisy, W brush"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "Ivern: Q root, E shield, Daisy, W brush"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Ivern: Q root, E shield, Daisy, W brush"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Ivern: Q root, E shield, Daisy, W brush"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Ivern: Q root, E shield, Daisy, W brush"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Ivern: Q root, E shield, Daisy, W brush"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "Ivern: Q root, E shield, Daisy, W brush"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "Ivern: share of area CC in Q root, E shield, Daisy, W brush"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Ivern: power curve of Q root, E shield, Daisy, W brush"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "Ivern: main-role build from Q root, E shield, Daisy, W brush"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Ivern uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": true,
+    "basis": "Ivern: Q root, E shield, Daisy, W brush"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": true,
+    "basis": "Ivern: Q root, E shield, Daisy, W brush"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Ivern: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Janna": {
+   "engage": {
+    "value": 0,
+    "basis": "Janna: R Monsoon, Q tornado knockup, W slow, E shield"
+   },
+   "peel": {
+    "value": 5,
+    "basis": "Janna: R Monsoon, Q tornado knockup, W slow, E shield"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Janna: R Monsoon, Q tornado knockup, W slow, E shield"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Janna: R Monsoon, Q tornado knockup, W slow, E shield"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Janna: R Monsoon, Q tornado knockup, W slow, E shield"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Janna: R Monsoon, Q tornado knockup, W slow, E shield"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "Janna: R Monsoon, Q tornado knockup, W slow, E shield"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "Janna: share of area CC in R Monsoon, Q tornado knockup, W slow, E shield"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Janna: power curve of R Monsoon, Q tornado knockup, W slow, E shield"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "Janna: main-role build from R Monsoon, Q tornado knockup, W slow, E shield"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Janna uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Janna: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Jarvan IV": {
+   "engage": {
+    "value": 4,
+    "basis": "Jarvan IV: Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Jarvan IV: Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Jarvan IV: Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "Jarvan IV: Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "Jarvan IV: Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Jarvan IV: Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "Jarvan IV: Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "aoeCCShare": {
+    "value": 0.9,
+    "basis": "Jarvan IV: share of area CC in Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Jarvan IV: power curve of Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Jarvan IV: main-role build from Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Jarvan IV uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": true,
+    "basis": "Jarvan IV: Q+E Cataclysm engage, R Cataclysm arena terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Jarvan IV: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Jax": {
+   "engage": {
+    "value": 2,
+    "basis": "Jax: Q leap strike, E Counter Strike stun, passive and W attack speed"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "Jax: Q leap strike, E Counter Strike stun, passive and W attack speed"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Jax: Q leap strike, E Counter Strike stun, passive and W attack speed"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "Jax: Q leap strike, E Counter Strike stun, passive and W attack speed"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Jax: Q leap strike, E Counter Strike stun, passive and W attack speed"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Jax: Q leap strike, E Counter Strike stun, passive and W attack speed"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "Jax: Q leap strike, E Counter Strike stun, passive and W attack speed"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "Jax: share of area CC in Q leap strike, E Counter Strike stun, passive and W attack speed"
+   },
+   "earlyLate": {
+    "value": 2,
+    "basis": "Jax: power curve of Q leap strike, E Counter Strike stun, passive and W attack speed"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Jax: main-role build from Q leap strike, E Counter Strike stun, passive and W attack speed"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Jax uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Jax: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": true,
+    "basis": "Jax: Q leap strike, E Counter Strike stun, passive and W attack speed"
+   }
+  },
+  "Jayce": {
+   "engage": {
+    "value": 1,
+    "basis": "Jayce: Q To the Skies leap, E Thundering Blow knockback"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "Jayce: Q To the Skies leap, E Thundering Blow knockback"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "Jayce: Q To the Skies leap, E Thundering Blow knockback"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "Jayce: Q To the Skies leap, E Thundering Blow knockback"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Jayce: Q To the Skies leap, E Thundering Blow knockback"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Jayce: Q To the Skies leap, E Thundering Blow knockback"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "Jayce: Q To the Skies leap, E Thundering Blow knockback"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "Jayce: share of area CC in Q To the Skies leap, E Thundering Blow knockback"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "Jayce: power curve of Q To the Skies leap, E Thundering Blow knockback"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Jayce: main-role build from Q To the Skies leap, E Thundering Blow knockback"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Jayce uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Jayce: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Jhin": {
+   "engage": {
+    "value": 1,
+    "basis": "Jhin: W Deadly Flourish root, E trap field, R snipe"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Jhin: W Deadly Flourish root, E trap field, R snipe"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Jhin: W Deadly Flourish root, E trap field, R snipe"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Jhin: W Deadly Flourish root, E trap field, R snipe"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Jhin: W Deadly Flourish root, E trap field, R snipe"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Jhin: W Deadly Flourish root, E trap field, R snipe"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Jhin: W Deadly Flourish root, E trap field, R snipe"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Jhin: share of area CC in W Deadly Flourish root, E trap field, R snipe"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Jhin: power curve of W Deadly Flourish root, E trap field, R snipe"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Jhin: main-role build from W Deadly Flourish root, E trap field, R snipe"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Jhin uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Jhin: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Jinx": {
+   "engage": {
+    "value": 1,
+    "basis": "Jinx: R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Jinx: R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Jinx: R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Jinx: R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Jinx: R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Jinx: R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "Jinx: R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Jinx: share of area CC in R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Jinx: power curve of R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Jinx: main-role build from R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Jinx uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": true,
+    "basis": "Jinx: R Super Mega Death Rocket global, passive and Q attack speed"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Jinx: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": true,
+    "basis": "Jinx: R Super Mega Death Rocket global, passive and Q attack speed"
+   }
+  },
+  "K'Sante": {
+   "engage": {
+    "value": 3,
+    "basis": "K'Sante: R Walls Will Fall knock into wall, E Footwork, Q/W CC"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "K'Sante: R Walls Will Fall knock into wall, E Footwork, Q/W CC"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "K'Sante: R Walls Will Fall knock into wall, E Footwork, Q/W CC"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "K'Sante: R Walls Will Fall knock into wall, E Footwork, Q/W CC"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "K'Sante: R Walls Will Fall knock into wall, E Footwork, Q/W CC"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "K'Sante: R Walls Will Fall knock into wall, E Footwork, Q/W CC"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "K'Sante: R Walls Will Fall knock into wall, E Footwork, Q/W CC"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "K'Sante: share of area CC in R Walls Will Fall knock into wall, E Footwork, Q/W CC"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "K'Sante: power curve of R Walls Will Fall knock into wall, E Footwork, Q/W CC"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "K'Sante: main-role build from R Walls Will Fall knock into wall, E Footwork, Q/W CC"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "K'Sante uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": true,
+    "basis": "W Path Maker is unstoppable while charging"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "K'Sante: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Kai'Sa": {
+   "engage": {
+    "value": 1,
+    "basis": "Kai'Sa: R Killer Instinct shield jump, E Supercharge attack speed"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "Kai'Sa: R Killer Instinct shield jump, E Supercharge attack speed"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "Kai'Sa: R Killer Instinct shield jump, E Supercharge attack speed"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Kai'Sa: R Killer Instinct shield jump, E Supercharge attack speed"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Kai'Sa: R Killer Instinct shield jump, E Supercharge attack speed"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Kai'Sa: R Killer Instinct shield jump, E Supercharge attack speed"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "Kai'Sa: R Killer Instinct shield jump, E Supercharge attack speed"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "Kai'Sa: share of area CC in R Killer Instinct shield jump, E Supercharge attack speed"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Kai'Sa: power curve of R Killer Instinct shield jump, E Supercharge attack speed"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Kai'Sa: main-role build from R Killer Instinct shield jump, E Supercharge attack speed"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Kai'Sa uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Kai'Sa: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": true,
+    "basis": "Kai'Sa: R Killer Instinct shield jump, E Supercharge attack speed"
+   }
+  },
+  "Kalista": {
+   "engage": {
+    "value": 2,
+    "basis": "Kalista: passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "Kalista: passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "Kalista: passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Kalista: passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Kalista: passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Kalista: passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "Kalista: passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Kalista: share of area CC in passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Kalista: power curve of passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "Kalista: main-role build from passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Kalista uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": true,
+    "basis": "Kalista: passive hops, R Fate's Call pull/knockup, W sentinel"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Kalista: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Karma": {
+   "engage": {
+    "value": 1,
+    "basis": "Karma: W Focused Resolve root, E shield, Q Inner Flame slow area"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "Karma: W Focused Resolve root, E shield, Q Inner Flame slow area"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Karma: W Focused Resolve root, E shield, Q Inner Flame slow area"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Karma: W Focused Resolve root, E shield, Q Inner Flame slow area"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Karma: W Focused Resolve root, E shield, Q Inner Flame slow area"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Karma: W Focused Resolve root, E shield, Q Inner Flame slow area"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "Karma: W Focused Resolve root, E shield, Q Inner Flame slow area"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Karma: share of area CC in W Focused Resolve root, E shield, Q Inner Flame slow area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Karma: power curve of W Focused Resolve root, E shield, Q Inner Flame slow area"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Karma: main-role build from W Focused Resolve root, E shield, Q Inner Flame slow area"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Karma uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives globalPresence"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Karma: no ability in the kit gives attackSpeedScaling"
+   }
+  },
+  "Karthus": {
+   "engage": {
+    "value": 0,
+    "basis": "Karthus: Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "Karthus: Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Karthus: Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Karthus: Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "Karthus: Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Karthus: Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "Karthus: Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "Karthus: share of area CC in Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "Karthus: power curve of Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "Karthus: main-role build from Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Karthus uses mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives wallCrossing"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives unstoppable"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives spellShield"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives cleanse"
+   },
+   "globalPresence": {
+    "value": true,
+    "basis": "Karthus: Q Lay Waste, E Defile, W Wall of Pain, R global, passive Death Defied"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives vision"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives stealth"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives terrain"
+   },
+   "revive": {
+    "value": false,
+    "basis": "passive lets him cast after death; it does not prevent or undo death"
+   },
+   "execute": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives pets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives infiniteStacking"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "Karthus: no ability in the kit gives attackSpeedScaling"
+   }
+  }
+ }
+}

@@ -1,0 +1,197 @@
+/* ============================================================
+   hub · trips — landing (countdown spine).
+
+   The front door: every trip as a bold block hung off one vertical
+   time axis, nearest first. No month grid, no empty days.
+
+   THEME-AGNOSTIC: every color/radius/space reads a shared token.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: var(--fs-subhead); line-height: 1.5;
+  -webkit-font-smoothing: antialiased; overflow: hidden;
+  transition: background 220ms ease-out, color 220ms ease-out;
+}
+button, input, select { font: inherit; color: inherit; background: none; border: 0; }
+button { cursor: pointer; }
+a { color: var(--accent); text-decoration: none; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); }
+
+.shell { grid-template-rows: auto 1fr var(--status-h); }
+
+/* topbar is injected by theme-switch.js — this page owns nothing in it. */
+
+/* ── scroller ───────────────────────────────────────────────────────────── */
+.landing { overflow-y: auto; overflow-x: hidden; padding: var(--s-6) var(--s-5) 96px; }
+.spine-loading, .spine-empty { color: var(--fg-mute); padding: var(--s-6); text-align: center; }
+.spine-empty-cta {
+  display: inline-block; margin-top: var(--s-4); padding: 8px 18px;
+  border: 1px solid var(--accent); border-radius: var(--r-pill); color: var(--accent);
+}
+
+.spine { max-width: 880px; margin: 0 auto; position: relative; }
+
+/* ── one node = [ when | rail | card ] ──────────────────────────────────── */
+.node {
+  display: grid; grid-template-columns: 104px 24px minmax(0, 1fr);
+  align-items: start; column-gap: var(--s-4);
+  padding-bottom: var(--s-6);
+}
+
+/* the axis itself: a hairline drawn down the rail column, plus the dot. */
+.node-rail { position: relative; align-self: stretch; justify-self: center; width: 100%; }
+.node-rail::before {
+  content: ""; position: absolute; left: 50%; top: 0; bottom: calc(-1 * var(--s-6));
+  width: 1px; background: var(--line); transform: translateX(-.5px);
+}
+.node:last-child .node-rail::before { bottom: auto; height: 26px; }
+.node-rail::after {
+  content: ""; position: absolute; left: 50%; top: 20px;
+  width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--line-strong);
+}
+.node.is-next .node-rail::after { border-color: var(--accent); background: var(--accent); }
+.node.is-now  .node-rail::after {
+  border-color: var(--good); background: var(--good);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--good) 22%, transparent);
+}
+
+/* ── the countdown, left of the axis ────────────────────────────────────── */
+.node-when { text-align: right; padding-top: 10px; }
+.when-n {
+  display: block; font-family: var(--font-display); font-size: var(--fs-large-title); line-height: 1;
+  letter-spacing: -.02em; color: var(--fg); font-variant-numeric: tabular-nums;
+}
+.when-u {
+  display: block; margin-top: 3px; font-size: var(--fs-caption); letter-spacing: .1em;
+  text-transform: uppercase; color: var(--fg-mute);
+}
+/* The next trip is the one thing this page exists to answer, so its number is
+   the only accent-colored text in the spine. */
+.node.is-next .when-n { color: var(--accent); }
+.node.is-now .when-n { color: var(--good); }
+.node.is-past .when-n { color: var(--fg-faint); font-size: var(--fs-title); }
+
+/* ── the trip block ─────────────────────────────────────────────────────── */
+/* State lives on the spine dot, not on the card — a colored edge-stripe here
+   would just say the same thing twice. The next/now cards separate by weight
+   instead: a whole-border tint and a lift off the page. */
+.node-card {
+  display: block; width: 100%; text-align: left; color: inherit;
+  background: var(--bg-elev); border: 1px solid var(--line);
+  border-radius: var(--r-card); padding: var(--s-4) var(--s-5);
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+.node-card:hover { background: var(--bg-hover); border-color: var(--line-strong); transform: translateX(2px); }
+.node-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Full-strength, not a mix: at 40% into --line these read as an ordinary card
+   with a slightly bluer edge, which is the same as not marking them at all. */
+.node.is-next .node-card { border-color: var(--accent); }
+.node.is-now  .node-card { border-color: var(--good); }
+.node.is-past .node-card { background: transparent; opacity: .62; }
+.node.is-past .node-card:hover { opacity: 1; }
+
+.card-name {
+  font-family: var(--font-display); font-size: var(--fs-title); line-height: 1.12;
+  letter-spacing: -.015em; color: var(--fg);
+}
+.card-where { margin-top: 2px; font-size: var(--fs-footnote); color: var(--fg-mute); }
+.card-dates {
+  margin-top: var(--s-3); font-size: var(--fs-footnote); color: var(--fg-dim);
+  font-variant-numeric: tabular-nums;
+}
+.card-dates b { color: var(--fg); font-weight: 600; }
+
+/* stats row — counts first, then the booked pips */
+.card-stats {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-4);
+  margin-top: var(--s-4); padding-top: var(--s-3); border-top: 1px solid var(--line-soft);
+}
+.stat { display: flex; align-items: baseline; gap: 5px; }
+.stat-n { font-size: var(--fs-body); font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+.stat-l { font-size: var(--fs-caption); letter-spacing: .07em; text-transform: uppercase; color: var(--fg-mute); }
+.stat.is-zero .stat-n { color: var(--fg-faint); }
+
+.card-pips { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.pip {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  height: var(--ctl-h, 28px); padding: 0 10px; line-height: 1; white-space: nowrap;
+  font-size: var(--fs-caption); letter-spacing: .07em; text-transform: uppercase;
+  border: 0; border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--fg-faint) 14%, transparent); color: var(--fg-faint);
+}
+/* Booked = solid good fill per the shared chip spec. */
+.pip.on { background: var(--good); color: var(--bg); font-weight: 600; }
+
+.card-next {
+  display: flex; align-items: baseline; gap: 8px; margin-top: var(--s-3);
+  font-size: var(--fs-footnote); color: var(--fg-dim);
+}
+.card-next-l {
+  font-size: var(--fs-caption); letter-spacing: .08em; text-transform: uppercase; color: var(--fg-faint);
+}
+.card-next b { color: var(--fg); font-weight: 600; }
+
+.card-warn { margin-top: var(--s-3); font-size: var(--fs-footnote); color: var(--warn); }
+
+/* ── past divider ───────────────────────────────────────────────────────── */
+.past-toggle {
+  display: flex; align-items: center; gap: var(--s-3); width: 100%;
+  margin: var(--s-3) 0 var(--s-5); padding: 0;
+  font-size: var(--fs-caption); letter-spacing: .1em; text-transform: uppercase; color: var(--fg-mute);
+}
+.past-toggle::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.past-toggle:hover { color: var(--fg); }
+.past-caret { transition: transform 140ms ease; display: inline-block; }
+.past-toggle[aria-expanded="true"] .past-caret { transform: rotate(90deg); }
+
+.hub-toast.toast {
+  left: 50%; bottom: 54px; transform: translateX(-50%);
+  background: var(--bg-elev-2); border-radius: var(--r); padding: 8px 16px; z-index: 60; box-shadow: none;
+}
+
+/* ── phone ──────────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .landing { padding: var(--s-4) var(--s-3) 80px; }
+  .node { grid-template-columns: 62px 18px minmax(0, 1fr); column-gap: var(--s-3); }
+  .when-n { font-size: var(--fs-title); }
+  .card-name { font-size: var(--fs-title); }
+  .card-pips { margin-left: 0; }
+}
+
+/* ── MOTION ──────────────────────────────────────────────────────────────────
+   Same budget as the trip page (see the MOTION block in trips.css): the toast
+   entry, the press, and the one live marker. The card hover already existed and
+   stays as it is. Nothing on this page reveals on scroll and nothing choreographs
+   on load — you land here to pick a trip, not to watch the list assemble. */
+@keyframes toast-in { from { opacity: 0; transform: translateX(-50%) translateY(10px); } }
+.toast:not([hidden]) { animation: toast-in 220ms var(--e-out-quint) both; }
+
+.past-toggle:active, .spine-empty-cta:active { transform: scale(.96); }
+
+/* The one repeating thing on the page, and only when a trip is actually running:
+   the spine dot for the trip you are on. */
+@keyframes now-pulse {
+  0%, 100% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--good) 22%, transparent); }
+  50%      { box-shadow: 0 0 0 9px color-mix(in srgb, var(--good) 0%, transparent); }
+}
+.node.is-now .node-rail::after { animation: now-pulse 2.4s ease-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .node-card, .past-caret { transition: none; }
+  .node-card:hover { transform: none; }
+  .toast:not([hidden]), .node.is-now .node-rail::after { animation: none; }
+  .past-toggle:active, .spine-empty-cta:active { transform: none; }
+}
+
+/* Same Chase mark the trip page uses — the landing card renders priceText too,
+   and this stylesheet is the only one it loads. Chase blue and the per-theme
+   contrast measurements are documented once, in trips.css. */
+.ur-mark {
+  width: .82em; height: .82em; fill: #117aca;
+  vertical-align: -.06em; margin-right: .18em;
+}

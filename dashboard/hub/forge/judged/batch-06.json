@@ -1,0 +1,2046 @@
+{
+ "batch": "06",
+ "rubricVersion": 1,
+ "champions": {
+  "Poppy": {
+   "engage": {
+    "value": 3,
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "peel": {
+    "value": 4,
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "E stun into wall plus R knockback; W stops dashes"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Pyke": {
+   "engage": {
+    "value": 3,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "scaling": {
+    "value": "lethality",
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": true,
+    "basis": "Q hook and E stun-dash; W camo; R execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Qiyana": {
+   "engage": {
+    "value": 3,
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "aoeCCShare": {
+    "value": 0.6,
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "scaling": {
+    "value": "lethality",
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "R wall-stun burst; E dash; W grass camo"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Quinn": {
+   "engage": {
+    "value": 1,
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "aoeCCShare": {
+    "value": 0.2,
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "scaling": {
+    "value": "lethality",
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "E dash and knockback; Q blind; R roams"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Rakan": {
+   "engage": {
+    "value": 4,
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "dashes": {
+    "value": 3,
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "R charm area, W knock up, E shield ally"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Rammus": {
+   "engage": {
+    "value": 4,
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "peel": {
+    "value": 4,
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "frontline": {
+    "value": 5,
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Q knockup roll, E taunt, R area taunt and armor"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Rek'Sai": {
+   "engage": {
+    "value": 3,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "aoeCCShare": {
+    "value": 0.2,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "resource": {
+    "value": "fury",
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": true,
+    "basis": "Q tunnels and R teleport onto low target; burrow tremorsense"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Rell": {
+   "engage": {
+    "value": 4,
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "R pull, W mounted knockup, Q stun"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Renata Glasc": {
+   "engage": {
+    "value": 2,
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": true,
+    "basis": "Q root, E shield ally, W revives ally"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Renekton": {
+   "engage": {
+    "value": 2,
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "aoeCCShare": {
+    "value": 0.2,
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "earlyLate": {
+    "value": -2,
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "resource": {
+    "value": "fury",
+    "basis": "E double dash, W stun, R tank steroid"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Rengar": {
+   "engage": {
+    "value": 2,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "aoeCCShare": {
+    "value": 0,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "scaling": {
+    "value": "lethality",
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "resource": {
+    "value": "other",
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "R stealth and passive leap onto target; E bola"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Riven": {
+   "engage": {
+    "value": 2,
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "dashes": {
+    "value": 4,
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "resource": {
+    "value": "none",
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "Q three dashes plus E, Q3 knockup, W stun"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Rumble": {
+   "engage": {
+    "value": 2,
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "zoneControl": {
+    "value": 4,
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "resource": {
+    "value": "other",
+    "basis": "R huge flame zone, E slow, W shield"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Ryze": {
+   "engage": {
+    "value": 1,
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "aoeCCShare": {
+    "value": 0,
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "earlyLate": {
+    "value": 2,
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "W root, Q and E spell loop, R portal for allies"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Samira": {
+   "engage": {
+    "value": 2,
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "aoeCCShare": {
+    "value": 0,
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "E dash with resets, W blocks projectiles, R autos"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "W destroys projectiles in an area, not a spell shield (same call as Braum E)"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Sejuani": {
+   "engage": {
+    "value": 4,
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "R stun and slow area, Q knockup, E freeze"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Senna": {
+   "engage": {
+    "value": 1,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": true,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": true,
+    "basis": "R global shield and damage; Mist stacks uncapped; W root"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Seraphine": {
+   "engage": {
+    "value": 4,
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "R charm line that extends, E root and slow, W shield"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Sett": {
+   "engage": {
+    "value": 3,
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "resource": {
+    "value": "other",
+    "basis": "R carry and slam, W shield, E pull stun"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  },
+  "Shaco": {
+   "engage": {
+    "value": 1,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "scaling": {
+    "value": "lethality",
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "pets": {
+    "value": true,
+    "basis": "Q blink and stealth, W boxes, R clone"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no such ability in kit"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no such ability in kit"
+   }
+  }
+ }
+}

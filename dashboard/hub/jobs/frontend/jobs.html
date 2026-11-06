@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<script>
+  (function () {
+    var r = document.documentElement;
+    try {
+      var t = localStorage.getItem("hub.theme");
+      if (t === "glass") t = "liquid";
+      r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+      if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+      var SK = "hub.surface"; /* unified key across every hub page */
+      var s = localStorage.getItem(SK);
+      if (s !== "light" && s !== "dark") {
+        var old = localStorage.getItem("hub:surface"); /* migrate legacy colon key once */
+        if (old === "light" || old === "dark") { s = old; try { localStorage.setItem(SK, s); } catch (e) {} }
+      }
+      if (s !== "light" && s !== "dark") {
+        s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+  })();
+</script>
+<title>HUB · jobs</title>
+<!--
+  jobs dashboard · shell, theme-switchable (liquid / cobalt, liquid is default).
+
+  data source map (api endpoints in dashboard/hub/jobs/api.py · schema in data/jobs.db):
+  - funnel rail rows           → GET /jobs/api/applications
+  - funnel totals              → derived from /jobs/api/applications (group by status)
+  - focus header meta strip    → applications.{company, role, location, salary_*,
+                                  work_arrangement, employment_type, source,
+                                  listing_posted_date, updated}
+  - intake rundown             → applications.{company_summary, role_summary}
+                                  (full-width section atop the intake tab, added migration 005)
+  - intake snapshot            → applications.{score_role, priority, priority_reason,
+                                  requirements, nice_to_haves, red_flags,
+                                  red_flags_risk, culture_*, years_required,
+                                  listing_posted_date, notes}
+  - research categories        → company_research where category IN
+                                  (company, culture, progression, locations, intel)
+  - application surface        → resume_notes by section (summary, skills, projects,
+                                  exp:{position_id}, app_prompt::{question}),
+                                  cover_letters, candidate-profile positions
+  - prep · pipeline            → process_steps ordered by step_order
+  - prep · per-step fields     → company_research where category=prep
+  - prep · questions to ask    → company_research where category=prep AND
+                                  subcategory IN (questions_gap, questions_standout)
+  - prep · interviewers        → interviewers table (added in migration 003)
+  - prep · linked stories      → application_stories join → stories
+  - prep · resumes panel       → resumes table (base + per-app, added migration 003)
+  - prep · interview q&a       → interview_qa template + per-app (added migration 003)
+  - closed surface             → applications.{closed_well, closed_didnt,
+                                  closed_differently, closed_reason, closed_date}
+                                  (all added in migration 004)
+  - context rail score         → computed from priority_score(app) client-side
+  - context rail jd reqs       → parsed from applications.requirements +
+                                  candidate_profile.md match logic
+  - context rail nice-to-have  → parsed from applications.nice_to_haves
+  - context rail pipeline      → process_steps (mirror of prep tab)
+  - context rail candidate     → GET /jobs/api/candidate-profile
+  - context rail glossary      → GET /jobs/api/applications/{id}/glossary
+-->
+<!-- webfonts: one same-origin, render-blocking stylesheet carrying BOTH themes'
+     faces. Replaces the Google Fonts <link> this head used to inject from JS:
+     cross-origin, a second hop for each woff2, discovered too late to block
+     first paint, and `display=swap` — so the page painted in the fallback stack
+     and reflowed when the real faces landed. That reflow was the load flash.
+     Declaring the inactive theme's faces costs nothing (a @font-face downloads
+     only when a rule uses the family) and makes a live theme switch fetch-free,
+     which is why window.HUB_FONTS is gone — theme-switch.js no-ops without it.
+     See static/vendor/fonts/fonts.css; regenerate with tools/vendor-fonts.py. -->
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<script>
+  /* Preload the ACTIVE theme's two latin faces. Without this they are not
+     discovered until fonts.css has parsed AND layout has reached text that uses
+     them — late enough on a slow link to paint a frame in the fallback stack and
+     reflow, which is the flash. Two files, ~40 KB. data-theme is already set by
+     the no-flash snippet above, which is why this sits after it. */
+  (function () {
+    var FACES = {
+      cobalt: ["/static/vendor/fonts/archivo-black-normal-latin.woff2",
+               "/static/vendor/fonts/space-grotesk-normal-latin.woff2"]
+    };
+    (FACES[document.documentElement.getAttribute("data-theme")] || []).forEach(function (href) {
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
+      l.href = href;
+      document.head.appendChild(l);
+    });
+  })();
+</script>
+<!-- cobalt theme fonts (brutalist grotesque pairing); inert unless data-theme="cobalt" -->
+<link rel="stylesheet" href="/jobs/static/jobs.css?v=34">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/origins/entry-3-pane.css">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
+</head>
+<body class="jobs">
+
+<div class="hub-shell hub-e3p shell">
+
+  <!-- ============== TOPBAR ============== -->
+    <header class="topbar">
+    <!-- the bar itself (back, brand, toggle, theme, sign-out, modules) is drawn by
+         topbar.jsx; only this page's extras live here, placed by data-slot -->
+    <span data-slot="crumb" class="crumb">jobs</span>
+    <button data-slot="right" class="hub-btn" id="newAppBtn"><span class="g">+</span><span>new</span></button>
+  </header>
+
+  <!-- ============== BODY ============== -->
+  <main class="body hub-e3p-body" id="body">
+
+    <!-- ─── FUNNEL RAIL ─── -->
+    <section class="col hub-e3p-list-col" id="funnelCol">
+      <div class="funnel-summary hub-e3p-tools">
+        <div id="funnelFilter"></div>
+      </div>
+
+      <div class="funnel-list hub-e3p-entries" id="funnelList" role="listbox" aria-label="applications">
+        <div class="funnel-empty">
+          <span class="funnel-empty-l">empty pipeline</span>
+          no applications yet. click <em>+ new</em> in the top bar to start.
+        </div>
+      </div>
+
+      <button type="button" class="funnel-ready-row" id="readyRow">
+        <span class="frr-n" id="readyRowCount">0</span>
+        <span class="frr-t">ready to send <span aria-hidden="true">›</span></span>
+        <span class="frr-s" id="readyRowSub"></span>
+      </button>
+      <!-- view switch and needs-you count sit at the bottom of the rail (mark 2026-11-03-180641:3) -->
+      <div class="funnel-col-header funnel-col-foot">
+        <nav class="jobs-modes" id="jobsModes" aria-label="view">
+          <button type="button" class="jobs-mode active" data-mode="pipeline">Pipeline</button>
+          <button type="button" class="jobs-mode" data-mode="ready">Ready to send <span class="jobs-mode-n" id="readyModeCount">0</span></button>
+        </nav>
+        <span class="hub-pill is-alert crumb-pill" id="needsYouPill" hidden></span>
+      </div>
+    </section>
+
+    <!-- ─── FOCUS PANEL ─── -->
+    <section class="col hub-e3p-pane">
+
+      <!-- phone only: back to the list, position, previous / next -->
+      <div class="hub-e3p-bar">
+        <button type="button" class="hub-e3p-back" id="e3pBack"><span aria-hidden="true">‹</span> all jobs</button>
+        <span class="hub-e3p-pos" id="e3pPos">–</span>
+        <button type="button" class="hub-e3p-nav" id="e3pPrev" aria-label="previous job">‹</button>
+        <button type="button" class="hub-e3p-nav" id="e3pNext" aria-label="next job">›</button>
+      </div>
+
+      <div class="hub-split hub-e3p-split">
+      <div class="focus hub-e3p-main">
+
+        <div class="focus-head hub-e3p-head" id="focusHead">
+          <div class="focus-head-top hub-e3p-head-row">
+            <span class="focus-title focus-title-placeholder" id="focusTitle" tabindex="-1">no application selected</span>
+            <div class="focus-actions hub-e3p-head-acts">
+              <a class="focus-action disabled" id="focusOpenUrl" href="#" target="_blank" rel="noopener">↗ posting</a>
+              <a class="focus-action alert disabled" id="focusDelete" href="#">delete</a>
+            </div>
+          </div>
+
+          <div class="rts-bar" id="reviewBar" hidden></div>
+          <div class="hub-tabs surface-tabs hub-e3p-stages" id="surfaceTabs">
+            <button class="hub-tab surface-tab active" data-surface="intake"><span class="hub-e3p-stage-dot" aria-hidden="true"></span>intake<span class="stub hub-e3p-stage-sub">decide</span></button>
+            <button class="hub-tab surface-tab" data-surface="research"><span class="hub-e3p-stage-dot" aria-hidden="true"></span>research<span class="stub hub-e3p-stage-sub">context</span></button>
+            <button class="hub-tab surface-tab" data-surface="application"><span class="hub-e3p-stage-dot" aria-hidden="true"></span>application<span class="stub hub-e3p-stage-sub">tailor</span></button>
+            <button class="hub-tab surface-tab" data-surface="prep"><span class="hub-e3p-stage-dot" aria-hidden="true"></span>prep<span class="stub hub-e3p-stage-sub">interviews</span></button>
+            <button class="hub-tab surface-tab is-apart" data-surface="closed"><span class="hub-e3p-stage-dot" aria-hidden="true"></span>closed<span class="stub hub-e3p-stage-sub">post-mortem</span></button>
+          </div>
+        </div>
+
+        <div class="focus-body hub-e3p-cards" id="focusBody">
+
+          <!-- empty state when no app selected -->
+          <div class="focus-empty-state hub-e3p-empty" id="focusEmptyState">
+            <div class="focus-empty-icon">✦</div>
+            <div class="focus-empty-title">select an application</div>
+            <div class="focus-empty-text">pick a row from the funnel rail on the left, or click <em>+ new</em> in the top bar to start a new application.</div>
+          </div>
+
+          <!-- ============== INTAKE SURFACE ============== -->
+          <div class="surface" data-surface-body="intake">
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">the company &amp; the role</span>
+              </div>
+              <div class="rundown-block">
+                <div>
+                  <div class="questions-subhead">
+                    <span class="questions-subhead-l">company</span>
+                  </div>
+                  <textarea class="field-textarea" id="intakeCompanySummary" style="margin-top:8px;" placeholder="what is this company? what do they make or sell?" aria-label="company summary"></textarea>
+                </div>
+                <div>
+                  <div class="questions-subhead">
+                    <span class="questions-subhead-l">role</span>
+                  </div>
+                  <textarea class="field-textarea" id="intakeRoleSummary" style="margin-top:8px;" placeholder="what would you do in this role? what does it provide the company?" aria-label="role summary"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">decide — keep or cut</span>
+              </div>
+
+              <div class="intake-snapshot" id="intakeSnapshot">
+
+                <!-- col 1, row 1: snap card -->
+                <div class="snap-card">
+                  <div class="snap-row"><span class="snap-l">role</span><span class="snap-v editable" data-field="role">—</span></div>
+                  <div class="snap-row"><span class="snap-l">years required</span><span class="snap-v editable" data-field="years_required">—</span></div>
+                  <div class="snap-row"><span class="snap-l">salary band</span><span class="snap-v editable" data-field="salary">—</span></div>
+                  <div class="snap-row"><span class="snap-l">arrangement</span><span class="snap-v editable" data-field="arrangement_location">—</span></div>
+                  <div class="snap-row"><span class="snap-l">employment</span><span class="snap-v editable" data-field="employment_type">—</span></div>
+                  <div class="snap-row"><span class="snap-l">listing age</span><span class="snap-v" data-field="listing_age">—</span></div>
+                  <div class="snap-row"><span class="snap-l">source</span><span class="snap-v editable" data-field="source">—</span></div>
+                </div>
+
+                <!-- col 2, row 1: score + culture stats -->
+                <div class="snap-col">
+                  <div class="score-hero">
+                    <span class="score-hero-l">priority score</span>
+                    <span class="score-hero-num empty" id="intakeScoreNum">—</span>
+                    <span class="score-hero-meta" id="intakeScoreMeta">role fit · 0 to 10 · 8+ strong</span>
+                  </div>
+                  <div class="culture-stats-row">
+                    <div class="culture-stat hub-stat"><span class="culture-stat-v hub-stat-v empty" data-field="culture_rating">—</span><span class="culture-stat-l">overall</span><span class="culture-stat-meta">/ 5 · glassdoor</span></div>
+                    <div class="culture-stat hub-stat"><span class="culture-stat-v hub-stat-v empty" data-field="culture_recommend">—</span><span class="culture-stat-l">recommend</span><span class="culture-stat-meta">to a friend %</span></div>
+                    <div class="culture-stat hub-stat"><span class="culture-stat-v hub-stat-v empty" data-field="culture_work_life">—</span><span class="culture-stat-l">work-life</span><span class="culture-stat-meta">/ 5</span></div>
+                  </div>
+                </div>
+
+                <!-- col 1, row 2: requirements -->
+                <div class="section hub-plate-card" style="gap:var(--s-2);">
+                  <div class="section-head hub-section-head">
+                    <span class="section-title hub-section-head-t">requirements</span>
+                  </div>
+                  <div class="req-list-display" id="intakeRequirementsList" style="display:none;"></div>
+                  <textarea class="field-textarea" id="intakeRequirements" placeholder="one requirement per line — pasted from the jd" aria-label="requirements"></textarea>
+                </div>
+
+                <!-- col 2, row 2: nice to have -->
+                <div class="section hub-plate-card" style="gap:var(--s-2);">
+                  <div class="section-head hub-section-head">
+                    <span class="section-title hub-section-head-t">nice to have</span>
+                  </div>
+                  <div class="req-list-display" id="intakeNiceToHavesList" style="display:none;"></div>
+                  <textarea class="field-textarea" id="intakeNiceToHaves" placeholder="one nice-to-have per line" aria-label="nice to have"></textarea>
+                </div>
+
+                <!-- full width, row 3: red flags -->
+                <div class="red-flag-block empty intake-full" id="redFlagBlock">
+                  <div class="red-flag-head">
+                    <span class="red-flag-l">red flags</span>
+                    <div class="risk-toggle" id="redFlagsRisk">
+                      <button class="risk-btn low" data-risk="low">low</button>
+                      <button class="risk-btn medium" data-risk="medium">medium</button>
+                      <button class="risk-btn high" data-risk="high">high</button>
+                    </div>
+                  </div>
+                  <textarea class="field-textarea" id="intakeRedFlags" placeholder="anything that gives you pause · vague jd, no salary, suspicious recruiter, signs of churn…" aria-label="red flags"></textarea>
+                </div>
+
+                <!-- full width, row 4: misc notes. Small leftovers only — anything substantial
+                     belongs in requirements, red flags, or the rundown summaries above. -->
+                <div class="section hub-plate-card intake-full" style="gap:var(--s-2);">
+                  <div class="section-head hub-section-head">
+                    <span class="section-title hub-section-head-t">notes</span>
+                  </div>
+                  <textarea class="field-textarea" id="intakeNotes" placeholder="anything with nowhere else to live · referral name, a recruiter's aside, an odd application step" aria-label="notes"></textarea>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">research snapshot</span>
+              </div>
+              <div id="intakeResearchBlocks"></div>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">decision</span>
+              </div>
+              <div class="hub-btn-row">
+                <button class="hub-btn hub-btn--lg btn-primary" id="btnKeepResearch">→ keep · move to research</button>
+                <button class="hub-btn hub-btn--lg" id="btnFlagReview">flag for review</button>
+                <button class="hub-btn hub-btn--lg btn-alert" id="btnCutIgnore">cut · ignore</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============== RESEARCH SURFACE ============== -->
+          <div class="surface" data-surface-body="research">
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">research — context</span>
+              </div>
+              <p style="font-style:italic; color:var(--fg-dim); font-size:var(--fs-subhead); line-height:1.5;">deeper context for being a better applicant — values, hiring patterns, financials, culture, locations, intel. jd info itself lives in intake.</p>
+            </div>
+
+            <div id="researchCategories"></div>
+
+            <div class="section" style="padding-top:var(--s-3);">
+              <div class="hub-btn-row">
+                <button class="hub-btn hub-btn--lg btn-primary" id="btnMoveToApplication">→ move to application</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============== APPLICATION SURFACE ============== -->
+          <div class="surface" data-surface-body="application">
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">resume</span>
+                <button class="hub-btn hub-btn--lg sm" id="resumeRevealBtn" type="button" style="display:none">open in folder</button>
+              </div>
+              <div class="pdf-viewer" id="resumeViewer">
+                <div class="pdf-empty" id="resumeEmpty">
+                  <div class="pdf-empty-doc"></div>
+                  <div class="pdf-empty-label">add resume</div>
+                  <div class="pdf-empty-sub">tell claude code which file to link</div>
+                </div>
+                <div class="pdf-pages" id="resumePages"></div>
+              </div>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">cover letter</span>
+              </div>
+              <div class="pdf-viewer" id="coverViewer">
+                <div class="pdf-empty" id="coverEmpty">
+                  <div class="pdf-empty-doc"></div>
+                  <div class="pdf-empty-label">add cover letter</div>
+                  <div class="pdf-empty-sub">tell claude code which file to link</div>
+                </div>
+                <div class="pdf-pages" id="coverPages"></div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="hub-btn-row">
+                <button class="hub-btn hub-btn--lg btn-primary" id="btnMarkSubmitted">→ mark as submitted</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============== PREP SURFACE ============== -->
+          <div class="surface" data-surface-body="prep">
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">process pipeline</span>
+              </div>
+              <div class="pipeline-row" id="pipelineRow">
+                <div class="pipe-empty">no process steps yet — add a step via <em>+ step</em>.</div>
+              </div>
+              <div class="hub-btn-row">
+                <button class="hub-btn hub-btn--lg" id="btnAddStep">+ step</button>
+              </div>
+            </div>
+
+            <div class="section" id="prepActiveStepBlock">
+              <div class="prep-block-head">
+                <span class="prep-step-title placeholder" id="prepStepTitle">no active step</span>
+                <span class="prep-step-meta" id="prepStepMeta">select a step from the pipeline above</span>
+              </div>
+              <div id="prepStepFields" class="hub-field-hint field-hint">prep fields appear here once a step is selected. field set varies by step type — screen / assessment / interview / panel / reference each have their own prompts.</div>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">questions to ask</span>
+              </div>
+              <div class="questions-block">
+                <div>
+                  <div class="questions-subhead">
+                    <span class="questions-subhead-l">gap-driven · from research</span>
+                  </div>
+                  <textarea class="field-textarea" id="prepQuestionsGap" style="margin-top:8px;" placeholder="questions about things research didn't tell you — comp specifics, progression, etc." aria-label="questions gap-driven from research"></textarea>
+                </div>
+                <div>
+                  <div class="questions-subhead">
+                    <span class="questions-subhead-l">stand-out · depth + curiosity</span>
+                  </div>
+                  <textarea class="field-textarea" id="prepQuestionsStandout" style="margin-top:8px;" placeholder="questions that show deep understanding of the role and curiosity about the work" aria-label="questions stand-out depth and curiosity"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">interviewers</span>
+              </div>
+              <div id="interviewersList"></div>
+              <div class="hub-btn-row">
+                <button class="hub-btn hub-btn--lg" id="btnAddInterviewer">+ interviewer</button>
+              </div>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">resumes</span>
+              </div>
+              <div class="section" style="gap:var(--s-2);">
+                <div class="section-head hub-section-head">
+                  <span class="section-title hub-section-head-t">base templates</span>
+                </div>
+                <div id="resumesBase"></div>
+                <div class="hub-btn-row">
+                  <button class="hub-btn hub-btn--lg" id="btnAddResumeBase">+ register base resume</button>
+                </div>
+              </div>
+              <div class="section" style="gap:var(--s-2); margin-top:var(--s-3);">
+                <div class="section-head hub-section-head">
+                  <span class="section-title hub-section-head-t">tailored for this app</span>
+                </div>
+                <div id="resumesApp"></div>
+                <div class="hub-btn-row">
+                  <button class="hub-btn hub-btn--lg" id="btnAddResumeApp">+ register tailored resume</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">interview Q&amp;A</span>
+              </div>
+              <div id="qaList"></div>
+              <div class="hub-btn-row">
+                <button class="hub-btn hub-btn--lg" id="btnCloneQaTemplate">↻ clone from template</button>
+                <button class="hub-btn hub-btn--lg" id="btnAddQa">+ add question</button>
+              </div>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">stories — primed for this step</span>
+              </div>
+              <div id="storiesList"></div>
+            </div>
+
+            <div class="section">
+              <div class="hub-btn-row">
+                <button class="hub-btn hub-btn--lg btn-primary" id="btnMarkStepComplete">→ mark step complete</button>
+                <button class="hub-btn hub-btn--lg" id="btnSkipStep">skip this step</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============== CLOSED SURFACE ============== -->
+          <div class="surface" data-surface-body="closed">
+
+            <div class="closed-banner" id="closedBanner">
+              <span class="closed-banner-l">status</span>
+              <span class="closed-banner-v placeholder" id="closedBannerStatus">application still open</span>
+              <span class="closed-banner-meta" id="closedBannerMeta">post-mortem becomes editable once status moves to offer / rejected / ignored</span>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">what went well</span>
+              </div>
+              <textarea class="field-textarea" id="closedWell" placeholder="what worked? specific moments, not vague feelings." aria-label="what went well"></textarea>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">what didn't</span>
+              </div>
+              <textarea class="field-textarea" id="closedDidnt" placeholder="what didn't land? be specific about the failure mode." aria-label="what didn't go well"></textarea>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">what I'd do differently</span>
+              </div>
+              <textarea class="field-textarea" id="closedDifferently" placeholder="what changes for next time?" aria-label="what I'd do differently"></textarea>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">reason</span>
+              </div>
+              <select class="field-input" id="closedReason" aria-label="closed reason">
+                <option value="">— select —</option>
+                <option value="weak_customer_signal">weak customer-facing signal</option>
+                <option value="technical_gap">technical gap</option>
+                <option value="culture_mismatch">culture mismatch</option>
+                <option value="comp_misalignment">comp misalignment</option>
+                <option value="headcount_change">headcount change</option>
+                <option value="candidate_withdrew">candidate withdrew</option>
+                <option value="ineligible">ineligible for the role</option>
+                <option value="no_reason_given">no reason given</option>
+                <option value="offer_accepted">offer accepted</option>
+              </select>
+            </div>
+
+            <div class="section hub-plate-card">
+              <div class="section-head hub-section-head">
+                <span class="section-title hub-section-head-t">closed date</span>
+              </div>
+              <input type="date" class="field-input" id="closedDate" aria-label="closed date">
+            </div>
+
+            <div class="section">
+              <div class="hub-btn-row">
+                <button class="hub-btn hub-btn--lg" id="btnReopenApp">re-open application</button>
+                <button class="hub-btn hub-btn--lg btn-alert" id="btnDeleteRecord">delete record</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- autopilot review: needs-you cards over the one-at-a-time ready deck (jobs-surfaces-b.jsx) -->
+        <div class="review-view" id="reviewView" hidden>
+          <div class="review-needs" id="reviewNeeds"></div>
+          <div class="review-deck" id="reviewDeck"></div>
+        </div>
+      </div>
+
+    <!-- splitter -->
+    <div class="splitter-v" id="splitter"></div>
+
+    <!-- ─── CONTEXT RAIL ─── -->
+    <!-- rail-idle (default): no app selected yet, so cards are muted and read as "at rest,"
+         not "broken" — setRailIdle() in jobs.jsx toggles this off/on as selection changes. -->
+    <section class="col rail-idle hub-detail-rail hub-e3p-rail" id="contextRail">
+
+      <!-- the status editor: moved out of the head (head pick B has no room) -->
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">status</h2>
+        </div>
+        <div class="focus-meta-strip rail-card" id="focusMetaStrip">
+          <div class="focus-meta-cell"><span class="focus-meta-cell-l">status</span><span class="focus-meta-cell-v empty" data-cell="status">—</span></div>
+          <div class="focus-meta-cell"><span class="focus-meta-cell-l">last update</span><span class="focus-meta-cell-v empty" data-cell="updated">—</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">01 — score</h2>
+        </div>
+        <div class="rail-card" id="railScore">
+          <div style="display:flex; align-items:baseline; gap:11px;">
+            <span class="score-big empty" id="railScoreBig">—</span>
+            <span class="score-meta" id="railScoreMeta">/ 10 · no app selected</span>
+          </div>
+          <div class="score-rows" id="railScoreRows">
+            <div class="score-row"><span class="score-l">role<span class="score-w">45%</span></span><div class="hub-track score-track"><div class="hub-bar score-fill empty" style="width:0%;"></div></div><span class="score-n empty">—</span></div>
+            <div class="score-row"><span class="score-l">comp<span class="score-w">25%</span></span><div class="hub-track score-track"><div class="hub-bar score-fill empty" style="width:0%;"></div></div><span class="score-n empty">—</span></div>
+            <div class="score-row"><span class="score-l">culture<span class="score-w">15%</span></span><div class="hub-track score-track"><div class="hub-bar score-fill empty" style="width:0%;"></div></div><span class="score-n empty">—</span></div>
+            <div class="score-row"><span class="score-l">arrange<span class="score-w">15%</span></span><div class="hub-track score-track"><div class="hub-bar score-fill empty" style="width:0%;"></div></div><span class="score-n empty">—</span></div>
+          </div>
+          <span class="score-key">tick = 8, strong</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">02 — requirements</h2>
+        </div>
+        <div class="rail-card tight" id="railRequirements">
+          <div class="rail-empty">select an application</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">03 — nice to have</h2>
+        </div>
+        <div class="rail-card tight" id="railNiceToHave">
+          <div class="rail-empty">select an application</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title">04 — pipeline</h2>
+          <span class="panel-meta" id="railPipelineMeta">no steps</span>
+        </div>
+        <div class="rail-card tight" id="railPipeline">
+          <div class="rail-empty">select an application</div>
+        </div>
+      </div>
+
+      <div class="glossary-footer">
+        <div class="glossary-head">
+          <span class="glossary-l">05 — glossary</span>
+          <span class="glossary-meta" id="railGlossaryMeta">no terms detected</span>
+        </div>
+        <div id="railGlossary" class="glossary-empty">select an application</div>
+      </div>
+
+    </section>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="status">
+    <span class="src"><span class="ok">●</span> jobs.db<span class="sep">·</span><span class="ok">●</span> vault</span>
+  </footer>
+</div>
+
+<script src="/static/vendor/pdfjs/pdf.min.js"></script>
+<script src="/static/js/list-filter.js?v=1"></script>
+<!-- React body: five files sharing window.JobsUI, in order (core first, the mount last), plus the
+     list filter component. list-filter.js above stays: its pure core (apply, state, sort) is what
+     the component calls. The plain jobs-*.js scripts stay on disk until the Wave 4 cleanup. -->
+<script defer src="/jsx/static/js/list-filter.jsx?v=1"></script>
+<script defer src="/jsx/jobs/frontend/static/jobs-core.jsx?v=1"></script>
+<script defer src="/jsx/jobs/frontend/static/jobs-surfaces-a.jsx?v=5"></script>
+<script defer src="/jsx/jobs/frontend/static/jobs-surfaces-b.jsx?v=7"></script>
+<script defer src="/jsx/jobs/frontend/static/jobs-prep.jsx?v=2"></script>
+<script defer src="/jsx/jobs/frontend/static/jobs.jsx?v=3"></script>
+<script>
+/* load fallback: if the React body never mounted, say so instead of leaving the static skeleton up */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="jobs"]')) return;
+    var host = document.getElementById("body");
+    if (host) host.innerHTML = '<div class="hub-error">page failed to load</div>';
+  }, 3000);
+});
+</script>
+</body>
+</html>

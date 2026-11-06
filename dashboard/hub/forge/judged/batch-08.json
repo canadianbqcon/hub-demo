@@ -1,0 +1,2046 @@
+{
+ "batch": "08",
+ "rubricVersion": 1,
+ "champions": {
+  "Tryndamere": {
+   "engage": {
+    "value": 2,
+    "basis": "E dashes onto one target"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E gap close plus R lets him trade and kill"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Q heal and R keep a bruiser up briefly"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E is one dash under 30 s"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "Fury crit autos carry damage"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "only CC is W area slow"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "fury",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E Spinning Slash dashes over walls"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": true,
+    "basis": "R Undying Rage prevents death"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Twisted Fate": {
+   "engage": {
+    "value": 1,
+    "basis": "gold card stun opens at best"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "W gold card is a short stun"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "E Stacked Deck adds an auto every 4 attacks"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "gold card stun is single target"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": true,
+    "basis": "R Destiny gate teleports across the map"
+   },
+   "vision": {
+    "value": true,
+    "basis": "R reveals all enemy champions"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Twitch": {
+   "engage": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "W Venom Cask slows"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "W cask leaves a short slow area"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "on-hit venom and R bolts are mostly autos"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "only CC is the W area slow"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "on-hit",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "Q Ambush camouflage"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Udyr": {
+   "engage": {
+    "value": 2,
+    "basis": "E speed and stun on first attack"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E stun and R slow on a diver"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "E speed closes on a target, no true gap close"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "W shield and heal, tank stats"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "R storm slows nearby enemies for a few seconds"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "stance autos share damage with spells"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "stun is single, slows are area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": true,
+    "basis": "E recast grants immunity to immobilizing effects"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Urgot": {
+   "engage": {
+    "value": 3,
+    "basis": "R chem-drill from 2500 range plus E flip"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E flips a diver away, R fear"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E dash plus R reach the backline"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "E shield, durable fighter"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Q slowing blast area"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E Disdain is the only short-cooldown dash"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "passive and W autos share damage with spells"
+   },
+   "aoeCCShare": {
+    "value": 0.6,
+    "basis": "Q slow area and R, E single"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": true,
+    "basis": "R Fear Beyond Death executes below a health threshold"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Varus": {
+   "engage": {
+    "value": 3,
+    "basis": "R chain roots several from 1300 range"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "R root and E slow, long cooldown"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "E desecrated ground slows for a few seconds"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "W on-hit and crit build share damage with Q"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "R chains to several, E slows area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Vayne": {
+   "engage": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E Condemn knocks back a diver"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "Q Tumble repositions only"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Q Tumble is her one dash"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "Silver Bolts and Q empower autos"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "Condemn is single target"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "R Final Hour grants invisibility during Tumble"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Veigar": {
+   "engage": {
+    "value": 1,
+    "basis": "E cage can start a fight but poorly"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E cage stuns anything crossing it"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "zoneControl": {
+    "value": 4,
+    "basis": "E cage plus W Dark Matter hold ground"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "E cage stuns everyone crossing"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "uncapped AP stacking"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": true,
+    "basis": "passive permanent uncapped AP"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Vel'Koz": {
+   "engage": {
+    "value": 1,
+    "basis": "E knock up from 810 range only opens"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E knock away and Q slow"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "W rifts and E burst areas, short-lived"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "E knock up is area, Q slow mostly single"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Vex": {
+   "engage": {
+    "value": 2,
+    "basis": "R recast dashes onto one target"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "empowered fear interrupts dashes, W shield"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "R dash reaches the backline and resets on kills"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "E Looming Darkness slowing zone"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R dash cooldown is over 30 s"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "fear and E slow are area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "R Shadow Surge recast dashes to the marked target over terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Vi": {
+   "engage": {
+    "value": 3,
+    "basis": "R single target lockdown"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Q knockback on a diver"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Q and R reach the backline, needs follow-up"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "passive shield bruiser"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Q Vault Breaker is the only short dash"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "W and E weave autos with spells"
+   },
+   "aoeCCShare": {
+    "value": 0.2,
+    "basis": "R and Q are single target, R knocks others aside"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": true,
+    "basis": "R Cease and Desist is unstoppable while running down the target"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Viego": {
+   "engage": {
+    "value": 2,
+    "basis": "W dash stuns one target"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "W stun on long cooldown"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "R teleports in and executes damage, E hides"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "holds front briefly"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "dashes": {
+    "value": 3,
+    "basis": "anchor value"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Q on-hit weaves with spells"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "W stun single, R knockback area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "none",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "E Harrowed Path grants camouflage inside the mist"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Viktor": {
+   "engage": {
+    "value": 1,
+    "basis": "W Gravity Field slows and stuns, only opens"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "W slow and stun on divers"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "zoneControl": {
+    "value": 4,
+    "basis": "W field and R storm hold an area"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Q empowered auto"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "W is area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Vladimir": {
+   "engage": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "W pool slows enemies"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "sustain bruiser mage with bonus health"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "W pool slows and drains"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "W slow is area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "other",
+    "basis": "Crimson Rush bar is a custom resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": true,
+    "basis": "W Sanguine Pool untargetable 2 s"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Volibear": {
+   "engage": {
+    "value": 3,
+    "basis": "R leap and Q stun"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "Q stun and E slow"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "R leap and Q speed reach the backline"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "tank with R bonus health and E shield"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "E slow area and R area"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R leap cooldown is over 30 s"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "autos and W carry with bonus magic damage"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "Q stun single, E and R slow areas"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Warwick": {
+   "engage": {
+    "value": 3,
+    "basis": "R leap suppresses first champion"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E fear area"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "R and W track low targets"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "durable fighter with sustain"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Q lunge"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "passive and Q weave with autos"
+   },
+   "aoeCCShare": {
+    "value": 0.4,
+    "basis": "E fear is area, R single"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Wukong": {
+   "engage": {
+    "value": 3,
+    "basis": "R knockup area plus E dash"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "E is a dash only"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E and W reach the backline"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "passive armor, bruiser"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R spin is short"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "W and E dashes"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Q empowered autos"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "only CC is the R knockup area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "W Warrior Trickster invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Xayah": {
+   "engage": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E feather root"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "R leap repositions"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "feathers linger on the ground"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R leap cooldown over 30 s"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "passive piercing autos"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "E roots all feathered enemies"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": true,
+    "basis": "R Featherstorm untargetable while leaping"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Xerath": {
+   "engage": {
+    "value": 1,
+    "basis": "E stun from 1050 only opens"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E stun and W slow"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "W slowing area few seconds"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "no kit tool earns more"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "E stun single, W slow area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "power curve for main role"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  },
+  "Xin Zhao": {
+   "engage": {
+    "value": 2,
+    "basis": "E charge onto one target"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "Q knockup and R knockback"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E reaches backline, needs follow-up"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "durable fighter with heals"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R circle is brief"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E Audacious Charge"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "Q and passive autos share damage"
+   },
+   "aoeCCShare": {
+    "value": 0.6,
+    "basis": "Q single, W slow and R area"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "strong early duelist"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "build the main role buys most"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "kit resource"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no ability in the kit grants this"
+   }
+  }
+ }
+}

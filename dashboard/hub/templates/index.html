@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/png" href="/static/assets/favicon.png" />
+  <script>
+    (function () {
+      var r = document.documentElement;
+      try {
+        var t = localStorage.getItem("hub.theme");
+        if (t === "glass") t = "liquid";
+        r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+        if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+        var SK = "hub.surface"; /* "hub.surface" home/login · "hub:surface" jobs */
+        var s = localStorage.getItem(SK);
+        if (s !== "light" && s !== "dark") {
+          s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+        }
+        r.setAttribute("data-surface", s);
+      } catch (e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+    })();
+  </script>
+  <title>HUB · home</title>
+  <!-- webfonts: one same-origin, render-blocking stylesheet carrying BOTH themes'
+       faces. Replaces the Google Fonts <link> this head used to inject from JS:
+       cross-origin, a second hop for each woff2, discovered too late to block
+       first paint, and `display=swap` — so the page painted in the fallback stack
+       and reflowed when the real faces landed. That reflow was the load flash.
+       Declaring the inactive theme's faces costs nothing (a @font-face downloads
+       only when a rule uses the family) and makes a live theme switch fetch-free,
+       which is why window.HUB_FONTS is gone — theme-switch.js no-ops without it.
+       See static/vendor/fonts/fonts.css; regenerate with tools/vendor-fonts.py. -->
+  <link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+  <script>
+    /* Preload the ACTIVE theme's two latin faces. Without this they are not
+       discovered until fonts.css has parsed AND layout has reached text that uses
+       them — late enough on a slow link to paint a frame in the fallback stack and
+       reflow, which is the flash. Two files, ~40 KB. data-theme is already set by
+       the no-flash snippet above, which is why this sits after it. */
+    (function () {
+      var FACES = {
+        cobalt: ["/static/vendor/fonts/archivo-black-normal-latin.woff2",
+                 "/static/vendor/fonts/space-grotesk-normal-latin.woff2"]
+      };
+      (FACES[document.documentElement.getAttribute("data-theme")] || []).forEach(function (href) {
+        var l = document.createElement("link");
+        l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
+        l.href = href;
+        document.head.appendChild(l);
+      });
+    })();
+  </script>
+  <!-- cobalt theme fonts (brutalist grotesque pairing); inert unless data-theme="cobalt" -->
+  <link rel="stylesheet" href="/static/css/chrome.css?v=13">
+  <!-- home.css split into four 2026-07-29; they cascade as one sheet, so this order
+       is load-bearing and must stay base → panels → layout → day. -->
+  <link rel="stylesheet" href="/static/css/home/base.css?v=57">
+  <link rel="stylesheet" href="/static/css/home/panels.css?v=62">
+  <link rel="stylesheet" href="/static/css/home/layout.css?v=60">
+  <link rel="stylesheet" href="/static/css/home/day.css?v=75">
+  <link rel="stylesheet" href="/static/css/base.css?v=6">
+  <link rel="stylesheet" href="/static/css/components.css?v=5">
+  <link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+  <link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+  <script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script>
+</head>
+<body class="home">
+  <div id="root"></div>
+
+  <!-- data injected server-side; globals are set before Babel processes any JSX -->
+  <script>
+    (function() {
+      var d = {{ data | tojson }};
+      window.GENERATED_AT = d.GENERATED_AT;
+      window.SCHEDULE   = d.SCHEDULE;
+      window.INBOX      = d.INBOX;
+      window.CARDS      = d.CARDS;
+      window.SUBS       = d.SUBS;
+      window.TASKS      = d.TASKS;
+      window.TASKS_COMPLETED = d.TASKS_COMPLETED;
+      window.TRIP       = d.TRIP;
+      window.NEWS       = d.NEWS;
+      window.MODULES    = d.MODULES;
+      window.CONNECTORS = d.CONNECTORS;
+    })();
+  </script>
+
+  <!-- React 18 production builds, vendored out of unpkg 2026-08-19 so the tailnet
+       dashboard does not need the public internet to render (and so the browser
+       never re-fetches them: /static/vendor/ is served immutable). -->
+  <script src="/static/vendor/react.production.min.js"></script>
+  <script src="/static/vendor/react-dom.production.min.js"></script>
+  <!-- .jsx is served through /jsx/, transpiled server-side by the same vendored babel
+       the browser used to run (hub/jsx_build.py), cached on the source file's mtime.
+       Still no build step: edit the .jsx, refresh, it is live. -->
+
+  <script src="/static/js/briefing.logic.js?v=7"></script>
+
+  <!-- components — order matters: chrome first (Topbar and StatusStrip come from topbar.jsx), App last -->
+  <!-- defer, and it matters: these used to be type="text/babel", which meant
+       @babel/standalone ran them at DOMContentLoaded — always AFTER the deferred
+       theme-switch.js that publishes window.HubBack/HubTheme and after hub-modules.js.
+       A plain <script> would run during parse instead and chrome.jsx would render its
+       topbar before window.HubBack existed, so theme-switch.js would inject a second
+       back button next to React's. defer restores the original order. -->
+  <script defer src="/jsx/static/js/topbar.jsx"></script>
+  <script defer src="/jsx/static/js/chrome.jsx?v=13"></script>
+  <!-- home-only today-briefing subsystem, split out of chrome.jsx 2026-07-29;
+       purchases and work load chrome.jsx alone and must stay that way. Split
+       again into four the same day: each is its own Babel scope, so the order
+       here matters and every shared name is handed over via window. -->
+  <script defer src="/jsx/static/js/today-weather.jsx?v=4"></script>
+  <script defer src="/jsx/static/js/today-day.jsx?v=15"></script>
+  <script defer src="/jsx/static/js/today-parts.jsx?v=4"></script>
+  <script defer src="/jsx/static/js/today.jsx?v=18"></script>
+  <script defer src="/jsx/static/js/Schedule.jsx?v=12"></script>
+  <script defer src="/jsx/static/js/CreditCards.jsx?v=2"></script>
+  <script defer src="/jsx/static/js/Subscriptions.jsx?v=2"></script>
+  <script defer src="/jsx/static/js/Tasks.jsx?v=6"></script>
+  <script defer src="/jsx/static/js/App.jsx?v=34"></script>
+</body>
+</html>

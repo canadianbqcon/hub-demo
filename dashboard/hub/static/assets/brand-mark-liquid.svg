@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Hub brand mark under the liquid theme. Same glyph as brand-mark.svg, path copied
+       byte for byte (test_themes.py checks it): two even L brackets, margin 8 /
+       thickness 12 / arm 32, every edge a multiple of 4. Do not respace it.
+
+       Only the field treatment changes, to an Apple clear-glass icon: a translucent
+       blue field so the bar's wallpaper reads through, a lit rim on the top-left
+       edges, a soft shade toward the bottom-right, and a bright frosted glyph. All of
+       it is baked here; the mark sits on the glass bar, so it never gets a
+       backdrop-filter of its own (no glass on glass). The rounded outline comes from
+       liquid.css (continuous-corner clip-path), so the field stays a full square. -->
+  <defs>
+    <linearGradient id="field" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4c86ff" stop-opacity="0.72"/>
+      <stop offset="0.55" stop-color="#1d5bf0" stop-opacity="0.62"/>
+      <stop offset="1" stop-color="#1238b0" stop-opacity="0.70"/>
+    </linearGradient>
+    <radialGradient id="shade" cx="0.82" cy="0.86" r="0.75">
+      <stop offset="0" stop-color="#000814" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#000814" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="0.35" stop-color="#ffffff" stop-opacity="0.18"/>
+      <stop offset="0.7" stop-color="#ffffff" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.30"/>
+    </linearGradient>
+    <linearGradient id="glyph" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.98"/>
+      <stop offset="1" stop-color="#e8efff" stop-opacity="0.88"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" fill="url(#field)"/>
+  <rect width="64" height="64" fill="url(#shade)"/>
+  <rect x="1" y="1" width="62" height="62" rx="16" fill="none" stroke="url(#rim)" stroke-width="2"/>
+  <path d="M8 8 H40 V20 H20 V40 H8 Z M56 56 H24 V44 H44 V24 H56 Z" fill="url(#glyph)"/>
+</svg>

@@ -1,0 +1,282 @@
+/* mail page mods: only mx-* classes; an origin or shared class is touched only under body.mail.
+   Layout pick: Workbench set mail-layout, 2026-10-20, "One line per sender, opens in place". */
+body.mail { font-family: var(--font-body); }
+.mx-ic { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.mx-dim { color: var(--fg-dim); font-size: var(--fs-footnote); }
+.mx-count { font-size: var(--fs-footnote); color: var(--fg-dim); font-variant-numeric: tabular-nums; flex: none; }
+.mx-pad { padding: var(--s-3) var(--s-4); }
+
+/* rail */
+body.mail .hub-t3p-rail { padding: var(--s-3); }
+body.mail .hub-t3p-tab { justify-content: space-between; }
+.mx-search { position: relative; display: flex; align-items: center; margin: 0 0 var(--s-2); }
+.mx-search .mx-ic { position: absolute; left: 10px; color: var(--fg-faint); pointer-events: none; }
+.mx-search .hub-input { width: 100%; padding-left: 34px; }
+/* tab groups (Workbench set mail-rail-dividers, "Each group in its own glass tile" + "no gap between pairs, like a black and
+   white cookie", then "make all the pairs visible"): no divider at rest; hovering or opening a folder lights its half and darkens
+   its partner's, the pair reading as one rounded tile. A pair's first tab follows the search box or a divider */
+.mx-rail-div { margin: 0; border: 0; height: 0; }
+body.mail #mxNav > * { flex-shrink: 0; }  /* the phone drawer squeezed the tabs to 18px */
+body.mail #mxNav > :is(.mx-search, .mx-rail-div) + .hub-t3p-tab { border-radius: 14px 14px 0 0; }
+body.mail #mxNav > .hub-t3p-tab + .hub-t3p-tab { border-radius: 0 0 14px 14px; }
+[data-theme] body.mail #mxNav > :is(.mx-search, .mx-rail-div) + .hub-t3p-tab:is(.active, :hover) + .hub-t3p-tab:not(.active, :hover),
+[data-theme] body.mail #mxNav > :is(.mx-search, .mx-rail-div) + .hub-t3p-tab:not(.active, :hover):has(+ .hub-t3p-tab:is(.active, :hover)) { background: rgba(0, 0, 0, var(--mx-cookie, .28)); }
+[data-surface="light"] body.mail #mxNav { --mx-cookie: .09; --mx-rest: .04; }
+/* send-back: "remove the gap between pairs. make all the pairs visible": a pair's halves touch (the nav's 2px gap is
+   cancelled), and every pair shows its tile at rest in a faint dark fill; hover or open still lights one half */
+body.mail #mxNav > .hub-t3p-tab + .hub-t3p-tab { margin-top: -2px; }
+[data-theme] body.mail #mxNav > .hub-t3p-tab:not(.active, :hover) { background: rgba(0, 0, 0, var(--mx-rest, .16)); }
+.mx-rail-h { padding: var(--s-4) var(--s-3) var(--s-1); font-size: var(--fs-caption); font-weight: 600; color: var(--fg-dim); letter-spacing: 0.04em; }
+body.mail .hub-nav-item.mx-lab.is-folded .hub-nav-label::after { content: " ›"; color: var(--fg-dim); }
+body.mail .hub-nav-item.mx-lab { justify-content: space-between; min-height: 34px; padding-top: 6px; padding-bottom: 6px; font-size: var(--fs-footnote); padding-left: calc(var(--s-3) + 4px + var(--mx-depth, 0) * 14px); }
+
+/* list | thread on a wide screen, Apple Mail's split: a narrow list (about 30%, 320-420px) and the thread takes the rest;
+   the origin stacks the two below 1200 */
+@media (min-width: 1200px) {
+  body.mail .mx-split { grid-template-columns: clamp(320px, 30%, 420px) minmax(0, 1fr); height: 100%; }
+  /* no thread open: the list takes the page and the thread pane waits off to the right; picking a thread
+     narrows the list and slides the pane in (mark 224420 #3). Flex, because flex-basis animates where grid tracks do not */
+  /* liquid (second send-back): a soft spring that settles, and the pane comes in from a slight blur and scale */
+  body.mail .mx-split { display: flex; --mx-spring: linear(0, .012, .043 3.2%, .167 6.6%, .5 13.9%, .751 20.5%, .886 26.4%, .968 33.2%, .992 40.9%, 1 55%, 1); }
+  /* the same quick start but it settles without running past: the overshoot made the pane push 16px into the list and
+     spring back, squeezing the rows (seventh send-back: "it shouldnt compress the email list") */
+  body.mail .mx-split > .hub-t3p-list-col { flex: 0 0 clamp(320px, 30%, 420px); transition: flex 720ms var(--mx-spring); }
+  /* the pane's own width animates too: without it, closing dropped the pane to 0 at once and the list jumped to full width */
+  body.mail .mx-split > .hub-t3p-side { flex: 1 1 0; transform-origin: 0 50%; transition: flex 720ms var(--mx-spring), margin 720ms var(--mx-spring), opacity 380ms ease 60ms, filter 520ms ease, transform 720ms var(--mx-spring); }
+  /* the email keeps its reading width while the pane narrows, so it is cut off at the edge instead of squeezed
+     (liquid only: its pane clips; elsewhere the text would spill over the list) */
+  [data-theme="liquid"] body.mail .mx-split > .hub-t3p-side > .hub-detail-rail { min-width: 480px; }
+  /* close is the open in reverse order (fourth send-back): open makes the space and then fades the email in, so close fades
+     the email out first and then closes the space. The spring front-loads (half its travel in 100ms), which reads as a slam
+     when the space closes, so the close takes an ease-in-out with no overshoot */
+  body.mail .mx-split { --mx-close: cubic-bezier(.45, 0, .2, 1); }
+  /* the fade runs the length of the close, under the narrowing pane, so the email visibly fades out as it leaves; a 260ms
+     fade was gone before the pane moved and read as vanishing (sixth send-back: "fade out, not just disappear") */
+  body.mail .mx-split.is-empty > .hub-t3p-list-col { flex: 1 1 100%; transition: flex 680ms var(--mx-close) 80ms; }
+  body.mail .mx-split.is-empty > .hub-t3p-side { flex: 0 0 0; opacity: 0; filter: blur(6px); transform: translateX(72px) scale(.97); pointer-events: none; margin-left: 0; margin-right: 0;
+    transition: opacity 620ms cubic-bezier(.4, 0, .6, 1), filter 620ms ease-in, transform 680ms var(--mx-close), flex 680ms var(--mx-close) 80ms, margin 680ms var(--mx-close) 80ms; }
+  /* the email's own close: a glass chevron on its top right corner */
+  body.mail .hub-t3p-side .hub-detail-rail { position: relative; }
+  body.mail .mx-th-close { position: absolute; z-index: 5; top: 12px; right: 12px; width: 34px; height: 34px; padding: 0; display: grid; place-items: center; border-radius: 999px; }
+  body.mail .mx-th-close svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  body.mail .mx-th-head { padding-right: 56px; }
+}
+@media (max-width: 1199px) { body.mail .mx-th-close { display: none; } }
+@media (min-width: 1200px) and (prefers-reduced-motion: reduce) {
+  body.mail .mx-split > :is(.hub-t3p-list-col, .hub-t3p-side) { transition: none; }
+}
+/* liquid paints the open panel solid --bg for the phone sheet; beside the list it stays on the glass page */
+@media (min-width: 901px) {
+  [data-theme="liquid"] body.mail .hub-slide-over.is-open { background: transparent; }
+}
+/* liquid, side-by-side layout: the list column and the thread pane each sit on one large dark card (--bg-elev),
+   shaped like the folder rail beside them, tops level with the rail's.
+   Marks 103701 #1 and #2, 2026-10-20: "this should sit on a large black card", then "not black ... make it dark,
+   same as email list" (picked: both dark gray) */
+@media (min-width: 901px) {
+  [data-theme="liquid"] body.mail .mx-split > :is(.hub-t3p-list-col, .hub-t3p-side) { margin: 22px 0 10px 10px; border: 0; border-radius: 26px; background: var(--bg-elev); box-shadow: inset 0 0 0 1px var(--line-soft), var(--lq-slab-shade); overflow: clip; }
+  [data-theme="liquid"] body.mail .mx-split > .hub-t3p-side { margin-right: 10px; }
+  /* the cards already end above the status island, so the scrollers inside drop its 56px clearance
+     (mark 161115 #1, "why is there a gap on bottom") */
+  [data-theme="liquid"] body.mail .mx-split :is(.hub-t3p-list, .hub-detail-rail) { padding-bottom: 0; }
+}
+/* side padding = a row's side padding, so "Inbox" and the refresh button line up with the row text
+   (mark 161115 #3, "not aligned") */
+body.mail .mx-list-h { display: flex; flex-direction: row; align-items: center; flex-wrap: wrap; gap: var(--s-2) var(--s-3); padding: var(--s-3) calc(var(--s-2) + var(--s-3)); border-bottom: 1px solid var(--line); }
+/* a folder name that does not fit beside the controls drops them to a second line; only a name wider
+   than the whole column ellipsizes (mark 221413 #2, "cut off") */
+body.mail .mx-list-h > b { font-weight: 650; flex: none; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body.mail .mx-list-h > .mx-dim { flex: none; white-space: nowrap; }
+body.mail .mx-refresh { flex: none; display: inline-grid; place-items: center; width: 34px; height: 34px; min-height: 0; padding: 0; border-radius: 999px; }
+body.mail .mx-refresh .mx-ic { width: 18px; height: 18px; }
+body.mail .mx-refresh.is-busy .mx-ic { animation: mx-spin 900ms linear infinite; }
+@keyframes mx-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { body.mail .mx-refresh.is-busy .mx-ic { animation: none; opacity: .5; } }
+/* the switch and refresh wrap as one group, so refresh never lands on a line alone */
+body.mail .mx-list-ctl { display: flex; align-items: center; gap: var(--s-3); margin-left: auto; }
+body.mail .mx-seg { border-bottom: 0; }
+body.mail .mx-seg .hub-tab { font-size: var(--fs-footnote); padding: 4px 12px; min-height: 30px; }
+.mx-list { flex: 1 1 0; overflow-y: auto; min-height: 0; }
+.mx-groups { padding: 0 var(--s-2) var(--s-3); }
+
+/* one line per sender: a hub-collapsible-group whose summary carries the facts.
+   overflow: clip (not hidden) rounds the opened card without making a scroller, so the sticky summary still sticks */
+.mx-acc { border-bottom: 1px solid var(--line-soft); overflow: clip; }
+.mx-acc[open] { background: var(--bg-elev); border: 1px solid var(--line-soft); border-radius: 12px; margin: var(--s-2) 0; }
+body.mail .mx-head { flex-wrap: nowrap; align-items: center; gap: var(--s-2); padding: 10px var(--s-3); border-bottom: 0; font-size: var(--fs-footnote); background: transparent; }
+body.mail .mx-acc[open] > .mx-head { background: var(--bg-elev); }
+/* liquid paints every summary as a solid sticky bar; a closed sender line has nothing to stick over, so it stays glass */
+body.mail .mx-acc:not([open]) > .mx-head { background: transparent; box-shadow: none; }
+.mx-who { flex: 0 1 auto; min-width: 4em; max-width: 40%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; color: var(--fg-dim); }
+.mx-head.is-unread .mx-who { color: var(--fg); font-weight: 650; }
+.mx-last { flex: 1; min-width: 0; color: var(--fg-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mx-head .mx-row-time { margin-left: auto; }
+.mx-head .mx-last + .mx-row-time, .mx-head .hub-pill + .mx-row-time { margin-left: 0; }
+.mx-sub { display: flex; align-items: center; gap: var(--s-2); padding: 8px var(--s-4); border-top: 1px solid var(--line-soft); font-size: var(--fs-footnote); cursor: pointer; }
+.mx-sub:hover { background: var(--bg-hover); }
+.mx-sub.active, .mx-row.active { background: color-mix(in oklab, var(--accent) 16%, var(--bg-elev)); }
+/* liquid: never a standalone gray fill. The open row is a dark card; hover is only a light shade laid over dark.
+   Send-back 074930 #1, 2026-10-20: "only as a light shade on top of dark, do a dark card" */
+[data-theme="liquid"] body.mail :is(.mx-row, .mx-sub):hover { background: var(--lg-vib); }
+[data-theme="liquid"] body.mail .mx-row.active { background: var(--bg-elev); box-shadow: inset 0 1px 0 var(--line-soft), inset 0 -1px 0 var(--line-soft); }
+[data-theme="liquid"] body.mail .mx-row.active:hover { background: linear-gradient(var(--lg-vib), var(--lg-vib)), var(--bg-elev); }
+[data-theme="liquid"] body.mail .mx-sub.active { background: var(--lg-vib); }
+.mx-sub-subj { flex: 1; min-width: 0; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mx-sub-subj i, .mx-row-from i { font-style: normal; color: var(--fg-faint); }
+.mx-sub.is-unread .mx-sub-subj { color: var(--fg); font-weight: 650; }
+/* a company is a heading with its total; its senders sit under it as cards.
+   Pick: Workbench set mail-company-group, 2026-10-20, "Company as a heading" + cards */
+.mx-co-sec { margin: var(--s-2) 0 var(--s-1); }
+.mx-co-h { display: flex; align-items: baseline; gap: var(--s-2); padding: var(--s-3) var(--s-3) 4px; font-size: var(--fs-caption); letter-spacing: .04em; text-transform: uppercase; color: var(--fg-dim); }
+.mx-co-h b { font-weight: 650; color: var(--fg); }
+.mx-co-sec .mx-acc { background: var(--bg-elev); border: 1px solid var(--line-soft); border-radius: 12px; margin: 0 0 6px; }
+
+/* flat newest-first rows: no dividers, a rounded fill on hover and on the open one */
+/* a row runs edge to edge with square corners, so the selected one is a straight band, not a card inside the
+   list card (mark 221413 #3, "remove the inside card keep straight lines") */
+.mx-row { display: grid; gap: 2px; padding: 10px calc(var(--s-2) + var(--s-3)); cursor: pointer; }
+.mx-row:hover { background: var(--bg-hover); }
+/* centered, not baseline: the smaller time sat 1px under the sender and the dot (mark 161115 #3 send-back,
+   "the pip and the time and the sender"); measured ink centers now match */
+.mx-row-top { display: flex; align-items: center; gap: var(--s-2); }
+.mx-row-from { flex: 1; min-width: 0; font-size: var(--fs-footnote); font-weight: 500; color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mx-row-time { flex: none; font-size: var(--fs-caption); color: var(--fg-dim); font-variant-numeric: tabular-nums; }
+.mx-row-subj { min-width: 0; font-size: var(--fs-footnote); color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mx-row-snip { font-size: var(--fs-caption); color: var(--fg-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mx-row.is-unread .mx-row-from, .mx-row.is-unread .mx-row-subj { color: var(--fg); font-weight: 650; }
+.mx-pip { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
+.mx-pip.is-none { visibility: hidden; }
+/* one trailing column set on every row: pip slot, time right-aligned in a fixed width, chevron slot.
+   Rows without a chevron (sub rows, Newest) hold an empty slot the same width. Send-back 073045 #3, 2026-10-20:
+   "standardize the column position for the pip and time"
+   ponytail: min-width fits "12:59 PM" and "Oct 19"; a past-year date ("Oct 16, 2025") still pushes left */
+body.mail .mx-row-time { min-width: 4.6em; text-align: right; }
+body.mail .mx-acc > summary.mx-head { gap: var(--s-2); padding-right: var(--s-3); }
+body.mail .mx-acc > summary.mx-head::after { flex: none; width: 1em; text-align: center; }
+/* Newest rows have no chevron, so no empty slot: pip and time sit at the right edge, 6px apart.
+   Mark 140045 #6, 2026-10-20: "pip and time can be closer to right side, and tighter" */
+.mx-sub::after { content: ""; flex: none; width: 1em; }
+.mx-row-top { gap: 6px; }
+.mx-sub { padding-right: var(--s-3); }
+.mx-chip { flex: none; font-size: var(--fs-caption); color: var(--accent); background: var(--accent-faint); }
+.mx-chip.is-low { color: var(--warn); background: color-mix(in oklab, var(--warn) 16%, transparent); }
+
+/* thread panel: head, claude cards, then the stacked messages */
+body.mail .mx-thread { padding: 0; display: flex; flex-direction: column; gap: 0; min-height: 100%; box-sizing: border-box; }
+.mx-empty { flex: 1; min-height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-2); padding: var(--s-6) var(--s-5); text-align: center; }
+.mx-empty-g { width: 56px; height: 56px; margin-bottom: var(--s-2); fill: none; stroke: var(--fg-faint); stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; opacity: .7; }
+.mx-empty-t { font-family: var(--font-display); font-size: var(--fs-title); color: var(--fg-dim); }
+.mx-empty-x { max-width: 300px; font-size: var(--fs-footnote); line-height: 1.5; color: var(--fg-faint); }
+.mx-th-head { display: grid; gap: 6px; padding: var(--s-4) var(--s-4) var(--s-3); }
+.mx-th-subj { margin: 0; font-family: var(--font-display); font-size: var(--fs-title); font-weight: 400; line-height: 1.25; text-wrap: balance; overflow-wrap: anywhere; }
+/* name, address pill and date on one centred line (mark 140045 #4, 2026-10-20: "not in line") */
+.mx-th-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--s-2); font-size: var(--fs-footnote); color: var(--fg); overflow-wrap: anywhere; }
+.mx-th-meta span { color: var(--fg-dim); }
+.mx-th-meta .mx-addr { max-width: 100%; vertical-align: middle; font-size: var(--fs-caption); }
+.mx-addr > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* liquid draws a field as one tile; its textarea keeps the input fill, a dark box inside it */
+[data-theme="liquid"] body.mail .mx-card .hub-field textarea.hub-input { background: none; border: 0; box-shadow: none; padding: 0; color: var(--fg); }
+.mx-th-meta .mx-dim { white-space: nowrap; }  /* the date wraps as one piece, never a lone "AM" */
+.mx-acts { flex-wrap: wrap; margin-top: 4px; }
+.mx-stack { display: flex; flex-direction: column; gap: var(--s-3); padding: 0 var(--s-4) var(--s-5); min-width: 0; }
+.mx-card { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-2); min-width: 0; }
+body.mail .mx-card .hub-field .hub-input, body.mail .mx-card .hub-input { font-family: var(--font-body); line-height: 1.4; font-size: var(--fs-footnote); font-weight: 400; width: 100%; min-width: 0; box-sizing: border-box; }
+.mx-card .hub-field label { font-size: var(--fs-caption); }
+body.mail .mx-card .hub-detail-card-head { margin-bottom: 0; }
+.mx-dec { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2); }
+.mx-p { margin: 0; font-size: var(--fs-footnote); line-height: 1.45; color: var(--fg-dim); overflow-wrap: anywhere; }
+.mx-p b { display: block; color: var(--fg); }
+.mx-wrap { flex-wrap: wrap; }
+.mx-fold { display: grid; gap: var(--s-2); }
+.mx-fold { grid-template-columns: minmax(0, 1fr); }
+.mx-noterow { display: flex; gap: var(--s-2); }
+.mx-noterow input { flex: 1; width: auto; min-width: 0; }
+.mx-noterow .hub-btn { flex: none; }
+.mx-bul { margin: 0; padding-left: 1.1em; font-size: var(--fs-footnote); line-height: 1.5; display: grid; gap: 3px; }
+.mx-need { margin: 0; font-size: var(--fs-footnote); line-height: 1.45; color: var(--fg); }
+.mx-cost { margin: 0; font-size: var(--fs-caption); color: var(--fg-faint); }
+.mx-ta { width: 100%; height: auto; min-height: 58px; padding: 8px 10px; resize: vertical; font: inherit; font-size: var(--fs-footnote); }
+.mx-ta-body { min-height: 150px; }
+/* the sort decision floats at the foot of the thread as a glass bar; it scrolls inside itself past 45% */
+/* stuck mid-scroll it sits the stack's own bottom pad (--s-5) off the edge, the same gap it has resting at
+   the end of the thread; --s-2 here made it tighter while scrolling (mark 093936 #1, 2026-10-22) */
+.mx-float { position: sticky; bottom: var(--s-5); z-index: 5; margin-top: auto; max-height: 45vh; overflow-y: auto;
+  border: 1px solid var(--line-soft); border-radius: 16px; background: var(--bg-elev); box-shadow: 0 10px 32px rgba(0, 0, 0, .3); }
+.mx-float > .mx-card { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+/* fewer, wider rows: title, chip and pick share a line, the reason runs inline, and the folder picker sits
+   beside its buttons once the bar is wide enough. Mark 140045 #5, 2026-10-20: "shorten the box height by
+   reorganizing the rows, using horizontal space more" */
+.mx-float { container-type: inline-size; }
+.mx-why b { display: inline; }
+@container (min-width: 620px) { .mx-float .mx-fold { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } }
+[data-theme="liquid"] body.mail .mx-float { border: 0; background: var(--lg-thick-fill); -webkit-backdrop-filter: blur(24px) saturate(200%); backdrop-filter: blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow: var(--lg-thick-rim), 0 0 0 .5px var(--lg-edge), 0 10px 32px rgba(0, 0, 0, .35); }
+[data-theme="liquid"] body.mail .mx-float > .mx-card { background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.mx-msg { min-width: 0; }
+/* Load images / Hide are capsule buttons, the segmented control's size (mark 140045 #2, 2026-10-20: "buttons") */
+body.mail .mx-msg .hub-section-head { align-items: center; }
+body.mail .mx-head-btn { flex: none; min-height: 30px; height: 30px; padding: 0 12px; font-size: var(--fs-footnote); }
+.mx-msg-snip { padding: var(--s-2) var(--s-4) var(--s-3); font-size: var(--fs-caption); color: var(--fg-dim); overflow-wrap: anywhere; }
+.mx-msg-snip { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.mx-msg-text { padding: var(--s-2) var(--s-4) var(--s-3); font-size: var(--fs-footnote); line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mx-frame { display: block; width: 100%; height: 420px; border: 0; background: #fff; }
+/* color-scheme matches the email doc (normal), else Chrome paints an opaque white backdrop behind the frame */
+[data-surface="dark"] .mx-frame { background: transparent; color-scheme: normal; }
+/* the card is the frame: its header is the rounded top cap, an empty card-colored strip the rounded bottom cap,
+   and the email sits square between them, flush to both sides. The bottom cap is as tall as the card's corner
+   radius, so the corners never clip the email. Send-back 074930 #3, 2026-10-20: "square up the email ... a top cap
+   and a bottom cap as if the whole thing is a card with a squared email in the middle flush to the sides" */
+.mx-body::after { content: ""; display: block; height: 30px; }
+/* liquid: no caps at all. The email itself is the rounded card
+   (mark 221413 #4: "what is this white strip", then "screw it remove the top one too"); a plain-text
+   email gets the summary card's grey so it still reads as a card */
+[data-theme="liquid"] body.mail .mx-msg { background: none; }
+[data-theme="liquid"] body.mail .mx-msg .mx-body { background: var(--lg-vib); border-radius: 20px; clip-path: var(--lg-corner-20); }
+[data-theme="liquid"] body.mail .mx-msg .mx-body::after { content: none; }
+/* the snippet starts under the sender name (the head's 18px inset) and sits on the head's 12px foot
+   (mark 161115 #2, "fix spacing"); the address line it shared this with is gone (mark 223943 #1, "remove") */
+[data-theme="liquid"] body.mail .mx-msg .mx-msg-snip { padding: 0 18px 12px; }
+.mx-atts { display: flex; flex-wrap: wrap; gap: var(--s-2); padding: var(--s-2) var(--s-4) var(--s-3); }
+
+/* status bar: the synced-ago line goes red when the mirror is stale */
+body.mail #statusMeta.is-stale { color: var(--alert); }
+
+@media (max-width: 900px) {
+  .mx-last { display: none; }
+  /* with the subject hidden, the count pushes the pill and time to the right edge */
+  .mx-head .mx-count { margin-right: auto; }
+  body.mail .mx-list-h > .mx-dim { display: none; }
+  .mx-sub { min-height: 44px; }
+  body.mail .mx-list { overflow: visible; flex: none; }
+}
+
+/* sender suggestions under the search box, and the From chip once one is picked (mark 221739 #3) */
+.mx-sugg { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; right: 0; margin: 0; padding: 4px; list-style: none;
+  background: var(--bg-elev-2); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 10px 28px rgba(0, 0, 0, .3); }
+.mx-sugg li { font-size: var(--fs-footnote); line-height: 1.3; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--s-2); padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+.mx-sugg li.active { background: var(--bg-hover); }
+.mx-sugg li.mx-sugg-h { display: block; cursor: default; padding: 4px 10px 2px; font-size: var(--fs-caption); color: var(--fg-faint); }
+.mx-sugg li.is-op { align-items: center; }
+.mx-sugg li.is-op > span { grid-column: 2; grid-row: 1; }
+/* from: and in: as chips, in the menu and sitting in the box ahead of the typed text */
+.mx-sugg .mx-op-chip, .mx-op-chip { display: inline-flex; align-items: center; height: 22px; padding: 0 9px; font-size: var(--fs-caption); font-weight: 600; color: var(--fg); overflow: visible; }
+.mx-op-in { position: absolute; left: 32px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.mx-from { display: flex; flex-wrap: wrap; gap: var(--s-1); }
+.mx-sugg b { font-size: inherit; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; }
+.mx-sugg span { grid-column: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: var(--fs-caption); color: var(--fg-dim); }
+.mx-sugg i { grid-column: 2; grid-row: 1; font-style: normal; font-size: var(--fs-caption); color: var(--fg-faint); }
+.mx-from { margin: 0 0 var(--s-2); min-width: 0; }
+.mx-from-chip { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; }
+.mx-from-chip > span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* the rail is already a glass layer, so a nested blur has nothing behind it to soften and a see-through
+   fill shows the tabs under it: opaque raised surface, with the theme picker menu's rim and shade */
+[data-theme="liquid"] body.mail .mx-sugg { border: 0; border-radius: 16px; background: var(--bg-elev-2); box-shadow: var(--lg-ov-rim), var(--lq-menu-shade); }
+
+/* the open newest message: Hide floats over the email's top right as a glass pill (mark 222722 #1) */
+.mx-msg-main { position: relative; }
+.mx-float-acts { position: absolute; top: 10px; right: 10px; z-index: 2; display: flex; gap: var(--s-2); }
+body.mail .mx-hide { box-shadow: 0 4px 14px rgba(0, 0, 0, .25); }
+[data-theme="liquid"] body.mail .mx-hide { border: 0; background: var(--lg-thick-fill); -webkit-backdrop-filter: blur(24px) saturate(200%); backdrop-filter: blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow: var(--lg-thick-rim), 0 0 0 .5px var(--lg-edge), 0 6px 18px rgba(0, 0, 0, .3); }
+
+/* English under a translated message (mark 095433 #2) */
+.mx-tr { border-top: 1px solid var(--line-soft); padding: var(--s-3) var(--s-4); }
+.mx-tr-text { font-size: var(--fs-footnote); line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }

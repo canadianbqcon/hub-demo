@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+<meta charset="UTF-8">
+<!-- maximum-scale/user-scalable bind Android only: WebKit has ignored both for
+     pinch since iOS 10. The gesture handler hub/zoom_lock.py injects is what stops a pinch on
+     an iPhone, and touch-action: manipulation in the CSS stops the double-tap
+     zoom on both. Deliberate: the board is a touch surface, and a stray
+     two-finger drag or double-tap on a row used to leave it zoomed askew. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
+<link rel="manifest" href="/static/assets/manifest-trips.webmanifest">
+<meta name="apple-mobile-web-app-title" content="trips">
+<script>
+  /* no-flash theme init — same contract as trips.html / trips-landing.html. */
+  (function () {
+    var r = document.documentElement;
+    try {
+      var t = localStorage.getItem("hub.theme");
+      if (t === "glass") t = "liquid";
+      r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+      if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+      var s = localStorage.getItem("hub.surface");
+      if (s !== "light" && s !== "dark") {
+        s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+
+    /* Preload the active theme's two latin faces, right here, because this is the
+       first code that knows which theme is active. Without it the faces are not
+       discovered until fonts.css has parsed AND layout has reached text that uses
+       them — late enough on a slow link to paint a frame in the fallback stack and
+       reflow, which is the load flash this whole change is about. Two files, ~40 KB. */
+    var FACES = {
+      cobalt: ["/static/vendor/fonts/archivo-black-normal-latin.woff2",
+               "/static/vendor/fonts/space-grotesk-normal-latin.woff2"]
+    };
+    /* whole paths, not a prefix plus a name: test_trips_public scrapes every
+       static-asset literal out of this template and asserts the public mirror
+       serves it, so spelling them out is what puts these four behind that
+       check. (It also means a quoted partial path anywhere in this file reads
+       as an asset and fails there — keep prose out of quotes.) */
+    (FACES[r.getAttribute("data-theme")] || []).forEach(function (href) {
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
+      l.href = href;
+      document.head.appendChild(l);
+    });
+  })();
+</script>
+<title>trips</title>
+<!-- webfonts: one same-origin, render-blocking stylesheet carrying BOTH themes'
+     faces. Replaces the Google Fonts <link> each head used to inject from JS:
+     cross-origin, a second hop for each woff2, discovered too late to block
+     first paint, and `display=swap` — so the page painted in the fallback stack
+     and reflowed when the real faces landed. That reflow was the load flash.
+     Declaring the inactive theme's faces costs nothing (a @font-face downloads
+     only when a rule uses the family) and makes a live theme switch fetch-free.
+     See static/vendor/fonts/fonts.css; regenerate with tools/vendor-fonts.py. -->
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<style>
+  /* Styles live here rather than in a versioned stylesheet: one standalone page
+     that shares nothing with the board, so a separate file would only add a
+     cache-busting step to keep in step with nothing. */
+  /* base.css carries no page shell — every Hub page's body reset lives in its own
+     module stylesheet. The gate links no module CSS, so without these four lines
+     the theme tokens load and nothing consumes them: white ground, Times New Roman. */
+  body {
+    display: grid; place-items: center; min-height: 100vh; margin: 0;
+    background: var(--bg); color: var(--fg);
+    font-family: var(--font-body); font-size: var(--fs-subhead); line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .gate { width: min(22rem, 90vw); text-align: center; }
+  .gate-title { font-family: var(--font-display); font-size: var(--fs-title); margin: 0 0 .35rem; }
+  .gate-sub { color: var(--fg-dim); font-size: var(--fs-footnote); margin: 0 0 var(--s-5, 1.5rem); }
+
+  .slots { display: flex; gap: .6rem; justify-content: center; margin-bottom: var(--s-5, 1.5rem); }
+  .slot {
+    width: 3rem; height: 3.6rem; border: 1px solid var(--line); border-radius: var(--r, 6px);
+    background: var(--bg-elev); display: grid; place-items: center;
+    font-size: var(--fs-title); font-variant-numeric: tabular-nums;
+  }
+  .slot.filled { border-color: var(--accent); }
+  .slots.bad { animation: shake .4s; }
+  @keyframes shake {
+    25% { transform: translateX(-7px); } 50% { transform: translateX(7px); }
+    75% { transform: translateX(-4px); } 100% { transform: translateX(0); }
+  }
+
+  .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: .55rem; }
+  .keys button {
+    padding: .85rem 0; font-size: var(--fs-body); border: 1px solid var(--line);
+    border-radius: var(--r, 6px); background: var(--bg-elev); color: var(--fg); cursor: pointer;
+    font-variant-numeric: tabular-nums;
+  }
+  .keys button:hover { background: var(--bg-hover); }
+  .keys button:active { border-color: var(--accent); }
+  .key-wide { grid-column: span 1; }
+
+  .gate-msg { min-height: 1.2rem; margin-top: var(--s-4, 1rem); font-size: var(--fs-footnote); color: var(--alert); }
+  .gate-msg.ok { color: var(--accent); }
+
+  .gate-alt { margin-top: var(--s-5, 1.5rem); }
+  .gate-alt .hint { color: var(--fg-dim); font-size: var(--fs-footnote); margin: 0 0 .5rem; }
+  .gate-alt button {
+    width: 100%; padding: .8rem; font: inherit; font-size: var(--fs-subhead);
+    border: 1px solid var(--accent); border-radius: var(--r, 6px);
+    background: var(--bg-elev); color: var(--accent); cursor: pointer;
+  }
+  .gate-alt button:hover { background: var(--accent); color: var(--bg); }
+  /* Going back is not the call to action — only the first-time path gets weight. */
+  .gate-alt.quiet .hint { display: none; }
+  .gate-alt.quiet button {
+    width: auto; padding: .4rem; border: none; background: none;
+    color: var(--fg-dim); font-size: var(--fs-footnote); text-decoration: underline;
+  }
+  .gate-alt.quiet button:hover { background: none; color: var(--fg); }
+  .gate-name {
+    width: 100%; padding: .7rem; margin-bottom: var(--s-4, 1rem); box-sizing: border-box;
+    border: 1px solid var(--line); border-radius: var(--r, 6px);
+    background: var(--bg-elev); color: var(--fg); font: inherit; text-align: center;
+  }
+  .gate-fields { margin-bottom: var(--s-4, 1rem); }
+  .gate-pair { display: flex; gap: .5rem; }
+  .gate-pair .gate-name { margin-bottom: 0; }
+  .gate-fields .gate-name + .gate-name,
+  .gate-fields .gate-pair + .gate-name { margin-top: .5rem; }
+  .gate-fields .gate-name { margin-bottom: 0; }
+  [hidden] { display: none !important; }
+  /* React body: the bar is fixed so .gate keeps the plain page's centering. */
+  #gate-root .topbar { position: fixed; top: 0; left: 0; right: 0; z-index: 80; }
+</style>
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script><script defer src="/public/gate.jsx"></script>
+</head>
+<body>
+<div id="gate-root"></div>
+<script>
+/* load fallback: gate.jsx marks the root once React has mounted */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="gate"]')) return;
+    var d = document.createElement("div");
+    d.className = "gate-msg";
+    d.textContent = "page failed to load";
+    document.body.appendChild(d);
+  }, 3000);
+});
+</script>
+</body>
+</html>

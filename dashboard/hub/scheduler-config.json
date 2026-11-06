@@ -1,0 +1,202 @@
+{
+  "active_machine": "demo-desktop",
+  "jobs": [
+    {
+      "job": "forge-rebake",
+      "description": "Re-bakes the League item set builder data when a new patch lands",
+      "time": "06:00",
+      "enabled": true
+    },
+    {
+      "job": "music-pull",
+      "description": "Copies your Spotify playlists into the music library and logs changes",
+      "time": "06:00",
+      "enabled": true
+    },
+    {
+      "job": "shift-sync",
+      "description": "Syncs upcoming work shifts from Google Calendar for the earnings forecast",
+      "time": "08:00",
+      "enabled": true
+    },
+    {
+      "job": "shift-sync",
+      "description": "Syncs upcoming work shifts from Google Calendar for the earnings forecast",
+      "time": "11:00",
+      "enabled": true
+    },
+    {
+      "job": "shift-sync",
+      "description": "Syncs upcoming work shifts from Google Calendar for the earnings forecast",
+      "time": "14:00",
+      "enabled": true
+    },
+    {
+      "job": "shift-sync",
+      "description": "Syncs upcoming work shifts from Google Calendar for the earnings forecast",
+      "time": "17:00",
+      "enabled": true
+    },
+    {
+      "job": "shift-sync",
+      "description": "Syncs upcoming work shifts from Google Calendar for the earnings forecast",
+      "time": "20:00",
+      "enabled": true
+    },
+    {
+      "job": "shift-sync",
+      "description": "Syncs upcoming work shifts from Google Calendar for the earnings forecast",
+      "time": "23:00",
+      "enabled": true
+    },
+    {
+      "job": "owed-payments",
+      "description": "Reads Venmo and Zelle emails into the owed tab and settles exact matches",
+      "time": "06:00",
+      "enabled": true
+    },
+    {
+      "job": "book-sync",
+      "description": "Pulls new bank transactions from SimpleFIN into the book",
+      "time": "01:30",
+      "enabled": true
+    },
+    {
+      "job": "book-sync",
+      "description": "Pulls new bank transactions from SimpleFIN into the book",
+      "time": "03:30",
+      "enabled": true
+    },
+    {
+      "job": "book-sync",
+      "description": "Pulls new bank transactions from SimpleFIN into the book",
+      "time": "13:00",
+      "enabled": true
+    },
+    {
+      "job": "book-sync",
+      "description": "Pulls new bank transactions from SimpleFIN into the book",
+      "time": "15:00",
+      "enabled": true
+    },
+    {
+      "job": "book-sync",
+      "description": "Pulls new bank transactions from SimpleFIN into the book",
+      "time": "21:30",
+      "enabled": true
+    },
+    {
+      "job": "book-sync",
+      "description": "Pulls new bank transactions from SimpleFIN into the book",
+      "time": "23:30",
+      "enabled": true
+    },
+    {
+      "job": "orders-scan",
+      "description": "Reads order and shipping emails into Purchases, filling in tracking numbers",
+      "time": "06:00",
+      "enabled": true
+    },
+    {
+      "job": "vault-map-refresh",
+      "description": "Rebuilds the Vault Map so it matches the current vault and code",
+      "time": "06:00",
+      "enabled": true
+    },
+    {
+      "job": "window-chain",
+      "description": "Reopens the Claude five-hour usage window the moment the old one expires",
+      "enabled": true,
+      "weekly_stand_down": 95
+    },
+    {
+      "job": "news-poll",
+      "description": "Fetches news feeds, groups new stories and prunes old ones",
+      "enabled": true,
+      "interval_minutes": 15,
+      "topics_interval_minutes": 60
+    },
+    {
+      "job": "mail-sync",
+      "description": "Mirrors Gmail into the local mail database for the /mail page",
+      "enabled": true,
+      "interval_minutes": 5
+    },
+    {
+      "job": "sitesearch-alerts",
+      "description": "Checks saved searches and pushes new listings under your price to your phone",
+      "enabled": true,
+      "interval_minutes": 30
+    },
+    {
+      "job": "news-digest",
+      "description": "Writes the morning news summary with one Sonnet call at 06:00; retries hourly until noon",
+      "time": "*:00",
+      "enabled": true
+    },
+    {
+      "job": "gmail-lane",
+      "description": "Sorts new inbox mail with Haiku; sure moves happen, the rest wait on the Automations page",
+      "time": "*/5",
+      "enabled": true,
+      "auto_move": true
+    },
+    {
+      "job": "voice-memo",
+      "description": "Acts on new voice memos with Sonnet the way /recap would; every action can be undone on the Automations page",
+      "time": "*/5",
+      "enabled": true
+    },
+    {
+      "job": "file-sort",
+      "description": "Moves new files from Downloads, Desktop and the capture folders into Demo Files",
+      "time": "06:00",
+      "enabled": true
+    },
+    {
+      "job": "file-sort",
+      "description": "Moves new files from Downloads, Desktop and the capture folders into Demo Files",
+      "time": "18:00",
+      "enabled": true
+    },
+    {
+      "job": "downloads-tidy",
+      "description": "Moves Claude process folders idle 3+ days from Downloads into Claude Mockups; deletes nothing",
+      "time": "06:00",
+      "enabled": true
+    },
+    {
+      "job": "downloads-tidy",
+      "description": "Moves Claude process folders idle 3+ days from Downloads into Claude Mockups; deletes nothing",
+      "time": "18:00",
+      "enabled": true
+    },
+    {
+      "job": "branch-check",
+      "description": "Parks one planner item per local branch whose work never reached main",
+      "time": "08:00",
+      "days": [
+        "mon"
+      ],
+      "enabled": true
+    },
+    {
+      "skill": "/job-sweep",
+      "time": "06:00",
+      "enabled": true,
+      "timeout_seconds": 3600
+    },
+    {
+      "skill": "/trip-intake",
+      "description": "Researches the activities a friend added through the trip intake form once approved",
+      "time": "07:00",
+      "enabled": true,
+      "timeout_seconds": 1800,
+      "allowed_tools": [
+        "WebSearch",
+        "WebFetch",
+        "Bash(python3 \"{code}/dashboard/hub/trips/intake.py\" *)"
+      ]
+    }
+  ]
+}

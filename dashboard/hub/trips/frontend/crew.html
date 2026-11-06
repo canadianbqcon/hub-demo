@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="/static/assets/favicon.png">
+  <script>
+    /* no-flash theme + surface bootstrap: must run before first paint.
+       Same snippet every hub page carries; see workbench.html. */
+    (() => {
+      var r = document.documentElement;
+      try {
+        var t = localStorage.getItem("hub.theme");
+        if (t === "glass") t = "liquid";
+        r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+        if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+        let s = localStorage.getItem("hub.surface");
+        if (s !== "light" && s !== "dark") {
+          s = (window.matchMedia?.("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+        }
+        r.setAttribute("data-surface", s);
+      } catch (_e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+    })();
+  </script>
+  <title>HUB · crew</title>
+  <link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+  <link rel="stylesheet" href="/static/css/base.css?v=6">
+  <link rel="stylesheet" href="/static/css/components.css?v=5">
+  <link rel="stylesheet" href="/static/css/origins/entry-3-pane.css">
+  <link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+  <link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+  <link rel="stylesheet" href="/trips/static/crew.css?v=6">
+  <script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
+</head>
+<body class="crew">
+<div class="hub-shell hub-e3p shell">
+
+  <header class="topbar">
+    <!-- the bar itself is drawn by topbar.jsx; only this page's extras live here -->
+    <span data-slot="crumb" class="crumb">trips · crew</span>
+  </header>
+
+  <!-- drawn by crew.jsx: people and waiting items | the picked one | keypad, share, counts -->
+  <main class="body hub-e3p-body" id="crew-root"></main>
+
+  <footer class="status">
+    <span class="status-l" id="statusMsg"></span>
+  </footer>
+
+</div>
+
+<div class="hub-toast toast" id="toast" hidden></div>
+
+<script defer src="/trips/static/addr-combo.js?v=2"></script>
+<script defer src="/jsx/trips/frontend/static/crew.jsx?v=1"></script>
+<script>
+  /* load fallback: if the React body never mounted, say so instead of leaving a blank page */
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      if (document.querySelector('[data-react-mounted="crew"]')) return;
+      var host = document.getElementById("crew-root");
+      if (host) host.innerHTML = '<div class="hub-error">page failed to load</div>';
+    }, 3000);
+  });
+</script>
+</body>
+</html>

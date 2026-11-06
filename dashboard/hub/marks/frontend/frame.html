@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<script>
+  (function () {
+    var r = document.documentElement;
+    try {
+      var t = localStorage.getItem("hub.theme");
+      if (t === "glass") t = "liquid";
+      r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+      if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+      var s = localStorage.getItem("hub.surface");
+      if (s !== "light" && s !== "dark") {
+        s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+  })();
+</script>
+<title>HUB · mark mode</title>
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<link rel="stylesheet" href="/static/css/marks.css">
+<style>html,body{margin:0;height:100%;overflow:hidden}#mk-frame{display:block;width:100vw;height:100vh;border:0}</style>
+<script defer src="/static/js/theme-switch.js?v=42"></script>
+</head>
+<body data-session="{{ session }}">
+<iframe id="mk-frame" src="{{ u }}"></iframe>
+<script src="/static/vendor/react.production.min.js"></script>
+<script src="/static/vendor/react-dom.production.min.js"></script>
+<script defer src="/jsx/marks/frontend/static/frame.jsx?v=2"></script>
+<script>
+/* load fallback: if the React body never mounted, say so instead of leaving a bare frame */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="marks-frame"]')) return;
+    var d = document.createElement("div");
+    d.className = "hub-error";
+    d.style.cssText = "position:fixed;left:0;right:0;bottom:18px;text-align:center;z-index:5";
+    d.textContent = "page failed to load";
+    document.body.appendChild(d);
+  }, 3000);
+});
+</script>
+</body>
+</html>

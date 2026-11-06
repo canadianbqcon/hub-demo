@@ -1,0 +1,450 @@
+/* home · 1 of 4: reset, type helpers, shell, body grid, schedule, trip, credit cards.
+   Split from home.css 2026-07-29 (1665 lines). The four load in order from
+   templates/index.html and cascade as one sheet: order between them is
+   load-bearing (the contrast audit block at the end of day.css wins on it). */
+/* ============================================================================
+   hub · home dashboard ui kit
+   one structure, two surfaces. toggle data-surface="light"|"dark" on .shell.
+
+   typography: surface serif everywhere. no mono. metadata = small italic;
+   labels = uppercase-tracked; numbers = tabular figures.
+   ============================================================================ */
+
+/* ---------------- reset ---------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+  font-size: var(--fs-subhead);
+  font-size-adjust: 0.46;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; text-decoration: none; }
+input { font: inherit; color: inherit; background: none; border: 0; outline: 0; }
+input::placeholder { color: var(--fg-faint); font-style: italic; }
+
+/* ---------------- type helpers ---------------- */
+.t-num    { font-variant-numeric: tabular-nums lining-nums; font-feature-settings: var(--feat-text), var(--feat-tnum); }
+
+/* ---------------- shell ---------------- */
+/* rows: pinned topbar · the one scroll region · pinned status strip. the shell is
+   exactly the viewport height; only the middle row scrolls, so both bars stay
+   glued to the screen edges and content scrolls under them regardless of size. */
+.shell { grid-template-rows: auto minmax(0, 1fr) var(--status-h);
+  /* one column that can shrink: the status strip's min-content (about 1022px at 900 wide) must not widen the page */
+  grid-template-columns: minmax(0, 1fr);
+  /* shared 3-column template: the today band and the body columns both use it so the
+     band's cells line up exactly with the columns beneath. */
+  --home-cols: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr); }
+/*                                          topbar scroll status */
+
+/* /api/home failure banner (see App.jsx apiError) — sits between the topbar and
+   the scrolling column body so it's visible without covering nav. .hub-error /
+   .hub-error-retry base styling lives in base.css; this just places it. */
+.hub-error-home { margin: var(--s-3) var(--s-4) 0; }
+
+/* always-see tab: pinned handle (real grid row) + overlay panel (floats, no
+   layout shift). Lives in home.css, which only home loads — no leak to other
+   dashboards (they have their own .shell). */
+.always-see { position: relative; z-index: 40; }
+.ast-handle {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; gap: var(--s-3);
+  padding: var(--s-2) var(--s-4);
+  background: var(--bg); border-bottom: 1px solid var(--line);
+  cursor: pointer; text-align: left;
+}
+.ast-handle:hover { background: var(--bg-elev); }
+.ast-summary {
+  font-family: var(--font-body); font-feature-settings: var(--feat-meta);
+  font-size: var(--fs-footnote); color: var(--fg-dim); letter-spacing: 0.01em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ast-chevron { font-size: var(--fs-caption); color: var(--fg-faint); flex-shrink: 0; }
+.ast-panel {
+  position: absolute; left: 0; right: 0; top: 100%;
+  max-height: calc(100vh - var(--status-h) - 96px);
+  overflow: hidden;
+  background: var(--bg); border-bottom: 1px solid var(--line-strong);
+  box-shadow: var(--modal-shadow);
+  animation: ep-enter 180ms ease-out;
+}
+.ast-panel-inner { overflow-y: auto; max-height: inherit; padding: var(--s-3) var(--s-4) var(--s-4); }
+.ast-panel-inner::-webkit-scrollbar { width: 6px; }
+.ast-panel-inner::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); }
+
+/* the single scroll region between the two pinned bars. holds the body
+   columns; grows with content and scrolls as one (min-height:0 lets it shrink
+   inside the grid instead of pushing the status strip off-screen). */
+.scroll-region { min-height: 0; overflow-y: auto; overflow-x: hidden; }
+
+.panel { display: flex; flex-direction: column; min-height: 0; border-bottom: 1px solid var(--line); }
+.panel:last-child { border-bottom: 0; }
+.panel.flex { flex: 1 1 280px; min-height: 240px; }
+.panel.fixed { flex: 0 0 auto; }
+
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--s-3); padding: 0; margin-bottom: var(--s-4);
+}
+.panel-head-l {
+  display: flex; align-items: baseline; gap: var(--s-3); min-width: 0; flex: 0 1 auto;
+}
+/* header size tiers — one scale for every panel/section header on home, so a
+   header's size comes from its rank (which tier) not a per-header magic number.
+   --title-lh is a single line-box ratio shared across all three tiers: uniform
+   proportions whether a header is bigger or smaller, and enough vertical room
+   that ascenders/descenders never clip (the old line-height:1 cut glyph tops). */
+:root {
+  --title-1: var(--fs-title);  /* primary   — column section heads (schedule / recap / tasks) */
+  --title-2: var(--fs-title);  /* secondary — standalone panels, day dividers */
+  --title-3: var(--fs-body);  /* subordinate — sub-panels nested under a column head (cards, subs) */
+  --title-lh: 1.2;
+}
+.panel-title {
+  font-family: var(--font);
+  font-feature-settings: var(--feat-display);
+  font-weight: 600; font-size: var(--title-2);
+  letter-spacing: 0; color: var(--fg);
+  white-space: nowrap;
+  line-height: var(--title-lh);
+}
+.panel-meta {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-style: italic;
+  font-size: var(--fs-footnote);
+  color: var(--fg-dim);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis;
+  flex: 0 1 auto;
+}
+.panel-body { padding: 0; overflow-y: auto; overflow-x: hidden; min-height: 0; }
+.panel-body.scroll { flex: 1 1 auto; }
+.panel-body::-webkit-scrollbar { width: 6px; height: 6px; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); }
+.panel-body::-webkit-scrollbar-track { background: transparent; }
+
+/* ---------------- schedule ---------------- */
+/* Home forward-schedule: no panel-head (the today zone above owns today's calendar
+   and a "schedule" header between today and the following days reads as a
+   disconnect). No standalone add affordance either — today flows straight into
+   tomorrow → +7 as one continuous column. */
+.day { padding-top: var(--s-3); }
+.day:first-child { padding-top: 0; }
+.day-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: var(--s-3) 0 var(--s-2);
+  border-top: 1px solid var(--line);
+  margin-bottom: var(--s-2);
+}
+.day:first-child .day-head { border-top: 0; padding-top: 0; }
+.day-label {
+  font-family: var(--font);
+  font-feature-settings: var(--feat-display);
+  font-weight: 500; font-size: var(--title-2);
+  letter-spacing: 0.04em; color: var(--fg-mute);
+  text-transform: lowercase;
+  line-height: var(--title-lh);
+}
+.day-label.past     { color: var(--fg-dim); font-weight: 400; opacity: 0.6; }
+.day-head-toggle    { cursor: pointer; user-select: none; }
+.day-head-toggle:hover .day-label.past { opacity: 0.85; }
+.day-caret {
+  display: inline-block;
+  font-size: var(--fs-caption);
+  margin-right: 6px;
+  vertical-align: middle;
+  opacity: 0.7;
+}
+.day-label.today    { color: var(--fg); }
+.day-label.tomorrow { color: var(--fg); opacity: 0.9; }
+.day-label.future   { color: var(--fg-dim); font-weight: 400; }
+.day-date {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta), var(--feat-tnum);
+  font-style: italic;
+  font-size: var(--fs-footnote);
+  color: var(--fg-dim);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.day.is-today .day-head { border-top: 1px solid var(--accent-faint); }
+.day.is-today .day-date { color: var(--accent); }
+/* clicking a day focuses the briefing on it; the selected day gets an accent rail */
+.day-head-clickable { cursor: pointer; user-select: none; }
+.day-head-clickable:hover .day-label { color: var(--fg); }
+.day.is-selected { border-left: 2px solid var(--accent); padding-left: var(--s-3); margin-left: calc(-1 * var(--s-3) - 2px); }
+.day.is-selected .day-label { color: var(--accent); }
+
+.event-row {
+  display: grid; grid-template-columns: 56px 14px minmax(0, 1fr);
+  align-items: baseline; gap: var(--s-2);
+  padding: 6px 0; border-top: 1px dashed var(--line-soft);
+}
+.event-row:first-of-type { border-top: 0; }
+/* a HubCollapse wrapper makes the first event first-of-type; it kept its rule under the day head before */
+.hub-collapse > .event-row:first-of-type { border-top: 1px dashed var(--line-soft); }
+.event-time {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text), var(--feat-tnum);
+  font-size: var(--fs-subhead); color: var(--fg-dim);
+}
+.event-pip {
+  width: 8px; height: 8px; border-radius: var(--r-pill);
+  background: var(--fg-faint);
+  /* every pip (event, task, timeline, ghost) centers in the 14px column and on the first text line */
+  justify-self: center; align-self: start; margin-top: 7px;
+}
+.event-name {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+  font-size: var(--fs-body); color: var(--fg); line-height: 1.35; text-transform: lowercase;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.event-sub {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-style: italic; font-size: var(--fs-footnote);
+  color: var(--fg-dim); margin-top: 2px;
+  letter-spacing: 0.01em;
+}
+/* "+1" marker on an event that crossed midnight but belongs to this night —
+   reads like a flight's next-day arrival tag, kept faint so it doesn't shout. */
+.event-rolled {
+  font-feature-settings: var(--feat-text), var(--feat-tnum);
+  font-size: var(--fs-caption); line-height: 0;
+  color: var(--fg-faint); margin-left: 4px;
+  vertical-align: super; letter-spacing: 0.02em; text-transform: none;
+}
+
+/* End time on a second line: a transit-style timeline. Start and end each get a
+   dot in the pip column, joined by a vertical line (like a train route to the
+   next stop). The two times read down the left edge; the name stays on line 1. */
+.event-row.has-end {
+  grid-template-rows: auto auto;
+  align-items: start;
+  row-gap: 2px;
+}
+/* Explicit placement: the pipline spans BOTH rows so its line stretches from the
+   start dot (row 1, beside the start time) down to the end dot (row 2, beside the
+   end time). Each dot's 5px top/bottom margin centers it on its own time text. */
+.event-row.has-end > .event-time      { grid-column: 1; grid-row: 1; }
+.event-row.has-end > .event-pipline   { grid-column: 2; grid-row: 1 / 3; align-self: stretch; }
+.event-row.has-end > .event-name-cell { grid-column: 3; grid-row: 1; }
+.event-row.has-end > .event-time-end  { grid-column: 1; grid-row: 2; color: var(--fg-dim); }
+/* align-self: stretch makes the pipline fill the full height of both rows, so the
+   line's flex-grow expands it to actually connect the two dots (a percentage
+   height won't resolve against the auto-sized rows — it just collapses to a stub). */
+.event-pipline {
+  display: flex; flex-direction: column; align-items: center;
+}
+.event-pipline .event-pip { flex: 0 0 auto; align-self: center; margin-top: 6.5px; }
+.event-line {
+  flex: 1 1 auto; width: 1.5px; min-height: 6px; margin: 2px 0;
+  background: var(--line-strong); border-radius: var(--r-pill);
+}
+.event-pipline .event-pip-end {
+  margin-top: 0; margin-bottom: 6.5px;
+  background: var(--fg-faint);
+}
+/* Boxed in the event's Google Calendar color (its label, else its calendar's),
+   solid with white text the way Google draws it (2026-10-19 send-back: the 18%
+   tint read as a different color); black on the light ones, picked per box by
+   Schedule.jsx eventInk() as --ev-ink (2026-10-20). The day list clips overflow, so the box can't
+   bleed outward: its 10px inset comes out of the time column, which keeps pip and
+   name on the unboxed x. Second send-back: semibold title and medium times
+   (white 400 read frail on color), and no dashed rules touching a box (the
+   collapse's first-row rule outranked border: 0 and drew on its top edge). */
+.event-row.tinted, .hub-collapse > .event-row.tinted:first-of-type {
+  background: var(--ev-c);
+  border: 0;
+  border-radius: 8px;
+  padding: 7px 8px 7px 10px; margin: 4px 0;
+  grid-template-columns: 46px 14px minmax(0, 1fr);
+}
+.event-row.tinted.task, .hub-collapse > .event-row.tinted.task:first-of-type { grid-template-columns: 46px 14px minmax(0, 1fr) auto; }
+.event-row.tinted.cal-editable:hover { background: color-mix(in srgb, var(--ev-c) 88%, #fff); }
+.event-row.tinted + :is(.event-row, .event-row-ghost) { border-top: 0; }
+.event-row.tinted :is(.event-name, .event-time, .event-time-end, .event-sub, .task-flag, .event-rolled) { color: var(--ev-ink, #fff); opacity: 1; }
+.event-row.tinted .event-name { font-weight: 600; letter-spacing: -0.005em; }
+.event-row.tinted :is(.event-time, .event-time-end) { font-weight: 500; }
+.event-row.tinted .event-pip, .event-row.tinted .event-pipline .event-pip-end { background: var(--ev-ink, #fff); }
+.event-row.tinted .event-line { background: color-mix(in srgb, var(--ev-ink, #fff) 60%, transparent); }
+.event-row.tinted.task .event-pip { background: transparent; border-color: var(--ev-ink, #fff); }
+.event-row.tinted.task.done .event-pip { background: var(--ev-ink, #fff); border-color: var(--ev-ink, #fff); }
+.event-row.tinted.task .task-flag { color: var(--ev-ink, #fff); opacity: 1; }
+.event-row.task {
+  grid-template-columns: 56px 14px minmax(0, 1fr) auto;
+  cursor: pointer;
+}
+.event-row.task .event-pip {
+  width: 12px; height: 12px; border: 1px solid var(--alert);
+  background: transparent; border-radius: 2px; margin-top: 5px;
+}
+.event-row.task.done .event-pip { background: var(--alert-dim); border-color: var(--alert-dim); }
+.event-row.task.done .event-name { color: var(--fg-dim); text-decoration: line-through; text-decoration-color: var(--fg-faint); }
+.event-row.task .task-flag {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-style: italic;
+  font-size: var(--fs-caption);
+  letter-spacing: 0.06em; color: var(--alert);
+  text-transform: lowercase;
+  opacity: 0.78;
+  align-self: center;
+}
+
+/* ---------------- trip ---------------- */
+.trip {
+  display: grid; grid-template-columns: auto 1fr auto;
+  align-items: center; gap: var(--s-4);
+  padding: var(--s-4);
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg-elev); cursor: pointer;
+  transition: border-color 120ms ease-out;
+}
+.trip:hover { border-color: var(--accent-dim); }
+.trip-days {
+  font-family: var(--font);
+  font-feature-settings: var(--feat-display), var(--feat-tnum);
+  font-weight: 300;
+  font-size: var(--fs-large-title);
+  color: var(--accent);
+  line-height: 1;
+}
+.trip-days-unit {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-weight: 500; font-size: var(--fs-caption);
+  color: var(--fg-dim);
+  letter-spacing: 0.22em; text-transform: uppercase;
+  display: block; margin-top: 4px;
+}
+.trip-dest {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+  font-size: var(--fs-headline, var(--fs-body)); font-weight: 600; color: var(--fg);
+  letter-spacing: 0.01em;
+}
+.trip-window {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta), var(--feat-tnum);
+  font-style: italic;
+  font-size: var(--fs-footnote); color: var(--fg-dim);
+  margin-top: 3px;
+  letter-spacing: 0.01em;
+}
+.trip-arrow { font-family: var(--font-body); color: var(--fg-faint); font-size: var(--fs-body); }
+/* booked flight and stay under the countdown (mark 2026-11-03 "make nicer") */
+.trip-facts { grid-column: 1 / -1; display: grid; gap: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--line); }
+.trip-fact { display: grid; grid-template-columns: 4.5em 1fr; gap: var(--s-3); font-family: var(--font-body); font-size: var(--fs-footnote); color: var(--fg); font-feature-settings: var(--feat-tnum); }
+.trip-fact-k { color: var(--fg-dim); }
+.trip-fact.is-open { color: var(--alert); }
+
+/* ---------------- news ----------------
+   Same grid/sizing as .trip above (same column, same responsive behaviour
+   already covered by that pattern): count on the left, digest line filling
+   the middle, arrow on the right. */
+.news-summary {
+  display: grid; grid-template-columns: auto 1fr auto;
+  align-items: center; gap: var(--s-4);
+  padding: var(--s-4);
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  background: var(--bg-elev); cursor: pointer;
+  transition: border-color 120ms ease-out;
+}
+.news-summary:hover { border-color: var(--accent-dim); }
+.news-count {
+  font-family: var(--font);
+  font-feature-settings: var(--feat-display), var(--feat-tnum);
+  font-weight: 300;
+  font-size: var(--fs-large-title);
+  color: var(--accent);
+  line-height: 1;
+}
+.news-count-unit {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-weight: 500; font-size: var(--fs-caption);
+  color: var(--fg-dim);
+  letter-spacing: 0.22em; text-transform: uppercase;
+  display: block; margin-top: 4px;
+}
+.news-line {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+  font-size: var(--fs-subhead); color: var(--fg);
+  letter-spacing: 0.01em;
+}
+.news-arrow { font-family: var(--font-body); color: var(--fg-faint); font-size: var(--fs-body); }
+
+/* ---------------- credit cards ---------------- */
+/* the list owns the columns and each row is a subgrid of it, so chip, days and
+   amount share one width across every row (2026-10-20 mark: "standardize columns"). */
+.cc-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  column-gap: var(--s-3);
+}
+.cc-row {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  align-items: center;
+  padding: var(--s-3);
+  border-bottom: 1px solid var(--line);
+}
+.cc-row:last-child { border-bottom: 0; }
+.cc-name {
+  grid-column: 1; grid-row: 1;
+  font-family: var(--font-body); font-feature-settings: var(--feat-text);
+  font-size: var(--fs-subhead); color: var(--fg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+.cc-name .last4 {
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta), var(--feat-tnum);
+  color: var(--fg-dim); font-size: var(--fs-footnote); margin-left: 4px; font-style: italic;
+}
+.cc-due {
+  grid-column: 3;
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta), var(--feat-tnum);
+  font-style: italic; font-size: var(--fs-caption);
+  color: var(--fg-dim); letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.cc-amt {
+  grid-column: 4;
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text), var(--feat-tnum);
+  font-size: var(--fs-subhead); color: var(--fg);
+  min-width: 60px; text-align: right;
+}
+/* status rides the card's own line, in its own auto column between the name and
+   the due days, so the due / amount columns still line up row to row. */
+.cc-status {
+  grid-column: 2; grid-row: 1;
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-meta);
+  font-weight: 500; font-size: var(--fs-caption);
+  letter-spacing: 0.22em; text-transform: uppercase;
+  box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; height: var(--ctl-h); padding: 0 10px; line-height: 1; border: 0; border-radius: var(--r-card); white-space: nowrap;
+  background: color-mix(in oklab, var(--fg-dim) 30%, transparent);
+}
+.cc-status.paid    { background: var(--good);  color: var(--bg); }
+.cc-status.due     { background: var(--warn);  color: var(--bg); }
+.cc-status.overdue { background: var(--alert); color: var(--bg); }

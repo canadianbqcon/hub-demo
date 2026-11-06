@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<title>Item Set Forge</title>
+<base href="/forge/">
+<!-- Everything this page needs, on the wire from the head.
+
+     An inline <script type="module"> at the bottom of the document does not
+     fetch its imports until the WHOLE document has parsed, and it does not run
+     its own body until those imports land. So the data used to go out on the
+     third serial round trip: document, then stylesheets, then the module's
+     imports, and only then api/stats and friends. Four hops before the first
+     byte of anything worth rendering, which on a phone off the tailnet is most
+     of the load. modulepreload starts the imports beside the stylesheets, and
+     the preflight below starts the data beside both, so one hop covers all of
+     it. The module at the bottom awaits promises that have already settled. -->
+<link rel="modulepreload" href="static/itemset.js">
+<link rel="modulepreload" href="static/build-overlay.js">
+<link rel="modulepreload" href="static/loadout.js">
+<script>
+  (function () {
+    var j = function (u, fb) {
+      return fetch(u).then(function (r) { return r.json(); }).catch(function () { return fb; });
+    };
+    window.__FORGE = {
+      landing: j('api/landing', { champions: [] }),
+      sets: j('api/sets', { sets: [] }),
+      runes: j('static/runes.json', { runes: {}, trees: {} }),
+      champ: j('api/champion/' + ((location.pathname.match(/\/c\/([^/]+)/) || [])[1] || '_'), null),
+      catalog: j('static/catalog.json', { items: [] }),
+    };
+  }());
+</script>
+<link rel="stylesheet" href="static/forge-base.css">
+<link rel="stylesheet" href="static/forge-themes.css">
+<link rel="stylesheet" href="static/build-overlay.css">
+<link rel="stylesheet" href="static/loadout.css">
+<!-- Before first paint: a theme read after the page has painted is a flash of the
+     previous one. Deliberately not a module - modules defer. -->
+<script>
+  try {
+    var t = localStorage.getItem('forge:theme');
+    if (t) document.documentElement.dataset.theme = t;
+  } catch (e) { /* private mode: the default theme is a fine place to land */ }
+</script>
+
+<style>
+  /* A champion's build list — what opening a champion lands on, not the builder.
+     The sets you already made are the thing you want first; a new one is one click.
+
+     Grouped by the patch each set was saved on, newest patch first, because that
+     is the only axis a build ages along: an item changed under it and the build
+     stopped being the build. The current patch always gets a section even when it
+     is empty, since "I have not made one yet this patch" is the answer you came
+     for as often as the list itself. */
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 22px 20px 90px; display: grid; gap: 22px; }
+
+  .who { display: grid; grid-template-columns: 72px 1fr; gap: 16px; align-items: center; }
+  .who img { width: 72px; height: 72px; display: block; border-radius: var(--r-md); border: 1px solid var(--line-lit); }
+  .who h2 { margin: 0 0 6px; font-size: var(--t-lg); font-weight: 600; letter-spacing: -0.015em; }
+
+  /* the role chips pick which role a new set starts in, and say which roles this
+     champion has statistics for at all */
+  .roles { display: flex; flex-wrap: wrap; gap: 6px; }
+  .styles { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .style { font-size: var(--t-xs); line-height: 1; padding: 3px 7px; border-radius: 999px;
+           border: 1px solid var(--line); color: var(--dim); white-space: nowrap; }
+  .style.main { color: var(--ink); border-color: var(--line-lit); font-weight: 600; }
+  .style.niche { border-style: dashed; opacity: .75; }
+  .role {
+    display: inline-flex; align-items: baseline; gap: 7px;
+    padding: 4px 11px;
+    font-size: var(--t-sm);
+    color: var(--ink-2);
+    text-decoration: none;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+  .role:hover { color: var(--accent); border-color: var(--accent-lo); background: var(--accent-bg); }
+  .role.on { color: var(--accent); border-color: var(--accent-lo); background: var(--accent-bg); font-weight: 600; }
+  .role .n { font: 500 var(--t-xs)/1 var(--mono); font-variant-numeric: tabular-nums; color: var(--dim); }
+
+  .group { display: grid; gap: 10px; }
+  .shelf-h {
+    display: flex; align-items: baseline; gap: 10px; margin: 14px 0 8px;
+    font: 500 var(--t-xs)/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--dim);
+  }
+  .shelf-h .n { margin-left: auto; letter-spacing: 0; text-transform: none; }
+  .group > h3 {
+    display: flex; align-items: baseline; gap: 10px;
+    margin: 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--line);
+    font-size: var(--t-base); font-weight: 600;
+  }
+  .group > h3 .tag, .set .tag {
+    font: 500 var(--t-xs)/1 var(--mono);
+    letter-spacing: .06em; text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent-lo);
+    background: var(--accent-bg);
+    border-radius: 999px;
+    padding: 4px 9px;
+  }
+  .set .tag { display: inline-block; margin: 4px 0 2px; padding: 3px 7px; }
+  .group > h3 .n { font: 500 var(--t-xs)/1 var(--mono); color: var(--dim); margin-left: auto; }
+
+  .sets { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; }
+  .set {
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    gap: 12px;
+    align-items: center;
+    text-align: left;
+    padding: 11px 14px 11px 11px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+  }
+  .set:hover { border-color: var(--accent-lo); background: var(--raised); }
+  .set img { width: 38px; height: 38px; display: block; }
+  .set .ks-none { width: 38px; height: 38px; border: 1px dashed var(--line); border-radius: 50%; }
+  .set strong { display: block; font-size: var(--t-base); font-weight: 600; color: var(--ink); }
+  .set .sub {
+    display: block;
+    font: 500 var(--t-xs)/1.6 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+  }
+
+  .none {
+    margin: 0;
+    padding: 16px 18px;
+    border: 1px dashed var(--line);
+    border-radius: var(--r-lg);
+    color: var(--dim);
+    font-size: var(--t-sm);
+  }
+  .none b { color: var(--ink); font-weight: 600; }
+
+  /* the role strip's own empty line - the overlay carries its own .quiet */
+  .quiet { margin: 0; color: var(--dim); font-size: var(--t-sm); }
+
+  /* Champion page sections, layout A (Workbench pick forge-champion-page-layout):
+     reading on the left, the chosen build pinned on the right. PC only. */
+.cp-root, .cp-root * { min-width: 0; }
+.cp-root { display: grid; gap: 18px; }
+.cp-title { display: block; margin-top: 2px; font-size: var(--t-sm); font-weight: 400; color: var(--ink-2); letter-spacing: 0; }
+.cp-h { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; margin: 16px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--line); font-size: var(--t-md); font-weight: 600; scroll-margin-top: 12px; }
+.cp-root > .cp-h:first-child, .a-read > .cp-h:first-child, .a-side > .cp-h:first-child { margin-top: 0; }
+.cp-sub { font-size: var(--t-xs); font-weight: 400; color: var(--dim); }
+.cp-root h4 { margin: 14px 0 6px; font-size: var(--t-sm); font-weight: 600; color: var(--ink-2); }
+.cp-root p { margin: 0 0 6px; text-wrap: pretty; }
+.cp-root a { color: var(--accent); }
+.cp-lore { color: var(--ink-2); max-width: 70ch; }
+.cp-note { font-size: var(--t-xs); color: var(--dim); }
+.cp-num { font: 500 var(--t-xs)/1.5 var(--mono); font-variant-numeric: tabular-nums; color: var(--dim); }
+.cp-none { color: var(--dim); font-weight: 400; }
+.cp-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.cp-tags span { padding: 2px 9px; font-size: var(--t-xs); color: var(--ink-2); background: var(--raised); border: 1px solid var(--line); border-radius: 999px; }
+.cp-ic { width: 26px; height: 26px; display: block; border-radius: var(--r-sm); }
+.cp-ic.k { border-radius: 50%; background: var(--raised); }
+.cp-icons, .cp-runes, .cp-step { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.cp-gap { width: 8px; }
+.cp-path { display: grid; gap: 6px; }
+.cp-seg { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.cp-seg button { font: inherit; font-size: var(--t-sm); padding: 4px 10px; color: var(--ink-2); background: var(--raised); border: 1px solid var(--line); border-radius: var(--r-md); cursor: pointer; text-transform: capitalize; }
+.cp-seg button span { font-size: var(--t-xs); color: var(--dim); text-transform: none; }
+.cp-seg button.on { color: var(--accent); border-color: var(--accent-lo); background: var(--accent-bg); }
+.cp-archs { display: grid; gap: 6px; }
+.cp-arch { display: grid; gap: 3px; padding: 8px 10px; width: 100%; text-align: left; font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); cursor: pointer; }
+.cp-arch:hover { background: var(--raised); }
+.cp-arch.on { border-color: var(--accent-lo); background: var(--accent-bg); }
+.cp-name { font-size: var(--t-sm); color: var(--ink); }
+.cp-traits { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin-top: 10px; }
+.cp-traits.wide { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); margin-top: 0; margin-bottom: 8px; }
+.cp-t { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 2px 0; font-size: var(--t-xs); color: var(--ink-2); border-bottom: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
+.cp-t b { font: 600 var(--t-sm)/1.4 var(--mono); font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+.cp-t b:has(.cp-num) { text-align: right; }
+/* a value placed among every champion: blue for the low end through green to orange for the
+   high end, with a bar along the row's foot as long as its place (mark 2026-11-04-065542:2) */
+.cp-t.placed { --pc: oklch(0.80 0.14 calc(25 + var(--p) * 120)); border-bottom-color: transparent;
+  background: linear-gradient(var(--pc), var(--pc)) left bottom / calc(var(--p) * 100%) 2px no-repeat,
+              linear-gradient(color-mix(in oklab, var(--line) 55%, transparent), color-mix(in oklab, var(--line) 55%, transparent)) left bottom / 100% 1px no-repeat; }
+.cp-t.placed b { color: var(--pc); }
+[data-theme="frost"] .cp-t.placed { --pc: oklch(0.50 0.15 calc(25 + var(--p) * 120)); }
+.cp-t b .cp-num { display: block; }   /* an estimate's low-to-high range, under its value */
+.cp-skill { display: grid; grid-template-columns: 16px repeat(18, minmax(0, 1fr)); gap: 2px; margin-bottom: 8px; }
+.cp-sl { font-size: var(--t-xs); font-weight: 600; color: var(--ink-2); }
+.cp-skill i { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; min-height: 14px; font: 600 var(--t-xs)/1 var(--mono); font-style: normal; color: var(--bg, #000); background: var(--raised); border-radius: 2px; }
+.cp-skill i.on { background: var(--accent); }
+.cp-ab { padding: 12px 14px; margin-bottom: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.cp-ab > p { max-width: 75ch; }
+.cp-ab-h { display: grid; grid-template-columns: 40px auto 1fr; gap: 10px; align-items: center; margin-bottom: 8px; }
+.cp-ab-h img { width: 40px; height: 40px; display: block; border-radius: var(--r-md); border: 1px solid var(--line-lit); }
+.cp-ab-h b { display: block; font-size: var(--t-base); font-weight: 600; }
+.cp-key { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; font: 600 var(--t-xs)/1 var(--mono); color: var(--accent); background: var(--accent-bg); border: 1px solid var(--accent-lo); border-radius: var(--r-sm); }
+.cp-ranks { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 8px 0; font-size: var(--t-sm); }
+.cp-ranks dt { color: var(--dim); }
+.cp-ranks dd { margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+/* ability text colours (mark 2026-11-04-065542:1): League's own conventions, AP violet,
+   AD orange, magic blue, health green; darker on the light frost theme */
+.cp-ab { --c-ap: oklch(0.78 0.13 300); --c-ad: oklch(0.80 0.13 60); --c-mag: oklch(0.78 0.12 245); --c-hp: oklch(0.80 0.15 150); --c-res: oklch(0.85 0.10 95); }
+[data-theme="frost"] .cp-ab { --c-ap: oklch(0.48 0.17 300); --c-ad: oklch(0.52 0.15 50); --c-mag: oklch(0.48 0.15 250); --c-hp: oklch(0.47 0.13 150); --c-res: oklch(0.50 0.10 85); }
+.cp-ab > p { line-height: 1.55; color: var(--ink-2); }
+.cp-ab > p + p { margin-top: 8px; }
+.cp-lbl { display: inline-block; margin-right: 2px; font-weight: 700; color: var(--ink); text-transform: uppercase; font-size: var(--t-xs); letter-spacing: 0.06em; padding: 1px 6px; background: var(--raised); border-radius: var(--r-sm); }
+.cp-n { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.cp-sc { font-weight: 600; color: var(--ink); }
+.cp-sc.ap { color: var(--c-ap); } .cp-sc.ad { color: var(--c-ad); } .cp-sc.hp { color: var(--c-hp); } .cp-sc.res { color: var(--c-res); }
+.cp-dmg { font-weight: 600; }
+.cp-dmg.magic { color: var(--c-mag); } .cp-dmg.physical { color: var(--c-ad); } .cp-dmg.true { color: var(--ink); text-decoration: underline 1px; text-underline-offset: 3px; } .cp-dmg.heal { color: var(--c-hp); }
+.cp-ranks { padding: 8px 10px; background: var(--raised); border-radius: var(--r-md); }
+.cp-ranks dt { color: var(--ink-2); font-weight: 500; }
+.cp-ranks dd .cp-n, .cp-calc .cp-n { color: var(--ink); }
+.cp-calc { padding: 7px 10px; margin: 8px 0 6px !important; font-size: var(--t-sm); background: var(--raised); border-radius: var(--r-md); }
+.cp-calc b { font-weight: 600; color: var(--accent); margin-right: 4px; }
+.cp-calc.none { color: var(--dim); }
+.cp-ctx { display: block; font-size: var(--t-xs); color: var(--dim); }
+.cp-checks { display: flex; flex-wrap: wrap; gap: 4px; }
+.cp-chk { padding: 1px 7px; font-size: var(--t-xs); color: var(--dim); border: 1px solid var(--line); border-radius: 999px; }
+.cp-chk.verified { color: var(--buff); border-color: var(--buff); }
+.cp-chk.differs { color: var(--nerf); border-color: var(--nerf); }
+.cp-more { margin-top: 6px; font-size: var(--t-sm); color: var(--ink-2); }
+.cp-more summary { cursor: pointer; color: var(--dim); font-size: var(--t-xs); }
+.cp-more ul { margin: 6px 0; padding-left: 18px; }
+.cp-stats { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+.cp-stats th { text-align: left; font-weight: 500; color: var(--dim); font-size: var(--t-xs); padding: 3px 8px 3px 0; }
+.cp-stats td { padding: 3px 8px 3px 0; border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); font-variant-numeric: tabular-nums; }
+.cp-q { margin: 0 0 10px; padding: 8px 12px; color: var(--ink-2); border-left: 2px solid var(--accent-lo); }
+.cp-q cite { display: block; margin-top: 4px; font-size: var(--t-xs); font-style: normal; color: var(--dim); }
+.cp-tips { display: grid; gap: 4px; max-width: 72ch; }
+.cp-tips ul { margin: 0; padding-left: 20px; font-size: var(--t-base); line-height: 1.6; color: var(--ink-2); }
+.cp-tips li + li { margin-top: 6px; }
+.cp-tips ul ul { margin-top: 4px; padding-left: 18px; }
+.cp-p h4 { margin: 10px 0 4px; font-family: var(--mono); }
+.cp-date { margin-left: 10px; font: 400 var(--t-xs)/1 var(--sans, inherit); color: var(--dim); }
+.cp-was { color: var(--dim); }
+.cp-now { font-weight: 600; color: var(--ink); }
+.cp-now.buff { color: var(--buff); } .cp-now.nerf { color: var(--nerf); }
+/* base stats placed among every champion, the trait rows' scale (mark 2026-11-05-024817:4) */
+.cp-stats td.cp-pl { --pc: oklch(0.80 0.14 calc(25 + var(--p) * 120)); color: var(--pc); font-weight: 600; }
+[data-theme="frost"] .cp-stats td.cp-pl { --pc: oklch(0.50 0.15 calc(25 + var(--p) * 120)); }
+/* an evolved form sits inside its base ability's card (mark 2026-11-05-024817:3) */
+.cp-evo { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.cp-evo h5 { margin: 0 0 8px; font-size: var(--t-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); }
+.cp-evo .cp-ab { margin: 0; padding: 10px 12px; background: var(--raised); }
+.cp-lines { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: var(--t-sm); }
+.cp-lines li { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; }
+.cp-lines li > span:last-child { flex: 1 1 60%; }
+.cp-v { flex: none; padding: 0 6px; font-size: var(--t-xs); color: var(--dim); border: 1px solid var(--line); border-radius: var(--r-sm); }
+.cp-v.buff { color: var(--buff); background: var(--buff-bg); border-color: transparent; }
+.cp-v.nerf { color: var(--nerf); background: var(--nerf-bg); border-color: transparent; }
+.cp-foot { padding-top: 10px; margin-top: 8px; font-size: var(--t-xs); color: var(--dim); border-top: 1px solid var(--line); }
+.cp-root button:focus-visible, .cp-root a:focus-visible, .cp-root summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* A: two columns, build pinned */
+.a-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 28px; align-items: start; }
+/* Read and Build are tabs, each the full width (mark 2026-11-05-024817:8) */
+.a-grid.tab-read .a-side, .a-grid.tab-build .a-read { display: none; }
+.cp-tabs { margin-bottom: 0; }
+.cp-tabs button { font-size: var(--t-base); padding: 6px 18px; }
+.wrap:has(.a-grid) { max-width: 1560px; }
+.a-side { padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.a-side .cp-seg { margin-bottom: 8px; }
+.a-side .cp-seg button span { font-size: var(--t-xs); color: var(--dim); }
+.a-side .cp-arch { background: var(--raised); padding: 8px 10px; gap: 4px; }
+.a-side .cp-ic { width: 30px; height: 30px; }
+.a-side .cp-name { font-size: var(--t-sm); }
+.a-side h4 { margin: 14px 0 6px; font-size: var(--t-base); }
+.a-side .cp-path { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.a-side .cp-archs { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+.a-side .cp-step { display: grid; justify-items: start; grid-template-columns: repeat(3, auto); gap: 4px; }
+.a-side .cp-step .cp-num, .a-side .cp-step .cp-name { grid-column: 1 / -1; }
+.a-side .cp-step .cp-name { font-size: var(--t-xs); color: var(--ink); line-height: 1.35; }
+.a-side .cp-traits { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 4px 18px; margin-top: 10px; }
+.a-side .cp-t { font-size: var(--t-sm); }
+.a-side .cp-t span { white-space: nowrap; }
+.a-side .cp-skill { grid-template-columns: 20px repeat(18, minmax(0, 1fr)); gap: 3px; max-width: 900px; }
+.a-side .cp-skill i { min-height: 22px; font-size: var(--t-sm); }
+.a-side .cp-runes { gap: 6px; }
+.a-side .cp-rnames { margin: 6px 0 0; font-size: var(--t-xs); color: var(--ink-2); line-height: 1.4; }
+.a-side .cp-arch.on { background: var(--accent-bg); }
+
+.cp-all { font: inherit; font-size: var(--t-sm); margin: 6px 0; padding: 4px 10px; color: var(--accent); background: none; border: 1px solid var(--accent-lo); border-radius: var(--r-md); cursor: pointer; }
+.cp-ab-h > i { width: 40px; height: 40px; border: 1px dashed var(--line); border-radius: var(--r-md); }
+i.cp-ic { border: 1px dashed var(--line); }
+.cp-chk.not-compared { border-style: dashed; }
+</style>
+</head>
+<body class="forge">
+
+<div id="forge-root"></div>
+
+<script src="/static/vendor/react.production.min.js"></script>
+<script src="/static/vendor/react-dom.production.min.js"></script>
+<!-- the logic modules (itemset, loadout, build-overlay) reach the JSX through window.ForgeLib -->
+<script type="module" src="static/forge-lib-bridge.js"></script>
+<!-- defer keeps document order: forge-bar.jsx (ForgeUI.Bar) before the page body -->
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/build-overlay.jsx?v=3"></script>
+<script defer src="/jsx/forge/frontend/static/champion.jsx?v=21"></script>
+<script>
+// load fallback: if the React body never mounted, say so instead of leaving a blank page
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="forge-champion"]')) return;
+    var host = document.getElementById("forge-root");
+    if (host) host.innerHTML = '<p style="padding:22px 20px;color:var(--dim)">page failed to load</p>';
+  }, 3000);
+});
+</script>
+</body>
+</html>

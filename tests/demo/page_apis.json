@@ -1,0 +1,77 @@
+{
+ "/": [
+  "/api/home",
+  "/api/wx-extras"
+ ],
+ "/guide/": [],
+ "/news/": [
+  "/news/api/status",
+  "/news/api/clusters?tab=today"
+ ],
+ "/checklists/": [
+  "/checklists/api/checklists"
+ ],
+ "/automations/": [
+  "/automations/api/feed",
+  "/automations/api/decisions?days=7",
+  "/finances/api/book/categories",
+  "/automations/api/rules"
+ ],
+ "/mail/": [
+  "/mail/api/labels",
+  "/mail/api/status",
+  "/mail/api/senders?label=INBOX"
+ ],
+ "/finances/": [
+  "/finances/api/totals",
+  "/finances/api/expected",
+  "/finances/api/pricing",
+  "/finances/api/earnings"
+ ],
+ "/purchases/": [
+  "/purchases/api/projects"
+ ],
+ "/trips/": [
+  "/trips/api/trips/summary"
+ ],
+ "/food/": [
+  "/food/api/areas"
+ ],
+ "/recipes/": [
+  "/recipes/api/index"
+ ],
+ "/work/": [],
+ "/jobs/": [
+  "/jobs/api/candidate-profile",
+  "/jobs/api/interview-qa/template",
+  "/jobs/api/resumes/base",
+  "/jobs/api/applications",
+  "/jobs/api/ready"
+ ],
+ "/workbench/": [
+  "/workbench/api/docs?kind=spec",
+  "/workbench/api/docs?kind=plan",
+  "/workbench/api/options",
+  "/workbench/api/history",
+  "/marks/api/walk/sessions"
+ ],
+ "/blueprints/": [
+  "/blueprints/api/budget.json",
+  "/blueprints/api/blueprints.json?resolved=1"
+ ],
+ "/capabilities/": [
+  "/capabilities/api/data"
+ ],
+ "/inventory/": [
+  "/inventory/api/machines"
+ ],
+ "/artifacts/": [
+  "/artifacts/api/data"
+ ],
+ "/viewer/": [
+  "/viewer/api/feed"
+ ],
+ "/vault-map/": [
+  "/vault-map/api/tree"
+ ]
+}

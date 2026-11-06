@@ -1,0 +1,12 @@
+# Song listener measuring venv (~/.venvs/listener, Python 3.11). Install:
+#   uv pip install -p ~/.venvs/listener/bin/python Cython "setuptools<81" wheel
+#   uv pip install -p ~/.venvs/listener/bin/python --no-build-isolation -r this file
+# allin1 left out: natten 0.21.7 fails to build here, and CUDA segfaults in WSL on this PC (2026-10-27).
+# madmom from git: the 0.16.1 release imports collections.MutableSequence, gone in Python 3.10+.
+setuptools<81
+essentia-tensorflow==2.1b6.dev1389
+beat-this==1.1.0
+demucs==4.1.0
+ytmusicapi==1.12.3
+madmom @ git+https://github.com/CPJKU/madmom@27f032e8947204902c675e5e341a3faf5dc86dae
+librosa

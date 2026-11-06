@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<title>Patch · Item Set Forge</title>
+<base href="/forge/">
+<!-- Everything this page needs, on the wire from the head.
+
+     An inline <script type="module"> at the bottom of the document does not
+     fetch its imports until the WHOLE document has parsed, and it does not run
+     its own body until those imports land. So the data used to go out on the
+     third serial round trip: document, then stylesheets, then the module's
+     imports, and only then api/stats and friends. Four hops before the first
+     byte of anything worth rendering, which on a phone off the tailnet is most
+     of the load. modulepreload starts the imports beside the stylesheets, and
+     the preflight below starts the data beside both, so one hop covers all of
+     it. The module at the bottom awaits promises that have already settled. -->
+<script>
+  (function () {
+    var j = function (u, fb) {
+      return fetch(u).then(function (r) { return r.json(); }).catch(function () { return fb; });
+    };
+    window.__FORGE = {
+      notes: j('api/patchnotes', { sections: [] }),
+    };
+  }());
+</script>
+<link rel="stylesheet" href="static/forge-base.css">
+<link rel="stylesheet" href="static/forge-themes.css">
+<!-- Before first paint: a theme read after the page has painted is a flash of the
+     previous one. Deliberately not a module - modules defer. -->
+<script>
+  try {
+    var t = localStorage.getItem('forge:theme');
+    if (t) document.documentElement.dataset.theme = t;
+  } catch (e) { /* private mode: the default theme is a fine place to land */ }
+</script>
+
+<style>
+  /* The patch note, on its own surface.
+
+     This used to be a section on top of the champion cards, which meant a
+     22-entry patch pushed the build shelf - the thing you open the tool for -
+     below the fold every second Tuesday. Builds and Patch are peers, so they
+     are tabs.
+
+     Three things are done to Riot's own words before they land here, all of
+     them in notes_read.py on the server:
+
+       the paragraph  is cut down to its gist. Riot writes for a blog and every
+                      entry opens with "We are continuing to..."; deletion only,
+                      so it can read clipped but never says something Riot did
+                      not. The full paragraph is still one hover away in `title`.
+       the numbers    are paired off one at a time. A bullet is not one change -
+                      "5 / 15 / 25%" -> "6 / 13 / 20%" is three, and two of them
+                      go the other way from the first. So every number that moved
+                      is its own little `old -> new`, sitting in place inside the
+                      line, and everything that did not move is printed once and
+                      dimmed.
+       the direction  is a colour per NUMBER, not per row, plus a badge per card.
+                      An ability buffed at rank 1 and cut at rank 3 shows green
+                      then red; painting the whole row one colour is what made
+                      Bel'Veth read as a flat nerf when her paragraph calls it a
+                      trade.
+
+     Two layout rules hold the page together:
+
+       one grid per CARD, not per group. Base Stats and each ability used to own
+       a separate two-column grid, so the label column was a different width in
+       every block and no value on a card began at the same x as the one above
+       it. The groups are `display: contents` inside a single grid now, so a card
+       is one aligned sheet however many abilities it carries.
+
+       nothing wraps mid-comparison. `old -> new` is nowrap; the dim text around
+       it wraps freely, which is what stops a long tail dragging the numbers off
+       the card. The one bullet a patch where Riot replaced the whole value
+       rather than a number in it has no per-number reading, and that single pair
+       stacks old-above-new once it is too long to sit side by side. */
+
+  .wrap { max-width: 1500px; margin: 0 auto; padding: 22px 20px 90px; display: grid; gap: 18px; }
+
+  .lede { display: grid; gap: 6px; max-width: 74ch; }
+  .lede h2 { margin: 0; font-size: var(--t-lg); font-weight: 600; letter-spacing: -0.015em; }
+  .lede p { margin: 0; color: var(--dim); font-size: var(--t-sm); text-wrap: pretty; }
+
+  /* how the patch broke down, before you read any of it */
+  .tally { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tally span {
+    display: inline-flex; align-items: baseline; gap: 7px;
+    padding: 4px 11px;
+    font-size: var(--t-xs);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--raised);
+    color: var(--dim);
+  }
+  .tally b { font: 600 var(--t-sm)/1 var(--mono); font-variant-numeric: tabular-nums; }
+  .tally .buff   b { color: var(--buff); }
+  .tally .nerf   b { color: var(--nerf); }
+  .tally .rework b { color: var(--rework); }
+
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tabs button {
+    padding: 5px 13px;
+    font: inherit; font-size: var(--t-sm);
+    color: var(--ink-2);
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .tabs button:hover { color: var(--accent); border-color: var(--accent-lo); background: var(--accent-bg); }
+  .tabs button[aria-pressed="true"] { color: var(--ink); border-color: var(--line-lit); background: var(--raised-hi); }
+  .tabs button .n {
+    font: 500 var(--t-xs)/1 var(--mono);
+    font-variant-numeric: tabular-nums; color: var(--dim);
+    margin-left: 7px;
+  }
+
+  /* columns, because a patch is a long list of short entries; the cards are
+     wider than the landing page's because a stat line is a long string */
+  .entries { columns: 520px; column-gap: 16px; }
+  .entry {
+    break-inside: avoid; -webkit-column-break-inside: avoid;
+    margin: 0 0 14px;
+    padding: 12px 14px 13px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--line-lit);
+    border-radius: var(--r-md);
+    display: grid; gap: 9px;
+  }
+  /* the card's own edge carries its verdict, so a column of them reads as a
+     shape before it reads as text */
+  .entry[data-triage="buff"]   { border-left-color: var(--buff); }
+  .entry[data-triage="nerf"]   { border-left-color: var(--nerf); }
+  .entry[data-triage="rework"] { border-left-color: var(--rework); }
+
+  .entry > h3 {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0; font-size: var(--t-md); font-weight: 600; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .entry > h3 img { width: 34px; height: 34px; border-radius: var(--r-sm); display: block; }
+  .entry > h3 .nm { min-width: 0; }
+
+  /* the word, not only the colour: red and green are the same to a lot of eyes */
+  .tri {
+    margin-left: auto;
+    flex: none;
+    padding: 3px 9px;
+    font: 600 var(--t-xs)/1 var(--font);
+    letter-spacing: .07em; text-transform: uppercase;
+    border-radius: var(--r-sm);
+    border: 1px solid;
+  }
+  [data-triage="buff"]   > h3 .tri { color: var(--buff);   background: var(--buff-bg);   border-color: var(--buff); }
+  [data-triage="nerf"]   > h3 .tri { color: var(--nerf);   background: var(--nerf-bg);   border-color: var(--nerf); }
+  [data-triage="rework"] > h3 .tri { color: var(--rework); background: var(--rework-bg); border-color: var(--rework); }
+
+  /* why it moved, in as few words as deletion can get it. The full paragraph
+     is on the element's title, for the one time a month that matters. */
+  .gist { margin: 0; font-size: var(--t-xs); line-height: 1.55; color: var(--dim); text-wrap: pretty; }
+
+  /* ONE grid for the whole card. The groups are `display: contents`, so every
+     label on the card shares a column and every value starts at the same x
+     whether it sits under Base Stats or under the third ability - which is what
+     a per-group grid could never do, because each one sized its own column. */
+  .sheet {
+    display: grid;
+    grid-template-columns: fit-content(14rem) minmax(0, 1fr);
+    gap: 5px 14px;
+    align-items: baseline;
+  }
+  .grp { display: contents; }
+  .grp > h4 {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 7px;
+    margin: 6px 0 1px;
+    font-size: var(--t-xs); font-weight: 600; color: var(--ink-2);
+    letter-spacing: .03em;
+  }
+  .grp:first-child > h4 { margin-top: 0; }
+  .grp > h4 img { width: 20px; height: 20px; display: block; border-radius: var(--r-sm); }
+
+  .rows { display: contents; }
+  .rows dt {
+    grid-column: 1;
+    font-size: var(--t-xs); color: var(--ink-2); font-weight: 600;
+    text-wrap: balance;
+  }
+  .rows dd {
+    grid-column: 2;
+    margin: 0; min-width: 0;
+    font: 500 var(--t-xs)/1.75 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+    overflow-x: auto;
+    scrollbar-width: thin;
+    overscroll-behavior-x: contain;
+  }
+
+  /* A handful of rows a patch - a passive rewritten in full - are too long to
+     fit even stacked. Those scroll, and the scrollbar is styled so it is drawn
+     permanently: the platform's overlay bar only appears once you are already
+     scrolling, which is no use as the hint that there is more to the right. */
+  .rows dd::-webkit-scrollbar { height: 5px; }
+  .rows dd::-webkit-scrollbar-track { background: transparent; }
+  .rows dd::-webkit-scrollbar-thumb { background: var(--line-lit); border-radius: 3px; }
+  .rows dd::-webkit-scrollbar-thumb:hover { background: var(--dim); }
+
+  /* the text that did not move, printed once */
+  .ctx { color: var(--dim); opacity: .75; }
+
+  /* One number that moved. Small and inline, because a row can hold five of
+     them and a heavy chip each turns a stat line into a row of buttons. The
+     comparison itself is nowrap - a number list broken across two lines is
+     unreadable, which is the whole complaint this page was rebuilt to answer -
+     while the dim text around it wraps freely. */
+  .d {
+    display: inline-flex; align-items: baseline; gap: 4px;
+    /* the tint BLEEDS around the numbers instead of pushing the line apart: a
+       chip with real side padding put a space between the value and the unit
+       Riot wrote against it, so "25% AP" rendered as "25 % AP" and "11s" as
+       "11 s". Negative margin cancels the padding, so the text sits exactly
+       where it would with no chip at all. */
+    padding: 1px 4px; margin: 0 -4px;
+    border-radius: var(--r-sm);
+    background: var(--raised);
+    white-space: nowrap;
+  }
+  .d > * { white-space: nowrap; }
+  .d .was { color: var(--dim); }
+  .d .ar { color: var(--dim); font-size: var(--fs-caption); opacity: .8; }
+  .d .now { color: var(--ink); font-weight: 700; }
+  .d[data-v="buff"] { background: var(--buff-bg); }
+  .d[data-v="buff"] .now { color: var(--buff); }
+  .d[data-v="nerf"] { background: var(--nerf-bg); }
+  .d[data-v="nerf"] .now { color: var(--nerf); }
+
+  /* a clause the patch bolted on that was not there before. No "+" marker: the
+     clause Riot adds is almost always itself written "(+8% per 1000 bonus
+     Health)", so a marker in front of it renders as "%+ (+8%..." */
+  .add {
+    color: var(--ink-2); font-weight: 600;
+    background: var(--buff-bg);
+    padding: 1px 4px; margin: 0 -4px;
+    border-radius: var(--r-sm);
+  }
+
+  /* The one bullet a patch where Riot replaced the whole value instead of a
+     number inside it: there is no per-number reading, so the pair is shown
+     whole. Long ones stack old-above-new, which is easier to compare at that
+     length than one line you have to scroll, and is still not a wrap. */
+  .d.whole { padding: 1px 7px; margin: 0; border: 1px solid var(--line); }
+  .d.tall { flex-direction: column; align-items: flex-start; gap: 1px; padding: 3px 7px; max-width: 100%; }
+  .d.tall .ar { display: none; }
+  .d.tall > * { white-space: normal; }
+
+  /* a bullet with no arrow at all: "NEW: resource bar turns purple when ..." */
+  .rows dd.plain { display: block; white-space: normal; color: var(--ink-2); font-family: var(--font); }
+  .tag {
+    display: inline-block; margin-right: 6px;
+    padding: 1px 6px;
+    font: 600 var(--fs-caption)/1.5 var(--font); letter-spacing: .07em;
+    color: var(--accent); background: var(--accent-bg);
+    border: 1px solid var(--accent-lo); border-radius: var(--r-sm);
+    vertical-align: 1px;
+  }
+
+  .quiet { margin: 0; font-size: var(--t-sm); color: var(--dim); }
+</style>
+</head>
+<body class="forge">
+
+<div id="forge-root" style="display:contents"></div>
+
+<script src="/static/vendor/react.production.min.js"></script>
+<script src="/static/vendor/react-dom.production.min.js"></script>
+<!-- defer keeps document order: the bridge module (ForgeLib), then the bar, then the page body -->
+<script type="module" src="static/forge-lib-bridge.js"></script>
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/patch.jsx?v=1"></script>
+<script>
+/* fallback outside React: if the body never mounted, say so instead of a blank page */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="forge-patch"]')) return;
+    var r = document.getElementById("forge-root");
+    r.style.display = "block";
+    r.innerHTML = '<div class="hub-error">page failed to load</div>';
+  }, 3000);
+});
+</script>
+</body>
+</html>

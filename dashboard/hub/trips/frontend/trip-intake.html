@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="dark">
+<head>
+<meta charset="UTF-8">
+<!-- maximum-scale/user-scalable bind Android only: WebKit has ignored both for
+     pinch since iOS 10. The gesture handler hub/zoom_lock.py injects is what stops a pinch on
+     an iPhone, and touch-action: manipulation in the CSS stops the double-tap
+     zoom on both. Deliberate: this is a touch surface, and a stray two-finger
+     drag or double-tap on a swatch used to leave it zoomed askew. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">
+<link rel="manifest" href="/static/assets/manifest-trips.webmanifest">
+<meta name="apple-mobile-web-app-title" content="trips">
+<script>
+  /* no-flash theme init — same contract as gate.html / trips.html. */
+  (function () {
+    var r = document.documentElement;
+    try {
+      var t = localStorage.getItem("hub.theme");
+      if (t === "glass") t = "liquid";
+      r.setAttribute("data-theme", (["cobalt","liquid"].indexOf(t) >= 0) ? t : "liquid");
+      if (t === "liquid") r.setAttribute("data-glass", localStorage.getItem("hub.glass") === "solid" ? "solid" : "frost");
+      var s = localStorage.getItem("hub.surface");
+      if (s !== "light" && s !== "dark") {
+        s = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+      }
+      r.setAttribute("data-surface", s);
+    } catch (e) { r.setAttribute("data-theme", "liquid"); r.setAttribute("data-surface", "dark"); }
+
+    /* Preload the active theme's two latin faces, right here, because this is the
+       first code that knows which theme is active. Without it the faces are not
+       discovered until fonts.css has parsed AND layout has reached text that uses
+       them — late enough on a slow link to paint a frame in the fallback stack and
+       reflow, which is the load flash this whole change is about. Two files, ~40 KB. */
+    var FACES = {
+      cobalt: ["/static/vendor/fonts/archivo-black-normal-latin.woff2",
+               "/static/vendor/fonts/space-grotesk-normal-latin.woff2"]
+    };
+    /* whole paths, not a prefix plus a name: test_trips_public scrapes every
+       static-asset literal out of this template and asserts the public mirror
+       serves it, so spelling them out is what puts these four behind that
+       check. (It also means a quoted partial path anywhere in this file reads
+       as an asset and fails there — keep prose out of quotes.) */
+    (FACES[r.getAttribute("data-theme")] || []).forEach(function (href) {
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "font"; l.type = "font/woff2"; l.crossOrigin = "anonymous";
+      l.href = href;
+      document.head.appendChild(l);
+    });
+  })();
+</script>
+<title>Trip details</title>
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<!-- trips.css whole, not a slice of it. The card on this page is the board's
+     card, same markup, and its styling lives in that file's .ccard blocks. -->
+<link rel="stylesheet" href="/trips/static/trips.css?v=145">
+<link rel="stylesheet" href="/trips/static/account.css?v=11">
+<style>
+  /* page-local layout only: every part is a shared hub- component */
+  body.intake .ix-wrap { max-width: 720px; margin: 0 auto; padding: var(--s-5) var(--s-4) var(--s-7); }
+  body.intake .ix-rows { display: flex; flex-direction: column; gap: var(--s-3); margin: var(--s-4) 0; }
+  body.intake .ix-head { display: flex; align-items: center; justify-content: space-between; }
+  body.intake .hub-card { gap: var(--s-3); }
+  body.intake .hub-field input, body.intake .hub-field textarea { width: 100%; box-sizing: border-box; font: inherit; color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-card); padding: 8px 10px; min-height: 40px; }
+  body.intake .hub-field textarea { min-height: 64px; }
+  body.intake .ix-lines { margin: 0 0 var(--s-4); padding-left: var(--s-4); }
+  body.intake .ix-bar { display: flex; align-items: center; gap: var(--s-4); margin-top: var(--s-5); }
+  /* trips.css hides every modal for body.guest (the board is read-only); this page is the one guest page that needs its confirm */
+  body.guest.intake .hub-modal-scrim:not([hidden]) { display: flex !important; }
+</style>
+
+<script defer src="/hub-modules.js"></script>
+<script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
+
+</head>
+<body class="trips guest intake">
+
+<header class="topbar">
+  <span data-slot="crumb" class="crumb" id="crumbName">trip details</span>
+  <a data-slot="right" class="launcher" href="/trips/" title="the trip board">the board</a>
+  <a data-slot="right" class="launcher" href="/gate/out" title="sign out">sign out</a>
+</header>
+
+<main class="ix-wrap" id="ixMain">
+  <h1 class="asec-h" id="ixTitle">trip details</h1>
+  <p class="asec-sub">Fix anything that is wrong and add anything that is missing. Nothing goes live
+    until Sam reviews it.</p>
+  <div id="ixForm"></div>
+  <div class="ix-bar">
+    <button class="abtn abtn-accent" id="ixSave">save</button>
+    <span class="anote" id="ixNote"></span>
+  </div>
+</main>
+
+<div class="hub-modal-scrim" id="ixScrim" hidden>
+  <div class="hub-modal" role="dialog" aria-modal="true" aria-labelledby="ixMTitle">
+    <div class="hub-modal-title" id="ixMTitle">You changed:</div>
+    <div class="hub-modal-body" id="ixMBody"></div>
+    <div class="hub-modal-actions">
+      <button class="hub-modal-btn" id="ixKeep">Keep editing</button>
+      <button class="hub-modal-btn" id="ixConfirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<script>window.INTAKE = {{ intake|tojson }};</script>
+<script defer src="/jsx/trips/frontend/static/trip-intake.jsx?v=1"></script>
+<script>
+/* load fallback: trip-intake.jsx marks main#ixMain once React has mounted */
+window.addEventListener("load", function () {
+  setTimeout(function () {
+    if (document.querySelector('[data-react-mounted="trip-intake"]')) return;
+    var d = document.createElement("div");
+    d.className = "hub-error";
+    d.style.cssText = "position:fixed;left:0;right:0;bottom:18px;text-align:center;z-index:5";
+    d.textContent = "page failed to load";
+    document.body.appendChild(d);
+  }, 3000);
+});
+</script>
+</body>
+</html>

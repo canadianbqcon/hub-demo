@@ -1,0 +1,2046 @@
+{
+ "batch": "01",
+ "rubricVersion": 1,
+ "champions": {
+  "Aatrox": {
+   "engage": {
+    "value": 2,
+    "basis": "Q3 knock up and E dash; W pull; R fear and sustain"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Q3 knock up and E dash; W pull; R fear and sustain"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Q3 knock up and E dash; W pull; R fear and sustain"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "Q3 knock up and E dash; W pull; R fear and sustain"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Q3 knock up and E dash; W pull; R fear and sustain"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Q3 knock up and E dash; W pull; R fear and sustain"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "Q3 knock up and E dash; W pull; R fear and sustain"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Q3 knock up and E dash; W pull; R fear and sustain"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of Q3 knock up and E dash; W pull; R fear and sustain"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "other",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E Umbral Dash crosses terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Ahri": {
+   "engage": {
+    "value": 1,
+    "basis": "E Charm single target pick, R dash; no frontline"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "E Charm single target pick, R dash; no frontline"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "E Charm single target pick, R dash; no frontline"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "E Charm single target pick, R dash; no frontline"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "E Charm single target pick, R dash; no frontline"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E Charm single target pick, R dash; no frontline"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "E Charm single target pick, R dash; no frontline"
+   },
+   "aoeCCShare": {
+    "value": 0,
+    "basis": "E Charm single target pick, R dash; no frontline"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of E Charm single target pick"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "R Spirit Rush dashes over terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Akali": {
+   "engage": {
+    "value": 2,
+    "basis": "R twice plus E dash; W shroud; no hard CC"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "R twice plus E dash; W shroud; no hard CC"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "R twice plus E dash; W shroud; no hard CC"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "R twice plus E dash; W shroud; no hard CC"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R twice plus E dash; W shroud; no hard CC"
+   },
+   "dashes": {
+    "value": 3,
+    "basis": "R twice plus E dash; W shroud; no hard CC"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "R twice plus E dash; W shroud; no hard CC"
+   },
+   "aoeCCShare": {
+    "value": 0,
+    "basis": "R twice plus E dash; W shroud; no hard CC"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of R twice plus E dash; W shroud; no hard CC"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "energy",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "R Perfect Execution dashes over walls"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "W Twilight Shroud"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Akshan": {
+   "engage": {
+    "value": 1,
+    "basis": "E Heroic Swing, extra auto passive, R single target"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "E Heroic Swing, extra auto passive, R single target"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "E Heroic Swing, extra auto passive, R single target"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "E Heroic Swing, extra auto passive, R single target"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "E Heroic Swing, extra auto passive, R single target"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E Heroic Swing, extra auto passive, R single target"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "E Heroic Swing, extra auto passive, R single target"
+   },
+   "aoeCCShare": {
+    "value": 0,
+    "basis": "E Heroic Swing, extra auto passive, R single target"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of E Heroic Swing"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "W Going Rogue camouflage"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": true,
+    "basis": "W Going Rogue passive resurrects allies by killing the Scoundrel"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Alistar": {
+   "engage": {
+    "value": 3,
+    "basis": "W-Q knock up combo, R, E heal; Q area knock up"
+   },
+   "peel": {
+    "value": 4,
+    "basis": "W-Q knock up combo, R, E heal; Q area knock up"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "W-Q knock up combo, R, E heal; Q area knock up"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "W-Q knock up combo, R, E heal; Q area knock up"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "W-Q knock up combo, R, E heal; Q area knock up"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "W-Q knock up combo, R, E heal; Q area knock up"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "W-Q knock up combo, R, E heal; Q area knock up"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "W-Q knock up combo, R, E heal; Q area knock up"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of W-Q knock up combo"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": true,
+    "basis": "R Unbreakable Will"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": true,
+    "basis": "R Unbreakable Will removes CC"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Ambessa": {
+   "engage": {
+    "value": 2,
+    "basis": "passive dash, Q/E dash, R blink suppress on one target"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "passive dash, Q/E dash, R blink suppress on one target"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "passive dash, Q/E dash, R blink suppress on one target"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "passive dash, Q/E dash, R blink suppress on one target"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "passive dash, Q/E dash, R blink suppress on one target"
+   },
+   "dashes": {
+    "value": 3,
+    "basis": "passive dash, Q/E dash, R blink suppress on one target"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "passive dash, Q/E dash, R blink suppress on one target"
+   },
+   "aoeCCShare": {
+    "value": 0,
+    "basis": "passive dash, Q/E dash, R blink suppress on one target"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of passive dash"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "energy",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Amumu": {
+   "engage": {
+    "value": 4,
+    "basis": "R Curse of the Sad Mummy area stun, Q Bandage Toss single"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "R Curse of the Sad Mummy area stun, Q Bandage Toss single"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "R Curse of the Sad Mummy area stun, Q Bandage Toss single"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "R Curse of the Sad Mummy area stun, Q Bandage Toss single"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R Curse of the Sad Mummy area stun, Q Bandage Toss single"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "R Curse of the Sad Mummy area stun, Q Bandage Toss single"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "R Curse of the Sad Mummy area stun, Q Bandage Toss single"
+   },
+   "aoeCCShare": {
+    "value": 0.6,
+    "basis": "R Curse of the Sad Mummy area stun, Q Bandage Toss single"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of R Curse of the Sad Mummy area stun"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Anivia": {
+   "engage": {
+    "value": 1,
+    "basis": "R Glacial Storm and W wall hold ground; Q stun"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "R Glacial Storm and W wall hold ground; Q stun"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "R Glacial Storm and W wall hold ground; Q stun"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R Glacial Storm and W wall hold ground; Q stun"
+   },
+   "zoneControl": {
+    "value": 5,
+    "basis": "R Glacial Storm and W wall hold ground; Q stun"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R Glacial Storm and W wall hold ground; Q stun"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "R Glacial Storm and W wall hold ground; Q stun"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "R Glacial Storm and W wall hold ground; Q stun"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "scaling profile of R Glacial Storm and W wall hold ground; Q stun"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": true,
+    "basis": "W Crystallize wall"
+   },
+   "revive": {
+    "value": true,
+    "basis": "passive Rebirth egg"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Annie": {
+   "engage": {
+    "value": 3,
+    "basis": "R Tibbers area stun, passive stun, E shield on ally"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "R Tibbers area stun, passive stun, E shield on ally"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "R Tibbers area stun, passive stun, E shield on ally"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R Tibbers area stun, passive stun, E shield on ally"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R Tibbers area stun, passive stun, E shield on ally"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R Tibbers area stun, passive stun, E shield on ally"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "R Tibbers area stun, passive stun, E shield on ally"
+   },
+   "aoeCCShare": {
+    "value": 0.6,
+    "basis": "R Tibbers area stun, passive stun, E shield on ally"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of R Tibbers area stun"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": true,
+    "basis": "R Tibbers"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Aphelios": {
+   "engage": {
+    "value": 0,
+    "basis": "weapon slow/root, mostly autos"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "weapon slow/root, mostly autos"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "weapon slow/root, mostly autos"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "weapon slow/root, mostly autos"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "weapon slow/root, mostly autos"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "weapon slow/root, mostly autos"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "weapon slow/root, mostly autos"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "weapon slow/root, mostly autos"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "scaling profile of weapon slow/root"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": true,
+    "basis": "Calibrum Q mark grants sight"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": true,
+    "basis": "Crescendum turrets"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Ashe": {
+   "engage": {
+    "value": 3,
+    "basis": "R long-range stun single, W slow, autos"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "R long-range stun single, W slow, autos"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "R long-range stun single, W slow, autos"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R long-range stun single, W slow, autos"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R long-range stun single, W slow, autos"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R long-range stun single, W slow, autos"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "R long-range stun single, W slow, autos"
+   },
+   "aoeCCShare": {
+    "value": 0.1,
+    "basis": "R long-range stun single, W slow, autos"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of R long-range stun single"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": true,
+    "basis": "R Enchanted Crystal Arrow crosses the map"
+   },
+   "vision": {
+    "value": true,
+    "basis": "E Hawkshot"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Aurelion Sol": {
+   "engage": {
+    "value": 1,
+    "basis": "R area stun, E pull, W flight; stardust scaling"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "R area stun, E pull, W flight; stardust scaling"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "R area stun, E pull, W flight; stardust scaling"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R area stun, E pull, W flight; stardust scaling"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "R area stun, E pull, W flight; stardust scaling"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "R area stun, E pull, W flight; stardust scaling"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "R area stun, E pull, W flight; stardust scaling"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "R area stun, E pull, W flight; stardust scaling"
+   },
+   "earlyLate": {
+    "value": 2,
+    "basis": "scaling profile of R area stun"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "W Astral Flight crosses terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": true,
+    "basis": "E Singularity executes below a threshold"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": true,
+    "basis": "passive Stardust permanently grows abilities"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Aurora": {
+   "engage": {
+    "value": 2,
+    "basis": "Q/E/R slows, W and R leaps, R teleport zone; no hard CC"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "Q/E/R slows, W and R leaps, R teleport zone; no hard CC"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Q/E/R slows, W and R leaps, R teleport zone; no hard CC"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Q/E/R slows, W and R leaps, R teleport zone; no hard CC"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Q/E/R slows, W and R leaps, R teleport zone; no hard CC"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Q/E/R slows, W and R leaps, R teleport zone; no hard CC"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Q/E/R slows, W and R leaps, R teleport zone; no hard CC"
+   },
+   "aoeCCShare": {
+    "value": 0.9,
+    "basis": "Q/E/R slows, W and R leaps, R teleport zone; no hard CC"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of Q/E/R slows"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "W Across the Veil leaps into spirit realm"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "W Across the Veil invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Azir": {
+   "engage": {
+    "value": 3,
+    "basis": "R knocks back area, soldiers hold ground, E and Q dashes"
+   },
+   "peel": {
+    "value": 4,
+    "basis": "R knocks back area, soldiers hold ground, E and Q dashes"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "R knocks back area, soldiers hold ground, E and Q dashes"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R knocks back area, soldiers hold ground, E and Q dashes"
+   },
+   "zoneControl": {
+    "value": 5,
+    "basis": "R knocks back area, soldiers hold ground, E and Q dashes"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "R knocks back area, soldiers hold ground, E and Q dashes"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "R knocks back area, soldiers hold ground, E and Q dashes"
+   },
+   "aoeCCShare": {
+    "value": 0.9,
+    "basis": "R knocks back area, soldiers hold ground, E and Q dashes"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "scaling profile of R knocks back area"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": true,
+    "basis": "R Emperor's Divide wall"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": true,
+    "basis": "W Arise soldiers"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Bard": {
+   "engage": {
+    "value": 3,
+    "basis": "Q stun, R stasis on allies and enemies, W heal"
+   },
+   "peel": {
+    "value": 4,
+    "basis": "Q stun, R stasis on allies and enemies, W heal"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "Q stun, R stasis on allies and enemies, W heal"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Q stun, R stasis on allies and enemies, W heal"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Q stun, R stasis on allies and enemies, W heal"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Q stun, R stasis on allies and enemies, W heal"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Q stun, R stasis on allies and enemies, W heal"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Q stun, R stasis on allies and enemies, W heal"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "scaling profile of Q stun"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E Magical Journey portal crosses terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": true,
+    "basis": "R Tempered Fate stasis"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": true,
+    "basis": "chimes permanently grow meeps"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Bel'Veth": {
+   "engage": {
+    "value": 2,
+    "basis": "Q dash, W area knock up, E, R transformation"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "Q dash, W area knock up, E, R transformation"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Q dash, W area knock up, E, R transformation"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Q dash, W area knock up, E, R transformation"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "Q dash, W area knock up, E, R transformation"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Q dash, W area knock up, E, R transformation"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "Q dash, W area knock up, E, R transformation"
+   },
+   "aoeCCShare": {
+    "value": 0.9,
+    "basis": "Q dash, W area knock up, E, R transformation"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "scaling profile of Q dash"
+   },
+   "scaling": {
+    "value": "on-hit",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "none",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": true,
+    "basis": "passive Death in Lavender attack speed stacks and ability scaling"
+   }
+  },
+  "Blitzcrank": {
+   "engage": {
+    "value": 3,
+    "basis": "Q Rocket Grab pull, E knock up, R silence"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "Q Rocket Grab pull, E knock up, R silence"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "Q Rocket Grab pull, E knock up, R silence"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Q Rocket Grab pull, E knock up, R silence"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Q Rocket Grab pull, E knock up, R silence"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "Q Rocket Grab pull, E knock up, R silence"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Q Rocket Grab pull, E knock up, R silence"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "Q Rocket Grab pull, E knock up, R silence"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of Q Rocket Grab pull"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Brand": {
+   "engage": {
+    "value": 0,
+    "basis": "W pillar and R bounce; stun only on burning target"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "W pillar and R bounce; stun only on burning target"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "W pillar and R bounce; stun only on burning target"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "W pillar and R bounce; stun only on burning target"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "W pillar and R bounce; stun only on burning target"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "W pillar and R bounce; stun only on burning target"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "W pillar and R bounce; stun only on burning target"
+   },
+   "aoeCCShare": {
+    "value": 0,
+    "basis": "W pillar and R bounce; stun only on burning target"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of W pillar and R bounce; stun only on burning target"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Braum": {
+   "engage": {
+    "value": 2,
+    "basis": "E block, W leap to ally, Q slow, R knock up"
+   },
+   "peel": {
+    "value": 4,
+    "basis": "E block, W leap to ally, Q slow, R knock up"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "E block, W leap to ally, Q slow, R knock up"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "E block, W leap to ally, Q slow, R knock up"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "E block, W leap to ally, Q slow, R knock up"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "E block, W leap to ally, Q slow, R knock up"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "E block, W leap to ally, Q slow, R knock up"
+   },
+   "aoeCCShare": {
+    "value": 0.2,
+    "basis": "E block, W leap to ally, Q slow, R knock up"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of E block"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  },
+  "Briar": {
+   "engage": {
+    "value": 3,
+    "basis": "Q stun leap, W leap, R long-range dash with fear"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Q stun leap, W leap, R long-range dash with fear"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "Q stun leap, W leap, R long-range dash with fear"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Q stun leap, W leap, R long-range dash with fear"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "Q stun leap, W leap, R long-range dash with fear"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Q stun leap, W leap, R long-range dash with fear"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "Q stun leap, W leap, R long-range dash with fear"
+   },
+   "aoeCCShare": {
+    "value": 0.2,
+    "basis": "Q stun leap, W leap, R long-range dash with fear"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "scaling profile of Q stun leap"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "main role build"
+   },
+   "resource": {
+    "value": "other",
+    "basis": "resource of the champion"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no terrain-crossing dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no ability ignores CC"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "no untargetable or stasis ability"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "no spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "no CC removal"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "no map-wide ability"
+   },
+   "vision": {
+    "value": false,
+    "basis": "no reveal or sight ability"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "no invisibility"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "no terrain created"
+   },
+   "revive": {
+    "value": false,
+    "basis": "no revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "no execute"
+   },
+   "pets": {
+    "value": false,
+    "basis": "no autonomous units"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "no uncapped stat stack"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "no attack speed conversion"
+   }
+  }
+ }
+}

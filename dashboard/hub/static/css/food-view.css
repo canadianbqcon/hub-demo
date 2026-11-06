@@ -1,0 +1,569 @@
+/* food-view.css — styles for the one /food area renderer (static/js/food-view.js).
+ *
+ * Mounted by two surfaces: the /food module's own area page, and the trips board's
+ * food tab. Everything here dresses what that renderer draws — the rail's view
+ * switch and filters, the results list, the place detail, the map's marks. Nothing
+ * here lays out a page: where those pieces sit is the host's business, and the two
+ * hosts put them in different columns.
+ *
+ * That split is also why the view's rail nav is `.fvtab` and not `.fvtab`. The trips
+ * board mounts this rail INSIDE its own section nav, which owns `.fvtab`, and two
+ * meanings for one class name in one document is how a stylesheet starts restyling
+ * a page it was never loaded for.
+ */
+
+
+/* ---------------- the map canvas ---------------- */
+.fview-map { height: 100%; width: 100%; background: var(--bg-elev); }
+.map-note {
+  display: grid; place-items: center; height: 100%;
+  color: var(--fg-dim); font-style: italic; font-size: var(--fs-footnote); text-align: center;
+  padding: var(--s-5);
+}
+
+
+/* ---------------- the rail's view switch ---------------- */
+
+/* Two entries, not a section list: an area page is the rundown and the places. The
+   rail is loud for the same reason it is in trips — it is the page's primary
+   control, and which view you are in should survive a glance. */
+.fvtab { align-items: baseline; justify-content: space-between; cursor: pointer; }
+.fvtab.active { color: var(--accent); background: var(--bg-elev); }
+[data-surface="dark"] .fvtab.active { color: var(--fg); }
+.fvtab-n {
+  font-family: var(--font-display); font-size: var(--fs-title); line-height: 1; color: var(--fg-dim);
+  font-variant-numeric: tabular-nums lining-nums; font-feature-settings: var(--feat-tnum);
+}
+.fvtab.active .fvtab-n { color: var(--accent); }
+[data-surface="dark"] .fvtab.active .fvtab-n { color: var(--fg); }
+
+/* What sits inside this one. Same rail slot as the filters and the same head style,
+   because it answers the same kind of question: which subset am I looking at. */
+.within {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: var(--s-3); border-top: 1px solid var(--line);
+}
+.within-row {
+  display: flex; align-items: baseline; gap: var(--s-2);
+  padding: 9px var(--s-2); border-radius: var(--r-card);
+  color: var(--fg-dim); text-decoration: none;
+  transition: background 120ms ease-out, color 120ms ease-out;
+}
+.within-row:hover { background: var(--bg-elev); color: var(--fg); }
+/* A host with nowhere to navigate renders these as buttons instead of links (the
+   trips board filters in place). A button does not inherit the row's box. */
+button.within-row { width: 100%; text-align: left; cursor: pointer; font: inherit; }
+.within-row.active { background: var(--accent-faint); color: var(--accent); }
+.within-row.active .within-n { color: var(--accent); }
+.within-name { font-weight: 600; font-size: var(--fs-subhead); color: inherit; }
+.within-n {
+  margin-left: auto; font-family: var(--font-display); font-size: var(--fs-subhead);
+  font-variant-numeric: tabular-nums lining-nums; color: var(--fg-mute);
+}
+
+/* ---------------- filters (in the rail) ---------------- */
+
+/* A <details>, not a div: on a phone the filter block is 370px of controls sitting
+   between the nav and the first restaurant, so it ships collapsed there and open on
+   a desktop (renderRail sets the attribute). Block rather than flex — a flex
+   <details> makes the content slot a flex item and the closed state stops being
+   reliable — so the rows carry their own spacing. */
+.filters {
+  display: block; padding: var(--s-3); border-top: 1px solid var(--line);
+}
+.filters > .filter-row { margin-top: var(--s-2); }
+summary.filters-head { cursor: pointer; padding: 2px 0; }
+.filters-head {
+  font-size: var(--fs-caption); font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--fg-mute);
+}
+.filter-row { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; }
+.filter-row .f-sel { flex: 1 1 100%; }
+.filter-row.wrap .filter-chip { flex: 1 1 40%; }
+
+/* The chevron is drawn here rather than read from --select-chevron: that token is
+   only defined on the dark side of glass.css, so a token-driven arrow disappears
+   entirely on glass·light and the control reads as a text field. */
+.f-sel { position: relative; flex: 1 1 0; min-width: 0; display: flex; }
+.f-sel::after {
+  content: "▾"; position: absolute; right: var(--s-2); top: 50%;
+  transform: translateY(-50%); pointer-events: none;
+  font-size: var(--fs-caption); color: var(--fg-dim);
+}
+.f-sel:hover::after { color: var(--fg); }
+.f-select {
+  flex: 1 1 0; min-width: 0;
+  padding: 5px var(--s-5) 5px var(--s-2);
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  background-color: transparent; color: var(--fg-mute);
+  font-size: var(--fs-footnote); letter-spacing: 0.02em;
+  cursor: pointer; appearance: none; text-overflow: ellipsis;
+  transition: border-color 150ms ease-out, color 150ms ease-out, background-color 150ms ease-out;
+}
+.f-select:hover { border-color: var(--accent-dim); color: var(--fg); background-color: var(--bg-elev); }
+.f-select option { background: var(--bg-elev); color: var(--fg); }
+.f-select:disabled { opacity: 0.4; cursor: default; }
+.f-sel:has(.f-select:disabled)::after { opacity: 0.4; }
+
+/* Same chip vocabulary as jobs and purchases — earned familiarity beats a
+   module-local invention. */
+.filter-chip {
+  position: relative; flex: 1 1 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 5px var(--s-2);
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  color: var(--fg-mute); font-size: var(--fs-caption); font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap;
+  cursor: pointer; user-select: none;
+  transition: border-color 150ms ease-out, color 150ms ease-out, background 150ms ease-out;
+}
+/* invisible hit-slop: the chip stays visually small, the tap target reaches ~44px */
+.filter-chip::before { content: ""; position: absolute; inset: -9px 0; }
+.filter-chip:hover:not(:disabled) { border-color: var(--accent-dim); color: var(--fg); background: var(--bg-elev); }
+.filter-chip:disabled { opacity: 0.4; cursor: default; }
+.filter-chip-box { font-size: var(--fs-caption); line-height: 1; color: var(--fg-dim); }
+.filter-chip-box::before { content: "\2610"; }
+.filter-chip.active .filter-chip-box::before { content: "\2713"; }
+.filter-chip-count {
+  font-variant-numeric: tabular-nums; font-feature-settings: var(--feat-tnum);
+  /* border-box: min-width has to cover the 10px of side padding too, or a
+     two-digit count renders into a 4px content box and "85" comes out as
+     a sliver of the 8. */
+  font-size: var(--fs-caption); line-height: 1; min-width: 24px; text-align: center;
+  padding: 2px 5px; border-radius: var(--r-pill);
+  background: var(--line); color: var(--fg-mute);
+}
+.filter-chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-faint); }
+.filter-chip.active .filter-chip-box, .filter-chip.active .filter-chip-count { color: var(--accent); }
+[data-surface="dark"] .filter-chip.active { color: var(--fg); }
+[data-surface="dark"] .filter-chip.active .filter-chip-box,
+[data-surface="dark"] .filter-chip.active .filter-chip-count { color: var(--fg); }
+
+/* ---------------- focus column head ---------------- */
+
+/* The head carries the search box, what the filters left, and the way to clear
+   them. The search is here rather than in the rail because it is the one control
+   you reach for mid-scan, and reaching across two columns for it is a worse trade
+   than the row of height it costs. */
+.fview-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3);
+  padding: var(--s-3) var(--s-3) var(--s-2);
+  border-bottom: 1px solid var(--line); flex-shrink: 0;
+  font-size: var(--fs-caption); font-style: italic; color: var(--fg-dim);
+}
+.filter-reset {
+  border: 0; background: none; cursor: pointer; padding: 0;
+  color: var(--accent); font-size: var(--fs-caption); font-style: italic;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.filter-reset:hover { color: var(--fg); }
+.filter-reset[hidden] { display: none; }
+
+/* Takes the row's slack so the count and the reset stay pinned right. */
+.fview-search {
+  flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: var(--s-2);
+  padding: 5px var(--s-3); border: 1px solid var(--line); border-radius: var(--r-pill);
+  background: var(--bg-elev); font-style: normal;
+}
+.fview-search:focus-within { border-color: var(--accent-dim); }
+.fview-search input {
+  flex: 1; min-width: 0; border: 0; background: none; color: var(--fg);
+  font-size: var(--fs-footnote); font-style: normal;
+}
+.fview-search input::placeholder { color: var(--fg-faint); font-style: italic; }
+.fview-search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fview-search input::-webkit-search-cancel-button { filter: grayscale(1) opacity(0.5); }
+.fview-count { white-space: nowrap; }
+/* Only Hub renders this: the public mirror has no /food to open, so the trips
+   endpoint sends no portal and the link is simply absent there. */
+.fview-portal {
+  white-space: nowrap; color: var(--accent); font-size: var(--fs-caption); font-style: italic;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.fview-portal:hover { color: var(--fg); }
+
+/* ---------------- scene rundown ---------------- */
+
+/* Sections of labelled rows, not paragraphs. A rundown is scanned for the one
+   tradition you came for, so the handle is a column you can run your eye down and
+   the claim sits beside it. The essay this replaced buried that handle mid-sentence. */
+.scene-view { overflow-y: auto; min-height: 0; flex: 1; }
+.sc-sec { border-bottom: 1px solid var(--line); }
+.sc-sec:last-child { border-bottom: 0; }
+.sc-head {
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  padding: 8px var(--s-3) 4px;
+  background: var(--bg-elev); border-bottom: 1px solid var(--line);
+  font-size: var(--fs-caption); letter-spacing: 0.18em; text-transform: uppercase; color: var(--fg-mute);
+}
+.sc-row {
+  display: grid; grid-template-columns: minmax(0, 13em) minmax(0, 1fr);
+  gap: 2px var(--s-3); align-items: baseline;
+  padding: 10px var(--s-3); border-bottom: 1px solid var(--line-soft);
+}
+.sc-sec .sc-row:last-child { border-bottom: 0; }
+.sc-row .k { font-size: var(--fs-footnote); font-weight: 500; color: var(--fg); line-height: 1.3; }
+.sc-row .v { font-size: var(--fs-footnote); line-height: 1.5; color: var(--fg-mute); text-wrap: pretty; }
+.sc-row.bare .v { grid-column: 1 / -1; }
+
+/* ---------------- neighborhood cards ---------------- */
+
+/* Same construction as the trips crew grid, for the same reason: you read these
+   against each other to pick where to go, and a comparison only works if the same
+   fact sits at the same y on every card. Every slot below is pinned or floored —
+   unpinned, one long note pushes everything under it somewhere different per card. */
+.hoodgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.hcard {
+  display: flex; flex-direction: column; gap: var(--s-3);
+  padding: var(--s-4);
+  border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  transition: background 120ms ease-out;
+}
+.hcard:hover { background: var(--bg-elev); }
+/* two lines' worth, always: a long name wraps its borough onto its own line, and
+   without the floor every slot below it sits 18px higher on the short-name cards */
+.hcard-head { min-height: 44px; }
+.hname {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-size: var(--fs-title); font-weight: 500; letter-spacing: -0.015em; color: var(--fg); line-height: 1.2;
+}
+/* own line, always — inline, whether the borough wrapped depended on name length,
+   which is the one thing that would still make a card's layout content-dependent */
+.hboro { display: block; margin-top: 2px; font-size: var(--fs-caption); font-style: italic; color: var(--fg-dim); }
+/* three lines, clamped and floored; the depth read belongs on the place rows */
+.hsum {
+  margin: 0; min-height: calc(3 * 1.5em);
+  font-size: var(--fs-footnote); line-height: 1.5; color: var(--fg-mute); text-wrap: pretty;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+.hcard-pills { display: flex; flex-wrap: wrap; gap: 5px; min-height: 23px; align-content: flex-start; }
+.hpill {
+  padding: 2px 9px; border: 1px solid var(--line); border-radius: var(--r-pill);
+  font-size: var(--fs-caption); letter-spacing: 0.04em; color: var(--violet-label);
+  border-color: color-mix(in srgb, var(--violet-label) 40%, transparent);
+}
+.hpill-none { color: var(--fg-dim); border-color: var(--line); font-style: italic; }
+/* pinned to the floor, so the dashed rule lands at the same y in every column */
+.hcard-foot {
+  margin-top: auto; display: flex; flex-direction: column; gap: 2px;
+  border-top: 1px dashed var(--line); padding-top: var(--s-3);
+}
+/* --fg-dim, not --fg-faint: a caption is still text you have to read. The hierarchy
+   comes from 9px uppercase against a 13px/500 value, not from washing the label out. */
+.hfact-k { font-size: var(--fs-caption); letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-dim); }
+.hfact-v { font-size: var(--fs-footnote); font-weight: 500; color: var(--fg); line-height: 1.35; }
+.hnote { margin-top: var(--s-2); font-size: var(--fs-caption); font-style: italic; line-height: 1.45; color: var(--fg-dim); }
+
+/* ---------------- results list ---------------- */
+
+.results { overflow-y: auto; min-height: 0; flex: 1; }
+.results::-webkit-scrollbar { width: 6px; }
+.results::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); }
+
+/* Unscored places sit in their own labelled group, never at the tail of a numeric
+   sort. "Nobody who knows the food has weighed in" and "the people who know it
+   were unimpressed" are different facts; one list ordered by number collapses them. */
+.group-head {
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3);
+  padding: 8px var(--s-3) 4px;
+  background: var(--bg-elev); border-bottom: 1px solid var(--line);
+  font-size: var(--fs-caption); font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--fg-mute);
+}
+.group-head .n { font-variant-numeric: tabular-nums; font-feature-settings: var(--feat-tnum); }
+
+.row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px var(--s-3); align-items: baseline;
+  padding: 10px var(--s-3);
+  border-bottom: 1px solid var(--line-soft);
+  cursor: pointer; width: 100%; text-align: left;
+  transition: background 150ms ease-out, border-color 150ms ease-out;
+}
+.row:hover { background: var(--bg-hover); }
+/* Selection reads through ground + the name taking the accent. No side stripe. */
+.row.selected { background: var(--bg-elev-2); border-bottom-color: var(--accent-dim); }
+.row.selected .row-name { color: var(--accent); }
+[data-surface="dark"] .row.selected .row-name { color: var(--fg); }
+.row-name {
+  font-weight: 500; font-size: var(--fs-subhead); color: var(--fg); line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.row-sub {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap;
+  font-size: var(--fs-caption); color: var(--fg-dim);
+}
+.row-sub .dot { color: var(--fg-ghost); }
+
+/* ---------------- chips + markers ---------------- */
+
+/* A chip is a LABEL, so it truncates rather than growing. cuisine_specific is a
+   free-text field and some rows carry a whole sentence in it (303 Ramen's is 140
+   chars); nowrap with no cap made that one chip 876px wide inside an 814px row —
+   it broke the pane's right gutter, got sheared off flush against the map, and
+   pushed its own price and neighbourhood chips onto a second line, so that row
+   was a different height from every other row in the list. inline-block, not
+   inline-flex: text-overflow needs a block formatting context, and every chip in
+   this file is a bare text span (see food-view.js) so nothing needs the flex.
+   45%, not 100%: capping at the full row still lets one chip own the whole line.
+   The untruncated value is on the chip's title. */
+.chip {
+  display: inline-block; align-self: flex-start;
+  box-sizing: border-box; height: var(--ctl-h, 28px); padding: 0 var(--s-3); line-height: var(--ctl-h, 28px);
+  vertical-align: middle; max-width: 45%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  border: 0; border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--fg-dim) 14%, transparent);
+  font-size: var(--fs-caption); letter-spacing: 0.06em; color: var(--fg-dim);
+}
+.chip-cuisine { color: var(--violet-label); background: color-mix(in srgb, var(--violet-label) 16%, transparent); }
+.chip-price { font-feature-settings: var(--feat-tnum); }
+
+/* consensus vs dig is the whole point of the two-arm search, so it reads as a
+   marker rather than another grey chip. dig is the find; it gets the accent. */
+.mark { font-size: var(--fs-caption); letter-spacing: 0.14em; text-transform: uppercase; }
+.mark-dig { color: color-mix(in srgb, var(--accent) 70%, var(--fg)); }
+.mark-consensus { color: var(--fg-dim); }
+
+.status-flag { font-size: var(--fs-caption); letter-spacing: 0.08em; text-transform: uppercase; }
+.status-unverified { color: color-mix(in srgb, var(--warn) 72%, var(--fg)); }
+.status-closed { color: color-mix(in srgb, var(--alert) 78%, var(--fg)); }
+
+/* ---------------- the three score states ---------------- */
+
+/* judged, well evidenced: the number carries it.
+   judged on thin evidence: the number WITH its source count attached.
+   not judged: words, never a number, never a dash. */
+.score { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; text-align: right; }
+.score-num {
+  font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-size: var(--fs-body); font-weight: 500; line-height: 1; color: var(--fg);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.score-conf { font-size: var(--fs-caption); letter-spacing: 0.04em; color: var(--fg-dim); white-space: nowrap; }
+.score-conf.thin { color: color-mix(in srgb, var(--warn) 72%, var(--fg)); }
+.score-none {
+  font-size: var(--fs-caption); font-style: italic; color: var(--fg-dim);
+  max-width: 13ch; line-height: 1.25;
+}
+
+/* ---------------- empty states ---------------- */
+
+.empty {
+  display: flex; flex-direction: column; gap: var(--s-2);
+  padding: var(--s-7) var(--s-5); text-align: center; color: var(--fg-dim);
+}
+.empty .lead { font-size: var(--fs-subhead); color: var(--fg-mute); }
+.empty .hint { font-size: var(--fs-footnote); font-style: italic; }
+.empty code {
+  font-family: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
+  font-size: var(--fs-footnote); padding: 1px var(--s-2);
+  border: 1px solid var(--line); border-radius: var(--r);
+  background: var(--bg-elev); color: var(--accent); font-style: normal;
+}
+
+/* ============================ place detail ============================ */
+
+/* The detail takes over the list column rather than opening a third one: you have
+   already chosen, so the list is the pane you can spare, and the map stays wide and
+   keeps the pin in view. */
+.detail { display: flex; flex-direction: column; min-height: 0; flex: 1 1 auto; background: var(--bg); }
+.detail-head {
+  display: flex; align-items: flex-start; gap: var(--s-3);
+  padding: var(--s-3) var(--s-3) var(--s-2);
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.detail-back {
+  flex-shrink: 0; cursor: pointer; padding: 2px var(--s-2);
+  border: 1px solid var(--line); border-radius: var(--r-card);
+  color: var(--fg-dim); font-size: var(--fs-footnote);
+  transition: border-color 150ms ease-out, color 150ms ease-out, background 150ms ease-out;
+}
+.detail-back:hover { border-color: var(--accent-dim); color: var(--fg); background: var(--bg-elev); }
+.detail-title { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.detail-title h2 {
+  margin: 0; font-family: var(--font-display); font-feature-settings: var(--feat-display);
+  font-weight: 500; font-size: var(--fs-title); line-height: 1.2; color: var(--fg);
+  letter-spacing: -0.015em; text-wrap: balance;
+}
+.detail-title .addr { font-size: var(--fs-footnote); color: var(--fg-dim); overflow-wrap: anywhere; }
+
+.detail-body { overflow-y: auto; min-height: 0; flex: 1; padding: var(--s-3); }
+.detail-body::-webkit-scrollbar { width: 6px; }
+.detail-body::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); }
+
+/* Both scores side by side, each labelled with what it measures. An unlabelled
+   number is the abstract-bucket failure this whole module is built against. */
+.score-pair {
+  display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3);
+  padding-bottom: var(--s-4); margin-bottom: var(--s-4);
+  border-bottom: 1px solid var(--line);
+}
+.score-cell { display: flex; flex-direction: column; gap: var(--s-1); }
+.score-cell .axis {
+  font-size: var(--fs-caption); font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--fg-dim);
+}
+.score-cell .axis-note { font-size: var(--fs-caption); font-style: italic; color: var(--fg-dim); }
+.score-cell .score { align-items: flex-start; text-align: left; }
+.score-cell .score-num { font-size: var(--fs-title); }
+.score-cell .score-none { max-width: none; }
+
+.summary { margin: 0 0 var(--s-4); font-size: var(--fs-body); line-height: 1.6; color: var(--fg-mute); text-wrap: pretty; }
+
+.sec { margin-bottom: var(--s-4); }
+.sec > h3 {
+  margin: 0 0 var(--s-2);
+  font-size: var(--fs-caption); font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--fg-dim);
+  display: flex; align-items: baseline; gap: var(--s-2);
+}
+.sec ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--s-2); }
+.sec li { font-size: var(--fs-footnote); line-height: 1.5; color: var(--fg-mute); }
+.idrow { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2); }
+
+.order li { display: flex; flex-direction: column; gap: 1px; }
+.order .dish { font-size: var(--fs-subhead); font-weight: 500; color: var(--fg); }
+.order .why { font-size: var(--fs-footnote); color: var(--fg-dim); }
+
+.pc li { display: grid; grid-template-columns: 8.5em minmax(0, 1fr); gap: var(--s-3); align-items: baseline; }
+.pc .k { font-size: var(--fs-caption); letter-spacing: 0.06em; text-transform: lowercase; color: var(--fg-dim); }
+
+/* Past 90 days the practical block is stale by policy, and it says so instead of
+   quietly presenting old hours as current. */
+.stamp { font-size: var(--fs-caption); font-style: italic; letter-spacing: 0.02em; color: var(--fg-dim); text-transform: none; }
+.stamp.stale { color: color-mix(in srgb, var(--warn) 72%, var(--fg)); }
+
+.pros li::marker, .cons li::marker { content: none; }
+.pros li::before { content: "+"; color: var(--good); margin-right: var(--s-2); font-weight: 500; }
+.cons li::before { content: "\2212"; color: var(--alert); margin-right: var(--s-2); font-weight: 500; }
+
+/* ---------------- evidence ledger ---------------- */
+
+/* This section is what makes a score arguable rather than decorative, so the
+   literate cohort is set apart by ground and weight, not by a coloured stripe. */
+.ledger { display: flex; flex-direction: column; gap: var(--s-3); }
+.ev { padding: var(--s-3); border: 1px solid var(--line-soft); border-radius: var(--r-card); }
+.ev-literate { background: var(--bg-elev); border-color: var(--line); }
+.ev-general, .ev-unknown { opacity: 0.82; }
+.ev blockquote {
+  margin: 0 0 var(--s-2); font-size: var(--fs-footnote); line-height: 1.55; color: var(--fg);
+  font-family: var(--font-body), "Microsoft YaHei", "PingFang SC", "Noto Sans SC",
+               "Hiragino Sans", "Noto Sans JP", "Malgun Gothic", sans-serif;
+  text-wrap: pretty; overflow-wrap: anywhere;
+}
+.ev-general blockquote, .ev-unknown blockquote { color: var(--fg-mute); }
+.ev .why { margin: 0 0 var(--s-2); font-size: var(--fs-caption); font-style: italic; color: var(--fg-dim); }
+.ev-foot { display: flex; align-items: center; gap: var(--s-2); flex-wrap: wrap; font-size: var(--fs-caption); }
+.ev-foot a { color: color-mix(in srgb, var(--accent) 70%, var(--fg)); text-decoration: underline; text-underline-offset: 2px; }
+.ev-foot a:hover { color: var(--fg); }
+.ev-foot .who { color: var(--fg-dim); }
+.ev-cohort {
+  font-size: var(--fs-caption); font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 1px var(--s-2); border-radius: var(--r-pill); border: 1px solid var(--line);
+  color: var(--fg-mute);
+}
+.ev-literate .ev-cohort { color: var(--fg-mute); border-color: var(--accent); }
+.ev-polarity-negative .ev-cohort { color: var(--fg-mute); border-color: var(--alert); }
+
+/* ============================ map pins ============================ */
+
+/* Shape carries the discovery arm, label carries the depth score. A place with no
+   score gets a mark, never a zero — the same rule the list follows. */
+/* This map's marks. The dot, leader and chip themselves live in the shared map.css;
+   what is here is what they MEAN on a food map.
+
+   The old mark was a 26px badge with the score printed inside it and its shape carrying
+   the discovery (square = dig, circle = consensus). Both readings moved: the score leads
+   the chip, and the discovery colours the dot. */
+.mstop-consensus .mdot { background: var(--accent); }
+.mstop-consensus .mchip b { color: var(--accent); }
+/* something the research had to go looking for, rather than something every list already
+   names — the same weight the list gives it, in the one colour the map has left */
+.mstop-dig .mdot { background: var(--good); }
+.mstop-dig .mchip b { color: var(--good); }
+.mstop.is-anytime.mstop-dig .mdot { background: var(--bg); border-color: var(--good); }
+
+.mstop.is-selected .mdot { box-shadow: 0 0 0 3px var(--accent-dim), 0 0 0 1px var(--line-strong); }
+.mstop.is-selected .mchip { border-color: var(--accent); background: var(--bg-elev); }
+
+/* The label is hover-only. Eighty-eight chips at once were the map's own noise floor —
+   they hid the shape of where the food actually is, which is the only thing a map of a
+   city can say that a list cannot. The dot is the mark; the score and the name arrive
+   when you point at one. The selected place keeps its chip, because that one IS the
+   answer to what you just clicked. */
+/* The chip overhangs its 10px marker box and is never clipped, so even at opacity 0 it
+   sat over the dots behind it and swallowed their hover and their click. The dot is the
+   only hit target; the chip is a label and never takes the pointer. */
+/* Scoped to the FOOD map, not to `.mstop`. This file loads on the trips shell too
+   (the food tab is this renderer mounted into that board), it loads after trips.css,
+   and `.mstop .mchip` ties map.css on specificity — so unscoped, an eighty-eight-pin
+   rule reached across and blanked the labels on every other map on the page. The
+   trips day map and the day-of ride map both went label-less that way: dots on a
+   street map with nothing saying which dot was whose house. A hover-only label is
+   the right answer for thirty restaurants and the wrong one for four stops, and the
+   selector is what has to know the difference. */
+.fview-map .mstop .mchip, .fview-map .mstop .mlead {
+  opacity: 0; pointer-events: none; transition: opacity 120ms ease-out;
+}
+.fview-map .mstop:hover .mchip, .fview-map .mstop:hover .mlead,
+.fview-map .mstop.is-selected .mchip, .fview-map .mstop.is-selected .mlead { opacity: 1; }
+/* Leaflet stamps a per-marker z-index inline, ordered by latitude, so a hovered chip
+   would slide under the dots south of it. Beating an inline style needs !important. */
+.fview-map .leaflet-marker-icon:hover { z-index: 10000 !important; }
+
+/* Leaflet chrome lives in the shared static/css/map.css — do not re-dress it here. */
+
+/* ---------------------------------------------------------------- overlay ---
+   Hovering an area inside this one shows where it sits. The shape is drawn from that
+   area's own places, so it is dashed: it is a read of where the food is, not a civic
+   boundary, and a solid line would claim more than it knows. */
+
+.area-overlay {
+  stroke: var(--accent);
+  fill: var(--accent);
+  pointer-events: none;
+}
+
+/* Every pin drops out while an area is held, leaving the silhouette alone on the map. */
+.map-silhouette .mstop { opacity: 0; pointer-events: none; }
+.mstop { transition: opacity 120ms ease-out; }
+
+/* A child card opens that area — a link where there is a page to open, a button
+   where the host handles it in place. Same surface either way. */
+/* display stays flex: the card's every-slot-pinned-to-the-same-height alignment is what
+   lets a value read across the grid, and `display: block` here would silently kill it. */
+a.hcard, button.hcard { text-decoration: none; color: inherit; }
+a.hcard:hover, button.hcard:hover { border-color: var(--accent); }
+button.hcard { width: 100%; text-align: left; cursor: pointer; font: inherit; }
+.hcard-orphan { opacity: 0.62; }
+.hcard-orphan .hboro { color: var(--fg-dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fview-map .mstop, .fview-map .mstop .mchip, .fview-map .mstop .mlead { transition: none; }
+}
+
+/* ---------------- responsive: the view's own pieces ---------------- */
+
+/* Only what belongs to the renderer. Where the columns go, and when they stack, is
+   each host's own stylesheet. */
+@media (max-width: 680px) {
+  .score-pair { grid-template-columns: 1fr; gap: var(--s-4); }
+  .pc li { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .sc-row { grid-template-columns: minmax(0, 1fr); }
+  .fview-nav { flex-direction: row; }
+  /* Three tabs side by side: their min-content floor is over 390px while the label
+     and the count sit on one line, so on a phone the count goes under the label. */
+  .fvtab {
+    min-width: 0; flex-direction: column; align-items: flex-start; gap: 2px;
+    padding: 8px var(--s-2) 8px calc(var(--s-2) + 4px);
+  }
+  .fvtab-l { font-size: var(--fs-caption); letter-spacing: 0.04em; overflow-wrap: break-word; }
+  .fvtab-n { font-size: var(--fs-body); }
+  /* A nowrap cuisine chip is as wide as its longest tradition name, which pushes the
+     document sideways on a phone. It gives here. */
+  .chip { white-space: normal; overflow-wrap: anywhere; max-width: 100%; overflow: visible; height: auto; min-height: var(--ctl-h, 28px); padding-block: 0; }
+}
+

@@ -1,0 +1,42 @@
+/* Inventory page: list glue, program detail, disk blocks. Parts come from the shared sheets. */
+body.inventory { background: var(--bg); color: var(--fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+body.inventory :is(button, input, textarea, select) { font: inherit; color: inherit; }
+body.inventory .inv-head { display: flex; gap: var(--s-2); align-items: center; width: 100%; margin-bottom: var(--s-3); }
+body.inventory .inv-q { flex: 1; min-width: 0; }
+body.inventory .inv-n { margin-left: auto; font-size: var(--fs-caption); color: var(--fg-faint); font-variant-numeric: tabular-nums; }
+body.inventory .inv-sz { font-style: normal; font-weight: 400; color: var(--fg-faint); margin-left: 6px; }
+body.inventory .inv-note { margin: 6px 0 2px; color: var(--fg-dim); font-size: var(--fs-footnote); }
+body.inventory .inv-cmd { font-family: ui-monospace, "SF Mono", Consolas, monospace; font-size: var(--fs-caption); color: var(--fg-dim); overflow-wrap: anywhere; background: none; padding: 0; }
+body.inventory .inv-cmds { display: grid; gap: 2px; min-width: 0; }
+body.inventory .inv-cmd-alt { color: var(--fg-faint); }
+body.inventory .inv-list, body.inventory .inv-list * { min-width: 0; }
+body.inventory .inv-list .hub-plate-card > :not(.hub-section-head) { margin-inline: var(--s-4); }
+body.inventory .inv-list .hub-plate-card { padding-bottom: var(--s-2); }
+body.inventory .inv-det { display: grid; gap: 6px; padding: var(--s-2) 0 10px; }
+body.inventory .inv-kv { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; align-items: baseline; font-size: var(--fs-footnote); }
+body.inventory .inv-kv > span { color: var(--fg-faint); }
+body.inventory .inv-det-act { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 2px; }
+body.inventory .inv-when { color: var(--fg-faint); font-size: var(--fs-caption); }
+body.inventory .inv-num { font-variant-numeric: tabular-nums; color: var(--fg-dim); font-size: var(--fs-footnote); white-space: nowrap; text-align: right; }
+body.inventory .hub-t3p-side .hub-kv-row b { white-space: nowrap; }
+body.inventory .inv-exnote { color: var(--fg-faint); font-size: var(--fs-caption); margin: 0 0 var(--s-2); overflow-wrap: anywhere; }
+
+body.inventory .it-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+body.inventory .it-tabs .hub-tab em { font-style: normal; color: var(--fg-faint); margin-left: 4px; font-size: var(--fs-caption); }
+body.inventory .it-on { display: flex; flex-wrap: wrap; gap: 6px; font-weight: 400; }
+body.inventory .it-on i { font-style: normal; font-size: var(--fs-caption); padding: 1px 8px; border-radius: var(--r-pill); border: 1px solid var(--line); }
+body.inventory .it-yes { color: var(--good); }
+body.inventory .it-unk { color: var(--fg-faint); }
+
+body.inventory .ij-map { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+body.inventory .ij-b { flex-basis: 0; min-width: 96px; height: auto; display: grid; gap: 2px; padding: 10px 12px; min-height: 64px; place-content: end start; justify-items: start; text-align: left; border-radius: 12px; }
+body.inventory .ij-b b { font-weight: 500; font-size: var(--fs-footnote); max-width: 100%; white-space: normal; overflow-wrap: anywhere; line-height: 1.2; }
+body.inventory .ij-b span { color: var(--fg-faint); font-size: var(--fs-caption); white-space: nowrap; }
+body.inventory .ij-b { border: 1px solid var(--line); }
+body.inventory .ij-b.on { border-color: var(--accent); background: var(--accent-faint); }
+body.inventory .ij-r { border-top: 1px solid var(--line); }
+body.inventory .ij-r > summary { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; cursor: pointer; list-style: none; }
+body.inventory .ij-r > summary::-webkit-details-marker { display: none; }
+body.inventory .ij-r b { font-weight: 500; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 700px) { body.inventory .inv-kv { grid-template-columns: 1fr; gap: 1px; } }
+@media (max-width: 900px) { body.inventory .inv-head { width: auto; margin-inline: 10px; } body.inventory .it-tabs, body.inventory .ij-map { margin-inline: 10px; } }

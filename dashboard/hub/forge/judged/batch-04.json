@@ -1,0 +1,2046 @@
+{
+ "batch": "04",
+ "rubricVersion": 1,
+ "champions": {
+  "Kassadin": {
+   "engage": {
+    "value": 1,
+    "basis": "Q interrupt only, R blink is personal"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "Q shield is self only, no ally tool"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "R Riftwalk blinks onto a backline target and bursts it"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "Void Stone and Q shield resist magic but he is squishy to physical"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "no lingering area"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "R Riftwalk is the only blink under 30 s"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "W Nether Blade adds on-hit damage between spells"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "E Force Pulse cone slow is the only CC and hits an area"
+   },
+   "earlyLate": {
+    "value": 2,
+    "basis": "weak early, dominant at level 16 and full build"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "AP mage build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "R Riftwalk teleport crosses terrain; passive ignores unit collision only"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "no CC immunity"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "Q shield absorbs magic damage but is not a spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Katarina": {
+   "engage": {
+    "value": 2,
+    "basis": "E Shunpo is a personal dash and R is a channel at melee range"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "no CC or ally tool"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "E dagger blink plus R Death Lotus kills squishies and resets on takedown"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "squishy assassin"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "W dagger toss briefly lingers on the ground"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "E Shunpo has a dagger-based reset"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "passive daggers and Q mean autos are minor"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "no CC in the kit"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "power comes with resets rather than a fixed timing"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "AP burst build"
+   },
+   "resource": {
+    "value": "none",
+    "basis": "no resource"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E Shunpo blinks over terrain to a dagger or unit"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "R channel can be interrupted"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Kayle": {
+   "engage": {
+    "value": 0,
+    "basis": "no tool to start a fight"
+   },
+   "peel": {
+    "value": 5,
+    "basis": "R Divine Judgment makes an ally invulnerable, plus Q slow and W heal and speed"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no gap close"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "ranged and squishy until ascended"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "E waves and R area linger briefly"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "none"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "E ranged splash autos and waves carry damage at level 16"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "Q slow and root hit one target"
+   },
+   "earlyLate": {
+    "value": 2,
+    "basis": "weak early, hyper-scaling late"
+   },
+   "scaling": {
+    "value": "on-hit",
+    "basis": "on-hit build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": true,
+    "basis": "R Divine Judgment makes Kayle or an ally invulnerable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": true,
+    "basis": "R prevents death for its duration"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Kayn": {
+   "engage": {
+    "value": 2,
+    "basis": "Q dash and R are personal"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "W slow only, no ally tool"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "R Umbral Trespass untargetable burst with Q and E mobility"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Darkin form heals but is a bruiser at best"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "no lingering area"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Q Reaping Slash is the only dash"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "autos weave with Q and W"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "W slow hits a line of targets"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "even through the game"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "bruiser build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E Shadow Step walks through terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": true,
+    "basis": "R hides inside the target and is untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Kennen": {
+   "engage": {
+    "value": 3,
+    "basis": "R Slicing Maelstrom stun at close range after E"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "W stun mark and Q slow, small"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "E Lightning Rush gap closes onto the backline"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "R armor and MR but a small squishy body"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "R Slicing Maelstrom storm lingers"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E Lightning Rush"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "W marks and spells dominate"
+   },
+   "aoeCCShare": {
+    "value": 0.6,
+    "basis": "R stun is area while Q slow and W stun are single"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "even"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "AP mage build"
+   },
+   "resource": {
+    "value": "energy",
+    "basis": "Energy"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "E dash does not cross terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none (E Lightning Rush only dodges targeted attacks; unsure)"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Kha'Zix": {
+   "engage": {
+    "value": 2,
+    "basis": "E Leap is personal"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "nothing for allies"
+   },
+   "dive": {
+    "value": 5,
+    "basis": "anchor: R invisibility and E reset chain"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "anchor: mobile but dies at the front"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "anchor: W Void Spike small area"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "anchor: E Leap with reset"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "anchor: autos weave between spells"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "W Void Spike slow hits an area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "anchor: late leaning"
+   },
+   "scaling": {
+    "value": "lethality",
+    "basis": "anchor: lethality"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "anchor: E Leap"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "isolation is a damage mark only"
+   },
+   "stealth": {
+    "value": true,
+    "basis": "anchor: R Void Assault"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Kindred": {
+   "engage": {
+    "value": 0,
+    "basis": "no tool to start a fight"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "R Lamb's Respite stops deaths in an area, E slows"
+   },
+   "dive": {
+    "value": 1,
+    "basis": "Q Dance of Arrows is repositioning"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "squishy marksman"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "W Wolf's Frenzy and R zones last several seconds"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "Q Dance of Arrows"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "autos carry with Q, E and W enabling"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "E slow is single target, the only CC"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "scales with marks and items"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "crit marksman build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "Q tumble does not cross terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": true,
+    "basis": "R Lamb's Respite prevents death in its zone"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Wolf is not an independent unit"
+   },
+   "infiniteStacking": {
+    "value": true,
+    "basis": "passive Hunt marks permanently stack abilities and range grows per 4 hunts"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Kled": {
+   "engage": {
+    "value": 3,
+    "basis": "R Chaaaaaaaarge!!! charges across the map to ram the first champion"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Q hook yanks a diver, small"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E Jousting and R close the gap and trade"
+   },
+   "frontline": {
+    "value": 3,
+    "basis": "Skaarl mount soaks damage, then a bruiser"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R trail only briefly speeds allies"
+   },
+   "dashes": {
+    "value": 3,
+    "basis": "E, E recast and R charge"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "W Violent Tendencies attack speed and autos share damage"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "Q hook and R ram are single target"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "strong early, weaker late"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "bruiser build"
+   },
+   "resource": {
+    "value": "other",
+    "basis": "Courage bar"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "dashes do not cross terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "R range 4000 is not global"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Skaarl is a mount, not an independent unit"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "W gives attack speed for four attacks, not a conversion"
+   }
+  },
+  "Kog'Maw": {
+   "engage": {
+    "value": 0,
+    "basis": "no tool to start a fight"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "E Void Ooze slows chasers"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no gap close"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "squishy"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "E ooze and R artillery marks linger a few seconds"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "none"
+   },
+   "autoReliance": {
+    "value": 5,
+    "basis": "anchor: W Bio-Arcane Barrage on-hit autos"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "E ooze slow hits an area"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "weak early, hyper-scaling with attack speed"
+   },
+   "scaling": {
+    "value": "on-hit",
+    "basis": "anchor: on-hit"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "passive death burst is not a revive"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": true,
+    "basis": "anchor: W grants range and on-hit damage that rewards attack speed"
+   }
+  },
+  "LeBlanc": {
+   "engage": {
+    "value": 2,
+    "basis": "W and R dashes are personal"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "E Ethereal Chains root is single target"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "W Distortion and R chain dash with a return to kill a squishy"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "squishy"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "W Distortion landing area is short lived"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "W Distortion and R-W chain"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "spells only"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "E Ethereal Chains is single target"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "strong from level 6 to mid game, falls off"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "AP burst build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "W Distortion dash crosses terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "clones do not act on their own beyond passive copy"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Lee Sin": {
+   "engage": {
+    "value": 2,
+    "basis": "Q Resonating Strike dash and R Dragon's Rage are single target"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "R Dragon's Rage kicks a diver away, long cooldown"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "Q and W Safeguard reach the backline and trade"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "bruiser who holds the front briefly"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "no lingering area"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "Q recast dash and W Safeguard"
+   },
+   "autoReliance": {
+    "value": 2,
+    "basis": "passive flurry autos weave between spells"
+   },
+   "aoeCCShare": {
+    "value": 0.3,
+    "basis": "R knockup hits one target and bowls others"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "early leaning"
+   },
+   "scaling": {
+    "value": "bruiser",
+    "basis": "bruiser build"
+   },
+   "resource": {
+    "value": "energy",
+    "basis": "Energy"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "W Safeguard ward hop crosses terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "Q reveals only the marked target"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Leona": {
+   "engage": {
+    "value": 4,
+    "basis": "anchor: R Solar Flare stun area at 1200 range plus E Zenith Blade"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "Q stun, W shield, R stun"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "E Zenith Blade closes onto one target"
+   },
+   "frontline": {
+    "value": 4,
+    "basis": "full tank with W Eclipse resists"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R Solar Flare is a brief area"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E Zenith Blade"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Q Shield of Daybreak empowers one auto"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "anchor: E root single, R stun area"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "early engage leaning"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "tank build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "E does not cross terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Lillia": {
+   "engage": {
+    "value": 3,
+    "basis": "R Lilting Lullaby sleeps an area from long range"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "W knock and R sleep, long cooldowns"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "passive speed and E roll reach but she trades"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "Fighter-mage with sustain, holds briefly"
+   },
+   "zoneControl": {
+    "value": 2,
+    "basis": "E Swirlseed and Q leave areas that slow"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "passive and E give speed, Q is not a dash"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "passive burn mixes with spells"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "R sleep and E slow are area, Q has none"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "late leaning"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "AP build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "R range is large but not global"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Lissandra": {
+   "engage": {
+    "value": 3,
+    "basis": "R Frozen Tomb locks a target and E gaps close"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "W Ring of Frost root, Q slow and R self stasis"
+   },
+   "dive": {
+    "value": 3,
+    "basis": "E Glacial Path and R reach the backline"
+   },
+   "frontline": {
+    "value": 2,
+    "basis": "bruiser-like durability with R heal"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "W and R fields hold ground for seconds"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E Glacial Path"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "spells only"
+   },
+   "aoeCCShare": {
+    "value": 0.7,
+    "basis": "W root and Q slow are area, R stun is single"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "even"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "AP mage build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "E Glacial Path does not cross terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": true,
+    "basis": "R Frozen Tomb on self makes her untargetable"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Locke": {
+   "engage": {
+    "value": 1,
+    "basis": "E Ashen Pursuit is personal"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "no tool for allies"
+   },
+   "dive": {
+    "value": 4,
+    "basis": "E teleport-dash and R reach and kill a target"
+   },
+   "frontline": {
+    "value": 1,
+    "basis": "assassin with W heal"
+   },
+   "zoneControl": {
+    "value": 0,
+    "basis": "no lingering area"
+   },
+   "dashes": {
+    "value": 1,
+    "basis": "E Ashen Pursuit"
+   },
+   "autoReliance": {
+    "value": 3,
+    "basis": "passive on-hit and Q marks shared with autos"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "no hard area CC; Q only marks"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "even (unfamiliar kit, estimate)"
+   },
+   "scaling": {
+    "value": "lethality",
+    "basis": "lethality (unfamiliar kit, estimate)"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": true,
+    "basis": "E teleports to a location"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": true,
+    "basis": "R Purgatory potentially executes"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "R power from sealed champions is unclear, not assumed uncapped"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "W speed boost only"
+   }
+  },
+  "Lucian": {
+   "engage": {
+    "value": 1,
+    "basis": "E Relentless Pursuit is personal"
+   },
+   "peel": {
+    "value": 0,
+    "basis": "no CC or ally tool"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "E dash and R dps reach but no kill alone"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "squishy"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "R The Culling is a moving line"
+   },
+   "dashes": {
+    "value": 2,
+    "basis": "E with passive reset"
+   },
+   "autoReliance": {
+    "value": 4,
+    "basis": "passive double shot autos carry"
+   },
+   "aoeCCShare": {
+    "value": 0.0,
+    "basis": "no CC"
+   },
+   "earlyLate": {
+    "value": -1,
+    "basis": "strong early to mid trading"
+   },
+   "scaling": {
+    "value": "crit",
+    "basis": "crit marksman"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "E dash does not cross terrain"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Lulu": {
+   "engage": {
+    "value": 0,
+    "basis": "no tool to start a fight"
+   },
+   "peel": {
+    "value": 5,
+    "basis": "W Whimsy polymorph, R Wild Growth knockup, E shield"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no gap close"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "R gives health but she is squishy"
+   },
+   "zoneControl": {
+    "value": 1,
+    "basis": "Q lance slow briefly"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "none"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "Pix autos are minor"
+   },
+   "aoeCCShare": {
+    "value": 0.4,
+    "basis": "R knockup is area, W and Q are single target"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "late leaning"
+   },
+   "scaling": {
+    "value": "utility",
+    "basis": "utility enchanter"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "Pix is a follower, not a summon"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Lux": {
+   "engage": {
+    "value": 1,
+    "basis": "Q Light Binding root can open"
+   },
+   "peel": {
+    "value": 3,
+    "basis": "Q root, E slow and W shield"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no gap close"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "squishy"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "E Lucent Singularity slows an area for seconds"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "none"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "passive proc autos are minor"
+   },
+   "aoeCCShare": {
+    "value": 0.8,
+    "basis": "E slow is area, Q root is single or two"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "even"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "AP mage build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "W Prismatic Barrier is a damage shield only"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Malphite": {
+   "engage": {
+    "value": 5,
+    "basis": "anchor: R Unstoppable Force"
+   },
+   "peel": {
+    "value": 1,
+    "basis": "Q and E slows only"
+   },
+   "dive": {
+    "value": 2,
+    "basis": "anchor: R reaches the backline but he dies there"
+   },
+   "frontline": {
+    "value": 5,
+    "basis": "anchor: W Thunderclap and passive shield"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "anchor: E Ground Slam slows area repeatedly"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "R cooldown over 30 s"
+   },
+   "autoReliance": {
+    "value": 1,
+    "basis": "anchor: autos an afterthought"
+   },
+   "aoeCCShare": {
+    "value": 1.0,
+    "basis": "anchor: all CC hits an area"
+   },
+   "earlyLate": {
+    "value": 0,
+    "basis": "even"
+   },
+   "scaling": {
+    "value": "tank",
+    "basis": "anchor: tank"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "anchor: false"
+   },
+   "unstoppable": {
+    "value": true,
+    "basis": "anchor: R"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "none"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": false,
+    "basis": "none"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  },
+  "Malzahar": {
+   "engage": {
+    "value": 2,
+    "basis": "R Nether Grasp suppresses one target but no gap close"
+   },
+   "peel": {
+    "value": 2,
+    "basis": "R suppression and Q silence"
+   },
+   "dive": {
+    "value": 0,
+    "basis": "no gap close"
+   },
+   "frontline": {
+    "value": 0,
+    "basis": "Voidlings absorb some focus but he is squishy"
+   },
+   "zoneControl": {
+    "value": 3,
+    "basis": "Q Call of the Void and E leave areas for seconds"
+   },
+   "dashes": {
+    "value": 0,
+    "basis": "none"
+   },
+   "autoReliance": {
+    "value": 0,
+    "basis": "spells and Voidlings"
+   },
+   "aoeCCShare": {
+    "value": 0.5,
+    "basis": "Q silence is area, R suppression is single"
+   },
+   "earlyLate": {
+    "value": 1,
+    "basis": "late leaning with Voidlings"
+   },
+   "scaling": {
+    "value": "ap",
+    "basis": "AP mage build"
+   },
+   "resource": {
+    "value": "mana",
+    "basis": "Mana"
+   },
+   "wallCrossing": {
+    "value": false,
+    "basis": "no dash"
+   },
+   "unstoppable": {
+    "value": false,
+    "basis": "none"
+   },
+   "untargetable": {
+    "value": false,
+    "basis": "none"
+   },
+   "spellShield": {
+    "value": false,
+    "basis": "passive Void Shift reduces damage, not a spell block"
+   },
+   "cleanse": {
+    "value": false,
+    "basis": "none"
+   },
+   "globalPresence": {
+    "value": false,
+    "basis": "none"
+   },
+   "vision": {
+    "value": false,
+    "basis": "none"
+   },
+   "stealth": {
+    "value": false,
+    "basis": "none"
+   },
+   "terrain": {
+    "value": false,
+    "basis": "none"
+   },
+   "revive": {
+    "value": false,
+    "basis": "none"
+   },
+   "execute": {
+    "value": false,
+    "basis": "none"
+   },
+   "pets": {
+    "value": true,
+    "basis": "W Voidlings attack on their own"
+   },
+   "infiniteStacking": {
+    "value": false,
+    "basis": "none"
+   },
+   "attackSpeedScaling": {
+    "value": false,
+    "basis": "none"
+   }
+  }
+ }
+}

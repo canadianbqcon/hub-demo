@@ -1,0 +1,28 @@
+{
+  "started": "2026-11-05T14:30:12",
+  "machine": "Sam-Desktop",
+  "next_n": 3,
+  "code_commit": "a41c9e2",
+  "dirty": false,
+  "marks": [
+    {
+      "n": 1,
+      "url": "/tasks/",
+      "title": "Done column crowds the date",
+      "comment": "The date runs into the checkbox on a narrow window.",
+      "kind": "bug",
+      "status": "fixed",
+      "fix_note": "Added a 12px gap and let the date wrap under the title below 520px.",
+      "created": "2026-11-05T14:30:12"
+    },
+    {
+      "n": 2,
+      "url": "/trips/",
+      "title": "Packing list has no empty state",
+      "comment": "A new trip shows a blank card with no hint.",
+      "kind": "idea",
+      "status": "open",
+      "created": "2026-11-05T14:30:12"
+    }
+  ]
+}

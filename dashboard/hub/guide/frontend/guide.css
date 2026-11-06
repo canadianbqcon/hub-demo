@@ -1,0 +1,27 @@
+/* Guide (demo only). Section C of the picked Workbench set, on Hub tokens. */
+body.guide { font-family: var(--font-body); }
+.gd-root { overflow: auto; padding: 24px 18px 64px; }
+.gd { max-width: 760px; margin: 0 auto; }
+.gd h3 { margin: 0 0 4px; font-size: 15px; text-transform: capitalize; }
+.gd p { margin: 4px 0; }
+.gd .gd-what { color: var(--fg-dim, var(--fg)); font-size: 13px; }
+.gd .gd-ai { color: var(--fg); font-size: 13px; margin-top: 8px; }
+.gd-lede { font-size: 14px; max-width: 62ch; margin-bottom: 18px !important; color: var(--fg-dim, var(--fg)); }
+.gd-h { font-family: var(--font-display, inherit); font-size: 26px; margin: 0 0 6px; }
+.gd-h2 { font-family: var(--font-display, inherit); font-size: 19px; margin: 32px 0 6px; }
+.hub-block-label { margin-top: 10px; }
+.gd-steps { list-style: none; padding: 0; margin: 0; }
+.gd-step { display: grid; grid-template-columns: 44px 1fr; gap: 12px; padding: 14px 0; border-left: 2px solid var(--line); margin-left: 20px; }
+.gd-step.is-hit { border-left-color: var(--accent); }
+.gd-num { margin-left: -23px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--bg-elev); border: 1px solid var(--line); font-weight: 700; }
+.gd-num--dot { width: 14px; height: 14px; margin: 4px 0 0 -8px; }
+.gd-step.is-hit .gd-num { background: var(--accent); color: var(--on-accent, #fff); border-color: var(--accent); }
+.gd-step h3 i { font-weight: 400; font-style: normal; font-size: 12px; color: var(--fg-faint); margin-left: 6px; text-transform: none; }
+.gd .hub-link-chip { margin-top: 8px; display: inline-flex; }
+.gd-about { max-width: 62ch; }
+@media (max-width: 520px) {
+  .gd-root { padding: 16px 22px 48px 12px; }
+  .gd-step { grid-template-columns: 34px 1fr; gap: 10px; margin-left: 16px; }
+  .gd-num { width: 34px; height: 34px; margin-left: -18px; }
+  .gd-num--dot { width: 12px; height: 12px; margin: 4px 0 0 -7px; }
+}
