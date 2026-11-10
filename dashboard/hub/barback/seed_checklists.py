@@ -81,7 +81,6 @@ _TEMPLATES = [
     # would silently undo the migration on the next re-seed.
     ("lowboy_fill", "Low boy fill", "fill", [
         ('Super Hero Sidekicks', 'KCBC - hazy IPA', 'Fridge 1 · Top', "", ""),
-        ('Neon City', 'Young Master - HK pale ale', 'Fridge 1 · Top', "", ""),
         ('Athletic', 'Athletic Brewing - non-alcoholic', 'Fridge 1 · Top', "", ""),
         ('Oolong Kolsh', 'OEC Brewing', 'Fridge 1 · Top', "", ""),
         ('Baby Jasmine Lager', 'Master Gao', 'Fridge 1 · Top', "", ""),

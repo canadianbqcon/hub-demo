@@ -82,13 +82,7 @@ be compared, which is the whole complaint the page was rebuilt to answer. So:
   nerf chip (or the per-element reading has collapsed back to one verdict a row),
   no row's box extends past its card, and the document never scrolls sideways.
 
-**The patch page is themed like every other page in the module.** It shipped
-without the `forge-themes.css` link, the pre-paint `forge:theme` read, or the
-`mountThemePicker` mount, so it was the one surface stuck on the default while
-the rest of the Forge followed the picker. `frost` is the only light theme and so
-the only one that has to restate `--buff` / `--nerf` / `--rework`: the base values
-are light type on a near-black tint, which on a white card is invisible type on a
-black smear.
+**The patch page wears the same pinned theme as every other page** (Hub Liquid Glass in Rift colours, see `CLAUDE-chrome.md`). The light `frost` theme and its `--buff` / `--nerf` / `--rework` restatement are gone with the picker.
 
 **Colour is never the only carrier.** The badge prints the word (`BUFF`, `NERF`,
 `REWORK`) next to its colour and the card's left edge repeats it, because a red

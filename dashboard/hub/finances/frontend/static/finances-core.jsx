@@ -614,7 +614,7 @@ window.FinancesUI = window.FinancesUI || {};
     } else if (pstate.status === "failed") {
       body = <tr><td colSpan="7" className="table-empty">failed to load earnings</td></tr>;
     } else if (!pstate.list.length) {
-      body = <tr><td colSpan="7" className="table-empty">no earnings recorded yet &mdash; <button type="button" id="empty-add-cta" className="table-empty-cta" onClick={onAdd}>add your first entry</button></td></tr>;
+      body = <tr><td colSpan="7" className="table-empty">no earnings recorded yet &mdash; <button type="button" id="empty-add-cta" className="hub-btn table-empty-cta" onClick={onAdd}>add your first entry</button></td></tr>;
     } else {
       body = [];
       for (const [year, months] of groupByYearMonth(pstate.list)) {

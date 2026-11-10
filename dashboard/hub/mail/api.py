@@ -19,7 +19,7 @@ from contextlib import contextmanager
 from flask import Blueprint, Response, jsonify, render_template, request
 
 from automations import db as auto_db
-from automations import decisions, gmail_actions
+from automations import brief, decisions, gmail_actions
 from automations.api import _cross_site
 from mail import claude_actions
 from mail import db as mail_db
@@ -382,6 +382,75 @@ def api_decision(item_id):
         _refetch(conn, svc, [row["msg_id"]])
     # a card that moved on since the page loaded is refused; the page reloads the thread
     return jsonify(res), 409 if res.get("detail") == "already handled" else 200
+
+
+@bp.get("/api/brief")
+def api_brief():
+    ac = auto_db.connect()
+    try:
+        entries, count = brief.list_entries(ac, request.args.get("trash") == "1")
+    finally:
+        ac.close()
+    return jsonify({"entries": entries, "count": count})
+
+
+def _brief_mark(eid, fn):
+    ac = auto_db.connect()
+    try:
+        ok = fn(ac, eid)
+    finally:
+        ac.close()
+    return jsonify({"ok": True}) if ok else _err("no such entry", 404)
+
+
+@bp.post("/api/brief/<int:eid>/delete")
+def api_brief_delete(eid):
+    return _brief_mark(eid, brief.delete)
+
+
+@bp.post("/api/brief/<int:eid>/restore")
+def api_brief_restore(eid):
+    return _brief_mark(eid, brief.restore)
+
+
+def _brief_domain(data, ac):
+    """The sender domain from the body, or None unless gmail_item has seen it."""
+    d = str((data or {}).get("domain") or "").rsplit("@", 1)[-1].strip().lower()
+    if d and ac.execute("SELECT 1 FROM gmail_item WHERE domain = ? LIMIT 1", (d,)).fetchone():
+        return d
+    return None
+
+
+@bp.post("/api/brief/sender")
+def api_brief_sender():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict) or data.get("choice") not in ("read", "unsub"):
+        return _err("send JSON with choice read or unsub", 400)
+    ac = auto_db.connect()
+    try:
+        d = _brief_domain(data, ac)
+        if d is None:
+            return _err("unknown sender domain", 400)
+        if data["choice"] == "read":
+            return jsonify(gmail_actions.sender_read(ac, d))
+        return jsonify(gmail_actions.unsubscribe_sender(ac, d))
+    finally:
+        ac.close()
+
+
+@bp.post("/api/brief/sender/done")
+def api_brief_sender_done():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return _err("send JSON", 400)
+    ac = auto_db.connect()
+    try:
+        d = _brief_domain(data, ac)
+        if d is None:
+            return _err("unknown sender domain", 400)
+        return jsonify(gmail_actions.sender_done(ac, d))
+    finally:
+        ac.close()
 
 
 def _thread_exists(conn, thread_id):

@@ -1383,8 +1383,8 @@ with sync_playwright() as pw:
 
     # every section tab paints, and the shared tail really is factored out
     n_tabs = page3.locator('#tabs button').count()
-    check('the patch page is wired to the theme picker like every other page',
-          page3.locator('.topbar button.themebtn').count() == 1)
+    check('the patch page carries the Hub top bar like every other page',
+          page3.locator('.topbar .module-launcher').count() == 1)
 
     # patch.jsx RIFT: Champions, Items, Runes, Systems, whichever this patch's notes carry
     rift = [x['name'] for x in notes.get('sections', [])

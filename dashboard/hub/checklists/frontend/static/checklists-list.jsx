@@ -532,7 +532,7 @@
     if (S.main === "failed") {
       const id = S.activeId;
       return (
-        <div className="hub-error">Couldn't load checklist — {S.mainErr}<button type="button" className="hub-error-retry" id="cl-select-retry" onClick={() => selectChecklist(id)}>retry</button></div>
+        <div className="hub-error">Couldn't load checklist — {S.mainErr}<button type="button" className="hub-btn hub-error-retry" id="cl-select-retry" onClick={() => selectChecklist(id)}>retry</button></div>
       );
     }
     if (S.main === "ready" && S.active) return <Checklist key={S.active.id} />;

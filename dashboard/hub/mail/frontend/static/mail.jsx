@@ -22,6 +22,7 @@ window.MailUI = window.MailUI || {};
   // ALL is every mirrored message outside Spam and Trash, Gmail's All Mail.
   // No Waiting tab: a waiting thread is always in the Inbox with its amber dot; null is a divider (mark 224420 #1)
   const FIXED = [["INBOX", "Inbox", "inbox"], ["ALL", "All", "all"], null,
+                 ["BRIEF", "Brief", "brief"], null,
                  ["SENT", "Sent", "sent"], ["DRAFT", "Drafts", "drafts"], null,
                  ["TRASH", "Trash", "trash"], ["SPAM", "Spam", "spam"]];
   const TABS = FIXED.filter(Boolean);
@@ -32,6 +33,7 @@ window.MailUI = window.MailUI || {};
   const GLYPH = {
     inbox: <path d="M3.6 13.2 L6.6 5.4 H17.4 L20.4 13.2 V18.6 H3.6 Z M3.6 13.2 H8.4 L9.6 15.6 H14.4 L15.6 13.2 H20.4" />,
     all: <React.Fragment><rect x="3.6" y="8.4" width="16.8" height="10.8" rx="1.2" /><path d="M5.4 6 H18.6 M7.2 3.6 H16.8" /></React.Fragment>,
+    brief: <path d="M4.8 5.4 H16.2 V18.6 H6.6 A1.8 1.8 0 0 1 4.8 16.8 Z M16.2 9 H19.2 V16.8 A1.8 1.8 0 0 1 17.4 18.6 H16.2 M7.8 8.4 H13.2 M7.8 11.4 H13.2 M7.8 14.4 H11.4" />,
     sent: <path d="M4.2 12 L19.8 4.8 L16.2 19.2 L11.4 13.8 Z M11.4 13.8 L19.8 4.8" />,
     drafts: <path d="M5.4 19.2 L6 15.6 L16.2 5.4 L18.6 7.8 L8.4 18 Z M14.4 7.2 L16.8 9.6" />,
     spam: <React.Fragment><path d="M8.4 3.6 H15.6 L20.4 8.4 V15.6 L15.6 20.4 H8.4 L3.6 15.6 V8.4 Z" /><path d="M12 7.8 V12.6 M12 15.6 V16.2" /></React.Fragment>,
@@ -180,10 +182,10 @@ window.MailUI = window.MailUI || {};
     </React.Fragment>;
   }
 
-  function Rail({labels, label, onPick, q, onQ, from, onFrom, scope, onScope}) {
+  function Rail({labels, label, onPick, q, onQ, from, onFrom, scope, onScope, briefN}) {
     const byId = {};
     labels.forEach((l) => { byId[l.id] = l; });
-    const count = (id) => COUNTED[id] && byId[id] && byId[id].unread > 0 ? byId[id].unread : "";
+    const count = (id) => id === "BRIEF" ? (briefN || "") : COUNTED[id] && byId[id] && byId[id].unread > 0 ? byId[id].unread : "";
     // the whole label tree, always expanded, each with its own count (mark 224420 #2, "full expand always")
     const user = labels.filter((l) => l.type === "user");
     // double-click a parent label to fold its children (marks 093936 #2 / 095433 #3); open by default, remembered here
@@ -691,10 +693,10 @@ window.MailUI = window.MailUI || {};
     // one decision at a time, never stacked: the newest email's; the next shows once it is settled
     const dec = data.decisions.slice().sort((a, b) => (b.received_at || "").localeCompare(a.received_at || ""))[0];
     return <React.Fragment>
-      <div className="mx-th-head">
-        <h2 className="mx-th-subj">{subj}</h2>
-        {last ? <div className="mx-th-meta"><b>{last.from_name || last.from_addr}</b> {last.from_name ? <span className="hub-pill mx-addr" title={last.from_addr}><span>{last.from_addr}</span></span> : null} <span className="mx-dim">{plural(msgs.length, "message")} · {fullDate(last.internal_date)}</span></div> : null}
-        <div className="hub-btn-row mx-acts">
+      <div className="hub-t3p-read-head">
+        <h2 className="hub-t3p-read-title">{subj}</h2>
+        {last ? <div className="hub-t3p-read-meta"><b>{last.from_name || last.from_addr}</b> {last.from_name ? <span className="hub-pill mx-addr" title={last.from_addr}><span>{last.from_addr}</span></span> : null} <span className="mx-dim">{plural(msgs.length, "message")} · {fullDate(last.internal_date)}</span></div> : null}
+        <div className="hub-btn-row">
           <button type="button" className="hub-btn hub-btn--accent" onClick={toReply}>Reply</button>
           {binned ? null : <React.Fragment>
             <button type="button" className="hub-btn" disabled={off} aria-expanded={movePick} onClick={() => setMovePick(!movePick)}>Move</button>
@@ -707,12 +709,12 @@ window.MailUI = window.MailUI || {};
           {labels.filter((l) => l.type === "user").map((l) => <option key={l.id} value={l.id}>{shown(l.name)}</option>)}</select> : null}
         {errs.act ? <p className="hub-error">{errs.act}</p> : null}
       </div>
-      <div className="mx-stack">
+      <div className="hub-t3p-read-stack">
         <SummaryCard id={id} server={data.summary} />
         {msgs.map((m, i) => <Msg key={m.id} m={m} first={i === 0} />)}
         <DraftCard id={id} busy={busy === "draft" ? "draft" : busy === "save" ? "save" : off ? "other" : ""} run={run} err={errs.draft || errs.save} setDirty={setDirty} bin={binned} />
         {errs.dec ? <p className="hub-error">{errs.dec}</p> : null}
-        {dec ? <div className="mx-float"><Decision key={dec.id} d={dec} extra={extras[dec.id]} names={names} busy={busy === "dec"} run={decide} /></div> : null}
+        {dec ? <div className="hub-t3p-read-float mx-float"><Decision key={dec.id} d={dec} extra={extras[dec.id]} names={names} busy={busy === "dec"} run={decide} /></div> : null}
       </div>
     </React.Fragment>;
   }
@@ -729,10 +731,10 @@ window.MailUI = window.MailUI || {};
   function ThreadPanel({id, hint, open, onBack, labels, onChanged, say, bin}) {
     return <section className={`hub-detail-rail hub-slide-over${open ? " is-open" : ""}`}>
       <button type="button" className="hub-slide-over-close" aria-label="Back to the list" onClick={onBack}>&larr; Back</button>
-      <div className="hub-detail-rail-inner hub-t3p-context mx-thread">
+      <div className="hub-detail-rail-inner hub-t3p-context hub-t3p-read mx-thread">
         {/* wide screens: a chevron on the email closes it and the list slides back over (send-back on mark 224420 #3) */}
         {/* kept while closing so it leaves with the pane instead of vanishing first */}
-        {id ? <button type="button" className="hub-btn mx-th-close" aria-label="Close this email" title="Close" onClick={onBack}>
+        {id ? <button type="button" className="hub-btn hub-t3p-reader-close" aria-label="Close this email" title="Close" onClick={onBack}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6 L15 12 L9 18" /></svg></button> : null}
         {id ? <ThreadBody key={`${id}|${bin ? 1 : 0}`} id={id} hint={hint} labels={labels} onChanged={onChanged} say={say} bin={bin} /> : <Empty t="No thread open" x="Pick one from the list to read it here." />}
       </div>
@@ -749,6 +751,111 @@ window.MailUI = window.MailUI || {};
     if (toggle) toggle.setAttribute("aria-expanded", String(open));
   }
 
+  // ── Brief ──────────────────────────────────────────────────────────────────
+  // Picked layout: Workbench set mail-brief-layout, 2026-11-09, option C "Headlines that open in place".
+  // One line per entry under day headers; each opens in place to its points, links, the sender's Read /
+  // Unsubscribe choice and Delete. Entries / Trash switch; the server purges deleted entries after 30 days.
+
+  const dayName = (iso) => {
+    const d = new Date(iso), n = new Date(), y = new Date(n.getFullYear(), n.getMonth(), n.getDate() - 1);
+    const base = d.toLocaleDateString([], {weekday: "short", month: "short", day: "numeric"});
+    if (d.toDateString() === n.toDateString()) return `Today · ${base}`;
+    if (d.toDateString() === y.toDateString()) return `Yesterday · ${base}`;
+    return base;
+  };
+  const clock = (iso) => new Date(iso).toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
+  const safeUrl = (u) => /^https?:\/\//i.test(u || "");
+
+  function Brief({say, onCount}) {
+    const [trash, setTrash] = useState(false);
+    const [st, setSt] = useState({data: null, err: null});
+    const [picks, setPicks] = useState({});  // domain -> the sender answer from this visit
+    const seq = useRef(0);  // only the newest request may land: a slow Trash reply must not fill Entries
+    const load = () => {
+      const n = ++seq.current;
+      return J(`/mail/api/brief?trash=${trash ? 1 : 0}`)
+        .then((d) => { if (n === seq.current) { setSt({data: d.entries, err: null}); onCount(d.count); } })
+        .catch((e) => { if (n === seq.current) setSt((s) => ({data: s.data, err: e.message})); });
+    };
+    useEffect(() => { setSt({data: null, err: null}); load(); }, [trash]);
+
+    const mark = (e, what) => post(`/mail/api/brief/${e.id}/${what}`, {})
+      .then(() => { say(what === "delete" ? "Moved to Brief trash" : "Restored"); return load(); })
+      .catch((x) => say(x.message));
+    const setPick = (domain, r) => setPicks((p) => { const n = Object.assign({}, p); n[domain] = r; return n; });
+    const pick = (e, choice) => post("/mail/api/brief/sender", {domain: e.domain, choice})
+      .then((r) => {
+        setPick(e.domain, r);
+        if (r.detail === "unsafe") say("That unsubscribe link looked unsafe; nothing was sent");
+      }).catch((x) => say(x.message));
+    const done = (e) => post("/mail/api/brief/sender/done", {domain: e.domain})
+      .then((r) => setPick(e.domain, {choice: r.choice, unsub_state: r.unsub_state})).catch((x) => say(x.message));
+
+    const list = st.data || [];
+    const rows = [];
+    let last = "";
+    list.forEach((e) => {
+      const day = dayName(e.received_at);
+      if (day !== last) { rows.push(<div key={`d${e.id}`} className="bx-day">{day}</div>); last = day; }
+      const p = picks[e.domain] || {choice: e.choice, unsub_state: e.unsub_state};
+      const fb = e.source === "fallback";
+      rows.push(<details key={e.id} className="bx-acc">
+        <summary className="bx-acc-s">
+          <span className="bx-acc-t"><b>{e.title}</b><i>{fb || !e.points.length ? "Summary unavailable" : e.points[0]}</i></span>
+          <span className="bx-acc-m"><span className="bx-from">{e.sender}</span><span className="mx-row-time">{clock(e.received_at)}</span></span>
+        </summary>
+        <div className="bx-acc-b">
+          {fb ? <p className="bx-fb">Summary unavailable, showing the lane's note.</p> : null}
+          {e.points.length ? <ul className="bx-pts">{e.points.map((t, i) => <li key={i}>{t}</li>)}</ul> : null}
+          {e.links.some((l) => safeUrl(l.url))
+            ? <div className="bx-links">{e.links.filter((l) => safeUrl(l.url)).map((l, i) =>
+              <a key={i} className="hub-btn bx-link" href={l.url} target="_blank" rel="noopener noreferrer">{l.label} <span className="bx-host">{l.host}</span></a>)}</div>
+            : <p className="bx-none">No links worth keeping in this email.</p>}
+          <div className="bx-card-f">
+            <div className="bx-pick">
+              <span className="bx-pick-l">Everything from <b>{e.domain}</b></span>
+              <div className="hub-tabs hub-tabs--segmented mx-seg" role="tablist" aria-label={`What to do with mail from ${e.domain}`}>
+                <button type="button" role="tab" aria-selected={p.choice !== "unsub"} className={`hub-tab${p.choice !== "unsub" ? " active" : ""}`} onClick={() => pick(e, "read")}>Read</button>
+                <button type="button" role="tab" aria-selected={p.choice === "unsub"} className={`hub-tab is-unsub${p.choice === "unsub" ? " active" : ""}`} onClick={() => pick(e, "unsub")}>Unsubscribe</button>
+              </div>
+              {p.choice === "unsub" && p.unsub_state === "done"
+                ? <p className="bx-unsub">Unsubscribed. New mail from {e.domain} is trashed with no entry; these stay until you delete them.</p> : null}
+              {p.choice === "unsub" && p.unsub_state !== "done"
+                ? <p className="bx-unsub">Unsubscribe not confirmed yet. New mail from {e.domain} is trashed with no entry.
+                  {p.url && safeUrl(p.url) ? <React.Fragment> <a className="hub-btn bx-link" href={p.url} target="_blank" rel="noopener noreferrer">Open unsubscribe page</a></React.Fragment> : null}
+                  {" "}<button type="button" className="hub-btn" onClick={() => done(e)}>Done</button></p> : null}
+            </div>
+            {trash
+              ? <button type="button" className="hub-btn" onClick={() => mark(e, "restore")}>Restore</button>
+              : <button type="button" className="hub-btn hub-btn--danger" onClick={() => mark(e, "delete")}>Delete</button>}
+          </div>
+        </div>
+      </details>);
+    });
+
+    return <div className="hub-split hub-t3p-split is-reader mx-split is-empty">
+      <div className="hub-pane-col hub-t3p-list-col">
+        <div className="hub-pane-head hub-t3p-head mx-list-h">
+          <b>{trash ? "Brief trash" : "Brief"}</b><span className="mx-dim">{st.data && list.length ? list.length : ""}</span>
+          <div className="mx-list-ctl">
+            <div className="hub-tabs hub-tabs--segmented mx-seg" role="tablist" aria-label="Brief or its trash">
+              <button type="button" role="tab" aria-selected={!trash} className={`hub-tab${trash ? "" : " active"}`} onClick={() => setTrash(false)}>Entries</button>
+              <button type="button" role="tab" aria-selected={trash} className={`hub-tab${trash ? " active" : ""}`} onClick={() => setTrash(true)}>Trash</button>
+            </div>
+          </div>
+        </div>
+        {trash ? <p className="bx-trashline">Deleted entries clear 30 days after you delete them.</p> : null}
+        <div className="mx-list bx-list" data-sb-out="">
+          {st.err && !st.data ? <Empty t="Could not load the Brief" x={st.err} />
+            : !st.data ? null
+            : list.length ? <div className="bx-col">{rows}</div>
+            : <Empty t={trash ? "Brief trash is empty" : "Nothing in the Brief"} x={trash ? "Deleted entries wait here for 30 days, then clear." : "Newsletters the lane trashes land here."} />}
+        </div>
+      </div>
+      <div className="hub-t3p-side" />
+    </div>;
+  }
+
   function Body() {
     const first = useRef(readUrl());
     const [label, setLabel] = useState(first.current.label);
@@ -760,6 +867,7 @@ window.MailUI = window.MailUI || {};
     const [scope, setScope] = useState(null);  // {id, name}: an in: pick; a search without one covers All
     const [mode, setMode] = useState(readMode);
     const [rev, setRev] = useState(0);
+    const [briefN, setBriefN] = useState(0);
     const [labels, setLabels] = useState([]);
     const [senders, setSenders] = useState({data: null, err: null});
     const [status, setStatus] = useState({loaded: false, synced_at: null});
@@ -773,7 +881,8 @@ window.MailUI = window.MailUI || {};
     // a search runs over All (or its In chip) whatever tab is open; a From chip alone keeps the tab
     const eff = qLive || scope ? (scope ? scope.id : "ALL") : label;
     const params = {label: eff, q: qLive, from: from ? from.key : undefined};
-    const [newest, moreNewest] = useThreads(params, mode === "newest", rev);
+    const inBrief = eff === "BRIEF";
+    const [newest, moreNewest] = useThreads(params, mode === "newest" && !inBrief, rev);
 
     // select a thread by id and show its panel
     const openThread = (id) => { setOpenId(id); setPanelOpen(true); };
@@ -811,8 +920,10 @@ window.MailUI = window.MailUI || {};
       return () => clearInterval(h);
     }, []);
 
+    useEffect(() => { J("/mail/api/brief").then((d) => setBriefN(d.count)).catch(() => {}); }, []);
+
     useEffect(() => {
-      if (mode !== "sender") return;
+      if (mode !== "sender" || inBrief) return;
       let live = true;
       const p = new URLSearchParams();
       p.set("label", eff);
@@ -842,7 +953,7 @@ window.MailUI = window.MailUI || {};
 
     const labelName = shown((TABS.find((f) => f[0] === eff) || [0, (labels.find((l) => l.id === eff) || {name: eff}).name])[1]);
     const nThreads = mode === "sender" ? (senders.data || []).reduce((n, g) => n + g.threads, 0) : newest.threads.length;
-    const countLine = mode === "sender"
+    const countLine = inBrief ? `${briefN} ${briefN === 1 ? "entry" : "entries"}` : mode === "sender"
       ? (senders.data ? `${plural(senders.data.length, "sender")} · ${plural(nThreads, "thread")}` : "")
       : `${nThreads}${newest.cursor ? "+" : ""} ${nThreads === 1 && !newest.cursor ? "thread" : "threads"}`;
 
@@ -859,10 +970,11 @@ window.MailUI = window.MailUI || {};
     const openThreadObj = openId ? known.current.get(openId) || {subject: ""} : null;
 
     return <React.Fragment>
-      {ReactDOM.createPortal(<Rail labels={labels} label={eff} onPick={pickLabel} q={q} onQ={setQ} from={from} scope={scope} onScope={setScope}
+      {ReactDOM.createPortal(<Rail labels={labels} label={eff} onPick={pickLabel} q={q} onQ={setQ} from={from} scope={scope} onScope={setScope} briefN={briefN}
         onFrom={(f) => { setFrom(f); setOpenKeys(new Set(f ? [f.key] : [])); setSenders({data: null, err: null}); }} />, $("mxCol"))}
       {/* with no thread open the list takes the page; picking one slides the thread in (mark 224420 #3) */}
-      <div className={`hub-split hub-t3p-split mx-split${panelOpen && openId ? "" : " is-empty"}`}>
+      {inBrief ? <Brief say={say} onCount={setBriefN} /> : null}
+      {inBrief ? null : <div className={`hub-split hub-t3p-split is-reader mx-split${panelOpen && openId ? "" : " is-empty"}`}>
         <div className="hub-pane-col hub-t3p-list-col">
           <div className="hub-pane-head hub-t3p-head mx-list-h">
             <b title={labelName}>{labelName.split("/").pop()}</b>
@@ -887,7 +999,7 @@ window.MailUI = window.MailUI || {};
           <ThreadPanel id={openId} hint={openThreadObj ? openThreadObj.subject : ""} open={panelOpen && !!openId} onBack={() => setPanelOpen(false)}
             labels={labels} onChanged={changed} say={say} bin={!!BIN[eff]} />
         </div>
-      </div>
+      </div>}
     </React.Fragment>;
   }
 

@@ -412,19 +412,20 @@ function DayColumn({ events, now, onEdit, onCreate, isToday = true }) {
 
   return (
     <>
-      <div className="tb-day" ref={scrollRef}>
-        {allDay.length ? (
-          // a row of the grid: label in the hour gutter, chips in the event column (2026-10-21 mark)
-          <div className="tb-day-allday">
-            <span className="tb-day-allday-k">all day</span>
-            <div className="tb-day-allday-chips">
-              {allDay.map((e, i) => (
-                <span key={i} className={`tb-day-chip${e.color ? " tinted" : ""}${e.done ? " done" : ""}`}
-                      style={e.color ? { "--ev-c": e.color, "--ev-ink": window.eventInk(e.color) } : undefined}>{e.name}</span>
-              ))}
-            </div>
+      {allDay.length ? (
+        // above the scrolling hours, so it never scrolls away (2026-11-08 send-back on mark 055926 #1:
+        // "put it above the timeline"); label in the hour gutter, chips in the event column
+        <div className="tb-day-allday">
+          <span className="tb-day-allday-k">all day</span>
+          <div className="tb-day-allday-chips">
+            {allDay.map((e, i) => (
+              <span key={i} className={`tb-day-chip${e.color ? " tinted" : ""}${e.done ? " done" : ""}`}
+                    style={e.color ? { "--ev-c": e.color, "--ev-ink": window.eventInk(e.color) } : undefined}>{e.name}</span>
+            ))}
           </div>
-        ) : null}
+        </div>
+      ) : null}
+      <div className="tb-day" ref={scrollRef}>
         {grid}
       </div>
       {onCreate ? (

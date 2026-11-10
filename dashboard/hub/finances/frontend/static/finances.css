@@ -508,11 +508,7 @@ body.finances .hub-error{margin-bottom:var(--s-2,.5rem);}
   padding:.75rem .6rem; text-align:center;
   font-size:var(--fs-footnote); color:var(--fg-dim); font-style:italic;
 }
-.table-empty-cta{
-  color:var(--accent); text-decoration:underline; cursor:pointer;
-  background:none; border:0; font:inherit; font-style:normal; padding:0;
-}
-.table-empty-cta:hover{color:var(--fg);}
+.table-empty-cta{font-style:normal;}
 .detail-sep{
   border-top:1px solid var(--line); margin:.3rem 0 .2rem;
 }

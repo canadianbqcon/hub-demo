@@ -546,17 +546,24 @@ def sync_event(event: dict) -> dict | None:
                 )
                 con.commit()
                 due_changed = True
+            # the event's description is what the task means (2026-11-07 mark: "idk what
+            # verify apple cash means"); fill a blank row, never overwrite a typed one
+            desc = (event.get("description") or "").strip()
+            if desc and row["status"] == "open" and not (row["description"] or "").strip():
+                con.execute("UPDATE tasks SET description=? WHERE cal_event_id=?", (desc, eid))
+                con.commit()
         else:
             key = _calendar_key(con, event.get("summary", "task"), eid)
             con.execute(
-                "INSERT INTO tasks (task_key, title, status, section, due_date, "
-                "cal_event_id, cal_calendar_id, source) VALUES (?,?,?,?,?,?,?,?)",
+                "INSERT INTO tasks (task_key, title, status, section, due_date, description, "
+                "cal_event_id, cal_calendar_id, source) VALUES (?,?,?,?,?,?,?,?,?)",
                 (
                     key,
                     event.get("summary", "task"),
                     "open",
                     "general",
                     due,
+                    (event.get("description") or "").strip(),
                     eid,
                     event.get("calendar_id", "primary"),
                     "calendar",

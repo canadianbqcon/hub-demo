@@ -8,6 +8,7 @@ Phase 7; only a one-click POST returning exactly 200 counts as unsubscribed.
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import os
 import sys
@@ -46,8 +47,13 @@ def registrable(host: str) -> str:
 
 def unsub_safe(url: str, sender_domain: str) -> bool:
     u = urllib.parse.urlparse(url or "")
-    if u.scheme != "https" or not u.hostname:
+    if u.scheme != "https" or not u.hostname or "." not in u.hostname:
         return False
+    try:
+        ipaddress.ip_address(u.hostname)
+        return False  # IP literal
+    except ValueError:
+        pass
     reg = registrable(u.hostname)
     sender = registrable((sender_domain or "").rsplit("@", 1)[-1])
     return bool(sender) and (reg == sender or reg in KNOWN_ESPS)
@@ -191,7 +197,7 @@ def _note(conn, row, text) -> dict:
 
 def _recheck(domain, kind) -> None:
     """Background: own connection and Gmail service, no lock held. Judges any new note's scope,
-    files new proposals, then re-judges that (domain, kind)'s waiting siblings."""
+    files new proposals, then re-judges that kind's waiting siblings."""
     from automations import gmail_lane
     conn = db.connect()
     try:
@@ -203,7 +209,9 @@ def _recheck(domain, kind) -> None:
             rules.discover(conn)
         except Exception as e:
             print(f"gmail_actions recheck discover failed: {e}", file=sys.stderr)
-        gmail_lane.rejudge(conn, _live_gmail(), client, domain, kind)
+        # rules are per archetype, so an answer re-sorts that archetype's waiting mail from every sender
+        wide = kind and kind not in rules.SENDER_SCOPED
+        gmail_lane.rejudge(conn, _live_gmail(), client, "*" if wide else domain, kind)
     except Exception as e:  # a daemon thread: never let it die loudly into the page
         print(f"gmail_actions recheck failed: {e}", file=sys.stderr)
     finally:
@@ -395,3 +403,60 @@ def _act(conn, row, action, label, gmail, http, paths) -> dict:  # noqa: C901 - 
     _mark_unsubscribed(paths, domain)
     _log_correction(paths, row, "UNSUBSCRIBE", None)
     return {"state": "done", "detail": "unsubscribed"}
+
+
+# ---- Brief sender choice (brief_sender); mirrors the per-row unsubscribe above, keyed by domain ----
+
+def _upsert_sender(conn, domain, choice, state) -> None:
+    conn.execute(
+        "INSERT INTO brief_sender (domain, choice, unsub_state, updated_at) VALUES (?,?,?,?) "
+        "ON CONFLICT(domain) DO UPDATE SET choice=excluded.choice, unsub_state=excluded.unsub_state, "
+        "updated_at=excluded.updated_at", (domain, choice, state, _now()))
+    conn.commit()
+
+
+def _sender_state(conn, domain, detail) -> dict:
+    r = conn.execute("SELECT choice, unsub_state FROM brief_sender WHERE domain=?", (domain,)).fetchone()
+    return {"choice": r["choice"] if r else "read", "unsub_state": r["unsub_state"] if r else None, "detail": detail}
+
+
+def unsubscribe_sender(conn, domain, http=None, paths=None) -> dict:
+    domain = (domain or "").rsplit("@", 1)[-1].lower()
+    http, paths = http or _default_http, paths or default_paths()
+    row = conn.execute(
+        "SELECT unsub_url, unsub_one_click FROM gmail_item WHERE domain=? AND unsub_url IS NOT NULL "
+        "AND unsub_url<>'' ORDER BY received_at DESC, id DESC LIMIT 1", (domain,)).fetchone()
+    if row is None:  # still his instruction: stop the entries, nothing to send
+        _upsert_sender(conn, domain, "unsub", "unconfirmed")
+        return {"choice": "unsub", "unsub_state": "unconfirmed", "detail": "no unsubscribe link"}
+    url = row["unsub_url"]
+    if not unsub_safe(url, domain):
+        return _sender_state(conn, domain, "unsafe")
+    ok = False
+    if row["unsub_one_click"]:  # POST only; a GET is never sent
+        try:
+            ok = http("POST", url, {"List-Unsubscribe": "One-Click"}) == 200
+        except Exception:
+            ok = False
+    if ok:
+        _upsert_sender(conn, domain, "unsub", "done")
+        _mark_unsubscribed(paths, domain)
+        return {"choice": "unsub", "unsub_state": "done", "detail": "unsubscribed"}
+    _upsert_sender(conn, domain, "unsub", "unconfirmed")
+    return {"choice": "unsub", "unsub_state": "unconfirmed", "detail": f"finish in a browser: {url}", "url": url}
+
+
+def sender_done(conn, domain, paths=None) -> dict:
+    domain = (domain or "").rsplit("@", 1)[-1].lower()
+    cur = conn.execute("UPDATE brief_sender SET unsub_state='done', updated_at=? WHERE domain=? "
+                       "AND choice='unsub' AND unsub_state='unconfirmed'", (_now(), domain))
+    conn.commit()
+    if cur.rowcount:
+        _mark_unsubscribed(paths or default_paths(), domain)
+    return _sender_state(conn, domain, "done" if cur.rowcount else "unchanged")
+
+
+def sender_read(conn, domain) -> dict:
+    domain = (domain or "").rsplit("@", 1)[-1].lower()
+    _upsert_sender(conn, domain, "read", None)
+    return {"choice": "read", "unsub_state": None, "detail": "read"}

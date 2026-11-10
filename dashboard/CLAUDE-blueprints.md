@@ -121,7 +121,7 @@ server, so they run everywhere the suite does.
 | shared-part markup | a `<button>` or `<table>`, or an element whose class names a card or pill (`rail-card`, `qa-type-pill`), carries no class any blueprint owns; also fails when a `baselines.markup` line no longer matches anything | put the shared class on it (`hub-btn`, `hub-table`, `hub-card`, `hub-pill`) and scope page tweaks under it; drop fixed lines from the baseline and lower `markup_max` |
 | new-file cap | a stylesheet outside `page_css_files` exceeds `starter_css_max` (40 lines) | build the page from shared components, or add the file to the roster and say why it needs CSS of its own |
 | origin composes | a rule in an origin file bare-restyles a `base.css`/`chrome.css`/`components.css` blueprinted class instead of composing it | drop the restyle; the origin adds layout, it never repaints a part |
-| origin scoping | a module rule bare-restyles an origin class, or one of its states (`active`, `is-open`, `is-full`, `is-zero`, `is-primary`) | qualify with a module class or `body.<page>` |
+| origin scoping | a module rule bare-restyles an origin class, or one of its states (`active`, `is-open`, `is-full`, `is-reader`, `is-empty`, `is-zero`, `is-primary`) | qualify with a module class or `body.<page>` |
 | origin copy | a module rule reproduces an origin rule's declaration set verbatim, or one of its signatures | link the origin, don't re-author it |
 | derivative wiring | a derivative's template doesn't link its origin right after `components.css`, is missing one of the origin's `template_classes`, or its skeleton names an `id`/`data-`/Jinja token instead of being a plain read-off | fix the link position or the markup; the skeleton is captured, never authored |
 

@@ -4,6 +4,7 @@ Server-rendered from pages.json (the copy picked on Workbench), inside the
 same shell every Hub page uses. Registered by demo_mode.finish(); exists only
 in the exported demo.
 """
+import functools
 import html
 import json
 from pathlib import Path
@@ -38,14 +39,20 @@ def _stop(p: dict, num: int | None) -> str:
             f'<a class="hub-link-chip" href="{_e(p["href"])}">Open {_e(p["name"])}</a></div></li>')
 
 
-def render() -> str:
+REFINING = ("Work in progress: many parts of the Hub are still being refined and completed, "
+            "so some pages are rougher than others.")
+
+
+@functools.lru_cache(maxsize=1)  # pages.json ships with the build
+def body() -> str:
     d = load()
     by = {p["name"]: p for p in d["pages"]}
     tour = [by[n] for n in d["tour"]]
     rest = [p for p in d["pages"] if p["name"] not in d["tour"]]
-    body = (
+    out = (
         '<div class="gd gd-c"><h1 class="gd-h">A ten-minute tour</h1>'
         f'<p class="gd-lede">{_e(d["lede"])}</p>'
+        f'<p class="gd-wip">{_e(REFINING)}</p>'
         f'<ol class="gd-steps">{"".join(_stop(p, i + 1) for i, p in enumerate(tour))}</ol>'
         f'<h2 class="gd-h2">Every other page</h2>'
         f'<ul class="gd-steps gd-steps--rest">{"".join(_stop(p, None) for p in rest)}</ul>'
@@ -58,10 +65,21 @@ def render() -> str:
         f'<p>Built by Brendan Quan. <a class="hub-link-chip" href="{REPO_URL}">Source code on GitHub</a></p>'
         "</div></div>"
     )
+    return out
+
+
+def render() -> str:
     shell = (HERE / "frontend" / "guide.html").read_text()
-    return shell.replace("<!--GUIDE-->", body)
+    return shell.replace("<!--GUIDE-->", body())
 
 
 @bp.route("/")
 def index():
     return Response(render(), mimetype="text/html")
+
+
+@bp.route("/panel")
+def panel():
+    """The same tour as a bare fragment, for the side panel demo_mode puts on every page."""
+    # text/plain: the page hooks (banner, pull-to-refresh script) only touch text/html
+    return Response(body(), mimetype="text/plain")

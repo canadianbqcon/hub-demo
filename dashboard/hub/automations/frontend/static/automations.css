@@ -10,36 +10,34 @@ button, input, textarea, select { font: inherit; color: inherit; background: non
 /* tab counts */
 .automations .am-count { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--fg); }
 
-/* list rows */
-.automations .am-list { display: flex; flex-direction: column; gap: 6px; padding: var(--s-3); }
-.automations .am-row { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 10px; width: 100%; padding: 10px 12px; text-align: left; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--bg-elev); cursor: pointer; }
-.automations a.am-row { color: inherit; text-decoration: none; }
-.automations .am-row.is-sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-.automations .am-row.is-bad { border-color: var(--alert); }
-.automations .am-row-t { font-size: var(--fs-footnote); color: var(--fg-dim); font-variant-numeric: tabular-nums; padding-top: 2px; }
-.automations .am-row-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.automations .am-row-from { font-weight: 700; overflow-wrap: anywhere; }
-.automations .am-row-subj { color: var(--fg-mute); overflow-wrap: anywhere; }
-.automations .am-row-sub { font-size: var(--fs-footnote); color: var(--fg-dim); overflow-wrap: anywhere; }
+/* list rows: the shared hub-row as mail's flat edge-to-edge bands (marks 044523 #1, 044606 #1). No cards, no
+   dividers; the open row is a straight band, liquid a dark band with hairlines as mail draws it */
+.automations .am-list { display: flex; flex-direction: column; padding: var(--s-2) 0; }
+.automations .am-list > :is(.hub-tags, .hub-list-eyebrow, .hub-empty-state) { margin-left: var(--s-3); margin-right: var(--s-3); }
+/* section header ("to confirm · 47"): the flex list squeezed it to 16px and the first row's hover band
+   touched it (mark 071907 #1). Grouped-list proportions: a taller bar, air above, a clear gap below. */
+.automations .am-list > .hub-list-eyebrow { flex: none; height: 30px; margin-top: var(--s-2); margin-bottom: var(--s-2); }
+.automations .am-list > .hub-row + .hub-list-eyebrow { margin-top: var(--s-4); }
+.automations .am-row { width: 100%; padding: 10px calc(var(--s-2) + var(--s-3)) 10px calc(var(--s-2) + var(--s-3) - 2px); text-align: left; align-items: start; color: inherit; text-decoration: none; font-size: var(--fs-footnote); }
+.automations .am-row .hub-row-title { color: var(--fg); }
+.automations .am-row-subj { color: var(--fg-mute); }
+.automations .am-row-sub { font-size: var(--fs-caption); color: var(--fg-faint); }
+.automations .am-row-t { font-size: var(--fs-caption); color: var(--fg-dim); font-variant-numeric: tabular-nums; padding-top: 1px; }
+.automations .am-row.is-bad { border-left-color: var(--alert); }
+[data-theme="liquid"] .automations .am-row:hover { background: var(--lg-vib); }
+[data-theme="liquid"] .automations .am-row.selected { background: var(--bg-elev); border-left-color: transparent; box-shadow: inset 0 1px 0 var(--line-soft), inset 0 -1px 0 var(--line-soft); }
+[data-theme="liquid"] .automations .am-row.selected:hover { background: linear-gradient(var(--lg-vib), var(--lg-vib)), var(--bg-elev); }
 
-/* detail: read first, controls docked at the bottom. The scroller is
-   .hub-detail-rail on desktop and .hub-detail-rail-inner in the phone sheet;
-   the dock is sticky in both. */
-.automations .am-detail { display: flex; flex-direction: column; gap: 14px; }
-@media (min-width: 901px) { .automations .am-detail { min-height: 100%; } }  /* phone: the inner rail is the scroller, 100% would overflow the back button */
-.automations .am-head { display: flex; flex-direction: column; gap: 4px; }
-.automations .am-from { font-size: var(--fs-footnote); color: var(--fg-dim); overflow-wrap: anywhere; }
-.automations .am-title { margin: 0; font-size: var(--fs-title); line-height: 1.25; font-weight: 700; color: var(--fg); text-wrap: balance; overflow-wrap: anywhere; }
-.automations .am-when { font-size: var(--fs-footnote); color: var(--fg-dim); }
+/* detail: the origin's read pieces (hub-t3p-read-*, mail's thread layout) draw the head, card and floating
+   dock; only the content inside them is styled here */
 .automations .am-sum { margin: 0; font-size: var(--fs-subhead); line-height: 1.55; color: var(--fg); overflow-wrap: anywhere; }
 .automations .am-why { margin: 0; font-size: var(--fs-footnote); line-height: 1.5; color: var(--fg-mute); overflow-wrap: anywhere; }
 .automations .am-sum.is-bad { color: var(--alert); }  /* an updater log line with error/failed */
 .automations .am-why b { display: block; color: var(--fg); }
-.automations .am-detail > .hub-link-chip { align-self: flex-start; }  /* chip, not a full-width bar (the pick) */
-.automations .am-dock { position: sticky; bottom: 0; margin-top: auto; z-index: 1; display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: var(--r-card); background: var(--bg-elev); border: 1px solid var(--line); box-shadow: 0 -8px 24px rgb(0 0 0 / .25); }
-[data-theme="liquid"] .automations .am-dock { border: 0; border-radius: 22px; background: var(--lg-ov-fill); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(calc(var(--lg-thick-blur) * 1.25)) saturate(var(--lg-thick-sat)); box-shadow: var(--lg-ov-rim); }
 .automations .am-dock-prop { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: var(--fs-subhead); overflow-wrap: anywhere; }
+.automations .am-dock-prop > .hub-detail-card-head { margin: 0; }
 .automations .am-dock select { width: 100%; min-width: 0; }
+.automations .am-acts { display: grid; gap: var(--s-2); min-width: 0; }  /* picker, note, buttons: the card's row rhythm */
 .automations .am-noterow { display: flex; gap: 8px; }
 .automations .am-noterow input { flex: 1; min-width: 0; }
 .automations .am-outcome { margin: 0; font-size: var(--fs-footnote); color: var(--fg-dim); overflow-wrap: anywhere; }
@@ -53,17 +51,13 @@ button, input, textarea, select { font: inherit; color: inherit; background: non
   /* the slabs end above the status island, so the scrollers inside drop its clearance */
   [data-theme="liquid"] .automations .hub-t3p-split :is(.hub-t3p-list, .hub-detail-rail) { padding-bottom: 0; }
 }
-[data-theme="liquid"] .automations .am-row { border: 0; border-radius: 18px; background: var(--lq-soft); box-shadow: inset 0 0 0 1px var(--line-soft); transition: background 120ms ease-out; }
-[data-theme="liquid"] .automations .am-row:hover { background: linear-gradient(var(--lg-vib), var(--lg-vib)), var(--lq-soft); }
-[data-theme="liquid"] .automations .am-row.is-sel { background: var(--lg-row-on); box-shadow: inset 0 0 0 1.5px var(--accent); }
-[data-theme="liquid"] .automations .am-row.is-bad { box-shadow: inset 0 0 0 1.5px var(--alert); }
 /* phone: the hub's bottom dock (.topbar-r, fixed, z 1050) sits over the open sheet;
    keep the action card and the end of the reading above it */
 @media (max-width: 640px) {
   .automations { --am-dock-clear: calc(56px + env(safe-area-inset-bottom, 0px)); }
   [data-theme="liquid"] .automations { --am-dock-clear: 0px; }  /* liquid's pill stacks under the open sheet */
   .automations .am-detail { padding-bottom: var(--am-dock-clear); }
-  .automations .am-dock { bottom: var(--am-dock-clear); }
+  .automations .am-dock { bottom: calc(var(--s-5) + var(--am-dock-clear)); }
 }
 
 /* rules tab: evidence lists, links, folded stack */

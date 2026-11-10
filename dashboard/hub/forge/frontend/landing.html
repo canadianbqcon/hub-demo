@@ -32,18 +32,21 @@
     };
   }());
 </script>
+<script>
+/* Forge is one theme: the Hub's Liquid Glass bar and wallpaper, retinted Rift by the
+   html[data-theme][data-surface] block in forge-base.css. Pinned here, not read from hub.theme. */
+document.documentElement.setAttribute("data-theme", "liquid");
+document.documentElement.setAttribute("data-glass", "frost");
+document.documentElement.setAttribute("data-surface", "dark");
+</script>
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
 <link rel="stylesheet" href="static/forge-base.css">
-<link rel="stylesheet" href="static/forge-themes.css">
 <link rel="stylesheet" href="static/build-overlay.css">
 <link rel="stylesheet" href="static/loadout.css">
-<!-- Before first paint: a theme read after the page has painted is a flash of the
-     previous one. Deliberately not a module - modules defer. -->
-<script>
-  try {
-    var t = localStorage.getItem('forge:theme');
-    if (t) document.documentElement.dataset.theme = t;
-  } catch (e) { /* private mode: the default theme is a fine place to land */ }
-</script>
 
 <style>
   /* The front door. One card per champion in the pool, and the card is that
@@ -124,7 +127,7 @@
   .roletabs { display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; width: fit-content; max-width: 100%;
     border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
   .roletabs button { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border: 0; border-radius: 999px;
-    background: none; color: var(--dim); font-size: 14px; font-weight: 600; }
+    background: none; color: var(--dim); font-size: var(--fs-subhead); font-weight: 600; }
   .roletabs button .role-ico { width: 17px; height: 17px; display: block; }
   .roletabs button:hover:not(:disabled) { color: var(--ink); background: var(--raised); border: 0; }
   .roletabs button[aria-pressed="true"] { color: var(--ink); background: var(--raised-hi); box-shadow: 0 2px 8px oklch(0 0 0 / .35); }
@@ -132,7 +135,7 @@
   @media (max-width: 640px) {
     .roletabs { width: 100%; border-radius: 16px; justify-content: space-between; }
     .roletabs button { padding: 7px 9px; gap: 0; font-size: 0; }
-    .roletabs button:first-child { font-size: 13px; }
+    .roletabs button:first-child { font-size: var(--fs-footnote); }
     .roletabs button .role-ico { width: 19px; height: 19px; }
   }
 
@@ -259,6 +262,7 @@
 </style>
 </head>
 <body class="forge">
+<header class="topbar"><span data-slot="crumb" class="crumb">forge · champions</span></header>
 
 <div id="forge-root" style="display:contents"></div>
 
@@ -266,9 +270,10 @@
 
 <script src="/static/vendor/react.production.min.js"></script>
 <script src="/static/vendor/react-dom.production.min.js"></script>
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
 <!-- defer keeps document order: the bridge module (ForgeLib), then the bar, then the page body -->
 <script type="module" src="static/forge-lib-bridge.js"></script>
-<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=2"></script>
 <script defer src="/jsx/forge/frontend/static/build-overlay.jsx?v=3"></script>
 <script defer src="/jsx/forge/frontend/static/landing.jsx?v=7"></script>
 <script>

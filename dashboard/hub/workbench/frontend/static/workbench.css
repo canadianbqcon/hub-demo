@@ -71,6 +71,7 @@ body.workbench [hidden] { display: none !important; }
 /* the card's submission row, last in the card: note box, then the pick under it on the right */
 .wb-rig .opt-submit { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; padding: 14px 16px; border-top: 2px solid var(--line-strong); }
 .wb-rig .opt-submit .wb-textarea { min-height: 56px; }
+.wb-rig .opt-acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .wb-rig .opt-submit .wb-textarea:disabled { opacity: .5; }
 /* collapse an option to its head row so the ones around it sit closer; the title shows in the head only then */
 .wb-fold { flex: none; width: 34px; padding: 0; font-size: var(--fs-body); transition: transform .15s; }

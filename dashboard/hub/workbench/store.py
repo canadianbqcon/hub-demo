@@ -94,14 +94,18 @@ def _file_hash(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+META_FILES = ("build.txt", "ready.txt")
+
+
 def _manifest(folder: Path) -> dict[str, str]:
     """relative path -> sha256, for every file in the folder. Changes if any
     file's content changes, or a file is added or removed. The top-level
-    build.txt (the set's build tag) is metadata and is skipped."""
+    build.txt (the set's build tag) and ready.txt (shot_set.py's stamp) are
+    metadata and are skipped."""
     return {
         f.relative_to(folder).as_posix(): _file_hash(f)
         for f in sorted(folder.rglob("*"))
-        if f.is_file() and not (f.name == "build.txt" and f.parent == folder)
+        if f.is_file() and not (f.name in META_FILES and f.parent == folder)
     }
 
 

@@ -187,7 +187,7 @@ def rule_text(r, payee=None, category=None) -> str:
     if r["lane"] != "gmail":
         return f"categorize {payee or 'payee ' + r['rule_key']} as {category or 'category ' + str(r['action'])}"
     dom, kind = _split_key(r)
-    what = f"{kind} mail from {dom}" if kind else f"all mail from {dom}"
+    what = f"{kind} mail from {'any sender' if dom == '*' else dom}" if kind else f"all mail from {dom}"
     if r["kind_of_rule"] == "files_without_asking":
         return f"file {dom} mail without asking"
     if r["kind_of_rule"] == "instruction":
@@ -249,6 +249,7 @@ def rules_view(conn) -> list[dict]:
     for r in rows:
         v = {k: r[k] for k in ("id", "lane", "state", "rev", "kind_of_rule", "target", "note")}
         v["source"] = SOURCE_VIEW.get(r["source"], r["source"])
+        v["sent_back"] = rules.sent_back(r)
         v["action"] = (r["action"] or "").lower() or None if r["lane"] == "gmail" else r["action"]
         v["recent"] = [{"made_at": d["made_at"], "action": (d["action"] or "").lower(), "id": d["id"],
                         "title": _decision_title(conn, d)}
@@ -271,8 +272,8 @@ def rules_view(conn) -> list[dict]:
             out.append(v)
             continue
         dom, kind = _split_key(r)
-        v.update(who=dom, kind=kind, does=rule_text(r))
-        q, args = "SELECT subject, received_at FROM gmail_item WHERE state IN ('proposed', 'unconfirmed') AND domain=?", [dom]
+        v.update(who="any sender" if dom == "*" else dom, kind=kind, does=rule_text(r))
+        q, args = "SELECT subject, received_at FROM gmail_item WHERE state IN ('proposed', 'unconfirmed') AND (domain=? OR ?='*')", [dom, dom]
         if kind:
             q, args = q + " AND kind=?", args + [kind]
         if r["kind_of_rule"] == "files_without_asking":
@@ -284,7 +285,9 @@ def rules_view(conn) -> list[dict]:
             v.update(quote=n["text"] if n else r["note"], scope=n["scope"] if n else None, at=n["created_at"] if n else r["created_at"],
                      from_mail={"subject": it[0], "at": it[1]} if it else None)
         elif r["source"] == "streak":
-            v["answers"] = [{"at": e.get("ts") or e.get("date"), "action": str(e.get("confirmed") or "").lower()}
+            # ponytail: the decision log keeps no subjects, so the sender names the row
+            v["answers"] = [{"at": e.get("ts") or e.get("date"), "action": str(e.get("confirmed") or "").lower(),
+                             "subject": e.get("sender") or (None if dom == "*" else dom)}
                             for e in (r["evidence"] or [])]
         else:
             v["comment"] = comments.get(dom, "")
@@ -318,7 +321,40 @@ def _after_rule_change(r, note=None, sort=True) -> None:
         conn.close()
 
 
-RULE_VERBS = ("confirm", "reject", "off", "edit")
+def _after_send_back(r, note) -> None:
+    """Background, after a send-back: Claude rewrites the rule from his note and it stays
+    proposed for him to confirm. The send-back record ends revised or failed."""
+    conn = db.connect()
+    sent = {"note": note, "at": rules._now(), "status": "failed"}
+    fields = None
+    try:
+        import anthropic
+        from . import followups, gmail_lane
+        client = anthropic.Anthropic(api_key=gmail_lane._api_key())
+        if r["lane"] == "gmail":
+            line, choices = rule_text(r), list(_labels())
+        else:
+            from finances import book
+            payees, cats = _book_names({r["rule_key"]}, set())[:2]
+            line = rule_text(r, payees.get(r["rule_key"]), cats.get(str(r["action"])))
+            choices = {str(c["id"]): c["full_name"] for c in book.fetch_categories()}
+        fields = followups.revise_rule(client, line, note, r["lane"], r["kind_of_rule"], choices)
+        if fields and r["kind_of_rule"] == "files_without_asking":
+            fields.update(kind_of_rule="fixed_action", rule_key=f"{r['rule_key']}|*")
+    except Exception as e:  # a daemon thread: never let it die loudly into the page
+        print(f"rule send-back revise failed: {e}", file=sys.stderr)
+    try:
+        cur = rules.get(conn, r["id"])
+        if cur is not None:
+            sent["status"] = "revised" if fields else "failed"
+            rules.revise(conn, r["id"], cur["rev"], sent, **(fields or {}))
+    finally:
+        conn.close()
+    if fields and fields.get("note"):
+        _after_rule_change(r, note=fields["note"], sort=False)  # re-type the op from the new text
+
+
+RULE_VERBS = ("confirm", "reject", "off", "edit", "sendback")
 
 
 @bp.get("/api/rules")
@@ -363,6 +399,14 @@ def api_rule_act(rid, verb):
                 if fields["action"] != "MOVE":
                     fields["target"] = None
             res = rules.edit(conn, rid, data["rev"], **fields)
+        elif verb == "sendback":
+            note = data.get("note").strip() if isinstance(data.get("note"), str) else ""
+            if not note:
+                return jsonify({"error": "say what is wrong with the rule"}), 400
+            res = rules.send_back(conn, rid, data["rev"], note[:500])
+            if "conflict" not in res:
+                threading.Thread(target=_after_send_back, args=(dict(r), note[:500]), daemon=True).start()
+            return (jsonify(res), 409) if "conflict" in res else jsonify(res)
         else:
             res = {"confirm": rules.confirm, "reject": rules.reject, "off": rules.set_off}[verb](conn, rid, data["rev"])
         if "conflict" in res:

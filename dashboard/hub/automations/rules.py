@@ -109,6 +109,34 @@ def edit(conn, rid, rev, **fields):
     return _move(conn, rid, rev, ("proposed", "confirmed", "off"), None, fields)
 
 
+def send_back(conn, rid, rev, note):
+    """His note on a proposed rule. It stays proposed; reason holds the note as JSON
+    ({note, at, status}) until the revise thread rewrites the rule. reason is free on a proposed
+    row (only turning off writes it), so no migration."""
+    return _move(conn, rid, rev, ("proposed",), None,
+                 {"reason": json.dumps({"note": note, "at": _now(), "status": "revising"})})
+
+
+def revise(conn, rid, rev, sent, **fields):
+    """The revise thread's write: the rewritten fields plus the send-back record, still proposed.
+    kind_of_rule and rule_key may change too: a sent-back file-without-asking rule becomes a fixed
+    rule for every kind of that sender's mail."""
+    bad = set(fields) - {*EDITABLE, "kind_of_rule", "rule_key"}
+    if bad:
+        raise ValueError(f"not editable: {sorted(bad)}")
+    return _move(conn, rid, rev, ("proposed",), None, {**fields, "reason": json.dumps(sent)})
+
+
+def sent_back(r):
+    """The send-back record on a proposed rule, or None."""
+    if r["state"] != "proposed" or not (r["reason"] or "").startswith("{"):
+        return None
+    try:
+        return json.loads(r["reason"])
+    except ValueError:
+        return None
+
+
 def still_confirmed(conn, refs):
     """True when every (rule_id, rev) pair is still confirmed at that rev."""
     return all(
@@ -118,29 +146,29 @@ def still_confirmed(conn, refs):
 
 def confirmed(conn, lane, key):
     """Confirmed rows for a key, precedence-ordered. Gmail key is (domain, kind): domain|kind
-    rows first, then domain|*, then files_without_asking rows keyed by the bare domain;
-    within a group by kind_of_rule. Finance key is the payee id."""
+    rows first, then domain|*, then *|kind (that kind from any sender), then files_without_asking
+    rows keyed by the bare domain; within a group by kind_of_rule. Finance key is the payee id."""
     if lane != "gmail":
         return conn.execute(f"SELECT * FROM rule WHERE lane=? AND state='confirmed' AND rule_key=?"
                             f" ORDER BY {_KIND_RANK}, id", (lane, str(key))).fetchall()
     domain, kind = key
-    keys = (f"{domain}|{kind}", f"{domain}|*", domain)
+    keys = (f"{domain}|{kind}", f"{domain}|*", f"*|{kind}", domain)
     return conn.execute(
-        f"SELECT * FROM rule WHERE lane='gmail' AND state='confirmed' AND rule_key IN (?,?,?)"
-        f" ORDER BY CASE rule_key WHEN ? THEN 0 WHEN ? THEN 1 ELSE 2 END, {_KIND_RANK}, id",
-        (*keys, keys[0], keys[1])).fetchall()
+        f"SELECT * FROM rule WHERE lane='gmail' AND state='confirmed' AND rule_key IN (?,?,?,?)"
+        f" ORDER BY CASE rule_key WHEN ? THEN 0 WHEN ? THEN 1 WHEN ? THEN 2 ELSE 3 END, {_KIND_RANK}, id",
+        (*keys, *keys[:3])).fetchall()
 
 
 def confirmed_notes(conn, domain, kind):
     """Confirmed note rules for a sender; kind=None (new mail, kind unknown) takes every kind."""
     if kind is None:
         return conn.execute("SELECT * FROM rule WHERE lane='gmail' AND state='confirmed'"
-                            " AND kind_of_rule='instruction' AND rule_key LIKE ? ORDER BY id",
-                            (f"{domain}|%",)).fetchall()
+                            " AND kind_of_rule='instruction' AND (rule_key LIKE ? OR rule_key LIKE '*|%')"
+                            " ORDER BY id", (f"{domain}|%",)).fetchall()
     return conn.execute(
         "SELECT * FROM rule WHERE lane='gmail' AND state='confirmed' AND kind_of_rule='instruction'"
-        " AND rule_key IN (?,?) ORDER BY CASE rule_key WHEN ? THEN 0 ELSE 1 END, id",
-        (f"{domain}|{kind}", f"{domain}|*", f"{domain}|{kind}")).fetchall()
+        " AND rule_key IN (?,?,?) ORDER BY CASE rule_key WHEN ? THEN 0 WHEN ? THEN 1 ELSE 2 END, id",
+        (f"{domain}|{kind}", f"{domain}|*", f"*|{kind}", f"{domain}|{kind}", f"{domain}|*")).fetchall()
 
 
 def list_rules(conn):
@@ -197,35 +225,119 @@ def sender_answers(conn, domain, rows):
     return rows, domain + suffix
 
 
+def _streak_proposal(conn, mod, key, rows, min_senders=1):
+    """A fixed_action proposal when the newest STREAK_N answers in rows agree (across at least
+    min_senders domains), else None."""
+    from . import gmail_lane
+    skip, since, suffix = _gate(conn, "gmail", "streak", key)
+    if skip:
+        return None
+    if since:
+        rows = [r for r in rows if r.get("ts") and (_ts(r["ts"]) or since) > since]
+    answer, label, streak = mod.learned_state(rows)
+    if streak < gmail_lane.STREAK_N:
+        return None
+    agree = sorted(rows, key=lambda r: r["date"])[-streak:]
+    if len({mod.norm_domain(r["sender_domain"]) for r in agree}) < min_senders:
+        return None
+    action = answer.upper().replace(" ", "_")
+    action = {"UNSUB": "UNSUBSCRIBE"}.get(action, action)
+    return dict(lane="gmail", rule_key=key, kind_of_rule="fixed_action", source="streak",
+                source_ref=key + suffix, action=action, target=label if action == "MOVE" else None,
+                evidence=[{"date": r["date"], "ts": r.get("ts"), "confirmed": r["confirmed"],
+                           "sender": mod.norm_domain(r["sender_domain"])} for r in agree])
+
+
+SENDER_SCOPED = ("security notice",)  # archetypes whose rules stay per sender
+
+
 def _streak_candidates(conn):
+    """Archetype proposals (*|kind: the newest 3 answers for that archetype agree, any senders).
+    Only security mail is still learned per sender: one bank's alerts say nothing about another's."""
     from . import gmail_lane
     path = gmail_lane._decisions_path()
     if not path.exists():
         return []
     mod = gmail_lane._streak_mod()
     allrows = [json.loads(ln) for ln in path.read_text().splitlines() if ln.strip()]
-    keys = sorted({(mod.norm_domain(r["sender_domain"]), r["kind"]) for r in allrows if r.get("kind")})
+    for r in allrows:  # old answers carry free-text kinds; read them as their archetype
+        r["kind"] = gmail_lane.archetype(r.get("kind"))
     out = []
-    for domain, kind in keys:
-        key = f"{domain}|{kind}"
-        skip, since, suffix = _gate(conn, "gmail", "streak", key)
-        if skip:
+    for kind in sorted({r["kind"] for r in allrows if r["kind"] and r["kind"] != "other"}):
+        if kind in SENDER_SCOPED or gmail_lane.security_like(kind):
             continue
-        rows = mod.rows_for(allrows, domain, kind)
-        if since:
-            rows = [r for r in rows if r.get("ts") and (_ts(r["ts"]) or since) > since]
-        answer, label, streak = mod.learned_state(rows)
-        if streak < gmail_lane.STREAK_N:
-            continue
-        action = answer.upper().replace(" ", "_")
-        action = {"UNSUB": "UNSUBSCRIBE"}.get(action, action)
-        agree = sorted(rows, key=lambda r: r["date"])[-streak:]
-        out.append(dict(lane="gmail", rule_key=key, kind_of_rule="fixed_action", source="streak",
-                        source_ref=key + suffix, action=action,
-                        target=label if action == "MOVE" else None,
-                        evidence=[{"date": r["date"], "ts": r.get("ts"), "confirmed": r["confirmed"]}
-                                  for r in agree]))
+        c = _streak_proposal(conn, mod, f"*|{kind}", [r for r in allrows if r["kind"] == kind])
+        if c:
+            out.append(c)
+    for domain, kind in sorted({(mod.norm_domain(r["sender_domain"]), r["kind"]) for r in allrows
+                                if r["kind"] in SENDER_SCOPED}):
+        c = _streak_proposal(conn, mod, f"{domain}|{kind}", mod.rows_for(allrows, domain, kind))
+        if c:
+            out.append(c)
     return out
+
+
+def archetype_cutover(conn, *, apply=False) -> dict:
+    """One-time move from per-sender rules to archetype rules. Remaps stored kinds (inbox rows,
+    notes, rule blocks, rule keys) to archetypes; drops never-decided streak proposals so
+    discover() re-files them per archetype; widens confirmed notes without a typed op to every
+    sender; keeps confirmed per-sender actions working until the archetype rule that replaces
+    them is confirmed. Security mail stays per sender. The answer log is left as written."""
+    from . import gmail_lane
+    arch = gmail_lane.archetype
+    plan = []
+
+    def newkey(r):
+        dom, _, kind = r["rule_key"].partition("|")
+        k = kind if kind in ("", "*") else arch(kind)
+        if (r["kind_of_rule"] == "instruction" and not r["op"] and dom != "*" and k not in ("", "*")
+                and k not in SENDER_SCOPED):
+            dom = "*"
+        return f"{dom}|{k}" if _ else dom
+
+    with decisions.locked():
+        used = {r[0] for r in conn.execute("SELECT DISTINCT rule_id FROM decision WHERE rule_id IS NOT NULL")}
+        for r in conn.execute("SELECT * FROM rule WHERE lane='gmail' ORDER BY id").fetchall():
+            nk = newkey(r)
+            if (r["state"] == "proposed" and r["source"] == "streak" and r["id"] not in used
+                    and nk.split("|")[-1] not in SENDER_SCOPED):
+                plan.append(("drop", r["id"], r["rule_key"], None))
+            elif nk != r["rule_key"]:
+                plan.append(("rekey", r["id"], r["rule_key"], nk))
+        if apply:
+            for op, rid, _, nk in plan:
+                if op == "drop":
+                    conn.execute("DELETE FROM rule WHERE id=?", (rid,))
+                else:
+                    conn.execute("UPDATE rule SET rule_key=?, rev=rev+1, updated_at=? WHERE id=?", (nk, _now(), rid))
+            for table in ("gmail_item", "gmail_note"):
+                for (k,) in conn.execute(f"SELECT DISTINCT kind FROM {table} WHERE kind IS NOT NULL").fetchall():  # noqa: S608 - fixed names
+                    if arch(k) != k:
+                        conn.execute(f"UPDATE {table} SET kind=? WHERE kind=?", (arch(k), k))  # noqa: S608
+            for rk, since in conn.execute("SELECT rule_key, blocked_since FROM rule_block WHERE lane='gmail'").fetchall():
+                dom, bar, kind = rk.partition("|")
+                nk = f"{dom}|{arch(kind)}" if bar and kind != "*" else rk
+                if nk != rk:
+                    conn.execute("DELETE FROM rule_block WHERE lane='gmail' AND rule_key=?", (rk,))
+                    conn.execute("INSERT INTO rule_block (lane, rule_key, blocked_since) VALUES ('gmail',?,?)"
+                                 " ON CONFLICT DO UPDATE SET blocked_since=min(blocked_since, excluded.blocked_since)",
+                                 (nk, since))
+            conn.execute("UPDATE gmail_item SET judged_at=NULL WHERE state='proposed'")
+            conn.commit()
+    filed = discover(conn, dry=not apply)["proposals"] if apply else []
+    if apply:  # a confirmed per-sender action the archetype rule agrees with is replaced on its confirm
+        for c in filed:
+            if not c["rule_key"].startswith("*|"):
+                continue
+            kind = c["rule_key"][2:]
+            old = conn.execute("SELECT id FROM rule WHERE lane='gmail' AND state='confirmed' AND kind_of_rule='fixed_action'"
+                               " AND rule_key LIKE ? AND action IS ? AND target IS ? ORDER BY id LIMIT 1",
+                               (f"%|{kind}", c["action"], c["target"])).fetchone()
+            if old:
+                conn.execute("UPDATE rule SET replaces=? WHERE lane='gmail' AND state='proposed' AND rule_key=?",
+                             (old[0], c["rule_key"]))
+        conn.commit()
+    return {"plan": plan, "filed": filed, "applied": apply}
 
 
 _ANSWERS_SQL = """
@@ -364,11 +476,19 @@ def cutover(conn, *, book_conn=None, apply=False) -> dict:
 
 
 def _main(argv):
-    if not argv or argv[0] != "cutover" or set(argv[1:]) - {"--apply"}:
-        print("usage: python3 -m automations.rules cutover [--apply]")
+    if not argv or argv[0] not in ("cutover", "archetypes") or set(argv[1:]) - {"--apply"}:
+        print("usage: python3 -m automations.rules cutover|archetypes [--apply]")
         return 2
     from . import db
     apply = "--apply" in argv
+    if argv[0] == "archetypes":
+        r = archetype_cutover(db.connect(), apply=apply)
+        print("APPLIED" if apply else "DRY RUN (nothing written)")
+        for op, rid, old, new in r["plan"]:
+            print(f"  {op} #{rid} {old}" + (f" -> {new}" if new else ""))
+        for c in r["filed"]:
+            print(f"  filed {c['rule_key']} -> {c['action']} {c['target'] or ''}")
+        return 0
     r = cutover(db.connect(), apply=apply)
     print(f"{'APPLIED' if apply else 'DRY RUN (nothing written)'}")
     print(f"note {r['note']}, streak {r['streak']}, sender {r['sender']}, payee {r['payee']}")

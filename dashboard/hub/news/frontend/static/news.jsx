@@ -439,7 +439,7 @@ window.NewsUI = window.NewsUI || {};
       list = (
         <div className="hub-error">
           <span>Could not reach the news API.</span>
-          <button type="button" className="hub-error-retry" onClick={loadTab}>retry</button>
+          <button type="button" className="hub-btn hub-error-retry" onClick={loadTab}>retry</button>
         </div>
       );
     } else if (view.mode === "clusters") {

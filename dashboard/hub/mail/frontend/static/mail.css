@@ -30,41 +30,8 @@ body.mail #mxNav > .hub-t3p-tab + .hub-t3p-tab { margin-top: -2px; }
 body.mail .hub-nav-item.mx-lab.is-folded .hub-nav-label::after { content: " ›"; color: var(--fg-dim); }
 body.mail .hub-nav-item.mx-lab { justify-content: space-between; min-height: 34px; padding-top: 6px; padding-bottom: 6px; font-size: var(--fs-footnote); padding-left: calc(var(--s-3) + 4px + var(--mx-depth, 0) * 14px); }
 
-/* list | thread on a wide screen, Apple Mail's split: a narrow list (about 30%, 320-420px) and the thread takes the rest;
-   the origin stacks the two below 1200 */
-@media (min-width: 1200px) {
-  body.mail .mx-split { grid-template-columns: clamp(320px, 30%, 420px) minmax(0, 1fr); height: 100%; }
-  /* no thread open: the list takes the page and the thread pane waits off to the right; picking a thread
-     narrows the list and slides the pane in (mark 224420 #3). Flex, because flex-basis animates where grid tracks do not */
-  /* liquid (second send-back): a soft spring that settles, and the pane comes in from a slight blur and scale */
-  body.mail .mx-split { display: flex; --mx-spring: linear(0, .012, .043 3.2%, .167 6.6%, .5 13.9%, .751 20.5%, .886 26.4%, .968 33.2%, .992 40.9%, 1 55%, 1); }
-  /* the same quick start but it settles without running past: the overshoot made the pane push 16px into the list and
-     spring back, squeezing the rows (seventh send-back: "it shouldnt compress the email list") */
-  body.mail .mx-split > .hub-t3p-list-col { flex: 0 0 clamp(320px, 30%, 420px); transition: flex 720ms var(--mx-spring); }
-  /* the pane's own width animates too: without it, closing dropped the pane to 0 at once and the list jumped to full width */
-  body.mail .mx-split > .hub-t3p-side { flex: 1 1 0; transform-origin: 0 50%; transition: flex 720ms var(--mx-spring), margin 720ms var(--mx-spring), opacity 380ms ease 60ms, filter 520ms ease, transform 720ms var(--mx-spring); }
-  /* the email keeps its reading width while the pane narrows, so it is cut off at the edge instead of squeezed
-     (liquid only: its pane clips; elsewhere the text would spill over the list) */
-  [data-theme="liquid"] body.mail .mx-split > .hub-t3p-side > .hub-detail-rail { min-width: 480px; }
-  /* close is the open in reverse order (fourth send-back): open makes the space and then fades the email in, so close fades
-     the email out first and then closes the space. The spring front-loads (half its travel in 100ms), which reads as a slam
-     when the space closes, so the close takes an ease-in-out with no overshoot */
-  body.mail .mx-split { --mx-close: cubic-bezier(.45, 0, .2, 1); }
-  /* the fade runs the length of the close, under the narrowing pane, so the email visibly fades out as it leaves; a 260ms
-     fade was gone before the pane moved and read as vanishing (sixth send-back: "fade out, not just disappear") */
-  body.mail .mx-split.is-empty > .hub-t3p-list-col { flex: 1 1 100%; transition: flex 680ms var(--mx-close) 80ms; }
-  body.mail .mx-split.is-empty > .hub-t3p-side { flex: 0 0 0; opacity: 0; filter: blur(6px); transform: translateX(72px) scale(.97); pointer-events: none; margin-left: 0; margin-right: 0;
-    transition: opacity 620ms cubic-bezier(.4, 0, .6, 1), filter 620ms ease-in, transform 680ms var(--mx-close), flex 680ms var(--mx-close) 80ms, margin 680ms var(--mx-close) 80ms; }
-  /* the email's own close: a glass chevron on its top right corner */
-  body.mail .hub-t3p-side .hub-detail-rail { position: relative; }
-  body.mail .mx-th-close { position: absolute; z-index: 5; top: 12px; right: 12px; width: 34px; height: 34px; padding: 0; display: grid; place-items: center; border-radius: 999px; }
-  body.mail .mx-th-close svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
-  body.mail .mx-th-head { padding-right: 56px; }
-}
-@media (max-width: 1199px) { body.mail .mx-th-close { display: none; } }
-@media (min-width: 1200px) and (prefers-reduced-motion: reduce) {
-  body.mail .mx-split > :is(.hub-t3p-list-col, .hub-t3p-side) { transition: none; }
-}
+/* list | thread: the reader split now lives in the tabbed-3-pane origin (.hub-t3p-split.is-reader, promoted
+   2026-11-07); the thread head, stack and floating bar are its .hub-t3p-read-* pieces (2026-11-07) */
 /* liquid paints the open panel solid --bg for the phone sheet; beside the list it stays on the glass page */
 @media (min-width: 901px) {
   [data-theme="liquid"] body.mail .hub-slide-over.is-open { background: transparent; }
@@ -162,27 +129,16 @@ body.mail .mx-acc > summary.mx-head::after { flex: none; width: 1em; text-align:
 .mx-chip.is-low { color: var(--warn); background: color-mix(in oklab, var(--warn) 16%, transparent); }
 
 /* thread panel: head, claude cards, then the stacked messages */
-body.mail .mx-thread { padding: 0; display: flex; flex-direction: column; gap: 0; min-height: 100%; box-sizing: border-box; }
 .mx-empty { flex: 1; min-height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-2); padding: var(--s-6) var(--s-5); text-align: center; }
 .mx-empty-g { width: 56px; height: 56px; margin-bottom: var(--s-2); fill: none; stroke: var(--fg-faint); stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; opacity: .7; }
 .mx-empty-t { font-family: var(--font-display); font-size: var(--fs-title); color: var(--fg-dim); }
 .mx-empty-x { max-width: 300px; font-size: var(--fs-footnote); line-height: 1.5; color: var(--fg-faint); }
-.mx-th-head { display: grid; gap: 6px; padding: var(--s-4) var(--s-4) var(--s-3); }
-.mx-th-subj { margin: 0; font-family: var(--font-display); font-size: var(--fs-title); font-weight: 400; line-height: 1.25; text-wrap: balance; overflow-wrap: anywhere; }
-/* name, address pill and date on one centred line (mark 140045 #4, 2026-10-20: "not in line") */
-.mx-th-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--s-2); font-size: var(--fs-footnote); color: var(--fg); overflow-wrap: anywhere; }
-.mx-th-meta span { color: var(--fg-dim); }
-.mx-th-meta .mx-addr { max-width: 100%; vertical-align: middle; font-size: var(--fs-caption); }
 .mx-addr > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* liquid draws a field as one tile; its textarea keeps the input fill, a dark box inside it */
 [data-theme="liquid"] body.mail .mx-card .hub-field textarea.hub-input { background: none; border: 0; box-shadow: none; padding: 0; color: var(--fg); }
-.mx-th-meta .mx-dim { white-space: nowrap; }  /* the date wraps as one piece, never a lone "AM" */
 .mx-acts { flex-wrap: wrap; margin-top: 4px; }
-.mx-stack { display: flex; flex-direction: column; gap: var(--s-3); padding: 0 var(--s-4) var(--s-5); min-width: 0; }
-.mx-card { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-2); min-width: 0; }
 body.mail .mx-card .hub-field .hub-input, body.mail .mx-card .hub-input { font-family: var(--font-body); line-height: 1.4; font-size: var(--fs-footnote); font-weight: 400; width: 100%; min-width: 0; box-sizing: border-box; }
 .mx-card .hub-field label { font-size: var(--fs-caption); }
-body.mail .mx-card .hub-detail-card-head { margin-bottom: 0; }
 .mx-dec { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s-2); }
 .mx-p { margin: 0; font-size: var(--fs-footnote); line-height: 1.45; color: var(--fg-dim); overflow-wrap: anywhere; }
 .mx-p b { display: block; color: var(--fg); }
@@ -200,17 +156,12 @@ body.mail .mx-card .hub-detail-card-head { margin-bottom: 0; }
 /* the sort decision floats at the foot of the thread as a glass bar; it scrolls inside itself past 45% */
 /* stuck mid-scroll it sits the stack's own bottom pad (--s-5) off the edge, the same gap it has resting at
    the end of the thread; --s-2 here made it tighter while scrolling (mark 093936 #1, 2026-10-22) */
-.mx-float { position: sticky; bottom: var(--s-5); z-index: 5; margin-top: auto; max-height: 45vh; overflow-y: auto;
-  border: 1px solid var(--line-soft); border-radius: 16px; background: var(--bg-elev); box-shadow: 0 10px 32px rgba(0, 0, 0, .3); }
-.mx-float > .mx-card { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+/* the bar itself is the origin's .hub-t3p-read-float (promoted 2026-11-07); mail keeps only its row layout */
 /* fewer, wider rows: title, chip and pick share a line, the reason runs inline, and the folder picker sits
    beside its buttons once the bar is wide enough. Mark 140045 #5, 2026-10-20: "shorten the box height by
    reorganizing the rows, using horizontal space more" */
-.mx-float { container-type: inline-size; }
 .mx-why b { display: inline; }
 @container (min-width: 620px) { .mx-float .mx-fold { grid-template-columns: minmax(0, 1fr) auto; align-items: center; } }
-[data-theme="liquid"] body.mail .mx-float { border: 0; background: var(--lg-thick-fill); -webkit-backdrop-filter: blur(24px) saturate(200%); backdrop-filter: blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow: var(--lg-thick-rim), 0 0 0 .5px var(--lg-edge), 0 10px 32px rgba(0, 0, 0, .35); }
-[data-theme="liquid"] body.mail .mx-float > .mx-card { background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
 .mx-msg { min-width: 0; }
 /* Load images / Hide are capsule buttons, the segmented control's size (mark 140045 #2, 2026-10-20: "buttons") */
 body.mail .mx-msg .hub-section-head { align-items: center; }
@@ -280,3 +231,44 @@ body.mail .mx-hide { box-shadow: 0 4px 14px rgba(0, 0, 0, .25); }
 /* English under a translated message (mark 095433 #2) */
 .mx-tr { border-top: 1px solid var(--line-soft); padding: var(--s-3) var(--s-4); }
 .mx-tr-text { font-size: var(--fs-footnote); line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Brief tab: picked layout "Headlines that open in place" (Workbench set mail-brief-layout, 2026-11-09) */
+.bx-col { max-width: 760px; margin: 0 auto; padding: var(--s-2) var(--s-4) var(--s-6); display: grid; gap: var(--s-3); }
+.bx-day { padding: var(--s-4) 14px 0; font-size: var(--fs-caption); font-weight: 600; letter-spacing: .04em; color: var(--fg-dim); }
+.bx-pts { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; font-size: var(--fs-subhead); line-height: 1.5; color: var(--fg); max-width: 68ch; }
+.bx-pts li::marker { color: var(--fg-faint); }
+.bx-fb, .bx-none { margin: 0; font-size: var(--fs-footnote); font-style: italic; color: var(--fg-dim); }
+.bx-links { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.bx-link { gap: 6px; max-width: 100%; }
+a.bx-link, a.bx-link * { text-decoration: none; }
+.bx-host { font-size: var(--fs-caption); color: var(--fg-dim); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bx-pick { flex: 1 1 320px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-3); min-width: 0; }
+.bx-pick-l { font-size: var(--fs-footnote); color: var(--fg-dim); min-width: 0; overflow-wrap: anywhere; }
+.bx-pick-l b { color: var(--fg); font-weight: 600; }
+body.mail .bx-pick .mx-seg .hub-tab.is-unsub.active {  /* body.mail beats liquid.css's active-tab color */ color: var(--alert); }
+.bx-unsub { flex-basis: 100%; margin: 0; font-size: var(--fs-footnote); color: var(--fg-dim); display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+.bx-trashline { margin: 0; padding: var(--s-2) calc(var(--s-2) + var(--s-3)); font-size: var(--fs-footnote); color: var(--fg-dim); border-bottom: 1px solid var(--line-soft); }
+.bx-card-f { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); padding-top: var(--s-3); border-top: 1px solid var(--line-soft); }
+.bx-card-f > .hub-btn { margin-left: auto; }
+.bx-acc { border-radius: 16px; }
+.bx-acc[open] { background: var(--lg-vib, var(--bg-elev-2)); }
+.bx-acc-s { list-style: none; display: flex; align-items: center; gap: var(--s-3); padding: 10px 14px; border-radius: 16px; cursor: pointer; }
+.bx-acc-s::-webkit-details-marker { display: none; }
+.bx-acc:not([open]) > .bx-acc-s:hover { background: var(--lg-vib, var(--bg-hover)); }
+.bx-acc-t { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.bx-acc-t b { font-size: var(--fs-subhead); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bx-acc-t i { font-style: normal; font-size: var(--fs-footnote); color: var(--fg-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bx-acc[open] .bx-acc-t i { display: none; }
+.bx-acc[open] .bx-acc-t b { white-space: normal; }
+.bx-acc-m { flex: none; display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-footnote); color: var(--fg-dim); }
+.bx-from { max-width: 16ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bx-acc-s::after { content: "\203A"; flex: none; align-self: center; color: var(--fg-faint); transition: transform .15s; }
+.bx-acc[open] > .bx-acc-s::after { transform: rotate(90deg); }
+.bx-acc-b { display: grid; gap: var(--s-3); padding: 0 14px 14px; }
+@media (max-width: 900px) {
+  .bx-col { padding: var(--s-1) var(--s-3) var(--s-6); }
+  .bx-acc-m .mx-row-time { display: none; }
+  .bx-acc-s { align-items: flex-start; }
+  .bx-acc-b .hub-btn { min-height: 44px; }
+  body.mail .bx-pick .mx-seg .hub-tab { min-height: 40px; }
+}

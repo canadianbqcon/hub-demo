@@ -73,19 +73,37 @@
 
   /* Resolves to the folder's new hash, or null after reporting the failure or his undo. */
   function deleteCards(set, at, letters) {
-    return hold(`delete ${letters.join(", ")}`, () => deleteNow(set, at, letters), hideCards(letters));
+    set.pending = (set.pending || 0) + 1;
+    return hold(`delete ${letters.join(", ")}`, () => deleteNow(set, at, letters), hideCards(letters))
+      .then((sha) => { set.pending--; return sha; });
   }
 
+  function idxOf(L) { return /^\d+$/.test(L) ? +L - 1 : L.charCodeAt(0) - 65; }
+
+  /* letters are positions in the render he clicked on. Writes from that render run one after another
+     (UI.hold queues them), and each removed card shifts the later ones left, so a second delete is
+     mapped through set.gone to where its card sits now, and carries each card's title so the server
+     refuses a letter that no longer names that card. */
   function deleteNow(set, at, letters) {
-    setStatus(`deleting ${letters.join(", ")}…`);
+    const gone = set.gone || (set.gone = []);
+    const live = letters.filter((L) => gone.indexOf(L) < 0);
+    if (!live.length) return Promise.resolve(set.sha256);
+    const now = live.map((L) => letter(idxOf(L) - gone.filter((G) => idxOf(G) < idxOf(L)).length));
+    setStatus(`deleting ${live.join(", ")}…`);
     return fetch(`${API}/option/delete`, {
       method: "POST",
       headers: JSON_HEADERS,
       keepalive: true,  // a held write sent as the tab closes must outlive it
-      body: JSON.stringify({ set: set.slug, letters: letters, sha256: set.sha256 }),
+      body: JSON.stringify({ set: set.slug, letters: now, titles: live.map((L) => (set.titles || [])[idxOf(L)] || ""), sha256: set.sha256 }),
     }).then((r) => {
       if (r.status === 409) { staleSet(at); return null; }
-      return r.json().then((b) => { if (!r.ok) throw new Error(b.error || "failed"); setStatus(`deleted ${letters.join(", ")}`); return b.sha256; });
+      return r.json().then((b) => {
+        if (!r.ok) throw new Error(b.error || "failed");
+        gone.push(...live);
+        set.sha256 = b.sha256;
+        setStatus(`deleted ${live.join(", ")}`);
+        return b.sha256;
+      });
     }).catch((e) => { setStatus(msgOf(e)); return null; });
   }
 
@@ -210,13 +228,33 @@
     };
 
     const grid = () => bodyRef.current.querySelector("#optGrid");
-    const sel = () => Array.prototype.map.call(grid().querySelectorAll("[data-sel]:checked"), (c) => c.dataset.sel);
+    // a card hidden by a held delete is gone as far as the ticks go
+    const sel = () => Array.prototype.map.call(grid().querySelectorAll(".opt:not([hidden]) [data-sel]:checked"), (c) => c.dataset.sel);
+    // what a fork keeps is fixed at the click that opened it, not read again at confirm
+    const keepRef = useRef([]);
+
+    /* keep these letters, drop every other card of this render, send back for 4 branches */
+    function forkFrom(keep, note) {
+      const titles = keep.map((L) => (set.titles || [])[idxOf(L)] || L);
+      const drop = [];
+      for (let i = 0; i < totalRef.current; i++) if (keep.indexOf(letter(i)) < 0) drop.push(letter(i));
+      const comment = `fork: add 4 new options that branch from the kept ones (${titles.join("; ")})${note ? `. Note: ${note}` : ""}`;
+      hold(`fork ${keep.join(", ")}`, () => deleteNow(set, at, drop).then((sha) => (
+        sha ? decideSetNow(Object.assign({}, set, { sha256: sha }), at, "sent_back", comment, null) : null
+      )), hideCards(drop));
+    }
 
     useLayoutEffect(() => {
       const g = grid(), observers = [];
+      // the title at each letter of this render, read the way the server reads it (api.py card_title)
+      set.titles = Array.prototype.map.call(g.querySelectorAll(".opt"), (opt) => {
+        const h = opt.querySelector("h2");
+        return h ? h.textContent.replace(/\s+/g, " ").trim() : "";
+      });
       Array.prototype.forEach.call(g.querySelectorAll(".opt"), (opt, i) => {
         const L = letter(i);
         opt.id = `opt-${L.toLowerCase()}`;
+        opt.dataset.letter = L;
         if (picked && picked.choice === L) opt.classList.add("picked");
         if (review) return;
         const head = document.createElement("div");
@@ -237,8 +275,10 @@
         // the card's own submission row at its foot: a note box that is always there, then the pick
         const foot = document.createElement("div");
         foot.className = "opt-submit";
-        foot.innerHTML = `<textarea class="wb-textarea" data-note="${L}" placeholder="optional note for the build" aria-label="note for option ${L}"></textarea>` +
-          `<button class="hub-btn hub-btn--accent" data-pick="${L}">pick ${L}</button>`;
+        foot.innerHTML = `<textarea class="wb-textarea" data-note="${L}" placeholder="optional note for the build or the fork" aria-label="note for option ${L}"></textarea>` +
+          `<div class="opt-acts"><button type="button" class="hub-btn hub-btn--danger" data-del="${L}">delete ${L}</button>` +
+          `<button type="button" class="hub-btn" data-fork="${L}">fork ${L}</button>` +
+          `<button type="button" class="hub-btn hub-btn--accent" data-pick="${L}">pick ${L}</button></div>`;
         opt.appendChild(foot);
         const stage = opt.querySelector(".stage");
         if (stage) {
@@ -332,6 +372,29 @@
           f.title = `${folded ? "expand" : "collapse"} ${L}`;
           return;
         }
+        // per-card delete and fork: the letter is the one stamped on this card at this render, the
+        // same render the set's hash and titles came from, so it names the card under the click
+        const dl = e.target.closest("[data-del]");
+        if (dl) {
+          if (lockRef.current) return;
+          const L = dl.dataset.del, t = (set.titles || [])[idxOf(L)] || L;
+          if (g.querySelectorAll(".opt:not([hidden])").length < 2) {
+            setStatus("the last option in a set can't be deleted; send it back instead");
+            return;
+          }
+          if (!confirm(`Delete option ${L} "${t}"? The rest re-letter.`)) return;
+          deleteCards(set, at, [L]).then((sha) => { if (sha && !set.pending) UI.reopen(at, `deleted ${L} "${t}"`); });
+          return;
+        }
+        const fk = e.target.closest("[data-fork]");
+        if (fk) {
+          if (lockRef.current) return;
+          const L = fk.dataset.fork, t = (set.titles || [])[idxOf(L)] || L;
+          const others = g.querySelectorAll(".opt:not([hidden])").length - 1;
+          if (!confirm(`Fork from option ${L} "${t}"? Keeps ${L}, drops the other ${others}, and asks for 4 new options that branch from it. The note box on ${L} rides along.`)) return;
+          forkFrom([L], fk.closest(".opt").querySelector("[data-note]").value.replace(/\s+/g, " ").trim());
+          return;
+        }
         const p = e.target.closest("[data-pick]");
         // letters are positions and re-letter after a delete or fork, so the pick also
         // records the card's title: that is what /workbench builds from (workbench cli.py)
@@ -357,7 +420,7 @@
 
     // the order lock also gates the Pick buttons and note boxes the decoration added
     useLayoutEffect(() => {
-      Array.prototype.forEach.call(grid().querySelectorAll("[data-pick], [data-note]"), (p) => { p.disabled = locked; });
+      Array.prototype.forEach.call(grid().querySelectorAll("[data-pick], [data-note], [data-del], [data-fork]"), (p) => { p.disabled = locked; });
     }, [locked]);
 
     const total = totalRef.current;
@@ -365,17 +428,11 @@
       fork: {
         label: "", placeholder: "optional note for the new options", confirmLabel: "confirm fork",
         onConfirm: (note) => {
-          const s = sel();
+          const s = keepRef.current;
           // a fork keeps the ticked cards; nothing ticked would drop every card
           if (!s.length) { setStatus("tick at least one option to keep"); return; }
-          const titles = s.map((L) => { const h = document.getElementById(`opt-${L.toLowerCase()}`).querySelector(".opt-title"); return h ? h.textContent.trim() : L; });
-          const drop = [];
-          for (let i = 0; i < totalRef.current; i++) if (s.indexOf(letter(i)) < 0) drop.push(letter(i));
-          const comment = `fork: add 4 new options that branch from the kept ones (${titles.join("; ")})${note ? `. Note: ${note}` : ""}`;
           strip.hide();
-          hold("fork", () => (drop.length ? deleteNow(set, at, drop) : Promise.resolve(set.sha256)).then((sha) => (
-            sha ? decideSetNow(Object.assign({}, set, { sha256: sha }), at, "sent_back", comment, null) : null
-          )), hideCards(drop));
+          forkFrom(s, note);
         },
       },
       back: {
@@ -399,13 +456,14 @@
                    <ActBtn key="f" label={n ? `fork ${n} selected` : "fork selected"} disabled={locked || !n}
                            onClick={(e) => {
                              const s = sel();
+                             keepRef.current = s;
                              strip.show("fork", e.currentTarget, `keep ${s.join(", ")}, drop the other ${total - s.length}, and get 4 new options that branch from them`);
                            }} />,
                    <ActBtn key="d" label={n ? `delete ${n} selected` : "delete selected"} disabled={locked || !n || n === total}
                            onClick={() => {
                              const s = sel();
                              if (!confirm(`Delete option${s.length > 1 ? "s" : ""} ${s.join(", ")}? The rest re-letter.`)) return;
-                             deleteCards(set, at, s).then((sha) => { if (sha) UI.reopen(at, `deleted ${s.join(", ")}`); });
+                             deleteCards(set, at, s).then((sha) => { if (sha && !set.pending) UI.reopen(at, `deleted ${s.join(", ")}`); });
                            }} />,
                    <ActBtn key="b" label="send back" cls="hub-btn--danger" disabled={locked}
                            onClick={(e) => { strip.show("back", e.currentTarget); }} />,

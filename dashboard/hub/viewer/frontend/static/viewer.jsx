@@ -114,7 +114,7 @@ function VideoView({ f }) {
   return <div className="vw-vid">
     <video key={f.url} className="vw-video" src={f.url} controls preload="metadata" onError={() => setBad(true)} />
     {bad ? <div className="vw-ph"><span>This video can't play in the browser.</span>
-      <a className="vw-lnk" href={f.url} download>Download {f.orig}</a></div> : null}
+      <a className="hub-btn vw-lnk" href={f.url} download>Download {f.orig}</a></div> : null}
   </div>;
 }
 
@@ -126,7 +126,7 @@ function Stage({ item, ver = 0, onDims, onPick }) {
   const listed = item.kind === "file" || item.kind === "upload";
   let body;
   if (item.kind === "web") {
-    const link = <a className="vw-lnk" href={item.url} target="_blank" rel="noopener noreferrer">Open in new tab</a>;
+    const link = <a className="hub-btn vw-lnk" href={item.url} target="_blank" rel="noopener noreferrer">Open in new tab</a>;
     body = <React.Fragment>
       <div className="vw-webbar"><span className="vw-dim">{item.url}</span>{link}</div>
       {sameHub(item.url)
@@ -153,7 +153,7 @@ function Stage({ item, ver = 0, onDims, onPick }) {
     const st = item.preview_status || "";
     body = <div className="vw-ph"><Glyph k="photo" cls="vw-g vw-g--big" />
       <span>{st.startsWith("failed") ? "preview failed" : "making preview"}</span>
-      {st.startsWith("failed") ? <a className="vw-lnk" href={f.url} download>Download {f.orig}</a> : null}</div>;
+      {st.startsWith("failed") ? <a className="hub-btn vw-lnk" href={f.url} download>Download {f.orig}</a> : null}</div>;
   } else if (!listed) {
     body = <div className="vw-ph"><Glyph k={item.kind} cls="vw-g vw-g--big" /><span>{item.files.length === 1 ? item.files[0].orig : `${item.files.length} files`}</span></div>;
   }
@@ -249,7 +249,7 @@ function Zoom({ item, media, ver, setVer, onClose, zoomedRef }) {
            onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} onClick={click}>
         {src ? <img ref={img} className="vw-zimg" key={src} src={src} alt={item.title} draggable={false} onLoad={place} />
              : <div className="vw-ph"><Glyph k="photo" cls="vw-g vw-g--big" /><span>{(item.preview_status || "").startsWith("failed") ? "preview failed" : "making preview"}</span>
-                 {f ? <a className="vw-lnk" href={f.url} download>Download {f.orig}</a> : null}</div>}
+                 {f ? <a className="hub-btn vw-lnk" href={f.url} download>Download {f.orig}</a> : null}</div>}
       </div>
     </div>
   );

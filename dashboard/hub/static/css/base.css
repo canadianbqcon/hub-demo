@@ -165,16 +165,7 @@ summary:focus-visible {
   font-size: var(--fs-footnote);
   line-height: 1.4;
 }
-.hub-error-retry {
-  color: var(--accent);
-  text-decoration: underline;
-  cursor: pointer;
-  background: none;
-  border: none;
-  font: inherit;
-  padding: 0;
-  margin-left: var(--s-2);
-}
+.hub-error-retry { margin-left: var(--s-2); }  /* a .hub-btn: no link-styled controls */
 
 /* ---------------- phone: table overflow ----------------
    ponytail: a data table's min-content (trips logistics 591px, purchases specs
@@ -256,8 +247,10 @@ details[open]::details-content {
 .status .src .dim { color: var(--fg-ghost); font-style: normal; }
 .status .src .warn { color: var(--warn-dim); font-style: normal; }
 .status .src .sep { color: var(--fg-ghost); margin: 0 4px; font-style: normal; }
-.status .src .reconnect { color: var(--warn-dim); font-style: normal; text-decoration: underline; cursor: pointer; }
+.status .src .reconnect { color: var(--warn-dim); font-style: normal; }
 .status .src .reconnect:hover { color: var(--warn, var(--accent)); }
+/* a .hub-btn sized for the status line; out-specifies liquid's `.status .hub-dot` text reset */
+.status .src .hub-btn.reconnect { display: inline-flex; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--lq-fill, var(--bg-elev-2, var(--bg-elev))); }
 .status-ctx { display: contents; }   /* a plain page's own spans, moved in by topbar.jsx */
 .status .status-l { color: var(--fg-dim); }   /* a page's message slot (what just happened) */
 .status .status-r { color: var(--fg-faint); }

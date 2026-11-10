@@ -1,0 +1,15 @@
+# Render's free tier sleeps after 15 idle minutes and takes 50 s or more to wake.
+# Pinging the health check every 5 minutes keeps the live demo awake.
+# ponytail: GitHub may delay scheduled runs; a 15-minute gap still wakes it on the next ping.
+name: keep demo awake
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+permissions: {}
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: curl -fsS --retry 6 --retry-delay 15 --retry-all-errors -m 90 -o /dev/null -w "%{http_code} %{time_total}s\n" https://hub-demo.onrender.com/healthz

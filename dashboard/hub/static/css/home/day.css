@@ -43,11 +43,11 @@
 
 /* calendar day view — vertical hour grid with events placed by their times */
 .tb-day { max-height: 62vh; overflow-y: auto; padding-top: 12px; }
-/* gutter label + chips, lined up with the hour labels and lines below; the bottom rule and
-   margin keep the first hour label (top: -7px) clear of the chips */
+/* gutter label + chips above the day scroller, lined up with the hour labels and lines
+   below it; it sits outside the scroller so it never scrolls away (mark 055926 #1) */
 .tb-day-allday {
   display: grid; grid-template-columns: 44px 1fr; column-gap: 6px; align-items: center;
-  padding-bottom: var(--s-2); margin-bottom: 16px; border-bottom: 1px solid var(--line-soft);
+  padding-bottom: var(--s-2); border-bottom: 1px solid var(--line-soft);
 }
 .tb-day-allday-k {
   text-align: right; font-family: var(--font-display); font-size: var(--fs-caption);
@@ -162,6 +162,7 @@
 .tb-card-alert .tb-li::before { background: var(--alert); }
 .tb-li-when { font-weight: 700; color: var(--accent); letter-spacing: 0.02em; }
 .tb-li-src { color: var(--fg-faint); font-style: italic; font-size: var(--fs-footnote); }
+.tb-cl-link { color: var(--fg-dim); }
 /* the due card's next seven days, under today's items */
 .tb-soon { margin-top: var(--s-3); }
 .tb-soon-k { font-size: var(--fs-caption); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-faint); padding-bottom: 2px; }
@@ -169,6 +170,13 @@
 .tb-card .tb-soon-li::before { background: var(--fg-faint); }
 .tb-soon-t { flex: 1; min-width: 0; }
 .tb-soon-d { flex: none; font-size: var(--fs-footnote); color: var(--fg-faint); }
+/* a coming-up row with a description opens it in place */
+.tb-soon-k ~ * + * { border-top: 1px dashed var(--line-soft); }
+.tb-soon-more > summary { list-style: none; cursor: pointer; }
+.tb-soon-more > summary::-webkit-details-marker { display: none; }
+.tb-soon-more > summary .tb-soon-t { text-decoration: underline dotted var(--fg-faint); text-underline-offset: 3px; }
+.tb-soon-more[open] > summary .tb-soon-t { color: var(--fg); text-decoration: none; }
+.tb-soon-desc { padding: 0 0 var(--s-2) calc(6px + var(--s-2)); font-size: var(--fs-footnote); color: var(--fg-mute); line-height: 1.45; overflow-wrap: anywhere; }
 [data-theme="liquid"] .lh-main .lp-glance .tb-li { font-size: var(--fs-body); padding: 6px 0; }
 [data-theme="liquid"] .lh-main .lp-glance .tb-soon-k { padding-top: var(--s-2); border-top: 1px solid var(--line-soft); }
 /* liquid Home sets no caps and needs 4.5:1: sentence case on the muted ink, not faint */
@@ -463,6 +471,8 @@
 /* the actual trains and buses, one row per option */
 .gt-from { margin-top: 2px; font-size: var(--fs-caption); color: var(--fg-dim); }
 .gt-routes { margin-top: var(--s-2); display: flex; flex-direction: column; gap: 4px; }
+/* the folded alternatives keep the list's own spacing inside the collapse */
+.gt-routes-more { display: flex; flex-direction: column; gap: 4px; }
 .gt-route { display: flex; align-items: center; gap: var(--s-2); font-size: var(--fs-footnote); }
 .gt-route-t { flex: none; width: 46px; color: var(--accent); font-weight: 700; }
 /* A route is a SEQUENCE, so it has to stay on one line. Wrapped across three
@@ -478,18 +488,28 @@
 .gt-route-legs::-webkit-scrollbar { display: none; }
 .gt-route-legs > * { flex: none; }
 .gt-route-dur { flex: none; color: var(--fg-dim); }
+.gt-route-arr { color: var(--fg); }
 .gt-leg-walk { color: var(--fg-dim); font-size: var(--fs-caption); padding: 0 1px; display: inline-flex; align-items: center; gap: 1px; }
 .gt-leg-walk svg { width: 1.15em; height: 1.15em; }
+/* Google's first route as steps (2026-11-09 Workbench pick "Step list"): a rail on the
+   left, each leg its glyph, where it goes, and its minutes. */
+.gt-steps { display: flex; flex-direction: column; gap: 6px; }
+.gt-steps-h { display: flex; align-items: baseline; gap: var(--s-2); font-size: var(--fs-footnote); }
+.gt-steps-h .gt-route-t { width: auto; }
+.gt-steps-list { list-style: none; margin: 0; padding: 0 0 0 4px; display: flex; flex-direction: column; gap: 6px; border-left: 2px solid var(--line-soft); }
+.gt-step { display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: var(--s-2); padding-left: var(--s-2); font-size: var(--fs-footnote); color: var(--fg); }
+.gt-step-ic { display: inline-flex; justify-content: center; }
+.gt-step-ic .gt-leg-walk svg { width: 18px; height: 18px; }
+.gt-step-sub { color: var(--fg-dim); font-size: var(--fs-caption); }
+.gt-step-m { color: var(--fg-dim); }
 .gt-routes-none { margin-top: var(--s-2); font-size: var(--fs-footnote); color: var(--fg-dim); font-style: italic; }
 .gt-alert { display: flex; gap: var(--s-2); align-items: flex-start; margin-top: var(--s-2); font-size: var(--fs-footnote); line-height: 1.4; color: var(--fg); }
 .gt-alert-lines { flex: none; display: flex; gap: 2px; padding-top: 1px; }
 .gt-alert-text { min-width: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .gt-alert-when { color: var(--warn); font-weight: 600; }
-/* 2px top and bottom pad it to the 24px WCAG 2.5.8 target; the top 2px comes out of the margin so the link sits where it did */
-.gt-more {
-  display: block; margin-top: calc(var(--s-2) - 2px); padding: 2px 0; background: none; border: 0; cursor: pointer;
-  font: inherit; font-size: var(--fs-footnote); color: var(--accent); text-decoration: underline; text-align: left;
-}
+/* 2026-11-08 send-back: "+5 more ways make it not just hyperlink text, never have hyperlink
+   text anywhere in my hub". The toggle is the shared solid .hub-btn; this only spaces it. */
+.gt-more { margin-top: var(--s-2); align-self: flex-start; }
 
 /* ============================================================================
    AUDIT (2026-07-24): content-bearing faint text lifted --fg-faint → --fg-dim.
@@ -531,6 +551,7 @@ input::placeholder,
   .gt-route-dur { grid-area: dur; text-align: right; }
   .gt-route-legs { grid-area: legs; }
   .gt-routes { gap: var(--s-3); }
+  .gt-routes-more { gap: var(--s-3); }
 }
 
 /* ============================================================================
@@ -558,10 +579,16 @@ input::placeholder,
 [data-theme="liquid"] .lh-main .tb-card-alert .tb-card-name::before { background: var(--gl-alert); }
 [data-theme="liquid"] .lh-main .gt-card { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='6' cy='18' r='2'/%3E%3Ccircle cx='18' cy='6' r='2'/%3E%3Cpath d='M8 18h7a3 3 0 0 0 0-6H9a3 3 0 0 1 0-6h7'/%3E%3C/svg%3E"); }
 [data-theme="liquid"] .lh-main .col-bring .tb-card { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 8h14l-1 12H6L5 8z'/%3E%3Cpath d='M9 8V6a3 3 0 0 1 6 0v2'/%3E%3C/svg%3E"); }
-/* next trip: same icon title as the glance cards */
-[data-theme="liquid"] .lh-main .lp-trip .panel-title { display: inline-flex; align-items: center; gap: var(--s-2); }
-[data-theme="liquid"] .lh-main .lp-trip .panel-title::before { content: ""; flex: none; width: 24px; height: 24px; background: var(--accent); -webkit-mask: var(--gl-ico) center / contain no-repeat; mask: var(--gl-ico) center / contain no-repeat; }
+/* every Home panel title: same icon title as the glance cards (mark 2026-11-07 042421:1 "everything should get a header with that squircle symbol") */
+[data-theme="liquid"] .lh-main .lp :is(.panel-title, .lp-title) { display: inline-flex; align-items: center; gap: var(--s-2); }
+[data-theme="liquid"] .lh-main .lp :is(.panel-title, .lp-title)::before { content: ""; flex: none; width: 24px; height: 24px; background: var(--accent); -webkit-mask: var(--gl-ico) center / contain no-repeat; mask: var(--gl-ico) center / contain no-repeat; }
 [data-theme="liquid"] .lh-main .lp-trip { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z'/%3E%3C/svg%3E"); }
+[data-theme="liquid"] .lh-main [data-section="today"] { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4'/%3E%3C/svg%3E"); --hh: #ff9f0a; }
+[data-theme="liquid"] .lh-main [data-section="week"] { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3C/svg%3E"); --hh: #ff375f; }
+[data-theme="liquid"] .lh-main [data-section="cards"] { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='5' width='20' height='14' rx='2'/%3E%3Cpath d='M2 10h20'/%3E%3C/svg%3E"); --hh: #30d158; }
+[data-theme="liquid"] .lh-main [data-section="subs"] { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 2l4 4-4 4'/%3E%3Cpath d='M3 11v-1a4 4 0 0 1 4-4h14'/%3E%3Cpath d='M7 22l-4-4 4-4'/%3E%3Cpath d='M21 13v1a4 4 0 0 1-4 4H3'/%3E%3C/svg%3E"); --hh: #32ade6; }
+[data-theme="liquid"] .lh-main [data-section="news"] { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-4 0v-9a2 2 0 0 1 2-2h2'/%3E%3Cpath d='M18 14h-8M15 18h-5M10 6h8v4h-8z'/%3E%3C/svg%3E"); --hh: #5e5ce6; }
+[data-theme="liquid"] .lh-main [data-section="planner"] { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 17l2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8'/%3E%3C/svg%3E"); --hh: #ff6b35; }
 [data-theme="liquid"] .lh-main .col-prep .tb-card { --gl-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E"); }
 
 /* Home panel headers, his pick A "Icon on a colour tile" (workbench home-panel-headers, mark 2026-11-03 034933:5) */
@@ -571,12 +598,12 @@ input::placeholder,
 [data-theme="liquid"] .lh-main .col-prep .tb-card-alert { --hh: var(--gl-alert); }
 [data-theme="liquid"] .lh-main .lp-trip { --hh: #bf5af2; }
 /* A: glyph on a filled colour tile */
-[data-theme="liquid"] .lh-main .tb-card-name, [data-theme="liquid"] .lh-main .lp-trip .panel-title { position: relative; gap: 12px; }
-[data-theme="liquid"] .lh-main .tb-card-name::before, [data-theme="liquid"] .lh-main .lp-trip .panel-title::before { width: 34px; height: 34px; border-radius: 10px; -webkit-mask: none; mask: none;
+[data-theme="liquid"] .lh-main .tb-card-name, [data-theme="liquid"] .lh-main .lp :is(.panel-title, .lp-title) { position: relative; gap: 12px; }
+[data-theme="liquid"] .lh-main .tb-card-name::before, [data-theme="liquid"] .lh-main .lp :is(.panel-title, .lp-title)::before { width: 34px; height: 34px; border-radius: 10px; -webkit-mask: none; mask: none;
   background: linear-gradient(160deg, color-mix(in srgb, var(--hh) 78%, #fff), var(--hh) 55%, color-mix(in srgb, var(--hh) 80%, #000));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 14px color-mix(in srgb, var(--hh) 40%, transparent); }
 [data-theme="liquid"] .lh-main .tb-card-alert .tb-card-name::before { background: linear-gradient(160deg, color-mix(in srgb, var(--hh) 78%, #fff), var(--hh) 55%, color-mix(in srgb, var(--hh) 80%, #000)); }
-[data-theme="liquid"] .lh-main .tb-card-name::after, [data-theme="liquid"] .lh-main .lp-trip .panel-title::after { content: ""; position: absolute; left: 7px; top: 50%; width: 20px; height: 20px; margin-top: -10px; background: #fff;
+[data-theme="liquid"] .lh-main .tb-card-name::after, [data-theme="liquid"] .lh-main .lp :is(.panel-title, .lp-title)::after { content: ""; position: absolute; left: 7px; top: 50%; width: 20px; height: 20px; margin-top: -10px; background: #fff;
   -webkit-mask: var(--gl-ico) center / contain no-repeat; mask: var(--gl-ico) center / contain no-repeat; }
 [data-theme="liquid"] .lh-main .tb-card-alert .tb-card-name { color: var(--fg); }
 [data-theme="liquid"] .lh-main .tb-card-h { padding-top: var(--s-4); padding-bottom: var(--s-2); }

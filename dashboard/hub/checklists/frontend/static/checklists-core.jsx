@@ -96,7 +96,7 @@ window.ChecklistsUI = window.ChecklistsUI || {};
   // same as toast() but with an inline action button, held open longer
   function toastAction(msg, label, fn) {
     const t = document.getElementById("cl-toast");
-    t.innerHTML = `${esc(msg)} <button class="cl-toast-undo" id="cl-toast-action">${esc(label)}</button>`;
+    t.innerHTML = `${esc(msg)} <button class="hub-btn cl-toast-undo" id="cl-toast-action">${esc(label)}</button>`;
     t.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { t.hidden = true; }, 5000);

@@ -39,7 +39,8 @@
   --font: "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --mono: ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace;
 
-  /* Hub type scale, same block as static/css/base.css (forge pages don't load it) */
+  /* Hub type scale, same values as static/css/base.css (kept so the scale is
+     defined even if a Forge page is served without the Hub stylesheets) */
   --fs-caption: 11px;
   --fs-footnote: 13px;
   --fs-subhead: 15px;
@@ -70,6 +71,32 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --fast: 140ms;
   --mid: 200ms;
+
+  --on-accent: oklch(0.18 0.03 205);   /* .btn-primary's label on the accent hover fill */
+}
+
+/* Forge is one theme: the Hub's Liquid Glass bar and wallpaper (pinned by each page's head
+   script), in Rift colours. Specificity (0,2,1) beats the Hub themes' (0,2,0) token blocks,
+   so the tokens Forge shares with the Hub (--bg, --line, --accent, --danger, --font,
+   --font-display, --on-accent) keep Forge's values, and the bar, launcher and control pane
+   paint Rift. Same recipe as the J&Co bar back (jc/frontend/barback.html). */
+html[data-theme][data-surface] {
+  color-scheme: dark;
+  --bg: oklch(0.17 0.012 250); --line: oklch(0.31 0.018 250); --accent: oklch(0.78 0.140 205);
+  --danger: oklch(0.66 0.170 25); --on-accent: oklch(0.18 0.03 205);
+  --font: "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: var(--font); --font-body: var(--font);
+  --bg-elev: #1c2229; --bg-elev-2: #272f37; --bg-hover: #272f37; --chrome: #0b1015;
+  --line-soft: #1c2229; --line-strong: #454e58;
+  --fg: #e7ecf0; --fg-dim: #b1b8c0; --fg-faint: #8a939d; --fg-ghost: rgba(231,236,240,.24);
+  --accent-dim: #00717c; --accent-faint: #012d31;
+  --launch-scrim: rgba(5,8,12,.6); --modal-shadow: 0 8px 32px rgba(0,0,0,.5);
+  /* Liquid Glass in Rift: the wallpaper glows hextech cyan, gold and steel blue, glass fills
+     tint the Rift surface instead of graphite */
+  --lg-wall-base: #070b10; --lg-hue-1: 0 208 226; --lg-hue-2: 222 184 102; --lg-hue-3: 59 88 118;
+  --lg-wall-a1: .32; --lg-wall-a2: .18; --lg-wall-a3: .35;
+  --lg-fill: rgba(19,25,31,var(--lg-fill-a)); --lg-thick-fill: rgba(19,25,31,.6);
+  --lg-ov-fill: rgba(19,25,31,.78); --lg-row-on: rgba(0,208,226,.16);
 }
 
 * { box-sizing: border-box; }
@@ -122,14 +149,15 @@ select:hover { border-color: var(--line-lit); }
 }
 .btn-primary:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); color: var(--on-accent, oklch(0.18 0.03 205)); }
 
-/* ── the shell: header, left rail, status pill ────────────────────────────
+/* ── the shell: Hub bar, search, left rail, status pill ────────────────────
    Picked on Workbench 2026-11-05 (set forge-hub-shape-layout, B "Left rail, like
-   Jobs"): the Hub's shape in Forge's own colours. ForgeUI.Bar (forge-bar.jsx) renders
-   the three parts; this block seats them. On the five scrolling pages #forge-root is
-   the grid (two columns: rail, page). The builder locks to the viewport, so there the
-   body's named-row grid gains a rail column instead (forge.html). Under 900px the rail
-   folds into a strip above the page: the four sections, the new-set tile. The search is
-   its own full-width row between the header and both columns. */
+   Jobs"). Since 2026-11-09 the header is the Hub's own top bar (topbar.jsx mounts
+   each page's static <header class="topbar">, outside #forge-root); ForgeUI.Bar
+   (forge-bar.jsx) renders the search, rail and status pill. On the five scrolling
+   pages #forge-root is the grid (two columns: rail, page). The builder locks to the
+   viewport, so there the body's named-row grid gains a rail column instead (forge.html).
+   Under 900px the rail folds into a strip above the page: the four sections, the page
+   action and the new-set tile. The search is its own full-width row above both columns. */
 body.forge { --topbar-h: 0px; --gut: 24px; --rad: 20px; --rail-w: 272px; }
 
 body.forge:not(.builder) #forge-root {
@@ -139,60 +167,52 @@ body.forge:not(.builder) #forge-root {
   padding: 0 var(--gut);
   align-items: start;
 }
-#forge-root > .topbar { grid-column: 1 / -1; grid-row: 1; margin: 0 calc(-1 * var(--gut)); }
-#forge-root > .fs-search { grid-column: 1 / -1; grid-row: 2; }
-#forge-root > .frail { grid-column: 1; grid-row: 3 / span 8; }
-#forge-root > :not(.topbar):not(.frail):not(.fs-search) { grid-column: 2; min-width: 0; }
+/* the builder's body is the grid; the Hub bar spans it, out to the window edges */
+body.builder > .topbar { grid-column: 1 / -1; grid-row: bar; margin-left: calc(-1 * var(--gut)); margin-right: calc(-1 * var(--gut)); }
+#forge-root > .fs-search { grid-column: 1 / -1; grid-row: 1; }
+#forge-root > .frail { grid-column: 1; grid-row: 2 / span 8; }
+#forge-root > :not(.frail):not(.fs-search) { grid-column: 2; min-width: 0; }
 #forge-root > .wrap { max-width: none; width: 100%; margin: 0; grid-template-columns: minmax(0, 1fr); padding-top: 0; padding-left: 0; padding-right: 0; padding-bottom: 96px; }
 
-/* header: brand tile, page name, then the page's action and Theme */
-body.forge .topbar { display: flex; align-items: center; gap: 14px; padding: 14px var(--gut); min-width: 0; }
-.fh-brand { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; }
-.fh-brand h1 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
-.fh-tile { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; flex: none; color: var(--accent);
-  background: linear-gradient(145deg, var(--raised-hi), var(--accent-bg)); border: 1px solid var(--line-lit); box-shadow: 0 6px 18px oklch(0 0 0 / .35); }
-.fh-tile svg { width: 22px; height: 22px; }
-.fh-sep { width: 1px; height: 24px; background: var(--line-lit); flex: none; }
-.fh-page { font-size: 22px; font-weight: 500; color: var(--ink-2); white-space: nowrap; }
-.grow { flex: 1 1 0; }
-.topbar .act { padding: 11px 18px; border-radius: 999px; font-size: 14px; font-weight: 600; color: var(--ink); }
+/* the page's own action ("New set", "Riot's notes", "On OP.GG"), above the new-set tile */
+.frail > .act { justify-content: center; padding: 10px 14px; border-radius: 12px; font-size: var(--fs-subhead); font-weight: 600; color: var(--ink); }
 
-/* the search: one wide bar across rail and page, under the header */
+/* the search: one wide bar across rail and page, under the Hub bar */
 .fs-search { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 0 22px; height: 56px; border-radius: 999px;
   background: var(--surface); border: 1px solid var(--line); color: var(--dim); box-shadow: 0 8px 28px oklch(0 0 0 / .28); }
 .fs-search:focus-within { border-color: var(--accent-lo); }
 .fs-search svg { width: 20px; height: 20px; flex: none; }
-.fs-search input { flex: 1; min-width: 0; border: 0; padding: 0; background: none; color: var(--ink); font-size: 17px; outline: none; }
+.fs-search input { flex: 1; min-width: 0; border: 0; padding: 0; background: none; color: var(--ink); font-size: var(--fs-body); outline: none; }
 
 /* the rail */
 .frail { position: sticky; top: 12px; display: grid; gap: 12px; padding: 12px;
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--rad); box-shadow: 0 8px 28px oklch(0 0 0 / .28); }
 .frail .navtabs { display: grid; gap: 2px; }
 .frail .navtabs a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 12px; border: 0;
-  color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 600; }
+  color: var(--ink-2); text-decoration: none; font-size: var(--fs-subhead); font-weight: 600; }
 .frail .navtabs a .ic svg { width: 17px; height: 17px; display: block; }
 .frail .navtabs a:hover { background: var(--raised); color: var(--ink); }
 .frail .navtabs a[aria-current="page"] { background: var(--raised-hi); color: var(--ink); }
 .frail .navtabs a[aria-current="page"] .ic { color: var(--accent); }
-.fs-cap { margin: 0; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--dim); }
+.fs-cap { margin: 0; font-size: var(--fs-caption); font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--dim); }
 .fs-pool { display: grid; gap: 1px; margin: 0 -4px; max-height: 46vh; overflow-y: auto; }
 .fs-pool a { display: grid; grid-template-columns: 24px 1fr auto; gap: 10px; align-items: center; padding: 4px 8px; border-radius: 10px;
-  color: var(--ink-2); text-decoration: none; font-size: 13px; font-weight: 600; }
+  color: var(--ink-2); text-decoration: none; font-size: var(--fs-footnote); font-weight: 600; }
 .fs-pool a img, .fs-pool a i { width: 24px; height: 24px; border-radius: 7px; display: block; background: var(--line); }
-.fs-pool a em { font: 500 12px/1 var(--mono); font-style: normal; color: var(--accent); }
+.fs-pool a em { font: 500 var(--fs-caption)/1 var(--mono); font-style: normal; color: var(--accent); }
 .fs-pool a em.z { color: var(--dim); opacity: .6; }
 .fs-pool a:hover { background: var(--raised); color: var(--ink); }
 .fs-tilecta { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: center; padding: 12px 14px; border-radius: 14px;
   background: var(--raised); text-decoration: none; color: var(--ink); }
 .fs-tilecta:hover { background: var(--raised-hi); }
-.fs-tilecta b { font-size: 28px; font-weight: 700; color: var(--accent); line-height: 1; }
-.fs-tilecta strong { display: block; font-size: 14px; margin-bottom: 2px; }
-.fs-tilecta span { font-size: 12px; color: var(--dim); }
+.fs-tilecta b { font-size: var(--fs-title); font-weight: 700; color: var(--accent); line-height: 1; }
+.fs-tilecta strong { display: block; font-size: var(--fs-subhead); margin-bottom: 2px; }
+.fs-tilecta span { font-size: var(--fs-caption); color: var(--dim); }
 
 /* the status pill: the page's patch chips, then where you are */
 .fs-status { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: var(--z-header);
   display: flex; align-items: center; gap: 14px; padding: 9px 18px; border-radius: 999px; white-space: nowrap;
-  font: 500 12px/1 var(--mono); color: var(--dim);
+  font: 500 var(--fs-caption)/1 var(--mono); color: var(--dim);
   background: color-mix(in oklab, var(--surface) 92%, transparent); border: 1px solid var(--line-lit);
   box-shadow: 0 10px 30px oklch(0 0 0 / .45); backdrop-filter: blur(10px); }
 .fs-status .meta { font: inherit; color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -205,8 +225,8 @@ body.forge .topbar { display: flex; align-items: center; gap: 14px; padding: 14p
 /* Narrow: the rail folds into a strip above the page, the pool list goes */
 @media (max-width: 900px) {
   body.forge:not(.builder) #forge-root { grid-template-columns: minmax(0, 1fr); }
-  #forge-root > .frail { grid-column: 1; grid-row: 3; position: static; margin-bottom: 14px; }
-  #forge-root > :not(.topbar):not(.frail):not(.fs-search) { grid-column: 1; }
+  #forge-root > .frail { grid-column: 1; grid-row: 2; position: static; margin-bottom: 14px; }
+  #forge-root > :not(.frail):not(.fs-search) { grid-column: 1; }
   .frail { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
   .frail .navtabs { grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .frail .navtabs a { justify-content: center; }
@@ -217,16 +237,13 @@ body.forge .topbar { display: flex; align-items: center; gap: 14px; padding: 14p
 @media (min-width: 641px) and (max-width: 900px) { .fs-tilecta span { display: none; } }
 @media (max-width: 640px) {
   body.forge { --gut: 14px; }
-  body.forge .topbar { gap: 10px; padding: 12px var(--gut); }
-  .fh-brand h1, .fh-page { font-size: 19px; }
-  .fh-tile { width: 38px; height: 38px; border-radius: 11px; }
   .fs-search { height: 48px; padding: 0 16px; margin-bottom: 12px; }
-  .fs-search input { font-size: 16px; }
-  .topbar .act { display: none; }
+  .fs-search input { font-size: var(--fs-body); }
+  .frail > .act { display: none; }
   .frail { grid-template-columns: minmax(0, 1fr); }
   .frail .navtabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .frail .navtabs a { flex-direction: column; gap: 4px; padding: 8px 2px; font-size: 12px; }
-  .fs-status { font-size: 11px; gap: 10px; padding: 8px 14px; bottom: 12px; }
+  .frail .navtabs a { flex-direction: column; gap: 4px; padding: 8px 2px; font-size: var(--fs-caption); }
+  .fs-status { font-size: var(--fs-caption); gap: 10px; padding: 8px 14px; bottom: calc(12px + var(--dock-h, 0px)); }
   .fs-status .fs-where, .fs-status .fs-tot { display: none; }
 }
 

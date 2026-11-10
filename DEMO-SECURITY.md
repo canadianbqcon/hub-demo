@@ -14,7 +14,7 @@ This copy of the Hub is public, so `dashboard/hub/demo_mode.py` wraps it when `D
   map, and fails if its scan finds a personal name, email, path or key.
 
 
-Routes: 227 read, 194 write to the demo's own data, 52 switched off.
+Routes: 231 read, 197 write to the demo's own data, 54 switched off.
 
 ## Switched-off routes
 
@@ -34,6 +34,7 @@ Routes: 227 read, 194 write to the demo's own data, 52 switched off.
 | `GET /api/sheets/auth` | integration | google sheets oauth |
 | `GET /api/sheets/callback` | integration | google sheets oauth |
 | `GET /api/transit` | integration | transit feed and geocode |
+| `GET /api/transit/routes` | integration | google routes transit lookup |
 | `GET /api/wx-extras` | integration | pollen api fetch |
 | `GET /forge/api/conditioned` | integration | live coachless fetch |
 | `GET /forge/api/draft/history` | integration | op.gg fetch |
@@ -56,6 +57,7 @@ Routes: 227 read, 194 write to the demo's own data, 52 switched off.
 | `POST /jobs/api/applications/<int:app_id>/ai-research` | integration | anthropic streaming |
 | `POST /jobs/api/resumes/<int:resume_id>/reveal` | integration | spawns explorer.exe |
 | `POST /mail/api/act` | integration | gmail write |
+| `POST /mail/api/brief/sender` | integration | unsub choice runs the gmail unsubscribe |
 | `POST /mail/api/decision/<int:item_id>` | integration | gmail action |
 | `POST /mail/api/message/<msg_id>/translate` | integration | anthropic translate |
 | `POST /mail/api/sync` | integration | gmail sync |

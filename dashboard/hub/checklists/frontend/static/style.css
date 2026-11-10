@@ -744,16 +744,7 @@
   color: var(--fg);
   z-index: 150;
 }
-.cl-toast-undo {
-  margin-left: var(--s-3);
-  background: none;
-  border: none;
-  color: var(--accent);
-  text-decoration: underline;
-  font: inherit;
-  cursor: pointer;
-  padding: 0;
-}
+.cl-toast-undo { margin-left: var(--s-3); }
 
 /* ── Mobile — stack sidebar above main, let both scroll instead of clipping ──── */
 

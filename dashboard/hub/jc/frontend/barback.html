@@ -1,0 +1,1107 @@
+<!doctype html><html lang="en" data-theme="cobalt" data-surface="dark"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="/static/assets/favicon.png">
+<meta name="theme-color" content="#114038">
+<!-- Hub chrome: the shared top bar (topbar.jsx), its theme machinery and the
+     launcher. Same bootstrap as every Hub page; the J&Co colours are pinned by
+     the html[data-theme][data-surface] block in the page's own <style>. -->
+<script>
+/* J&Co is one theme: the Hub's Liquid Glass bar and wallpaper, retinted juniper and brass by the
+   html[data-theme][data-surface] token block. Pinned here rather than read from hub.theme. */
+document.documentElement.setAttribute("data-theme", "liquid");
+document.documentElement.setAttribute("data-glass", "frost");
+document.documentElement.setAttribute("data-surface", "dark");
+</script>
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<script src="/static/vendor/react.production.min.js"></script>
+<script src="/static/vendor/react-dom.production.min.js"></script>
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/jsx/static/js/topbar.jsx"></script><style>:root{color-scheme:light}body{margin:0;padding:0;font:var(--fs-footnote) -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+<title>Juniper & Co Bar Back</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Work+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+/* Juniper & Co — committed to the bar's own world: deep juniper ground, off-white ink,
+   typewriter display, Work Sans body, and recipe cards as printed-menu paper. Single theme by choice. */
+:root{
+  --bg:#114038; --bg-deep:#0c2f2a; --bg-raise:#17514a; --line:rgba(244,244,238,.16); --line-strong:rgba(244,244,238,.32);
+  --ink:#f4f4ee; --ink-dim:rgba(244,244,238,.68); --ink-faint:rgba(244,244,238,.42); --white:#fff;
+  --brass:#c8934a; --brass-deep:#985d22; --red:#d30404; --amber:#e0a43a; --good:#7fc48b;
+  --paper:#f7f6ef; --paper-ink:#1f3a32; --paper-dim:#5c6e66; --paper-line:#cfd3c6;
+  --display:"Special Elite","Courier Prime","Courier New",monospace; --body:"Work Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --serif:"Lora",Georgia,"Times New Roman",serif;
+  --r:6px; --tap:44px;
+}
+*{box-sizing:border-box} html{-webkit-text-size-adjust:100%}
+/* no pinch, no double-tap zoom, and no 300ms tap delay: this is a shift tool, not a document */
+html,body{touch-action:pan-x pan-y}
+button,input,select,summary,a{touch-action:manipulation}
+body{margin:0;background:transparent;color:var(--ink);font:400 var(--fs-subhead)/1.4 var(--body);letter-spacing:.01em;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0;text-align:left}
+button:disabled{cursor:default}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+h1,h2,h3,h4,h5{margin:0;font-weight:400}
+p{margin:0}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+
+/* top bar */
+/* Hub top bar, J&Co colours. Specificity (0,2,1) beats every theme's (0,2,0) token block, so the
+   bar, launcher and theme panel paint juniper/brass whichever Hub theme is picked, and the tokens the
+   Hub shares with this page (--bg, --line, --line-strong, --r) keep this page's values. */
+html[data-theme][data-surface]{
+  --bg:#114038; --line:rgba(244,244,238,.16); --line-strong:rgba(244,244,238,.32); --r:6px;
+  --bg-elev:#17514a; --bg-elev-2:#1d5f57; --line-soft:rgba(244,244,238,.1);
+  --fg:#f4f4ee; --fg-dim:rgba(244,244,238,.68); --fg-faint:rgba(244,244,238,.42); --fg-ghost:rgba(244,244,238,.24);
+  --accent:#c8934a; --accent-dim:#985d22; --accent-faint:rgba(200,147,74,.18);
+  --font:"Special Elite","Courier New",monospace; --font-display:"Special Elite","Courier New",monospace; --font-body:"Work Sans",system-ui,sans-serif;
+  --launch-scrim:rgba(12,47,42,.6); --modal-shadow:0 8px 32px rgba(0,0,0,.45); --chrome:#0c2f2a; --bg-hover:#1d5f57;
+  /* Liquid Glass in juniper: wallpaper glows juniper and brass, glass fills tint juniper instead of graphite */
+  --lg-wall-base:#0a2622; --lg-hue-1:31 140 112; --lg-hue-2:200 147 74; --lg-hue-3:60 170 140;
+  --lg-wall-a1:.5; --lg-wall-a2:.3; --lg-wall-a3:.25;
+  --lg-fill:rgba(17,64,56,var(--lg-fill-a)); --lg-thick-fill:rgba(17,64,56,.55);
+  --lg-ov-fill:rgba(17,64,56,.72); --lg-row-on:rgba(200,147,74,.18);
+}
+.topbar .sync{white-space:nowrap}
+.topbar{position:sticky;top:0;z-index:40}
+/* The sorrel replaces the Hub mark and wordmark; the link still goes home. html+.topbar outranks
+   theme-switch.js's injected sheet, which loads after this one. */
+html .topbar .brand-stack.brand-link{padding-left:40px;min-height:40px}
+html .topbar .brand-stack.brand-link::before{width:36px;height:36px;border-radius:0;background:url(/jc/static/juniper.svg) center/contain no-repeat}
+html .topbar .brand-wordmark,html .topbar .brand-slogan{display:none}
+/* The launcher is a bar-height square (aspect-ratio:1). With the bar in a plain block, not a grid, its
+   height is not definite at layout time, so the button was sized ~20px wide and drawn 51px, hanging off
+   the right edge. Pinned to 44px here; the ledger had the same fault and took the grid fix. */
+html .topbar .launcher.launcher-icon.module-launcher{width:44px;height:44px;aspect-ratio:auto;flex:none;align-self:center}
+.sync{margin-left:auto;font:500 var(--fs-caption)/1 var(--body);letter-spacing:.1em;text-transform:uppercase;padding:7px 10px;border:1px solid var(--line-strong);border-radius:999px;color:var(--ink-dim);display:inline-flex;align-items:center;gap:6px}
+.sync::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ink-faint)}
+.sync.live{color:var(--ink)} .sync.live::before{background:var(--good);box-shadow:0 0 0 3px rgba(127,196,139,.25)}
+.sync.offline::before{background:var(--amber)}
+
+/* who is on shift — the initials stamped on every write */
+.who{margin-left:auto;font-family:var(--display);text-transform:uppercase;font-size:var(--fs-subhead);line-height:1;padding:9px 12px;border:1px solid var(--brass);border-radius:999px;color:var(--brass);white-space:nowrap;min-height:34px}
+.who ~ .sync{margin-left:0}
+/* the initials earn their place in the bar; on a phone the sync chip keeps only its dot */
+@media (max-width:560px){.sync{font-size:0;letter-spacing:0;gap:0;padding:9px}}
+.by{display:none;flex:none;font:500 var(--fs-caption)/1 var(--body);letter-spacing:.1em;color:var(--brass);border:1px solid rgba(200,147,74,.45);border-radius:999px;padding:3px 6px;white-space:nowrap}
+/* the dialog is the whole screen and paints it: ::backdrop alone let the board read through */
+#gate{border:0;padding:0;margin:0;width:100%;max-width:none;height:100%;max-height:none;background:var(--bg);color:var(--ink)}
+#gate::backdrop{background:var(--bg)}
+.gate-card{max-width:400px;margin:0 auto;padding:15vh 20px 20px;display:flex;flex-direction:column;gap:14px}
+.gate-card h2{font-family:var(--display);text-transform:uppercase;letter-spacing:-.01em;font-size:var(--fs-large-title);line-height:.95}
+.gate-card h2::before{content:"Juniper & Co";display:block;font:500 var(--fs-caption)/1 var(--body);letter-spacing:.2em;color:var(--brass);margin-bottom:10px}
+.gate-card p{color:var(--ink-dim);font-size:var(--fs-subhead);line-height:1.45}
+.gate-in::placeholder{color:#c4c4c4}
+.gate-in{min-height:60px;padding:10px 16px;background:var(--white);color:#000;border:1px solid rgba(0,0,0,.12);font-family:var(--display);font-size:var(--fs-large-title);letter-spacing:.12em;text-align:center;text-transform:uppercase}
+.gate-err{color:var(--amber);font-size:var(--fs-footnote);min-height:1.3em}
+
+/* tabs: bottom bar on phones, top row on wide screens */
+#tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:var(--bg-deep);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;font-family:var(--display);text-transform:uppercase;letter-spacing:-.01em;font-size:var(--fs-footnote);color:var(--ink-dim);position:relative;text-align:center;padding:6px 2px}
+.tab.is-on{color:var(--ink)} .tab.is-on::after{content:"";position:absolute;left:18%;right:18%;top:0;height:2px;background:var(--brass)}
+.badge{position:absolute;top:3px;right:4px;min-width:16px;height:16px;padding:0 5px;border-radius:999px;background:var(--red);color:#fff;font:600 var(--fs-caption)/16px var(--body);text-align:center;letter-spacing:0}
+@media (min-width:720px){
+  body{padding-bottom:40px}
+  #tabs{position:static;background:none;border:0;border-bottom:1px solid var(--line);max-width:760px;margin:0 auto;padding:0 16px}
+  .tab{min-height:52px;flex-direction:row;justify-content:center;font-size:var(--fs-subhead);gap:8px;padding:0 6px}
+  .tab.is-on::after{top:auto;bottom:-1px;left:6px;right:6px}
+  .badge{position:static;margin-left:2px}
+}
+
+/* tab header — the printed menu's rotated sidebar band, echoed as an eyebrow */
+.tab-head{padding:22px 0 14px;position:relative}
+.tab-head h2{font-family:var(--display);text-transform:uppercase;letter-spacing:-.01em;font-size:var(--fs-large-title);line-height:.95;text-wrap:balance}
+.tab-head h2::before{content:"Juniper & Co";display:block;font:500 var(--fs-caption)/1 var(--body);letter-spacing:.2em;color:var(--brass);margin-bottom:10px}
+.lede{margin-top:12px;color:var(--ink-dim);max-width:60ch;font-size:var(--fs-subhead)}
+.daystrip{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap}
+.daylabel{font:500 var(--fs-caption)/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim)}
+.dayselect{margin-left:auto;background:var(--bg-raise);border:1px solid var(--line-strong);border-radius:var(--r);min-height:var(--tap);padding:8px 10px;font-size:var(--fs-footnote);color:var(--ink);max-width:100%}
+.weekbar{flex:1 1 100%;min-width:0;display:grid;grid-template-columns:30px repeat(7,1fr);grid-template-rows:auto 150px;gap:4px 6px}
+.wk-head{font:500 var(--fs-caption)/1 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);text-align:center;white-space:nowrap;padding-bottom:4px}
+.wk-head.is-today{color:var(--brass)}
+.wk-head.is-on{color:var(--ink)}
+.wk-axis{position:relative;grid-row:2}
+.wk-axis span{position:absolute;right:0;transform:translateY(-1px);font:500 var(--fs-caption)/1 var(--body);color:var(--ink-faint)}
+.wk-col{position:relative;border:1px solid var(--line);border-radius:var(--r);background:repeating-linear-gradient(to bottom,transparent 0 calc(100%/3.5 - 1px),var(--line) calc(100%/3.5 - 1px) calc(100%/3.5));cursor:pointer;padding:0;min-width:0}
+.wk-col.is-past{opacity:.5}
+.wk-col.is-on{border-color:var(--brass);background-color:rgba(200,147,74,.14);opacity:1}
+.wk-blk{position:absolute;left:4px;right:4px;border-radius:5px;background:var(--brass);color:var(--bg-deep);display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:4px 0;font:600 var(--fs-caption)/1 var(--body)}
+.wk-off{position:absolute;inset:0;display:grid;place-items:center;font:500 var(--fs-caption)/1 var(--body);color:var(--ink-faint)}
+@media (max-width:719px){.weekbar{grid-template-columns:22px repeat(7,1fr);gap:4px 3px;grid-template-rows:auto 130px}.wk-head{font-size:var(--fs-caption);letter-spacing:.02em;white-space:normal}.wk-blk{font-size:var(--fs-caption);left:2px;right:2px}.wk-off{font-size:var(--fs-caption)}.wk-axis span{font-size:var(--fs-caption)}}
+
+/* section heads */
+.sec-head,.cat-head,.phase-head,.area-head,.need-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-family:var(--display);text-transform:uppercase;letter-spacing:-.005em;font-size:var(--fs-body);padding:18px 0 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.area-head{font-size:var(--fs-title);border-bottom-width:2px;border-color:var(--line-strong);margin-top:14px}
+.sec-count{font:500 var(--fs-caption)/1 var(--body);letter-spacing:.1em;color:var(--ink-dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sec-count.warn{color:var(--amber)}
+.shelf-head,.tier-head,.shelf-name,.sweep-area,.spec-h{font:500 var(--fs-caption)/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--brass);padding:14px 0 6px}
+.shelf-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.shelf-tag{font:500 var(--fs-caption)/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-dim);border:1px solid var(--line-strong);border-radius:999px;padding:4px 9px;white-space:nowrap}
+.hint{color:var(--ink-faint);font-size:var(--fs-footnote);margin:6px 0 4px}
+.empty{color:var(--ink-dim);padding:22px 0;font-style:italic;font-family:var(--serif)}
+
+/* rows */
+.row{display:flex;align-items:flex-start;gap:12px;width:100%;min-height:var(--tap);padding:11px 0;border-bottom:1px solid var(--line);text-align:left}
+.row-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.row-title{font-size:var(--fs-subhead);line-height:1.3;display:flex;gap:8px;align-items:baseline}
+.row-detail{font-size:var(--fs-footnote);color:var(--ink-dim);line-height:1.35}
+.stepno{font:400 var(--fs-caption)/1 var(--display);color:var(--brass);min-width:1.6em;flex:none;font-variant-numeric:tabular-nums}
+.duty .tick{flex:none;width:22px;height:22px;border:1.5px solid var(--line-strong);border-radius:50%;margin-top:1px;position:relative;transition:background .15s,border-color .15s}
+.duty.is-done .tick{background:var(--brass);border-color:var(--brass)}
+.duty.is-done .tick::after{content:"";position:absolute;left:7px;top:3px;width:5px;height:10px;border:solid var(--bg);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.duty.is-done .row-title{color:var(--ink-dim);text-decoration:line-through;text-decoration-color:var(--ink-faint)}
+.duty.is-red .stepno{color:var(--red)}
+.duty.small{min-height:40px;padding:8px 0}
+.duty:disabled{opacity:.8}
+.deadline{flex:none;font:400 var(--fs-caption)/1 var(--display);color:var(--amber);padding:4px 7px;border:1px solid rgba(224,164,58,.45);border-radius:var(--r);margin-top:2px;white-space:nowrap}
+
+/* low boy fill */
+.fill{border:1px solid var(--line-strong);border-radius:var(--r);background:var(--bg-deep);margin-bottom:22px}
+.fill > summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:2px 12px;padding:14px 16px;min-height:var(--tap)}
+.fill > summary::-webkit-details-marker{display:none}
+.fill > summary::after{content:"+";order:2;font-family:var(--display);font-size:var(--fs-title);line-height:1;color:var(--brass)} .fill[open] > summary::after{content:"–"}
+.fill-title{order:1;font-family:var(--display);text-transform:uppercase;font-size:var(--fs-body);letter-spacing:-.005em}
+.fill-tally{order:3;flex:1 0 100%;font:500 var(--fs-caption)/1.3 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);text-align:left}
+.fill-body{padding:0 16px 16px;border-top:1px solid var(--line)}
+.fillrow{align-items:center;padding:0}
+.fill-main{flex:1;display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 0}
+.fill-main .row-title{flex:1}
+.fill-main .row-detail{flex:0 1 auto;max-width:40%;text-align:right}
+.count{flex:none;min-width:36px;height:32px;border-radius:var(--r);font:400 var(--fs-body)/32px var(--display);text-align:center;color:var(--bg);background:var(--brass);visibility:hidden;font-variant-numeric:tabular-nums}
+.fillrow.is-counted .count{visibility:visible}
+.row-clear{flex:none;width:var(--tap);height:var(--tap);display:grid;place-items:center;color:var(--ink-dim);font-size:var(--fs-subhead);border-radius:var(--r)} .row-clear.is-idle{visibility:hidden} .row-clear:hover{color:var(--ink);background:rgba(255,255,255,.06)}
+.sweep{margin-top:20px;padding:4px 14px 14px;border:1px dashed var(--line-strong);border-radius:var(--r)}
+.sweep-head{font-family:var(--display);text-transform:uppercase;font-size:var(--fs-body);padding:12px 0 2px}
+.sweep-line{display:flex;align-items:center;gap:10px;min-height:40px;border-bottom:1px solid var(--line)}
+.sweep-n{font:400 var(--fs-subhead)/1 var(--display);color:var(--brass);min-width:2.2em;font-variant-numeric:tabular-nums}
+.sweep-name{flex:1} .sweep-loc{font-size:var(--fs-caption);color:var(--ink-dim);text-align:right}
+.sweep-clear{margin-top:14px}
+
+/* buttons, chips, controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:var(--tap);padding:10px 20px;border:1px solid var(--ink);border-radius:var(--r);font-family:var(--display);text-transform:uppercase;letter-spacing:-.02em;font-size:var(--fs-subhead);color:var(--ink);background:none;white-space:nowrap}
+.btn:hover{background:rgba(255,255,255,.08)} .btn.ghost{border-color:var(--line-strong);color:var(--ink-dim)} .btn.small{min-height:36px;padding:6px 14px;font-size:var(--fs-footnote)}
+.btn:disabled{opacity:.5}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid var(--line-strong);border-radius:999px;font-size:var(--fs-footnote);line-height:1.2;color:var(--ink);white-space:normal}
+.chip.direct{color:var(--ink-dim)} .chip.multi{border-color:var(--brass);color:var(--brass)}
+.chip.item{background:rgba(255,255,255,.05)} .chip-note{color:var(--ink-faint);font-size:var(--fs-caption)}
+.chip.sel{background:var(--bg-raise);padding-right:4px} .chip-x{width:26px;height:26px;display:grid;place-items:center;border-radius:50%;color:var(--ink-dim)} .chip-x:hover{color:var(--ink);background:rgba(255,255,255,.1)}
+.chipwall{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0 10px}
+.controls{display:flex;gap:10px;align-items:center;margin:14px 0 8px;flex-wrap:wrap}
+.search{flex:1;min-width:160px;min-height:var(--tap);padding:8px 14px;background:var(--white);color:#000;border:1px solid rgba(0,0,0,.12);border-radius:0;font-size:var(--fs-subhead)}
+.search::placeholder{color:#777}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:var(--r);overflow:hidden;flex:none}
+.seg-btn{min-height:var(--tap);padding:0 14px;font-family:var(--display);text-transform:uppercase;font-size:var(--fs-footnote);color:var(--ink-dim);border-right:1px solid var(--line-strong)} .seg-btn:last-child{border-right:0}
+.seg-btn.is-on{background:var(--ink);color:var(--bg)}
+.subtabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-top:10px}
+.subtab{padding:12px 0 10px;font-family:var(--display);text-transform:uppercase;font-size:var(--fs-subhead);color:var(--ink-dim);border-bottom:2px solid transparent;margin-bottom:-1px} .subtab.is-on{color:var(--ink);border-color:var(--brass)}
+
+/* recipes — list rows on green, opened card as printed-menu paper */
+.rrow{align-items:center} .rrow .chip{flex:none}
+.chev{flex:none;width:10px;height:10px;border:solid var(--ink-dim);border-width:0 1.5px 1.5px 0;transform:rotate(45deg);margin-right:6px;transition:transform .15s}
+.rrow.is-open .chev{transform:rotate(-135deg);margin-top:6px}
+.recipe-panel{background:var(--paper);color:var(--paper-ink);font-family:var(--serif);padding:18px 18px 16px;margin:0 0 8px;border-top:3px solid var(--paper-ink);border-bottom:3px solid var(--paper-ink);position:relative}
+.recipe-panel::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--paper-ink)}
+.recipe-meta{font-style:italic;color:var(--paper-dim);font-size:var(--fs-footnote);margin-bottom:8px}
+.scaler{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 2px}
+.scaler-label{font:500 var(--fs-caption)/1 var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--paper-dim)}
+.recipe-panel .btn{border-color:var(--paper-ink);color:var(--paper-ink)} .recipe-panel .btn.ghost{border-color:var(--paper-line);color:var(--paper-dim)} .recipe-panel .btn:hover{background:rgba(31,58,50,.06)}
+.recipe-panel .hint{color:var(--paper-dim);font-family:var(--body)}
+.ings{margin-top:8px}
+.ing{display:flex;align-items:baseline;gap:8px;padding:7px 0;border-bottom:1px solid var(--paper-line);font-size:var(--fs-subhead)}
+.ing-name{flex:0 1 auto;font-weight:600;min-width:0} .leader{flex:1;min-width:14px} .ing-amt{flex:none;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;display:inline-flex;align-items:baseline;gap:4px}
+.ing-amt.muted{color:var(--paper-dim);font-style:italic}
+.ing .chip{border-color:var(--paper-line);color:var(--paper-dim);font-family:var(--body);font-size:var(--fs-caption);padding:2px 8px}
+.ing-qty{width:6.5em;padding:4px 6px;border:1px solid var(--paper-line);border-radius:3px;background:#fff;color:var(--paper-ink);font-family:var(--serif);font-size:var(--fs-subhead);text-align:right;font-variant-numeric:tabular-nums}
+.ing-amt .unit{color:var(--paper-dim);font-size:var(--fs-footnote)}
+details.sub,details.method{margin:6px 0 4px;border:1px solid var(--paper-line);border-radius:3px;background:rgba(255,255,255,.55)}
+details.sub > summary,details.method > summary{cursor:pointer;padding:9px 12px;font:500 var(--fs-caption)/1.3 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--paper-dim)}
+details.sub .recipe-panel{border:0;padding:6px 12px 12px;background:none} details.sub .recipe-panel::before{display:none}
+details.method p{padding:0 12px 12px;line-height:1.5}
+.note{margin-top:10px;font-style:italic;color:var(--paper-dim);font-size:var(--fs-footnote)}
+.spec-grid{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:0 0 4px}
+.spec-grid dt{font:500 var(--fs-caption)/1.5 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--paper-dim)} .spec-grid dd{margin:0;line-height:1.45}
+.spec .spec-h{color:var(--brass-deep);padding-top:16px}
+.spec .ings{margin-top:0}
+.spec .btn{margin-top:14px}
+
+/* needs making / low-out */
+.need,.lowout{border:1px solid var(--line-strong);border-radius:var(--r);padding:0 16px 14px;margin-top:6px;background:var(--bg-deep)}
+.need.has-items,.lowout.has-items{border-color:var(--amber)}
+.need-head{padding-top:14px;border-bottom:0;margin-bottom:0}
+.scroll-x{overflow-x:auto}
+.need-table{width:100%;border-collapse:collapse;font-size:var(--fs-footnote);min-width:520px}
+.need-table th{text-align:left;font:500 var(--fs-caption)/1 var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-dim);padding:10px 8px 8px 0;border-bottom:1px solid var(--line)}
+.need-table td{padding:10px 8px 10px 0;border-bottom:1px solid var(--line);vertical-align:top} .need-table td:last-child{text-align:right;padding-right:0}
+.need-name{display:block}
+.need > .btn{margin-top:14px}
+.lvl{display:inline-block;align-self:flex-start;padding:3px 9px;border-radius:999px;font:500 var(--fs-caption)/1.3 var(--body);letter-spacing:.12em;text-transform:uppercase}
+.lvl.low,.lvlchip.low{background:rgba(224,164,58,.18);color:var(--amber);border-color:rgba(224,164,58,.5)} .lvl.out,.lvlchip.out{background:rgba(211,4,4,.2);color:#ff8a80;border-color:rgba(211,4,4,.6)}
+
+/* prep plan */
+.tray{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:14px 0 6px}
+.picker{border:1px solid var(--line-strong);border-radius:var(--r);padding:0 14px 10px;margin:8px 0 14px;background:var(--bg-deep)}
+.bucket{border-bottom:1px solid var(--line)} .bucket > summary{cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;min-height:var(--tap);padding:10px 0;list-style:none} .bucket > summary::-webkit-details-marker{display:none}
+.pick-chip{padding:8px 13px;border:1px solid var(--line-strong);border-radius:999px;font-size:var(--fs-footnote);min-height:36px} .pick-chip.is-on{background:var(--brass);border-color:var(--brass);color:var(--bg)}
+.plan{margin-top:6px}
+.phase{margin-bottom:10px}
+.step{margin:12px 0 4px;padding:0 0 6px 12px;border-left:2px solid var(--line-strong)} .step.is-done{border-color:var(--brass);opacity:.75}
+.step-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:6px 0 2px}
+.step-name{font-family:var(--display);text-transform:uppercase;font-size:var(--fs-subhead)}
+.lead{font:400 var(--fs-footnote)/1.3 var(--display);color:var(--brass);padding:2px 0 4px}
+.method-line{font-family:var(--serif);font-style:italic;font-size:var(--fs-footnote);color:var(--ink-dim);padding:8px 0 2px;line-height:1.45}
+
+/* map */
+.area{margin-bottom:10px}
+.unit{border-bottom:1px solid var(--line)}
+.unit > summary{cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:10px;min-height:var(--tap);padding:12px 0;list-style:none} .unit > summary::-webkit-details-marker{display:none}
+.unit-name{font-family:var(--display);text-transform:uppercase;font-size:var(--fs-body)}
+.unit > summary::before{content:"›";font-family:var(--display);color:var(--brass);margin-right:8px;display:inline-block;transition:transform .15s} .unit[open] > summary::before{transform:rotate(90deg)}
+.shelf.depth-1{margin-left:12px;padding-left:12px;border-left:1px solid var(--line)}
+.shelf.depth-2{margin-left:12px;padding-left:12px;border-left:1px solid var(--line)}
+
+/* stock */
+.stockrow{align-items:center;gap:10px}
+.stockrow.is-low .row-title{color:var(--amber)} .stockrow.is-out .row-title{color:#ff8a80}
+.lvlseg .seg-btn{min-height:38px;padding:0 11px;font-size:var(--fs-footnote)}
+.lvlseg .seg-btn.good.is-on{background:var(--good);color:var(--bg)} .lvlseg .seg-btn.low.is-on{background:var(--amber);color:var(--bg)} .lvlseg .seg-btn.out.is-on{background:var(--red);color:#fff}
+.lowout .chipwall{padding-top:10px}
+
+/* needs making: below ~600px the 5-column table cannot fit, so each row stacks
+   (item + level, then where + when, then the action) rather than scrolling off-screen */
+@media (max-width:600px){
+  .need-table{min-width:0}
+  .need-table thead{display:none}
+  .need-table tbody,.need-table tr,.need-table td{display:block}
+  .need-table tr{display:grid;grid-template-columns:1fr auto;column-gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
+  .need-table tr:last-child{border-bottom:0}
+  .need-table td{border:0;padding:0}
+  .need-table td:nth-child(1){grid-area:1/1}
+  .need-table td:nth-child(2){grid-area:1/2;text-align:right}
+  .need-table td:nth-child(3){grid-area:2/1;color:var(--ink-dim);font-size:var(--fs-footnote);padding-top:3px}
+  .need-table td:nth-child(4){grid-area:2/2;text-align:right;color:var(--ink-faint);font-size:var(--fs-caption);padding-top:3px}
+  .need-table td:nth-child(5){grid-area:3/1/auto/span 2;text-align:left;padding-top:10px}
+}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Phones: the Hub bar parks its controls in a floating dock at the bottom (--dock-h), where this
+   page's tab row used to sit. The tab row moves up under the bar instead of stacking two bars. */
+@media (max-width:719px){
+  body{padding-bottom:calc(var(--dock-h,88px) + 12px)}
+  #tabs{position:sticky;top:var(--bar-b,56px);bottom:auto;z-index:30;border-top:0;border-bottom:1px solid var(--line);padding-bottom:0}
+  .tab{min-height:48px;justify-content:center}
+  .tab.is-on::after{top:auto;bottom:-1px}
+}
+@media (max-width:420px){.tab-head h2{font-size:var(--fs-large-title)} .fill-main .row-detail{display:none}}
+</style>
+
+<header class="topbar">
+  <span data-slot="crumb" class="crumb">juniper &amp; co</span>
+  <span id="syncDot" class="sync local" data-slot="right">this device</span>
+</header>
+<nav id="tabs" role="tablist" aria-label="Sections"></nav>
+<main id="panel" class="wrap" aria-live="polite"></main>
+
+<script>window.JC={"open":[{"name":"Set up the bar","items":[{"k":"set-up-the-bar--marry-the-bottles","t":"Marry the bottles","d":"first thing on arrival"},{"k":"set-up-the-bar--fill-the-bottles-and-put-them-in-the-wells","t":"Fill the bottles and put them in the wells","d":"batches and service bottles — get the bar completely set up, as if the bartender were about to start making drinks"},{"k":"set-up-the-bar--track-what-needs-restocking-on-the-stock-checker","t":"Track what needs restocking on the stock checker","d":"log it as you go through the bar, not from memory afterwards"}]},{"name":"Ice & stock","items":[{"k":"ice-stock--ice-in-all-the-wells","t":"Ice in all the wells","d":"empty the ice sinks first","dl":"17:00"},{"k":"ice-stock--stock-beverages","t":"Stock beverages","d":"Tsingtao, the beers, anything bottled — get these in early, they need time to chill"},{"k":"ice-stock--stock-alcohol","t":"Stock alcohol"},{"k":"ice-stock--stock-batches-and-syrups","t":"Stock batches and syrups"},{"k":"ice-stock--stock-garnishes","t":"Stock garnishes"},{"k":"ice-stock--check-the-foams","t":"Check the foams","d":"condensed milk and coco foam are made as service runs — flag them low or out on the stock checker like anything else"},{"k":"ice-stock--ghost-ice","t":"Ghost ice","d":"check there is enough; anything that needs defrosting goes in immediately. Yogurt garnish and coconut balls in the cooler too","dl":"17:45"}]},{"name":"Downstairs","items":[{"k":"downstairs--slice-the-cucumbers","t":"Slice the cucumbers","d":"thin slices for the water pitchers — the bar must be fully stocked before you go down","dl":"17:30","pr":"red"},{"k":"downstairs--stock-juices","t":"Stock juices","d":"lemon, lime, pineapple, egg whites"}]},{"name":"After opening","items":[{"k":"after-opening--bring-up-rags-and-a-rack-from-downstairs","t":"Bring up rags and a rack from downstairs","d":"microfibers — one dirty rag, one regular rag, and one rack for downstairs"},{"k":"after-opening--wash-all-the-dirty-quarts","t":"Wash all the dirty quarts"},{"k":"after-opening--help-alberto-with-the-delivery","t":"Help Alberto with the delivery","d":"always help bring it in and put it away — milk and eggs refrigerated immediately, older fruit rotated forward"}]}],"fill":[{"name":"Fridge 1 · Top","items":[{"k":"fridge-1-top--super-hero-sidekicks","t":"Super Hero Sidekicks","d":"KCBC - hazy IPA"},{"k":"fridge-1-top--athletic","t":"Athletic","d":"Athletic Brewing - non-alcoholic"},{"k":"fridge-1-top--oolong-kolsh","t":"Oolong Kolsh","d":"OEC Brewing"},{"k":"fridge-1-top--baby-jasmine-lager","t":"Baby Jasmine Lager","d":"Master Gao"}],"tag":"Beer"},{"name":"Fridge 1 · Middle","items":[{"k":"fridge-1-middle--sesame-brittle","t":"Sesame Brittle"},{"k":"fridge-1-middle--olives","t":"Olives"},{"k":"fridge-1-middle--truffle-chocolate","t":"Truffle Chocolate"},{"k":"fridge-1-middle--cbm-jello","t":"CBM Jello"},{"k":"fridge-1-middle--cucumbers","t":"Cucumbers"},{"k":"fridge-1-middle--salted-coconut-foam","t":"Salted Coconut Foam"},{"k":"fridge-1-middle--condensed-milk-cold-foam","t":"Condensed Milk Cold Foam"},{"k":"fridge-1-middle--boba-foam","t":"Boba Foam"},{"k":"fridge-1-middle--cherries","t":"Cherries"}],"tag":"Garnish & Foam"},{"name":"Fridge 1 · Bottom","items":[{"k":"fridge-1-bottom-syrups--coffee","t":"Coffee"},{"k":"fridge-1-bottom-syrups--simple-syrup","t":"Simple Syrup"},{"k":"fridge-1-bottom-syrups--demerara","t":"Demerara"},{"k":"fridge-1-bottom-syrups--black-sesame","t":"Black Sesame"},{"k":"fridge-1-bottom-syrups--coconut-syrup","t":"Coconut Syrup"},{"k":"fridge-1-bottom-syrups--tamarind","t":"Tamarind Agave"},{"k":"fridge-1-bottom-syrups--toasted-coco","t":"Toasted Coco"},{"k":"fridge-1-bottom-syrups--raspberry-syrup","t":"Raspberry Lemongrass"}],"tag":"Syrups"},{"name":"Fridge 1 · Bottom","items":[{"k":"fridge-1-bottom-non-alcoholic-batches--golden-hour","t":"Golden Hour"},{"k":"fridge-1-bottom-non-alcoholic-batches--leaf-me-alone","t":"Leaf Me Alone"}],"tag":"Zero Proof"},{"name":"Fridge 1 · Bottom","items":[{"k":"fridge-1-bottom-fresh-quarts--lime","t":"Lime Juice"},{"k":"fridge-1-bottom-fresh-quarts--lemon","t":"Lemon Juice"},{"k":"fridge-1-bottom-fresh-quarts--pineapple","t":"Pineapple Juice"},{"k":"fridge-1-bottom-fresh-quarts--egg-white","t":"Egg White"},{"k":"fridge-1-bottom-fresh-quarts--yuzu","t":"Yuzu"}],"tag":"Fresh"},{"name":"Fridge 2 · Top","items":[{"k":"fridge-2-top--ginger-beer","t":"Ginger Beer","d":"Topo Chico"},{"k":"fridge-2-top--tonic-water","t":"Tonic Water","d":"Fentimans"},{"k":"fridge-2-top--club-soda","t":"Club Soda"},{"k":"fridge-2-top--tsingtao","t":"Tsingtao"},{"k":"fridge-2-top--matcha-lemonade","t":"Matcha Lemonade","d":"Lucky Ox"},{"k":"fridge-2-top--salted-lemonade","t":"Salted Lemonade","d":"Lucky Ox"},{"k":"fridge-2-top--pandan-coconut","t":"Pandan Coconut","d":"Lucky Ox"}],"tag":"Mixers"},{"name":"Fridge 2 · Bottom","items":[{"k":"fridge-2-bottom--ube-daiquiri","t":"Ube Daiquiri"},{"k":"fridge-2-bottom--lychee-martini","t":"Lychee Martini"},{"k":"fridge-2-bottom--bitter-remedy","t":"Bitter Remedy"},{"k":"fridge-2-bottom--sorrel","t":"Sorrel"},{"k":"fridge-2-bottom--passion-express","t":"Passion Express"},{"k":"fridge-2-bottom--pineapple-fried-rice","t":"Pineapple Fried Rice"},{"k":"fridge-2-bottom--breakfast","t":"Breakfast Shot"},{"k":"fridge-2-bottom--house","t":"House Shot"},{"k":"fridge-2-bottom--juniper","t":"The Juniper"},{"k":"fridge-2-bottom--che-ba-mau","t":"Che Ba Mau"},{"k":"fridge-2-bottom--tea-killah","t":"Tea Killah"},{"k":"fridge-2-bottom--thairish-tea","t":"Thairish Tea"},{"k":"fridge-3-bottom--chrysanthemum-kiss","t":"Chrysanthemum Kiss"},{"k":"fridge-3-bottom--pandan-colada","t":"Pandan Colada"}],"tag":"Batches"},{"name":"Fridge 3 · Top","items":[{"k":"fridge-3-top--coke","t":"Coke"},{"k":"fridge-3-top--diet-coke","t":"Diet Coke"},{"k":"fridge-3-top--canada-dry","t":"Canada Dry"},{"k":"fridge-3-top--sprite","t":"Sprite"},{"k":"fridge-3-top--flowers","t":"Flowers"}],"tag":"Soda"},{"name":"Fridge 4 · Top","items":[{"k":"fridge-4-top--sealed-garnishes","t":"Sealed Garnishes"},{"k":"fridge-4-top--heavy-cream","t":"Heavy Cream"},{"k":"fridge-4-top--coconut-water","t":"Coconut Water","d":"C2O or Vita Coco"},{"k":"fridge-4-top--lychee-can","t":"Lychee Can"},{"k":"fridge-4-top--onions","t":"Onions"},{"k":"fridge-4-top--wakamomo-peaches","t":"Wakamomo Peaches"},{"k":"fridge-4-top--pretty-in-pink","t":"Pretty in Pink"},{"k":"fridge-3-top--whole-egg","t":"Whole Egg"}],"tag":"Sealed & Spares"},{"name":"Fridge 4 · Bottom","items":[{"k":"fridge-4-bottom--peachy-river","t":"Peachy River"},{"k":"fridge-4-bottom--cabernet-sauvignon","t":"Cabernet Sauvignon"},{"k":"fridge-4-bottom--sauvignon-blanc","t":"Sauvignon Blanc"},{"k":"fridge-4-bottom--ros","t":"Rosé"},{"k":"fridge-4-bottom--prosecco","t":"Prosecco"},{"k":"fridge-4-bottom--wine-float","t":"Wine Float"},{"k":"fridge-4-bottom--vina-ab","t":"Vina AB","d":"Lustau Viña AB Amontillado"},{"k":"fridge-4-bottom--dirty-martini","t":"Dirty Martini"},{"k":"fridge-4-bottom--lillet","t":"Lillet","d":"Lillet Blanc"},{"k":"fridge-4-bottom--sweet-vermouth","t":"Sweet Vermouth"},{"k":"fridge-4-bottom--dry-vermouth","t":"Dry Vermouth","d":"Cinzano - Extra Dry"}],"tag":"Wine"}],"close":[{"name":"During service","items":[{"k":"during-service--floor-mats-washed-put-away","t":"Floor mats washed + put away","d":"first thing — get them out of the way"},{"k":"during-service--mats-rack-to-power-wash","t":"Mats + rack to power wash","d":"at last call"},{"k":"during-service--bar-top-mats","t":"Bar top mats","d":"start these while service is still running"},{"k":"during-service--burn-extra-ice","t":"Burn extra ice"},{"k":"during-service--no-stacked-quarts-at-the-bar","t":"No stacked quarts at the bar","d":"take them down as they come — never stack them at the bar during service"},{"k":"during-service--garnishes-out-before-glass-goes-in","t":"Garnishes out before glass goes in"},{"k":"during-service--dishes-glassware","t":"Dishes + glassware","d":"get through as many as fast as you can"},{"k":"during-service--handwash-what-can-be","t":"Handwash what can be","d":"do not leave overnight"},{"k":"during-service--wash-extra-water-pitchers","t":"Wash extra water pitchers"},{"k":"during-service--dry-top-mats-pitchers","t":"Dry top mats + pitchers","d":"on the closed bar section"},{"k":"during-service--kitchen-dishes-to-alberto","t":"Kitchen dishes to Alberto","d":"one hour before he leaves — he's out 9pm Sun, 11pm Fri/Sat; weekday time unconfirmed","pr":"red"}]},{"name":"Downstairs · by 10pm","items":[{"k":"downstairs-by-10pm--everything-hand-washed-drying","t":"Everything hand washed + drying","dl":"22:00"},{"k":"downstairs-by-10pm--wipe-tables-appliances","t":"Wipe tables + appliances","dl":"22:00"},{"k":"downstairs-by-10pm--broom-mop-the-floor","t":"Broom + mop the floor","dl":"22:00"},{"k":"downstairs-by-10pm--nothing-in-the-sink","t":"Nothing in the sink","dl":"22:00"},{"k":"downstairs-by-10pm--sanitize-bucket-away","t":"Sanitize bucket away","dl":"22:00"},{"k":"downstairs-by-10pm--no-rags-out","t":"No rags out","dl":"22:00"},{"k":"downstairs-by-10pm--overnight-soak-strain-handled","t":"Overnight soak / strain handled","d":"saran-wrapped, covered, noted in chat","dl":"22:00"},{"k":"downstairs-by-10pm--boxes-broken-down","t":"Boxes broken down","d":"full -> GC"},{"k":"downstairs-by-10pm--downstairs-done-before-the-first-barback-leaves","t":"Downstairs finished and clean before the first barback leaves"}]},{"name":"Service ends","items":[{"k":"service-ends--clean-all-bar-tools","t":"Clean all bar tools"},{"k":"service-ends--clean-garnish-box-cutting-boards","t":"Clean garnish box + cutting boards"},{"k":"service-ends--bucket-ready-for-the-dry-bar-tools","t":"Bucket ready for the dry bar tools"}]},{"name":"Everyone's gone","items":[{"k":"everyone-s-gone--finish-the-glassware","t":"Finish the glassware"},{"k":"everyone-s-gone--empty-put-away","t":"Empty + put away"},{"k":"everyone-s-gone--clean-inside-dishwasher","t":"Clean inside dishwasher","d":"rag + cleaner tablet"},{"k":"everyone-s-gone--dishwasher-off","t":"Dishwasher off"},{"k":"everyone-s-gone--mop","t":"Mop"},{"k":"everyone-s-gone--collect-garbage-new-bags","t":"Collect garbage + new bags"},{"k":"everyone-s-gone--dump-the-mop-water","t":"Dump the mop water"},{"k":"everyone-s-gone--wipe-bar-seats-tables","t":"Wipe bar, seats + tables"},{"k":"everyone-s-gone--wipe-fridge-tops-dishwasher-top-garbage-covers","t":"Wipe fridge tops, dishwasher top + garbage covers"},{"k":"everyone-s-gone--wipe-the-inside-edges-of-the-ice-machine","t":"Wipe the inside edges of the ice machine"},{"k":"everyone-s-gone--wash-sink-strainer-wipe-the-sink","t":"Wash sink strainer + wipe the sink"},{"k":"everyone-s-gone--floor-drain-debris","t":"Floor-drain debris","d":"gloves on"},{"k":"everyone-s-gone--bleach-down-drains","t":"Bleach down drains","d":"about a capful"},{"k":"everyone-s-gone--anything-with-milk-refrigerated","t":"Anything with milk refrigerated","d":"before you leave — nothing with milk in it stays out overnight"},{"k":"everyone-s-gone--all-rags-downstairs","t":"All rags downstairs"}]},{"name":"Safety","items":[{"k":"safety--downstairs-lights-off-door-locked","t":"Downstairs lights off + door locked","pr":"red"},{"k":"safety--kitchen-garbage-gas-off","t":"Kitchen garbage + gas off","pr":"red"},{"k":"safety--all-lights-ac-off","t":"All lights + AC off","pr":"red"}]}],"recipes":[{"id":59,"kind":"batch","name":"Che Ba Mau","cat":"Clarified Batch","method":"Simmer beans + pandan 30 mins (~152 oz). Add Teeling, mix (~304.32 oz). /2 = simple = coconut milk. orig/2 again = lemon. Sit overnight, strain. Dilution: oz/3oz*0.25oz = water.","yq":17167.2,"yu":"g","lead":720,"leadl":"sit overnight","ings":[{"n":"split mung bean","a":"24 oz","q":709.8,"u":"g"},{"n":"red bean","a":"24 oz","q":709.8,"u":"g"},{"n":"pandan leaves","a":"1 bag","q":1.0,"u":"bag"},{"n":"Teeling","a":"4500ml (6x750ml)","q":4500.0,"u":"g"},{"n":"simple syrup","a":"4500 g (batch/2)","q":4500.0,"u":"g","p":1},{"n":"coconut milk","a":"4500 g (batch/2)","q":4500.0,"u":"g"},{"n":"lemon juice","a":"2247.6 g (orig/2)","q":2247.6,"u":"g"}],"deps":[1]},{"id":56,"kind":"batch","name":"One Inch Punch","cat":"Clarified Batch","method":"Tea = same amount Redemption Bourbon. /2 = simple syrup = evaporated milk. /2 again = lemon juice. Sit overnight, strain cone filter. Dilution: oz / 3oz * 0.25oz = add water.","notes":"Hong Kong Tea.","yq":12302.6,"yu":"g","lead":720,"leadl":"sit overnight","ings":[{"n":"Hong Kong tea","a":"base","q":3785.4,"u":"g"},{"n":"Redemption Bourbon","a":"= tea","q":3785.4,"u":"g"},{"n":"simple syrup","a":"1892.7 g (tea/2)","q":1892.7,"u":"g","p":1},{"n":"evaporated milk","a":"1892.7 g (tea/2)","q":1892.7,"u":"g"},{"n":"lemon juice","a":"946.4 g (tea/4)","q":946.4,"u":"g"}],"deps":[1]},{"id":57,"kind":"batch","name":"Passion Express","cat":"Clarified Batch","method":"Stir, leave overnight, strain cone filter. Dilution: oz / 3oz * 0.25oz = add water. Save yogurt for spoon garnish.","notes":"Passionfruit Yogurt.","yq":11535.5,"yu":"g","lead":720,"leadl":"leave overnight","ings":[{"n":"gunpowder green tea infused Roku gin","a":"4500ml (6x750ml or 4.5x1L)","q":4500.0,"u":"g"},{"n":"lime juice","a":"2250ml","q":2250.0,"u":"g"},{"n":"Chinola passion fruit","a":"2250ml","q":2250.0,"u":"g"},{"n":"Demerara","a":"1.5 QT (48 oz)","q":1.5,"u":"quart","p":2},{"n":"yogurt","a":"1116g (half tub)","q":1116.0,"u":"g"}],"deps":[2,92]},{"id":58,"kind":"batch","name":"Teakillah","cat":"Clarified Batch","method":"Stir, sit overnight, strain cone filter. Dilution: oz / 3oz * 0.25oz = add water.","yq":17163.8,"yu":"g","lead":720,"leadl":"sit overnight","ings":[{"n":"oolong Mijenta tequila","a":"6750ml (9x750ml)","q":6750.0,"u":"g","p":37},{"n":"citrus cordial","a":"3,236 g","q":3236.0,"u":"g","p":14},{"n":"lemon juice","a":"1,618 g","q":1618.0,"u":"g"},{"n":"sugar cane","a":"1.5 gallon","q":1.5,"u":"gallon"},{"n":"Demerara","a":"roughly 2 oz (to taste)","ns":1},{"n":"milk","a":"90 oz","q":2661.6,"u":"g"}],"deps":[14,37],"notes":"Boba Milk Tea."},{"id":60,"kind":"batch","name":"ThaIrish Tea","cat":"Clarified Batch","method":"Boil water, add Thai tea, sit 10 mins, strain (must equal 7110g, add water if not). Add syrup, lemon, Tullamore, milk. Stir, label, sit overnight, strain cone filter.","yq":20245.0,"yu":"g","lead":720,"leadl":"sit overnight","ings":[{"n":"water","a":"7110g","q":7110.0,"u":"g"},{"n":"Thai tea mix","a":"800 g (2 bags)","q":800.0,"u":"g"},{"n":"star anise vanilla syrup","a":"1000g","q":1000.0,"u":"g","p":12},{"n":"lemon juice","a":"1000g","q":1000.0,"u":"g"},{"n":"Tullamore Dew","a":"6 bottles (1L)","q":6.0,"u":"bottle"},{"n":"whole milk","a":"4335g","q":4335.0,"u":"g"}],"deps":[12],"notes":"Thai Tea."},{"id":61,"kind":"batch","name":"Bitter Sweet","cat":"HH Clarified Batch","method":"Clarify, then add coconut water.","yq":14560.0,"yu":"g","lead":720,"leadl":"clarify overnight","ings":[{"n":"Hendricks gin","a":"6 bottles (6L)","q":6.0,"u":"bottle"},{"n":"bitter melon","a":"12 (~1495g juice)","q":1495.0,"u":"g"},{"n":"pineapple juice","a":"2600g (2 QT)","q":2600.0,"u":"g"},{"n":"lemon juice","a":"765g","q":765.0,"u":"g"},{"n":"simple syrup","a":"1015g","q":1015.0,"u":"g","p":1},{"n":"Sichuan peppercorn","a":"15g","q":15.0,"u":"g"},{"n":"coriander","a":"20g","q":20.0,"u":"g"},{"n":"milk","a":"2650g","q":2650.0,"u":"g"},{"n":"coconut water","a":"6 cans","q":6.0,"u":"can"}],"deps":[1]},{"id":62,"kind":"batch","name":"Lychee Martini","cat":"HH Clarified Batch","method":"Mix, sit overnight, strain cone filter. Dilution: oz / 2.5oz * 0.5oz = add water.","yq":13920.0,"yu":"g","lead":720,"leadl":"sit overnight","ings":[{"n":"Mijenta tequila","a":"6 bottles","q":6.0,"u":"bottle"},{"n":"lychee liqueur","a":"450g","q":450.0,"u":"g"},{"n":"Jasmine Verte","a":"1 bottle","q":1.0,"u":"bottle"},{"n":"jasmine tea","a":"4500g (2 oz tea leaves)","q":4500.0,"u":"g","p":17},{"n":"lychee puree","a":"750g (drain 3 cans, blend)","q":750.0,"u":"g"},{"n":"simple syrup","a":"750g","q":750.0,"u":"g","p":1},{"n":"milk","a":"1110g","q":1110.0,"u":"g"},{"n":"lemon juice","a":"1110g","q":1110.0,"u":"g"},{"n":"condensed milk","a":"3 cans","q":3.0,"u":"can"}],"deps":[1,17]},{"id":63,"kind":"batch","name":"Ube Daiquiri","cat":"HH Clarified Batch","method":"Mix, sit overnight, strain cone filter. Dilution: oz / 3oz = add water.","yq":10290.0,"yu":"g","lead":720,"leadl":"sit overnight","ings":[{"n":"Ten to One White Rum","a":"6 bottles","q":6.0,"u":"bottle"},{"n":"lime juice","a":"2250g","q":2250.0,"u":"g"},{"n":"simple syrup","a":"1500g","q":1500.0,"u":"g","p":1},{"n":"milk","a":"2010g","q":2010.0,"u":"g"},{"n":"coco lopez","a":"3 cans","q":3.0,"u":"can"},{"n":"coconut milk","a":"40.5 oz (3 cans)","q":1197.7,"u":"g"},{"n":"ube extract","a":"30g","q":30.0,"u":"g"}],"deps":[1]},{"id":47,"kind":"batch","name":"Chrysanthemum Kiss","cat":"House Batch","yq":7000.0,"yu":"g","lead":0,"ings":[{"n":"Chrysanthemum infused Haku","a":"4500ml (6x750ml or 4.5x1L)","q":4500.0,"u":"g","p":36},{"n":"chrysanthemum honey","a":"1500ml (50.72 oz)","q":1500.0,"u":"g","p":4},{"n":"Cointreau","a":"1L (1 bottle)","q":1000.0,"u":"g"}],"deps":[4,36]},{"id":51,"kind":"batch","name":"Golden Hour","cat":"House Batch","notes":"Non-alcoholic batch.","yq":8021.4,"yu":"g","lead":0,"ings":[{"n":"chrysanthemum tea","a":"4 QT (3785.41ml)","q":4.0,"u":"quart","p":16},{"n":"chrysanthemum honey","a":"946ml (32 oz)","q":946.0,"u":"g","p":4},{"n":"Lyre's dry london (non-alc)","a":"3290ml","q":3290.0,"u":"g"}],"deps":[4,16]},{"id":53,"kind":"batch","name":"Good Morning Vietnam","cat":"House Batch","notes":"Unresolved: on the menu today as Hello Vietnam, but this batch (pho-spiced rum / ginger scallion syrup / nouc cham) shares no ingredient with the Hello Vietnam build the prep book and spec sheet give (squid-snack Toki / lime / Athletic n/a). Left unknown on Sam's call 2026-09-02 — do not merge the two records.","yq":3750.0,"yu":"g","ings":[{"n":"pho spiced light rum","a":"1500ml (6x750ml or 4.5x1L)","q":1500.0,"u":"g","p":42},{"n":"ginger scallion syrup","a":"1500ml","q":1500.0,"u":"g","p":15},{"n":"Nouc Cham","a":"750ml (not straight from bottle)","q":750.0,"u":"g","p":10}],"deps":[10,15,42]},{"id":50,"kind":"batch","name":"Leaf Me Alone","cat":"House Batch","notes":"Non-alcoholic batch.","yq":8022.4,"yu":"g","lead":0,"ings":[{"n":"jasmine green tea","a":"4 QT (3785.41ml)","q":4.0,"u":"quart","p":17},{"n":"pandan","a":"946ml (32 oz)","q":946.0,"u":"g","p":8},{"n":"Lyre's agave (non-alc)","a":"3291ml","q":3291.0,"u":"g"}],"deps":[8,17]},{"id":48,"kind":"batch","name":"Pandan Colada","cat":"House Batch","yq":6511.0,"yu":"g","lead":0,"ings":[{"n":"Ten to One Dark Rum","a":"6 bottles (4500 mL)","q":4500.0,"u":"g"},{"n":"pandan syrup","a":"68 oz","q":2011.0,"u":"g","p":8}],"deps":[8]},{"id":49,"kind":"batch","name":"Peachy River","cat":"House Batch","yq":4500.0,"yu":"g","lead":0,"ings":[{"n":"Mizu Shochu Green Tea","a":"3750ml (5 bottles)","q":3750.0,"u":"g"},{"n":"Ming River","a":"750ml (1 bottle)","q":750.0,"u":"g"}],"deps":[]},{"id":46,"kind":"batch","name":"Pretty in Pink","cat":"House Batch","yq":4500.0,"yu":"g","lead":0,"ings":[{"n":"Mijenta Blanco","a":"2250ml (3x750ml)","q":2250.0,"u":"g"},{"n":"Ming River Baijiu","a":"2250ml (3x750ml)","q":2250.0,"u":"g"}],"deps":[]},{"id":94,"kind":"batch","name":"Temple Run","cat":"House Batch","method":"1. Combine all ingredients. 2. Stir thoroughly. 3. Transfer back into same bottles. 4. Label (T R) and date.","yq":13550.0,"yu":"g","lead":0,"ings":[{"n":"Hendrick's Gin","a":"3 bottles x 1 L","q":3000.0,"u":"ml"},{"n":"Ming River Baijiu","a":"1 bottle x 750 mL","q":750.0,"u":"ml"},{"n":"yuzu liqueur","a":"4 bottles x 750 mL","q":3000.0,"u":"ml"},{"n":"Pathfinder","a":"4 bottles x 700 mL","q":2800.0,"u":"ml"},{"n":"Fruitful banana liqueur","a":"4 bottles x 1 L","q":4000.0,"u":"ml"}],"deps":[]},{"id":44,"kind":"batch","name":"The Sorrel","cat":"House Batch","method":"Measure jasmine five spice green tea in oz. Divide by 0.5 oz, multiply by 0.25 oz = stout syrup. Add, QT and label.","yq":5678.1,"yu":"g","lead":0,"ings":[{"n":"jasmine five spice green tea","a":"base","q":3785.4,"u":"g","p":18},{"n":"stout syrup","a":"1892.7 g (tea_oz / 0.5 * 0.25)","q":1892.7,"u":"g","p":11}],"deps":[11,18]},{"id":43,"kind":"batch","name":"The Juniper","cat":"House Batch","yq":6750.0,"yu":"g","lead":0,"ings":[{"n":"Roku gin","a":"4500ml (6x750ml or 4.5x1L)","q":4500.0,"u":"g"},{"n":"pandan syrup","a":"1500ml (50.72 oz)","q":1500.0,"u":"g","p":8},{"n":"red bean orgeat","a":"750ml (25.36 oz)","q":750.0,"u":"g","p":7}],"deps":[7,8]},{"id":55,"kind":"batch","name":"Irish Breakfast","cat":"House Shot","method":"Simmer tea + orange peels 5 mins, strain with cone filter into cambro. Add brown butter Tullamore, Amaro Nonino, maple. Stir and QT.","yq":11094.8,"yu":"g","lead":0,"ings":[{"n":"Irish breakfast tea","a":"3 oz (26 teabags) : 128 oz hot water","q":88.7,"u":"g"},{"n":"orange peels (no pith)","a":"4 peeled oranges","q":4.0,"u":"each"},{"n":"brown butter washed Tullamore Dew","a":"4500ml (152.1 oz)","q":4500.0,"u":"g","p":41},{"n":"Amaro Nonino","a":"76.1 oz","q":2250.5,"u":"g"},{"n":"maple syrup","a":"18.9 oz","q":558.9,"u":"g"}],"deps":[41]},{"id":54,"kind":"batch","name":"Juniper Tea Shot","cat":"House Shot","method":"Let sit overnight, strain.","yq":11339.1,"yu":"g","lead":720,"leadl":"sit overnight","ings":[{"n":"dry vermouth","a":"6L (6x1L)","q":6000.0,"u":"g"},{"n":"Teeling","a":"1500ml (2x750ml)","q":1500.0,"u":"g"},{"n":"Juliette peach liqueur","a":"1L (1x1L)","q":1000.0,"u":"g"},{"n":"water","a":"3 QT (96 oz)","q":3.0,"u":"quart"},{"n":"chrysanthemum","a":"4 oz","q":4.0,"u":"oz"},{"n":"goji berries","a":"5 oz","q":5.0,"u":"oz"}],"deps":[]},{"id":45,"kind":"batch","name":"Macau Flip","cat":"Retired — House Batch","notes":"Retired 2026-09-02 (Sam). Still makeable; recipe retained in full.","yq":6000.0,"yu":"g","lead":0,"ings":[{"n":"Ketel One","a":"1500ml (2x750ml or 1.5x1L)","q":1500.0,"u":"g"},{"n":"Tanduay Ube Coconut Rum","a":"1500ml (2 bottles)","q":1500.0,"u":"g"},{"n":"See the Elephant Amaro","a":"2 bottles","q":2.0,"u":"bottle"},{"n":"vanilla syrup","a":"1500ml (50.72 oz)","q":1500.0,"u":"g","p":13}],"deps":[13]},{"id":84,"kind":"cocktail","name":"A lil Clarity","cat":"Clarified / Stirred","glass":"flight","desc":"Flight, left to right: Teakilla - One Inch Punch - ThaIrish Tea.","ings":[],"batch":60,"deps":[58,56,60]},{"id":83,"kind":"cocktail","name":"Che Ba Mau","cat":"Clarified / Stirred","glass":"dome glass","garnish":"2 layered jello","desc":"Classic Vietnamese layered dessert, two layers. 3 oz stirred.","ings":[{"n":"Teeling","a":"in batch"},{"n":"mung bean","a":"in batch"},{"n":"red bean","a":"in batch"},{"n":"pandan","a":"in batch"},{"n":"coconut milk","a":"in batch"},{"n":"lemon","a":"in batch"}],"batch":59,"deps":[59,33]},{"id":79,"kind":"cocktail","name":"One Inch Punch","cat":"Clarified / Stirred","glass":"goblet","garnish":"dehydrated lemon + daisy flower","desc":"Hong Kong Tea. 3 oz stirred.","ings":[{"n":"Redemption Bourbon","a":"in batch"},{"n":"Hong Kong tea","a":"in batch"},{"n":"evaporated milk","a":"in batch"},{"n":"simple syrup","a":"in batch"},{"n":"lemon","a":"in batch"}],"batch":56,"deps":[56,25]},{"id":82,"kind":"cocktail","name":"Passion Express","cat":"Clarified / Stirred","glass":"short wide lip","garnish":"yogurt spoon garnish","desc":"Passionfruit Yogurt. 3 oz stirred.","ings":[{"n":"Roku Gin","a":"in batch"},{"n":"Gunpowder Green Tea","a":"in batch"},{"n":"Chinola Passion Fruit","a":"in batch"},{"n":"Demerara","a":"in batch"},{"n":"lime","a":"in batch"},{"n":"Greek Yogurt","a":"in batch"}],"batch":57,"deps":[57,30]},{"id":80,"kind":"cocktail","name":"Teakillah","cat":"Clarified / Stirred","glass":"large ribbed rocks glass or dome glass","garnish":"boba foam","desc":"Boba Milk Tea. 3 oz stirred.","ings":[{"n":"Mijienta Tequila","a":"in batch"},{"n":"oolong tea","a":"in batch"},{"n":"citrus cordial (lemon/lime/orange/sugar)","a":"in batch"},{"n":"sugarcane juice","a":"in batch"},{"n":"Demerara","a":"in batch"}],"batch":58,"deps":[58]},{"id":81,"kind":"cocktail","name":"ThaIrish Tea","cat":"Clarified / Stirred","glass":"tall wide lip, clean ice","garnish":"condensed milk cold foam","desc":"Thai Tea. 3 oz shaken.","ings":[],"batch":60,"deps":[60,22]},{"id":86,"kind":"cocktail","name":"Golden Hour","cat":"Non-Alcoholic","glass":"highball boxy glass","garnish":"daisy","ings":[{"n":"Batch (Golden Hour / Chrysanthemum Tea / Chrysanthemum honey)","a":"2.25 oz"},{"n":"Lyres Dry London N/A","a":"1.5 oz"},{"n":"lemon","a":".75 oz"},{"n":"club soda","a":"top"}],"batch":51,"deps":[51]},{"id":85,"kind":"cocktail","name":"Leaf Me Alone","cat":"Non-Alcoholic","glass":"up Nick & Nora","garnish":"dehydrated lime","desc":"Refreshing and frothy.","ings":[{"n":"Batch (Leaf Me Alone / Jasmine green tea / Pandan)","a":"2.25 oz"},{"n":"Lyres Agave Blanco N/A","a":"1.5 oz"},{"n":"lime","a":".5 oz"},{"n":"egg white","a":"1"}],"batch":50,"deps":[50]},{"id":87,"kind":"cocktail","name":"Lucky Ox Sparklers","cat":"Non-Alcoholic","glass":"wide lip highball","garnish":"side of ice/straw/skewered lemon","desc":"Poured at the table.","notes":"Option to add 1oz shot of Aplos Arise // Calme (hemp infused spirit) [$6].","ings":[]},{"id":88,"kind":"cocktail","name":"Wolffer Estate Spring in a Bottle","cat":"Non-Alcoholic","glass":"wine glass","desc":"Blanc de Blanc Sparkling N/A wine. Opened & poured at the table.","ings":[]},{"id":69,"kind":"cocktail","name":"Ca Phe Ailen","cat":"Shaken","glass":"clear mug + saucer","garnish":"condensed milk drizzle + truffle","desc":"Irish coffee meets espresso martini, with Vietnamese coffee.","ings":[{"n":"Roe & Co Irish Whiskey","a":"1.5 oz"},{"n":"Vietnamese coffee","a":"1 oz"},{"n":"coffee liqueur","a":".5 oz"}],"deps":[23,31]},{"id":71,"kind":"cocktail","name":"Chrysanthemum Kiss","cat":"Shaken","glass":"up martini","garnish":"daisy","desc":"Chrysanthemum lemon drop.","ings":[{"n":"Batch (Chrysanthemum Kiss)","a":"2.25 oz"},{"n":"Pierre Ferrand Dry Curacao","a":"in batch"},{"n":"lemon","a":".75 oz"}],"batch":47,"deps":[47]},{"id":68,"kind":"cocktail","name":"Floating on Grand","cat":"Shaken","glass":"big ice, wide lip","garnish":"24hr Umami Red Wine Float (mushroom, dashi, black garlic)","desc":"Savory smoky New York sour.","ings":[{"n":"Amaras Verde Mezcal","a":".75 oz"},{"n":"Ming River","a":".75 oz"},{"n":"yuzu","a":".5 oz"},{"n":"lemon","a":".25 oz"},{"n":"simple","a":".5 oz"}],"deps":[24]},{"id":72,"kind":"cocktail","name":"Hello Vietnam","cat":"Shaken","glass":"Collins wide lip","garnish":"squid snack / shrimp salt rim","desc":"Toki highball meets michelada.","allergy":"FISH","ings":[{"n":"Spicy Squid Snack Toki","a":"1.5 oz"},{"n":"lime","a":".5 oz"},{"n":"n/a Athletic (clean ice, top)","a":"top"}]},{"id":67,"kind":"cocktail","name":"Macau Flip","cat":"Retired","glass":"up sorrel glass","garnish":"cookie rim","desc":"Egg tart.","ings":[{"n":"Batch (Macau Flip)","a":"2 oz"},{"n":"Amontillado Sherry","a":".5 oz"},{"n":"whole egg","a":"1"}],"batch":45,"deps":[45,28],"notes":"Retired 2026-08-30 (Jess): not coming back. Spec retained."},{"id":70,"kind":"cocktail","name":"Pretty in Pink","cat":"Shaken","glass":"up martini","garnish":"raspberry powder","desc":"French martini riff.","notes":"Egg white option +$1.","ings":[{"n":"Batch (Pretty in Pink)","a":"1.5 oz"},{"n":"Raspberry Lemongrass Syrup","a":".5 oz"},{"n":"pineapple","a":".5 oz"},{"n":"lemon","a":".5 oz"}],"batch":46,"deps":[46,3]},{"id":66,"kind":"cocktail","name":"Saenchai Kick","cat":"Shaken","glass":"big rock","garnish":"smoked salt","desc":"Spicy mezcal tamarind margarita.","ings":[{"n":"Thai chili infused Montelobos Mezcal","a":"1.5 oz"},{"n":"Tamarind Agave","a":"1 oz"},{"n":"lime","a":".5 oz"}],"deps":[5]},{"id":73,"kind":"cocktail","name":"Temple Run","cat":"Shaken","glass":"animal mug","garnish":"daisy flower","desc":"Banana tiki low-abv drink.","ings":[{"n":"Batch (Ming River Baijiu / Hendricks / Pathfinder n/a Amaro / Banana Liqueur)","a":"3.5 oz"},{"n":"lemon","a":".75 oz"},{"n":"pineapple","a":"1 oz"}]},{"id":65,"kind":"cocktail","name":"The Sorrel","cat":"Shaken","glass":"up","garnish":"sorrel stencil (arugula powder)","desc":"Dirty matcha martini.","ings":[{"n":"Batch (The Sorrel)","a":"1 oz"},{"n":"yoshi","a":".5 oz"},{"n":"teeling","a":".5 oz"},{"n":"pineapple","a":".5 oz"},{"n":"egg white","a":"1 oz"}],"batch":44,"deps":[44]},{"id":64,"kind":"cocktail","name":"The Juniper","cat":"Shaken","glass":"up coupe","garnish":"purple flower","desc":"Pandan gimlet.","ings":[{"n":"Batch (The Juniper)","a":"2.25 oz"},{"n":"coconut water","a":"2 oz"},{"n":"lime","a":".5 oz"}],"batch":43,"deps":[43]},{"id":74,"kind":"cocktail","name":"Pandan Colada","cat":"Shaken + Dirty Pour","glass":"bamboo glass","garnish":"salted coco foam","desc":"Pandan: earthy, vanilla/coconut.","ings":[{"n":"Batch (Pandan Colada / Ten to One Caribbean dark Rum)","a":"2 oz"},{"n":"toasted coconut milk","a":"1 oz"},{"n":"pineapple","a":"1 oz"},{"n":"lime","a":".5 oz"}],"batch":48,"deps":[48,21,20]},{"id":77,"kind":"cocktail","name":"Antidote","cat":"Stirred","glass":"rocks dome","garnish":"hickory smoke","desc":"Twist on Vieux Carre with pei pa koa.","ings":[{"n":"Batch (Pu'er ginseng infused Redemption Rye / Remy / Cointreau)","a":"2 oz"},{"n":"sweet vermouth","a":"1 oz"},{"n":"pei pa koa","a":"1 bar spoon"}],"deps":[39]},{"id":78,"kind":"cocktail","name":"In Love with the Coco","cat":"Stirred","glass":"coconut cup","garnish":"coconut candy on wooden spoon","desc":"Smooth tropical old fashioned (spirit forward); 7-day coconut aged jackfruit rum.","ings":[{"n":"Ten to One Dark [jackfruit infused, 7day coconut aged]","a":"3 oz"},{"n":"coconut syrup","a":".5 oz"}],"deps":[40,9]},{"id":76,"kind":"cocktail","name":"PB&S","cat":"Stirred","glass":"big ice small rocks glass","garnish":"sesame brittle","desc":"Peanut butter black sesame old fashioned.","allergy":"NUT","notes":"Egg white sour option +$1.","ings":[{"n":"Teeling","a":"2 oz"},{"n":"Black Sesame Syrup","a":".25 oz"},{"n":"chocolate bitter","a":"2 dash"},{"n":"angostura","a":"2 dash"}],"deps":[6]},{"id":75,"kind":"cocktail","name":"Peachy River","cat":"Stirred","glass":"up small martini","garnish":"wakamomo peach skewered","ings":[{"n":"Batch (Peachy River / Mizu Sochu Green tea / Ming River)","a":"1.5 oz"},{"n":"Lilet Blanc","a":".5 oz"},{"n":"Wakamomo Peach brine / Juliette Peach Liqueur split","a":".5 oz"}],"batch":49,"deps":[49]},{"id":23,"kind":"prep","name":"Coffee","cat":"Coffee","method":"Combine both coffees and hot water in a large container, stir, steep overnight, strain through a cone filter, QT. Label (COFFEE) and date.","lead":720,"leadl":"steep overnight","ings":[{"n":"Café du Monde coffee","a":"1 tin (15 oz)","q":1.0,"u":"tin"},{"n":"Café Bustelo coffee","a":"15 oz","q":15.0,"u":"oz"},{"n":"hot water","a":"144 oz","q":144.0,"u":"oz"}],"deps":[]},{"id":14,"kind":"prep","name":"Citrus Cordial","cat":"Cordial","notes":"For Tea-Killah.","yq":6624.5,"yu":"g","lead":0,"ings":[{"n":"lemon juice","a":"2 QT (64 oz)","q":2.0,"u":"quart"},{"n":"lime juice","a":"2 QT (64 oz)","q":2.0,"u":"quart"},{"n":"orange juice","a":"1 QT (32 oz)","q":1.0,"u":"quart"},{"n":"sugar","a":"64 oz","q":64.0,"u":"oz"}],"deps":[]},{"id":10,"kind":"prep","name":"Nouc Cham","cat":"Cordial","method":"Stir til incorporated, strain with cone filter.","lead":0,"ings":[{"n":"fish sauce","a":"1 bottle (750ml = 865g)","q":1.0,"u":"bottle"},{"n":"warm water","a":"1730g","q":1730.0,"u":"g"},{"n":"sugar","a":"432.5g","q":432.5,"u":"g"},{"n":"lemon","a":"432g","q":432.0,"u":"g"},{"n":"white vinegar","a":"216.25g","q":216.25,"u":"g"},{"n":"chili & garlic","a":"half jar","q":0.5,"u":"jar"}],"deps":[]},{"id":5,"kind":"prep","name":"Tamarind Agave","cat":"Cordial","method":"Muddle thoroughly so no waste when straining. Strain then add equal parts agave, stir and QT.","lead":0,"ings":[{"n":"tamarind pulp","a":"3 bags (48 oz)","q":3.0,"u":"bag"},{"n":"hot water","a":"256 oz","q":256.0,"u":"oz"},{"n":"agave","a":"equal parts"}],"deps":[]},{"id":24,"kind":"prep","name":"Wine Float","cat":"Float","method":"Add to mason jar, place sealed jar in water pot, sous vide 24 hrs at 145F.","notes":"24hr Umami Red Wine Float for Floating on Grand.","lead":1440,"leadl":"sous vide 24 hr","ings":[{"n":"Cabernet Sauvignon","a":"1 bottle","q":1.0,"u":"bottle"},{"n":"black garlic","a":"1","q":1.0,"u":"each"},{"n":"dashi","a":"1 tsp","q":1.0,"u":"tsp"},{"n":"dried shiitake mushroom","a":"8","q":8.0,"u":"each"}],"deps":[]},{"id":19,"kind":"prep","name":"Boba H2O","cat":"Foam","method":"Boil water, add half bag boba, cover, boil 15 mins, simmer 10 mins low, cool covered 10 mins, strain and QT.","lead":35,"leadl":"boil + cool ~35 min","ings":[{"n":"water","a":"212 oz","q":212.0,"u":"oz"},{"n":"boba","a":"~48 oz (1/2 bag)","q":48.0,"u":"oz"}],"deps":[]},{"id":22,"kind":"prep","name":"Condensed Milk Cold Foam","cat":"Foam","method":"Stir, QT and label. Make ahead to chill.","lead":120,"leadl":"chill ~2 hr","ings":[{"n":"whole milk","a":"50 oz","q":1478.7,"u":"g"},{"n":"condensed milk","a":"1 can","q":1.0,"u":"can"}],"notes":"For ThaIrish Tea.","deps":[]},{"id":21,"kind":"prep","name":"Salted Coconut Foam","cat":"Foam","method":"Mix, QT and label. Make ahead to chill.","notes":"For Pandan Colada.","lead":120,"leadl":"chill ~2 hr","ings":[{"n":"coco lopez","a":"1 can (15 oz)","q":1.0,"u":"can"},{"n":"unsweetened coconut","a":"3 cans (42 oz) or 1 box coconut milk","q":3.0,"u":"can"},{"n":"salt","a":"1 tsp","q":1.0,"u":"tsp"}],"deps":[]},{"id":20,"kind":"prep","name":"Toasted Coconut Milk","cat":"Foam","method":"Brown coconut shreds on low heat stirring constantly. Add water and salt, simmer 10 mins, strain and QT.","lead":10,"leadl":"simmer 10 min","ings":[{"n":"coconut shreds","a":"6 cups","q":6.0,"u":"cup"},{"n":"water","a":"128 oz","q":128.0,"u":"oz"},{"n":"salt","a":"1 tsp","q":1.0,"u":"tsp"}],"deps":[]},{"id":90,"kind":"prep","name":"Black Sesame Brittle","cat":"Garnish","method":"1. Combine sugar and butter in a pan.\n2. Heat slowly.\n3. Wait approximately 5 minutes before stirring.\n4. Stir every 5 minutes to prevent burning.\n5. When nearly liquefied, add black sesame.\n6. Mix thoroughly.\n7. Pour into molds.\n8. Allow to cool for 10 minutes.\n9. Break into serving pieces & store QT.\n10. Label (SESAME BRITTLE) and date.","ings":[{"n":"sugar","a":"29 oz","q":29.0,"u":"oz"},{"n":"butter","a":"2 Tbsp","q":2.0,"u":"tbsp"},{"n":"black sesame seeds","a":"4 tsp","q":4.0,"u":"tsp"}],"deps":[]},{"id":33,"kind":"prep","name":"Che Ba Mau Layered Jello","cat":"Garnish","method":"Beans: soak mung and red beans overnight, simmer 20 min (10 min after the soak), strain. Layer one: combine all ingredients, heat on low, remove from heat the moment it boils, pour into container, chill until firm. Layer two: same method; let layer one set fully, then pour layer two carefully over it. Store in clear non-airtight containers, wax paper on the bottom and between layers. Label (CBM JELLY) and date.","lead":120,"leadl":"set ~2 hr (2 layers)","ings":[{"n":"Layer 1: water","a":"2 cups","q":2.0,"u":"cup"},{"n":"Layer 1: sugar","a":"1/2 cup","q":0.5,"u":"cup"},{"n":"Layer 1: agar agar","a":"1 1/2 tsp","q":1.5,"u":"tsp"},{"n":"Layer 1: pandan extract","a":"1 tsp","q":1.0,"u":"tsp"},{"n":"Layer 2: water","a":"4 cups","q":4.0,"u":"cup"},{"n":"Layer 2: sugar","a":"1/2 cup","q":0.5,"u":"cup"},{"n":"Layer 2: agar agar","a":"1 1/2 tsp","q":1.5,"u":"tsp"},{"n":"Layer 2: mung beans","a":"1/4 cup","q":0.25,"u":"cup"},{"n":"Layer 2: red beans","a":"1/4 cup","q":0.25,"u":"cup"}],"notes":"Two layers: pandan, then bean.","deps":[]},{"id":31,"kind":"prep","name":"Chocolate Truffle","cat":"Garnish","method":"Low-med heat, stir to combine, fold til cakey (~10 mins), cool 10 mins, roll into balls in cocoa, press into mold.","lead":20,"leadl":"cook + cool ~20 min","ings":[{"n":"condensed milk","a":"2 cans","q":2.0,"u":"can"},{"n":"cocoa powder","a":"1/2 cup","q":0.5,"u":"cup"},{"n":"butter","a":"4 tbsp","q":4.0,"u":"tbsp"}],"deps":[]},{"id":27,"kind":"prep","name":"Sorrel Stencil","cat":"Garnish","method":"Layer arugula in dehydrator, dehydrate 125F for 12 hours, blend to fine powder, sift, add equal parts ground cinnamon.","notes":"Arugula powder for The Sorrel.","lead":720,"leadl":"dehydrate 12 hr","ings":[{"n":"arugula","a":"—"},{"n":"ground cinnamon","a":"equal parts"}],"deps":[]},{"id":32,"kind":"prep","name":"Coconut Balls","cat":"Garnish","method":"Prep red molds with gold dust, fill and press, saran wrap and freeze overnight, empty into dated cambro (stays in cooler).","lead":720,"leadl":"freeze overnight","ings":[{"n":"unsweetened shredded coconut","a":"1.5 cups","q":1.5,"u":"cup"},{"n":"coconut syrup","a":"3 tbsp (9 tsp)","q":3.0,"u":"tbsp"},{"n":"coconut oil","a":"3 tbsp (9 tsp)","q":3.0,"u":"tbsp"}],"deps":[]},{"id":28,"kind":"prep","name":"Cookie Rim","cat":"Garnish","method":"Muddle egg roll cookies in QT container, add moisture absorbing packet.","lead":0,"ings":[{"n":"egg roll cookies","a":"—"}],"deps":[]},{"id":26,"kind":"prep","name":"Dehydrated Bitter Melon","cat":"Garnish","method":"Thinly slice with mandolin, dehydrate 125F for 12 hours.","lead":720,"leadl":"dehydrate 12 hr","ings":[],"deps":[]},{"id":25,"kind":"prep","name":"Dehydrated Lemon & Lime","cat":"Garnish","method":"Thinly slice with mandolin, dehydrate 125F for 12 hours.","lead":720,"leadl":"dehydrate 12 hr","ings":[],"deps":[]},{"id":89,"kind":"prep","name":"Shrimp Salt","cat":"Garnish","method":"1. Blend the salt into a fine powder.\n2. Transfer to a quart container.\n3. Add one moisture absorbing packet.\n4. Seal tightly.\n5. Label (SHRIMP SALT) and date.","ings":[{"n":"shrimp salt","a":"as needed"},{"n":"moisture absorbing packet","a":"1","q":1.0,"u":"packet"}],"deps":[]},{"id":30,"kind":"prep","name":"Yogurt Spoon Garnish","cat":"Garnish","method":"Fill silicone molds with the strained yogurt, freeze until solid, unmold onto spoons. Store in clear non-airtight containers with wax paper on the bottom and between layers. Wash and refill the molds every time; keep one backup batch in the freezer, in a covered silver tin. Label (YOGURT) and date.","lead":240,"leadl":"freeze ~4 hr","ings":[{"n":"leftover yogurt from the Passion Express batch","a":"as strained","ns":1}],"deps":[]},{"id":41,"kind":"prep","name":"Brown Butter Tullamore Dew","cat":"Infusion","method":"Brown 2 sticks butter on med-low (melt 2-3 min, foam 1-2 min, golden-brown 3-5 min). Add 6 bottles Tully to cambro, mix in butter slowly, freeze overnight, strain with cone filter.","notes":"Ratio 1 stick butter : 3 bottles Tully. This batch 6 bottles.","lead":720,"leadl":"freeze overnight (fat-wash)","ings":[{"n":"Tullamore Dew","a":"6 bottles (6x750ml or 4.5x1L)","q":6.0,"u":"bottle"},{"n":"butter","a":"2 sticks","q":2.0,"u":"stick"}],"deps":[]},{"id":36,"kind":"prep","name":"Chrysanthemum Vodka","cat":"Infusion","method":"Stir, let sit overnight. Bottle into Haku bottles + green tape.","lead":720,"leadl":"infuse overnight","ings":[{"n":"chrysanthemum tea","a":"8 oz","q":8.0,"u":"oz"},{"n":"Haku vodka","a":"16 bottles","q":16.0,"u":"bottle"}],"deps":[]},{"id":39,"kind":"prep","name":"Ginseng Pu'er Remy Rye","cat":"Infusion","method":"Let sit overnight, QT. Label: Antidote.","notes":"Used in Antidote cocktail.","lead":720,"leadl":"infuse overnight","ings":[{"n":"Remy","a":"6 bottles","q":6.0,"u":"bottle"},{"n":"Redemption Rye","a":"6 bottles","q":6.0,"u":"bottle"},{"n":"ginseng","a":"3 packets","q":3.0,"u":"packet"},{"n":"Pu'erh tea","a":"3 oz","q":3.0,"u":"oz"}],"deps":[]},{"id":92,"kind":"prep","name":"Gunpowder Gin","cat":"Infusion","method":"1. Combine gin and gunpowder green tea.\n2. Stir thoroughly.\n3. Infuse overnight or 1 hour minimum.\n4. Leave in a cambro for the Passion Express batch.\n5. Label (GUNPOWDER GIN) and date.","ings":[{"n":"Roku Gin","a":"4500 mL","q":4500.0,"u":"ml"},{"n":"gunpowder green tea leaves","a":"2.5 oz","q":2.5,"u":"oz"}],"deps":[]},{"id":40,"kind":"prep","name":"Jackfruit Infused Ten to One Dark Rum","cat":"Infusion","method":"Freeze rum + jackfruit overnight, thaw 1 hr, strain. Add to empty coconuts in cambro, saran wrap each, lid, date/label. Sit 1 week then bottle into Ten to One Dark bottles + green tape.","lead":10080,"leadl":"infuse 1 week","ings":[{"n":"Ten to One Dark","a":"6 bottles (6x750 mL)","q":4500.0,"u":"ml"},{"n":"jackfruit","a":"2 cans","q":2.0,"u":"can"}],"notes":"7-day coconut aged; used In Love with the Coco.","deps":[]},{"id":37,"kind":"prep","name":"Oolong Tequila","cat":"Infusion","method":"Stir, let sit overnight. Bottle into Mijienta bottles + green tape.","lead":720,"leadl":"infuse overnight","ings":[{"n":"oolong tea","a":"6 oz","q":6.0,"u":"oz"},{"n":"Mijenta tequila","a":"9000ml (12x750ml)","q":12.0,"u":"bottle"}],"deps":[]},{"id":38,"kind":"prep","name":"Peanut Butter Whiskey","cat":"Infusion","method":"Stir, let sit overnight / at least 3 hours. Strain with cone filter.","lead":720,"leadl":"infuse overnight","ings":[{"n":"peanut butter","a":"20 oz","q":20.0,"u":"oz"},{"n":"Redemption Rye","a":"8 bottles","q":8.0,"u":"bottle"}],"deps":[]},{"id":42,"kind":"prep","name":"Pho Spiced Ten to One White Rum","cat":"Infusion","method":"Let sit overnight then strain.","lead":720,"leadl":"infuse overnight","ings":[{"n":"Ten to One White Rum","a":"1500ml (6x750ml or 4.5x1L)","q":1500.0,"u":"ml"},{"n":"cinnamon sticks","a":"3","q":3.0,"u":"each"},{"n":"star anise","a":"4","q":4.0,"u":"each"},{"n":"fennel","a":"0.6 oz","q":0.6,"u":"oz"},{"n":"coriander","a":"1 oz","q":1.0,"u":"oz"},{"n":"cloves","a":"0.6 oz","q":0.6,"u":"oz"}],"deps":[]},{"id":91,"kind":"prep","name":"Squid Snack Toki","cat":"Infusion","method":"1. Add all ingredients to a Cambro.\n2. Infuse for 3 hours minimum.\n3. Strain.\n4. Bottle back into Toki bottles.\n5. Mark with Green Tape.","ings":[{"n":"Suntory Toki","a":"12 bottles","q":12.0,"u":"bottle"},{"n":"\"Hot & Spicy\" squid snack","a":"4 bags","q":4.0,"u":"bag"},{"n":"\"Angry Spicy\" squid snack","a":"4 bags","q":4.0,"u":"bag"}],"deps":[]},{"id":35,"kind":"prep","name":"Thai Chili Mezcal","cat":"Infusion","method":"Stir, let sit 3 hrs (no more). Bottle into Amaras Verde bottles + green tape.","lead":180,"leadl":"infuse 3 hr (no more)","ings":[{"n":"Amaras Verde Mezcal","a":"12 bottles","q":12.0,"u":"bottle"},{"n":"cut Thai chili","a":"2 per bottle"}],"deps":[]},{"id":6,"kind":"prep","name":"Black Sesame Syrup","cat":"Syrup","method":"Stir til dissolved. Simmer 10 mins, strain and QT.","lead":10,"leadl":"simmer 10 min","ings":[{"n":"black sesame, toasted","a":"3 oz","q":3.0,"u":"oz"},{"n":"water","a":"64 oz","q":64.0,"u":"oz"},{"n":"sugar","a":"128 oz","q":128.0,"u":"oz"}],"deps":[]},{"id":4,"kind":"prep","name":"Chrysanthemum Honey","cat":"Syrup","method":"Sit 3 hours then strain and QT.","lead":180,"leadl":"sit 3 hr","ings":[{"n":"honey","a":"10 lb","q":10.0,"u":"lb"},{"n":"hot water","a":"128 oz","q":128.0,"u":"oz"},{"n":"chrysanthemum tea","a":"4 oz","q":4.0,"u":"oz"}],"deps":[]},{"id":9,"kind":"prep","name":"Coconut Syrup","cat":"Syrup","method":"Open 12 coconuts intact, empty water into pot. Warm, add equal parts palm sugar. Simmer 10 mins. First number / 8 = coconut aminos, stir.","notes":"Limited cocktail.","lead":10,"leadl":"simmer 10 min","ings":[{"n":"fresh coconut water","a":"12 coconuts","q":12.0,"u":"coconut"},{"n":"palm sugar","a":"equal parts"},{"n":"coconut aminos","a":"coconut-water-oz / 8"}],"deps":[]},{"id":2,"kind":"prep","name":"Demerara Syrup","cat":"Syrup","lead":0,"ings":[{"n":"water","a":"64 oz","q":64.0,"u":"oz"},{"n":"sugar in the raw","a":"64 oz (2 boxes)","q":64.0,"u":"oz"}],"deps":[]},{"id":15,"kind":"prep","name":"Ginger Scallion Syrup","cat":"Syrup","method":"Simmer 10 mins then strain.","lead":10,"leadl":"simmer 10 min","ings":[{"n":"thin-sliced ginger","a":"225g","q":225.0,"u":"g"},{"n":"cut scallion","a":"50g","q":50.0,"u":"g"},{"n":"water","a":"80 oz","q":80.0,"u":"oz"},{"n":"sugar","a":"128 oz","q":128.0,"u":"oz"}],"deps":[]},{"id":3,"kind":"prep","name":"Lemongrass Syrup","cat":"Syrup","method":"Simmer 10 mins, stir til dissolved, strain. +Raspberry variant: 2 boxes raspberries : 1 QT lemongrass syrup, blend then strain (no filter) and QT.","notes":"Has a +raspberry variant.","lead":10,"leadl":"simmer 10 min","ings":[{"n":"lemongrass, cut & cleaned","a":"4 oz","q":4.0,"u":"oz"},{"n":"water","a":"64 oz","q":64.0,"u":"oz"},{"n":"sugar","a":"128 oz","q":128.0,"u":"oz"}],"deps":[]},{"id":8,"kind":"prep","name":"Pandan Syrup","cat":"Syrup","method":"Add pandan extract to simple syrup.","lead":0,"ings":[{"n":"pandan extract","a":"2 tsp","q":2.0,"u":"tsp"},{"n":"simple syrup","a":"6 QT","q":6.0,"u":"quart"}],"deps":[]},{"id":93,"kind":"prep","name":"Raspberry-Lemongrass Syrup","cat":"Syrup","method":"1. Add raspberries to prepared lemongrass syrup.\n2. Blend until smooth.\n3. Strain (do not use a cone filter).\n4. Transfer to quart containers.\n5. Label (RASPBERRY) and date.","notes":"Make fresh — raspberries spoil if premade, don't prebatch.","ings":[{"n":"lemongrass syrup","a":"1 QT","q":1.0,"u":"qt"},{"n":"frozen raspberries","a":"2 boxes","q":2.0,"u":"box"}],"deps":[]},{"id":7,"kind":"prep","name":"Red Bean Orgeat","cat":"Syrup","method":"Simmer 40 mins then strain.","lead":40,"leadl":"simmer 40 min","ings":[{"n":"red bean, toasted","a":"12 oz","q":12.0,"u":"oz"},{"n":"water (to a boil)","a":"128 oz","q":128.0,"u":"oz"},{"n":"sugar","a":"48 oz","q":48.0,"u":"oz"}],"deps":[]},{"id":1,"kind":"prep","name":"Simple Syrup","cat":"Syrup","lead":0,"ings":[{"n":"hot water","a":"64 oz","q":64.0,"u":"oz"},{"n":"sugar","a":"128 oz","q":128.0,"u":"oz"}],"deps":[]},{"id":12,"kind":"prep","name":"Star Anise and Vanilla Syrup","cat":"Syrup","method":"Simmer 10 mins, strain then add vanilla extract.","lead":10,"leadl":"simmer 10 min","ings":[{"n":"star anise","a":"4","q":4.0,"u":"each"},{"n":"water","a":"64 oz","q":64.0,"u":"oz"},{"n":"sugar","a":"128 oz","q":128.0,"u":"oz"},{"n":"vanilla extract","a":"2 tsp","q":2.0,"u":"tsp"}],"deps":[]},{"id":11,"kind":"prep","name":"Stout Syrup","cat":"Syrup","method":"Simmer 20 mins on low, skim foam. Measure stout, add equal parts sugar, stir til dissolved. Do not boil. QT and label.","notes":"For Sorrel.","lead":20,"leadl":"simmer 20 min","ings":[{"n":"Guinness","a":"32 oz (2 pints)","q":32.0,"u":"oz"},{"n":"sugar","a":"equal parts"}],"deps":[]},{"id":13,"kind":"prep","name":"Vanilla Syrup","cat":"Syrup","method":"Add vanilla extract to simple syrup.","lead":0,"ings":[{"n":"vanilla extract","a":"2 tsp","q":2.0,"u":"tsp"},{"n":"simple syrup","a":"6 QT","q":6.0,"u":"quart"}],"deps":[]},{"id":16,"kind":"prep","name":"Chrysanthemum Tea","cat":"Tea","method":"Let sit 10 mins. Strain and QT.","lead":10,"leadl":"steep 10 min","ings":[{"n":"hot water","a":"128 oz","q":128.0,"u":"oz"},{"n":"chrysanthemum tea","a":"2 oz","q":2.0,"u":"oz"}],"deps":[]},{"id":17,"kind":"prep","name":"Jasmine Green Tea","cat":"Tea","method":"Let sit 10 mins. Strain and QT.","lead":10,"leadl":"steep 10 min","ings":[{"n":"hot water","a":"128 oz","q":128.0,"u":"oz"},{"n":"jasmine green tea","a":"2 oz","q":2.0,"u":"oz"}],"deps":[]},{"id":18,"kind":"prep","name":"Jasmine Green Tea Five Spice Stout","cat":"Tea","method":"Let sit 10 mins. Strain and QT.","notes":"For Sorrel.","lead":10,"leadl":"steep 10 min","ings":[{"n":"hot water","a":"128 oz","q":128.0,"u":"oz"},{"n":"jasmine green tea","a":"2 oz","q":2.0,"u":"oz"},{"n":"five spice","a":"1 tsp","q":1.0,"u":"tsp"}],"deps":[]}],"tiers":{"arugula":0,"basil":0,"bitter melon":0,"chili & garlic":1,"cut scallion":0,"cut thai chili":0,"fennel":0,"fresh coconut water":0,"jackfruit":1,"lemon":0,"lemon juice":0,"lemongrass, cut & cleaned":0,"lime":0,"lime juice":0,"orange juice":0,"orange peels (no pith)":0,"pandan":0,"pandan leaves":0,"pineapple":0,"pineapple juice":0,"pitted plum":1,"plums":0,"sugar cane":3,"sugarcane juice":3,"thin-sliced ginger":0,"yuzu":0,"amaras verde mezcal":2,"amaro nonino":2,"amontillado sherry":2,"angostura":2,"cabernet sauvignon":2,"chocolate bitter":2,"coffee liqueur":2,"cointreau":2,"dry 1757 dry vermouth":2,"dry vermouth":2,"guinness":2,"gunpowder green tea infused roku gin":2,"haku vodka":2,"hendricks gin":2,"jasmine verte":2,"juliette peach liqueur":2,"ketel one":2,"ketel one (infused)":2,"lilet blanc":2,"lychee liqueur":2,"lyre's agave (non-alc)":2,"lyre's dry london (non-alc)":2,"lyres agave blanco n/a":2,"lyres dry london n/a":2,"mijenta blanco":2,"mijenta tequila":2,"mijienta tequila":2,"ming river":2,"ming river baijiu":2,"mizu shochu green tea":2,"n/a athletic (clean ice, top)":2,"pierre ferrand dry curacao":2,"redemption bourbon":2,"redemption rye":2,"remy":2,"roe & co irish whiskey":2,"roku gin":2,"see the elephant amaro":2,"st. germain":2,"sweet vermouth":2,"tanduay ube coconut rum":2,"teeling":2,"ten to one dark":2,"ten to one dark [jackfruit infused, 7day coconut aged]":2,"ten to one dark rum":2,"ten to one white rum":2,"thai chili infused montelobos mezcal":2,"tullamore dew":2,"wakamomo peach brine / juliette peach liqueur split":2,"butter":3,"egg white":3,"greek yogurt":3,"milk":3,"pe yogurt":3,"whole egg":3,"whole milk":3,"yogurt":3,"agave":1,"black garlic":1,"black sesame syrup":1,"black sesame, toasted":1,"boba":1,"chinola passion fruit":1,"chrysanthemum":1,"chrysanthemum tea":1,"cinnamon sticks":1,"cloves":1,"club soda":1,"coco lopez":1,"cocoa powder":1,"coconut aminos":1,"coconut milk":1,"coconut oil":1,"coconut shreds":1,"coconut syrup":1,"coconut water":1,"coffee":1,"condensed milk":1,"coriander":1,"dashi":1,"demerara":1,"drained longan":1,"dried shiitake mushroom":1,"egg roll cookies":1,"evaporated milk":1,"fish sauce":1,"five spice":1,"ginseng":1,"goji berries":1,"ground cinnamon":1,"gunpowder green tea":1,"honey":1,"hong kong tea":1,"hot water":1,"irish breakfast tea":1,"jasmine green tea":1,"longan tea":1,"lychee puree":1,"maple syrup":1,"oil":1,"oolong tea":1,"palm sugar":1,"pandan extract":1,"peanut butter":1,"pei pa koa":1,"pu'erh tea":1,"raspberry lemongrass syrup":1,"red bean":1,"red bean, toasted":1,"salt":1,"sichuan peppercorn":1,"simple":1,"simple syrup":1,"spicy squid snack toki":1,"split mung bean":1,"star anise":1,"sugar":1,"sugar in the raw":1,"mung bean":1,"tamarind pulp":1,"tapioca":1,"thai tea leaves":1,"ube extract":1,"unsweetened coconut":1,"unsweetened shredded coconut":1,"vanilla extract":1,"vietnamese coffee":1,"warm water":1,"water":1,"water (to a boil)":1,"white vinegar":1,"yoshi":2,"batch (chrysanthemum kiss)":1,"batch (golden hour / chrysanthemum tea / chrysanthemum honey)":1,"batch (leaf me alone / jasmine green tea / pandan)":1,"batch (macau flip)":1,"batch (ming river baijiu / hendricks / pathfinder n/a amaro / banana liqueur)":1,"batch (pandan colada / ten to one caribbean dark rum)":1,"batch (peachy river / mizu sochu green tea / ming river)":1,"batch (pretty in pink)":1,"batch (pu'er ginseng infused redemption rye / remy / cointreau)":1,"batch (the sorrel)":1,"batch (the juniper)":1,"citrus cordial (lemon/lime/orange/sugar)":1,"tamarind agave":1,"l1: water/sugar/agar/pandan extract":1,"l2: water/sugar/agar/mungbean":1,"l3: water/sugar/agar/split red bean":1,"toasted coconut milk":1},"loc":{"super hero sidekicks":"Right fridge · bottom row","baby jasmine lager":"Right fridge · bottom row","oolong kolsh":"Right fridge · bottom row","neon city":"Right fridge · bottom row","athletic":"Right fridge · bottom row","tsingtao":"Right fridge · bottom row","sesame brittle":"Lowboy · top left","truffle chocolate":"Lowboy · top left","lychee":"Left metal shelf · top shelf","longan":"Left metal shelf · top shelf","cbm jello":"Left fridge · second row","cucumbers":"Right fridge · second row","olives":"Left fridge · bottom row","salted coconut foam":"Lowboy · top right","condensed milk cold foam":"Lowboy · top right","boba foam":"Lowboy · top right","black sesame":"Lowboy · bottom right","coconut syrup":"Lowboy · bottom right","demerara":"Lowboy · bottom right","toasted coco":"Lowboy · bottom right","coffee":"Lowboy · bottom right","simple syrup":"Lowboy · top right","leaf me alone":"Right fridge · top row","golden hour":"Right fridge · top row","egg white":"Keg fridge","club soda":"Bar well","ginger beer":"Back rack","ginger ale":"Back rack","tonic water":"Back rack","matcha lemonade":"Keg fridge · on top","salted lemonade":"Keg fridge · on top","pandan coconut":"Keg fridge · on top","bitter remedy":"Right fridge · top row","sorrel":"Right fridge · top row","one inch punch":"Left fridge · second row","che ba mau":"Left fridge · second row","thairish tea":"Left fridge · second row","tea killah":"Left fridge · top row","lychee martini":"Left fridge · top row","ube daiquiri":"Left fridge · bottom row","whole egg":"Keg fridge","coconut water":"Keg fridge · on top","sprite":"Back rack","canada dry":"Back rack","coke":"Back rack","diet coke":"Back rack","lychee can":"Left metal shelf · top shelf","longan can":"Left metal shelf · top shelf","wakamomo peaches":"Back rack · middle shelf","peachy river":"Alcohol drawer","chrysanthemum kiss":"Right fridge · second row","pandan colada":"Right fridge · second row","sauvignon blanc":"Right fridge · bottom row","rosé":"Right fridge · bottom row","cabernet sauvignon":"Right fridge · bottom row","prosecco":"Right fridge · bottom row","vina ab":"Alcohol room","lillet":"Alcohol room","dry vermouth":"Alcohol room","sweet vermouth":"Alcohol room","wine float":"Behind the bar","lemongrass":"Lowboy · bottom right","chrysanthemum honey":"Lowboy · bottom left","red bean orgeat":"Lowboy · top left","star anise vanilla":"Lowboy · bottom left","tamarind agave":"Lowboy · bottom left","raspberry lemongrass":"Front freezer shelf","lime juice":"Keg fridge","lemon juice":"Keg fridge","pineapple juice":"Keg fridge","breakfast shot":"Right fridge · second row","house shot":"Left fridge · top row","the juniper":"Left fridge · bottom row"},"map":[{"name":"Bar Room","units":[{"name":"Lowboy","sections":[{"name":"Fridge 1","items":[],"subs":[{"name":"Top","items":[{"t":"Super Hero Sidekicks"},{"t":"Athletic"},{"t":"Oolong Kolsh"},{"t":"Baby Jasmine Lager"}]},{"name":"Middle","items":[{"t":"Sesame Brittle"},{"t":"Olives"},{"t":"Truffle Chocolate"},{"t":"CBM Jello"},{"t":"Cucumbers"},{"t":"Salted Coconut Foam"},{"t":"Condensed Milk Cold Foam"},{"t":"Boba Foam"},{"t":"Cherries"}]},{"name":"Bottom","items":[],"subs":[{"name":"Syrups","items":[{"t":"Coffee"},{"t":"Simple Syrup"},{"t":"Demerara"},{"t":"Black Sesame"},{"t":"Coconut Syrup"},{"t":"Tamarind Agave"},{"t":"Toasted Coco"},{"t":"Raspberry Lemongrass"}]},{"name":"Non-Alcoholic Batches","items":[{"t":"Golden Hour"},{"t":"Leaf Me Alone"}]},{"name":"Fresh Quarts","items":[{"t":"Lime Juice"},{"t":"Lemon Juice"},{"t":"Pineapple Juice"},{"t":"Egg White"},{"t":"Yuzu"}]}]}]},{"name":"Fridge 2","items":[],"subs":[{"name":"Top","items":[{"t":"Ginger Beer"},{"t":"Tonic Water"},{"t":"Club Soda"},{"t":"Tsingtao"},{"t":"Matcha Lemonade"},{"t":"Salted Lemonade"},{"t":"Pandan Coconut"}]},{"name":"Bottom","items":[{"t":"Ube Daiquiri"},{"t":"Lychee Martini"},{"t":"Bitter Remedy"},{"t":"Sorrel"},{"t":"Passion Express"},{"t":"Pineapple Fried Rice"},{"t":"Breakfast Shot"},{"t":"House Shot"},{"t":"The Juniper"},{"t":"Che Ba Mau"},{"t":"Tea Killah"},{"t":"Thairish Tea"},{"t":"Chrysanthemum Kiss"},{"t":"Pandan Colada"}]}]},{"name":"Fridge 3","items":[],"subs":[{"name":"Top","items":[{"t":"Coke"},{"t":"Diet Coke"},{"t":"Canada Dry"},{"t":"Sprite"},{"t":"Flowers"}]},{"name":"Bottom","items":[{"t":"Service bottles"},{"t":"Bottled Batches"}]}]},{"name":"Fridge 4","items":[],"subs":[{"name":"Top","items":[{"t":"Sealed Garnishes"},{"t":"Heavy Cream"},{"t":"Coconut Water"},{"t":"Lychee Can"},{"t":"Onions"},{"t":"Wakamomo Peaches"},{"t":"Pretty in Pink"},{"t":"Whole Egg"}]},{"name":"Bottom","items":[{"t":"Peachy River"},{"t":"Cabernet Sauvignon"},{"t":"Sauvignon Blanc"},{"t":"Rosé"},{"t":"Prosecco"},{"t":"Wine Float"},{"t":"Vina AB"},{"t":"Dirty Martini"},{"t":"Lillet"},{"t":"Sweet Vermouth"},{"t":"Dry Vermouth"},{"t":"Canisters"}]}]}]},{"name":"","sections":[{"name":"","items":[{"t":"Guinness","n":"stout syrup input; Sam 2026-09-02 — kept at the bar"},{"t":"Pei pa koa","n":"Antidote build; Sam 2026-09-02 — kept at the bar"}]}]},{"name":"Garnish drawer","sections":[{"name":"","items":[{"t":"Cookie rim","n":"Was the Macau Flip garnish; that drink retired 2026-08-30, so nothing on the current menu calls for it. Garnish drawer behind the bar."}]}]},{"name":"Alcohol drawer","sections":[{"name":"","items":[{"t":"Temple Run","n":"Green tape marked \"T R\". Launched 2026-07-31."},{"t":"Hello Vietnam","n":"Toki bottles, green tape, sat next to Temple Run. Launched 2026-08-28. FISH allergen."},{"t":"Antidote","n":"Sam 2026-09-02"},{"t":"PB&S","n":"Sam 2026-09-02"},{"t":"Thai chili mezcal","n":"Amarás Verde bottles, green tape. Sam 2026-09-02 — moved here from the alcohol room record."},{"t":"Jackfruit Ten to One Dark","n":"Ten to One Dark bottles. Sam 2026-09-02."},{"t":"Peachy River","n":"Mizu Shochu bottles, green tape. Sam 2026-09-02 — moved here from the alcohol room record."}]}]}]},{"name":"Garbage Room","units":[{"name":"Left fridge","sections":[{"name":"Top row","items":[{"t":"Passionfruit express"},{"t":"House shot (JT SHOT)"},{"t":"Teakillah"}]},{"name":"Second row","items":[{"t":"Thairish tea"},{"t":"One inch punch"},{"t":"Che ba mau"},{"t":"Che ba mau jello"}]},{"name":"Third Row","items":[{"t":"Juniper roku bottle"},{"t":"Ube daquiri (green tape, ten to one)"},{"t":"Lychee Martini (Mijenta Blanco with Green tape"},{"t":"Eggs"}]},{"name":"Bottom Row","items":[{"t":"Olives"},{"t":"Milk"},{"t":"Butter"},{"t":"Yogurt"},{"t":"Pandan Syup"}]},{"name":"","items":[{"t":"Sugar cane juice in bag"}]}]},{"name":"Right fridge","sections":[{"name":"Top row","items":[{"t":"Bitter melon","n":"the Bitter Remedy batch; prebatched"},{"t":"Sorrel"},{"t":"Leaf me alone"},{"t":"Golden hour"}]},{"name":"Second row","items":[{"t":"Chrysanthemum kiss (haku bottle)"},{"t":"Pandan colada (ten to one bottle)"},{"t":"Irish Breakfast"},{"t":"Beer"},{"t":"Squid snack Toki","n":"Toki bottles, green tape. Sam 2026-09-02 — second shelf, right fridge by the front downstairs."}]},{"name":"Bottom row","items":[{"t":"Beer"},{"t":"Wine"},{"t":"Cucumbers"},{"t":"Oranges"},{"t":"Prosecco"}]}]},{"name":"Keg Fridge","sections":[{"name":"","items":[{"t":"Milk"},{"t":"Eggs"},{"t":"Limes"},{"t":"Lemons"},{"t":"Pineapples"},{"t":"Lemonade"}]},{"name":"On top","items":[{"t":"Matcha Lemonade","n":"Lucky Ox"},{"t":"Salted Lemonade","n":"Lucky Ox"},{"t":"Pandan Coconut","n":"Lucky Ox"},{"t":"Coconut water (cans)","n":"C2O or Vita Coco"}]}]}]},{"name":"Kitchen","units":[{"name":"Lowboy","sections":[{"name":"Top left","items":[{"t":"Sesame brittle"},{"t":"Chocolate truffle"},{"t":"Spicy tincture"},{"t":"Tub of yogurt — passion fruit (leftover from clarification, always replace)"},{"t":"Red Bean Orgeat"}]},{"name":"Bottom left","items":[{"t":"Star anise vanilla syrup"},{"t":"Chrysanthemum honey"},{"t":"Tamarind agave"}]},{"name":"Bottom right","items":[{"t":"Coffee"},{"t":"Lemongrass (raspberry is added lemongrass, not prebatched)"},{"t":"Toasted coconut water"},{"t":"Black sesame syrup"},{"t":"Demerara (brown sugar syrup)"},{"t":"Coconut syrup"}]},{"name":"Top right (needs to chill for canisters)","items":[{"t":"Boba water"},{"t":"Coconut foam"},{"t":"Condensed milk foam"},{"t":"Simple syrup"},{"t":"Citrus cordial","n":"Sam 2026-09-02"},{"t":"Stout syrup","n":"Sam 2026-09-02"},{"t":"Jasmine green tea five-spice","n":"Sam 2026-09-02"}]}]},{"name":"Back rack","sections":[{"name":"","items":[{"t":"Canada Dry"},{"t":"Sprite"},{"t":"Topo Chico"},{"t":"Coca-Cola"},{"t":"Diet Coke"},{"t":"Tonic water"},{"t":"Club soda"},{"t":"Ginger ale"},{"t":"Ming River","n":"Sichuan baijiu"},{"t":"Red Bull"},{"t":"Wakamomo Peaches","n":"middle shelf, by the Fentimans"}]}]},{"name":"Left rack","sections":[{"name":"Top shelf","items":[{"t":"Longan"},{"t":"Lychee"},{"t":"Jackfruit"},{"t":"Condensed milk"},{"t":"Evaporated milk"}]},{"name":"Bottom shelf","items":[{"t":"Boba packs"},{"t":"Peanut butter"},{"t":"Coconut milk"},{"t":"Coco Lopez"}]}]},{"name":"Right rack","sections":[{"name":"","items":[{"t":"Opened alcohol"}]}]},{"name":"Prep table","sections":[{"name":"","items":[{"t":"Spices"},{"t":"Powders"},{"t":"Dehydrated Thai chillies","n":"Sam 2026-09-02 — left side, with the sesame"},{"t":"Black garlic","n":"Sam 2026-09-02 — right side, with the chicken bouillon and pandan syrup"},{"t":"Arugula","n":"sorrel powder input; Sam 2026-09-02 — with the mushrooms and some of the teas"},{"t":"Dashi = mushroom powder"},{"t":"Sesame","n":"Sam 2026-09-02 — left side"},{"t":"Tapioca","n":"Sam 2026-09-02 — right side, with the pandan syrup and black garlic"},{"t":"Goji berries","n":"Juniper Tea Shot input; Sam 2026-09-02 — with the mushrooms and some of the teas"},{"t":"Extracts"},{"t":"Chicken bouillon","n":"Sam 2026-09-02 — right side"},{"t":"Dried mushrooms","n":"Sam 2026-09-02"},{"t":"Salt"},{"t":"Pandan extract","n":"Sam 2026-09-02 — corrected from pandan syrup"},{"t":"Coconut oil"},{"t":"Powdered goods","n":"Sam 2026-09-02 — right side"},{"t":"Maple syrup"},{"t":"Teas"},{"t":"Ginseng"},{"t":"White sugar"},{"t":"\"Hot & Spicy\" squid snack","n":"Squid Snack Toki infusion input; also the Hello Vietnam garnish. Sam 2026-09-02 — prep table."},{"t":"\"Angry Spicy\" squid snack","n":"Squid Snack Toki infusion input; also the Hello Vietnam garnish. Sam 2026-09-02 — prep table."}]}]},{"name":"Prep shelf","sections":[{"name":"","items":[{"t":"Extra dried garnish"}]}]}]},{"name":"Freezer","units":[{"name":"Front freezer shelf","sections":[{"name":"","items":[{"t":"Raspberries"},{"t":"Lemongrass"},{"t":"Pandan"},{"t":"Ghost ice"}]}]},{"name":"Back freezer shelf","sections":[{"name":"","items":[{"t":"Coconut balls"},{"t":"Passion yogurt garnish"}]}]}]},{"name":"Alcohol room","units":[{"name":"","sections":[{"name":"","items":[{"t":"Agave"},{"t":"Tanduay Rum"},{"t":"Roku Gin"},{"t":"Mizu Shochu"},{"t":"Appleton Estate Jamaica"},{"t":"Grand Marnier"},{"t":"Teeling Whiskey"},{"t":"Uninfused Mezcal Verde"},{"t":"Ritual Zero Proof Gin Alternative"},{"t":"Aplós","n":"several variants"},{"t":"Lyre's Non-Alcoholic Agave Blanco"},{"t":"Coconut aminos"},{"t":"Gosling Black Seal Bermuda Black Rum"},{"t":"Haku Vodka"},{"t":"Tito's Vodka"},{"t":"Suntory Toki Whisky"},{"t":"Hennessy VS"},{"t":"Jameson Triple Distilled Irish Whiskey"},{"t":"Amaro Montenegro"},{"t":"Yola Mezcal"},{"t":"Lustau Viña AB Amontillado"},{"t":"Lyre's Non-Alcoholic Gin Alternative"},{"t":"Honey"},{"t":"Tanduay Caribbean Dark Rum"},{"t":"Bombay Sapphire"},{"t":"Grey Goose Vodka"},{"t":"Fernet-Branca"},{"t":"Rémy Martin 1738"},{"t":"Larceny Straight Bourbon"},{"t":"Mijenta Blanco Tequila"},{"t":"Infused Mijenta Tequila Blanco","n":"yellow tape"},{"t":"Empirical Ayuuk"},{"t":"Sugar on the raw"},{"t":"Planteray Original Dark"},{"t":"Hendrick's Gin"},{"t":"Haku Vodka"},{"t":"Angel's Envy Finished Rye"},{"t":"Carpano Antica Formula Vermouth"},{"t":"Tullamore D.E.W. Irish Whiskey"},{"t":"Mijenta Reposado Tequila"},{"t":"Disaronno Originale"},{"t":"Empirical \"The Plum, I Suppose\""},{"t":"Tanduay Boracay Ube Coconut Rum"},{"t":"Guilder's Green Tea Dry Gin"},{"t":"Ketel One Vodka"},{"t":"Bottega Cinzano Vermouth — Extra Dry"},{"t":"Michter's Small Batch Bourbon"},{"t":"Mijenta Añejo Gran Reserva Tequila"},{"t":"Rémy Martin black bottle","n":"yellow tape · contents unknown"},{"t":"Fortaleza Tequila Blanco"},{"t":"Lychee Liqueur"},{"t":"White Caribbean White Rum"},{"t":"Tanqueray London Dry Gin"},{"t":"Aperol"},{"t":"Hibiki Suntory Whisky"},{"t":"Bottega Cinzano Vermouth di Torino — Rosso"},{"t":"Roe & Co Dublin Irish Whiskey"},{"t":"Siempre Tequila"},{"t":"Yoshi Matcha Liqueur"},{"t":"Kanade Japanese Fruit Liqueurs","n":"several flavors"},{"t":"Muyu Jasmine Verte"},{"t":"Campari"},{"t":"Nikka Coffey Grain Whisky"},{"t":"Chinola Passion Fruit Liqueur"},{"t":"Woodford Reserve Kentucky Straight Rye"},{"t":"Don Julio Reposado"},{"t":"Ume Plum Liqueur"},{"t":"Campari"},{"t":"Tanqueray No. Ten"},{"t":"Basil Hayden Malted Rye"},{"t":"Chinola Mango Liqueur"},{"t":"Redemption Wheated Bourbon"},{"t":"Rockey's Botanical Liqueur"},{"t":"Monkey 47 Dry Gin"},{"t":"Juliette Peach Liqueur"},{"t":"Redemption Straight Bourbon"},{"t":"The Botanist Islay Dry Gin"},{"t":"Luxardo Liqueur","n":"type unknown (?)"},{"t":"Paddy Irish Whiskey"},{"t":"Song Cai Vietnamese Floral Gin"},{"t":"Lost Irish Whiskey"},{"t":"Cointreau"},{"t":"Pierre Ferrand Dry Curaçao"},{"t":"See The Elephant Amaro"},{"t":"Amaro Nonino"},{"t":"Fruitful Banana Liqueur"},{"t":"Pathfinder (non-alcoholic amaro)"},{"t":"Lillet Blanc"}]}]}]},{"name":"Discontinued","units":[{"name":"No longer made","sections":[{"name":"Retired — kept for reference","items":[{"t":"Dragons den (DD)","n":"Moved 2026-07-29 from Front room / Right fridge / Second row (recipe discontinued)."}]}]}]},{"name":"Unlocated","units":[{"name":"","sections":[{"name":"","items":[{"t":"Gunpowder gin (no storage)","n":"Sam 2026-09-02 — never stored: it infuses and the Passion Express batch is finished on the spot."}]}]}]}],"stock":[{"k":"bar-room-lowboy-fridge-1-top-super-hero-sidekicks","t":"Super Hero Sidekicks","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Top"},{"k":"bar-room-lowboy-fridge-1-top-athletic","t":"Athletic","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Top"},{"k":"bar-room-lowboy-fridge-1-top-oolong-kolsh","t":"Oolong Kolsh","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Top"},{"k":"bar-room-lowboy-fridge-1-top-baby-jasmine-lager","t":"Baby Jasmine Lager","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Top"},{"k":"bar-room-lowboy-fridge-1-middle-sesame-brittle","t":"Sesame Brittle","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Middle","r":90},{"k":"bar-room-lowboy-fridge-1-middle-olives","t":"Olives","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Middle"},{"k":"bar-room-lowboy-fridge-1-middle-truffle-chocolate","t":"Truffle Chocolate","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Middle","r":31},{"k":"bar-room-lowboy-fridge-1-middle-cbm-jello","t":"CBM Jello","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Middle","r":33},{"k":"bar-room-lowboy-fridge-1-middle-cucumbers","t":"Cucumbers","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Middle"},{"k":"bar-room-lowboy-fridge-1-middle-salted-coconut-foam","t":"Salted Coconut Foam","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Middle","r":21},{"k":"bar-room-lowboy-fridge-1-middle-condensed-milk-cold-foam","t":"Condensed Milk Cold Foam","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Middle","r":22},{"k":"bar-room-lowboy-fridge-1-middle-boba-foam","t":"Boba Foam","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Middle","r":19},{"k":"bar-room-lowboy-fridge-4-top-cherries","t":"Cherries","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Middle"},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-coffee","t":"Coffee","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom","r":23},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-simple-syrup","t":"Simple Syrup","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom","r":1},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-demerara","t":"Demerara","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom","r":2},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-black-sesame","t":"Black Sesame","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom","r":6},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-coconut-syrup","t":"Coconut Syrup","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom","r":9},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-tamarind","t":"Tamarind Agave","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom","r":5},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-toasted-coco","t":"Toasted Coco","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom","r":20},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-raspberry-syrup","t":"Raspberry Lemongrass","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom","r":93},{"k":"bar-room-lowboy-fridge-1-bottom-non-alcoholic-batches-golden-hour","t":"Golden Hour","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom","r":51},{"k":"bar-room-lowboy-fridge-1-bottom-non-alcoholic-batches-leaf-me-alone","t":"Leaf Me Alone","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom","r":50},{"k":"bar-room-lowboy-fridge-1-bottom-fresh-quarts-lime","t":"Lime Juice","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom"},{"k":"bar-room-lowboy-fridge-1-bottom-fresh-quarts-lemon","t":"Lemon Juice","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom"},{"k":"bar-room-lowboy-fridge-1-bottom-fresh-quarts-pineapple","t":"Pineapple Juice","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom"},{"k":"bar-room-lowboy-fridge-1-bottom-fresh-quarts-egg-white","t":"Egg White","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom"},{"k":"bar-room-lowboy-fridge-1-bottom-fresh-quarts-yuzu","t":"Yuzu","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom"},{"k":"bar-room-lowboy-fridge-2-top-ginger-beer","t":"Ginger Beer","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Top"},{"k":"bar-room-lowboy-fridge-2-top-tonic-water","t":"Tonic Water","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Top"},{"k":"bar-room-lowboy-fridge-2-top-club-soda","t":"Club Soda","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Top"},{"k":"bar-room-lowboy-fridge-2-top-tsingtao","t":"Tsingtao","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Top"},{"k":"bar-room-lowboy-fridge-2-top-matcha-lemonade","t":"Matcha Lemonade","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Top"},{"k":"bar-room-lowboy-fridge-2-top-salted-lemonade","t":"Salted Lemonade","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Top"},{"k":"bar-room-lowboy-fridge-2-top-pandan-coconut","t":"Pandan Coconut","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Top"},{"k":"bar-room-lowboy-fridge-2-bottom-ube-daiquiri","t":"Ube Daiquiri","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom","r":63},{"k":"bar-room-lowboy-fridge-2-bottom-lychee-martini","t":"Lychee Martini","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom","r":62},{"k":"bar-room-lowboy-fridge-2-bottom-bitter-remedy","t":"Bitter Remedy","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom","r":61},{"k":"bar-room-lowboy-fridge-2-bottom-sorrel","t":"Sorrel","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom","r":44},{"k":"bar-room-lowboy-fridge-2-bottom-passion-express","t":"Passion Express","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom"},{"k":"bar-room-lowboy-fridge-2-bottom-pineapple-fried-rice","t":"Pineapple Fried Rice","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom"},{"k":"bar-room-lowboy-fridge-2-bottom-breakfast","t":"Breakfast Shot","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom","r":55},{"k":"bar-room-lowboy-fridge-2-bottom-house","t":"House Shot","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom","r":54},{"k":"bar-room-lowboy-fridge-2-bottom-juniper","t":"The Juniper","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom","r":43},{"k":"bar-room-lowboy-fridge-2-bottom-che-ba-mau","t":"Che Ba Mau","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom","r":59},{"k":"bar-room-lowboy-fridge-2-bottom-tea-killah","t":"Tea Killah","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom","r":58},{"k":"bar-room-lowboy-fridge-2-bottom-thairish-tea","t":"Thairish Tea","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom","r":60},{"k":"bar-room-lowboy-fridge-2-bottom-chrysanthemum-kiss","t":"Chrysanthemum Kiss","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom"},{"k":"bar-room-lowboy-fridge-2-bottom-pandan-colada","t":"Pandan Colada","area":"Bar Room","unit":"Lowboy","sec":"Fridge 2 · Bottom"},{"k":"bar-room-lowboy-fridge-3-top-coke","t":"Coke","area":"Bar Room","unit":"Lowboy","sec":"Fridge 3 · Top"},{"k":"bar-room-lowboy-fridge-3-top-diet-coke","t":"Diet Coke","area":"Bar Room","unit":"Lowboy","sec":"Fridge 3 · Top"},{"k":"bar-room-lowboy-fridge-3-top-canada-dry","t":"Canada Dry","area":"Bar Room","unit":"Lowboy","sec":"Fridge 3 · Top"},{"k":"bar-room-lowboy-fridge-3-top-sprite","t":"Sprite","area":"Bar Room","unit":"Lowboy","sec":"Fridge 3 · Top"},{"k":"bar-room-lowboy-fridge-3-top-flowers","t":"Flowers","area":"Bar Room","unit":"Lowboy","sec":"Fridge 3 · Top"},{"k":"bar-room-lowboy-fridge-4-top-sealed-garnishes","t":"Sealed Garnishes","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Top"},{"k":"bar-room-lowboy-fridge-4-top-heavy-cream","t":"Heavy Cream","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Top"},{"k":"bar-room-lowboy-fridge-4-top-coconut-water","t":"Coconut Water","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Top"},{"k":"bar-room-lowboy-fridge-4-top-lychee-can","t":"Lychee Can","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Top"},{"k":"bar-room-lowboy-fridge-4-top-onions","t":"Onions","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Top"},{"k":"bar-room-lowboy-fridge-4-top-wakamomo-peaches","t":"Wakamomo Peaches","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Top"},{"k":"bar-room-lowboy-fridge-4-top-pretty-in-pink","t":"Pretty in Pink","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Top","r":46},{"k":"bar-room-lowboy-fridge-3-top-whole-egg","t":"Whole Egg","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Top"},{"k":"bar-room-lowboy-fridge-4-bottom-peachy-river","t":"Peachy River","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom","r":49},{"k":"bar-room-lowboy-fridge-4-bottom-cabernet-sauvignon","t":"Cabernet Sauvignon","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-lowboy-fridge-4-bottom-sauvignon-blanc","t":"Sauvignon Blanc","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-lowboy-fridge-4-bottom-ros","t":"Rosé","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-lowboy-fridge-4-bottom-prosecco","t":"Prosecco","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-lowboy-fridge-4-bottom-wine-float","t":"Wine Float","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-lowboy-fridge-4-bottom-vina-ab","t":"Vina AB","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-lowboy-fridge-4-bottom-dirty-martini","t":"Dirty Martini","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-lowboy-fridge-4-bottom-lillet","t":"Lillet","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-lowboy-fridge-4-bottom-sweet-vermouth","t":"Sweet Vermouth","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-lowboy-fridge-4-bottom-dry-vermouth","t":"Dry Vermouth","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-lemongrass","t":"Lemongrass","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom · Syrups","r":3},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-pandan","t":"Pandan","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom · Syrups","r":8},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-chrysanthemum-honey","t":"Chrysanthemum Honey","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom · Syrups","r":4},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-red-bean-orgeat","t":"Red Bean Orgeat","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom · Syrups","r":7},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-vanilla","t":"Vanilla","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom · Syrups","r":13},{"k":"bar-room-lowboy-fridge-1-bottom-syrups-star-anise-vanilla","t":"Star Anise Vanilla","area":"Bar Room","unit":"Lowboy","sec":"Fridge 1 · Bottom · Syrups","r":12},{"k":"bar-room-lowboy-fridge-3-bottom-service-bottles","t":"Service bottles","area":"Bar Room","unit":"Lowboy","sec":"Fridge 3 · Bottom"},{"k":"bar-room-lowboy-fridge-3-bottom-bottled-batches","t":"Bottled Batches","area":"Bar Room","unit":"Lowboy","sec":"Fridge 3 · Bottom"},{"k":"bar-room-lowboy-fridge-4-bottom-canisters","t":"Canisters","area":"Bar Room","unit":"Lowboy","sec":"Fridge 4 · Bottom"},{"k":"bar-room-guinness","t":"Guinness","area":"Bar Room","unit":"","sec":""},{"k":"bar-room-pei-pa-koa","t":"Pei pa koa","area":"Bar Room","unit":"","sec":""},{"k":"bar-room-garnish-drawer-cookie-rim","t":"Cookie rim","area":"Bar Room","unit":"Garnish drawer","sec":"","r":28},{"k":"bar-room-alcohol-drawer-temple-run","t":"Temple Run","area":"Bar Room","unit":"Alcohol drawer","sec":"","r":94},{"k":"bar-room-alcohol-drawer-hello-vietnam","t":"Hello Vietnam","area":"Bar Room","unit":"Alcohol drawer","sec":"","r":91},{"k":"bar-room-alcohol-drawer-antidote","t":"Antidote","area":"Bar Room","unit":"Alcohol drawer","sec":""},{"k":"bar-room-alcohol-drawer-pb-s","t":"PB&S","area":"Bar Room","unit":"Alcohol drawer","sec":""},{"k":"bar-room-alcohol-drawer-thai-chili-mezcal","t":"Thai chili mezcal","area":"Bar Room","unit":"Alcohol drawer","sec":"","r":35},{"k":"bar-room-alcohol-drawer-jackfruit-ten-to-one-dark","t":"Jackfruit Ten to One Dark","area":"Bar Room","unit":"Alcohol drawer","sec":"","r":40},{"k":"bar-room-alcohol-drawer-peachy-river","t":"Peachy River","area":"Bar Room","unit":"Alcohol drawer","sec":"","r":49},{"k":"garbage-room-left-fridge-top-row-passionfruit-express","t":"Passionfruit express","area":"Garbage Room","unit":"Left fridge","sec":"Top row","r":57},{"k":"garbage-room-left-fridge-top-row-house-shot-jt-shot","t":"House shot (JT SHOT)","area":"Garbage Room","unit":"Left fridge","sec":"Top row","r":54},{"k":"garbage-room-left-fridge-top-row-teakillah","t":"Teakillah","area":"Garbage Room","unit":"Left fridge","sec":"Top row","r":58},{"k":"garbage-room-left-fridge-second-row-thairish-tea","t":"Thairish tea","area":"Garbage Room","unit":"Left fridge","sec":"Second row","r":60},{"k":"garbage-room-left-fridge-second-row-one-inch-punch","t":"One inch punch","area":"Garbage Room","unit":"Left fridge","sec":"Second row","r":56},{"k":"garbage-room-left-fridge-second-row-che-ba-mau","t":"Che ba mau","area":"Garbage Room","unit":"Left fridge","sec":"Second row","r":59},{"k":"garbage-room-left-fridge-second-row-che-ba-mau-jello","t":"Che ba mau jello","area":"Garbage Room","unit":"Left fridge","sec":"Second row","r":33},{"k":"garbage-room-left-fridge-third-row-juniper-roku-bottle","t":"Juniper roku bottle","area":"Garbage Room","unit":"Left fridge","sec":"Third Row","r":43},{"k":"garbage-room-left-fridge-third-row-ube-daquiri-green-tape-ten-to-one","t":"Ube daquiri (green tape, ten to one)","area":"Garbage Room","unit":"Left fridge","sec":"Third Row","r":63},{"k":"garbage-room-left-fridge-third-row-lychee-martini-mijenta-blanco-with-green-tape","t":"Lychee Martini (Mijenta Blanco with Green tape","area":"Garbage Room","unit":"Left fridge","sec":"Third Row","r":62},{"k":"garbage-room-left-fridge-third-row-eggs","t":"Eggs","area":"Garbage Room","unit":"Left fridge","sec":"Third Row"},{"k":"garbage-room-left-fridge-bottom-row-olives","t":"Olives","area":"Garbage Room","unit":"Left fridge","sec":"Bottom Row"},{"k":"garbage-room-left-fridge-bottom-row-milk","t":"Milk","area":"Garbage Room","unit":"Left fridge","sec":"Bottom Row"},{"k":"garbage-room-left-fridge-bottom-row-butter","t":"Butter","area":"Garbage Room","unit":"Left fridge","sec":"Bottom Row"},{"k":"garbage-room-left-fridge-bottom-row-yogurt","t":"Yogurt","area":"Garbage Room","unit":"Left fridge","sec":"Bottom Row"},{"k":"garbage-room-left-fridge-bottom-row-pandan-syup","t":"Pandan Syup","area":"Garbage Room","unit":"Left fridge","sec":"Bottom Row","r":8},{"k":"garbage-room-left-fridge-sugar-cane-juice-in-bag","t":"Sugar cane juice in bag","area":"Garbage Room","unit":"Left fridge","sec":""},{"k":"garbage-room-right-fridge-top-row-bitter-melon","t":"Bitter melon","area":"Garbage Room","unit":"Right fridge","sec":"Top row"},{"k":"garbage-room-right-fridge-top-row-sorrel","t":"Sorrel","area":"Garbage Room","unit":"Right fridge","sec":"Top row","r":44},{"k":"garbage-room-right-fridge-top-row-leaf-me-alone","t":"Leaf me alone","area":"Garbage Room","unit":"Right fridge","sec":"Top row","r":50},{"k":"garbage-room-right-fridge-top-row-golden-hour","t":"Golden hour","area":"Garbage Room","unit":"Right fridge","sec":"Top row","r":51},{"k":"garbage-room-right-fridge-second-row-chrysanthemum-kiss-haku-bottle","t":"Chrysanthemum kiss (haku bottle)","area":"Garbage Room","unit":"Right fridge","sec":"Second row","r":47},{"k":"garbage-room-right-fridge-second-row-pandan-colada-ten-to-one-bottle","t":"Pandan colada (ten to one bottle)","area":"Garbage Room","unit":"Right fridge","sec":"Second row","r":48},{"k":"garbage-room-right-fridge-second-row-irish-breakfast","t":"Irish Breakfast","area":"Garbage Room","unit":"Right fridge","sec":"Second row","r":55},{"k":"garbage-room-right-fridge-second-row-beer","t":"Beer","area":"Garbage Room","unit":"Right fridge","sec":"Second row"},{"k":"garbage-room-right-fridge-second-row-squid-snack-toki","t":"Squid snack Toki","area":"Garbage Room","unit":"Right fridge","sec":"Second row","r":91},{"k":"garbage-room-right-fridge-bottom-row-beer","t":"Beer","area":"Garbage Room","unit":"Right fridge","sec":"Bottom row"},{"k":"garbage-room-right-fridge-bottom-row-wine","t":"Wine","area":"Garbage Room","unit":"Right fridge","sec":"Bottom row"},{"k":"garbage-room-right-fridge-bottom-row-cucumbers","t":"Cucumbers","area":"Garbage Room","unit":"Right fridge","sec":"Bottom row"},{"k":"garbage-room-right-fridge-bottom-row-oranges","t":"Oranges","area":"Garbage Room","unit":"Right fridge","sec":"Bottom row"},{"k":"garbage-room-right-fridge-bottom-row-prosecco","t":"Prosecco","area":"Garbage Room","unit":"Right fridge","sec":"Bottom row"},{"k":"garbage-room-keg-fridge-milk","t":"Milk","area":"Garbage Room","unit":"Keg Fridge","sec":""},{"k":"garbage-room-keg-fridge-eggs","t":"Eggs","area":"Garbage Room","unit":"Keg Fridge","sec":""},{"k":"garbage-room-keg-fridge-limes","t":"Limes","area":"Garbage Room","unit":"Keg Fridge","sec":""},{"k":"garbage-room-keg-fridge-lemons","t":"Lemons","area":"Garbage Room","unit":"Keg Fridge","sec":""},{"k":"garbage-room-keg-fridge-pineapples","t":"Pineapples","area":"Garbage Room","unit":"Keg Fridge","sec":""},{"k":"garbage-room-keg-fridge-lemonade","t":"Lemonade","area":"Garbage Room","unit":"Keg Fridge","sec":""},{"k":"garbage-room-keg-fridge-on-top-matcha-lemonade","t":"Matcha Lemonade","area":"Garbage Room","unit":"Keg Fridge","sec":"On top"},{"k":"garbage-room-keg-fridge-on-top-salted-lemonade","t":"Salted Lemonade","area":"Garbage Room","unit":"Keg Fridge","sec":"On top"},{"k":"garbage-room-keg-fridge-on-top-pandan-coconut","t":"Pandan Coconut","area":"Garbage Room","unit":"Keg Fridge","sec":"On top"},{"k":"garbage-room-keg-fridge-on-top-coconut-water-cans","t":"Coconut water (cans)","area":"Garbage Room","unit":"Keg Fridge","sec":"On top"},{"k":"kitchen-lowboy-top-left-sesame-brittle","t":"Sesame brittle","area":"Kitchen","unit":"Lowboy","sec":"Top left","r":90},{"k":"kitchen-lowboy-top-left-chocolate-truffle","t":"Chocolate truffle","area":"Kitchen","unit":"Lowboy","sec":"Top left","r":31},{"k":"kitchen-lowboy-top-left-spicy-tincture","t":"Spicy tincture","area":"Kitchen","unit":"Lowboy","sec":"Top left"},{"k":"kitchen-lowboy-top-left-tub-of-yogurt-passion-fruit-leftover-from-clarification-always-replace","t":"Tub of yogurt — passion fruit (leftover from clarification, always replace)","area":"Kitchen","unit":"Lowboy","sec":"Top left"},{"k":"kitchen-lowboy-top-left-red-bean-orgeat","t":"Red Bean Orgeat","area":"Kitchen","unit":"Lowboy","sec":"Top left","r":7},{"k":"kitchen-lowboy-bottom-left-star-anise-vanilla-syrup","t":"Star anise vanilla syrup","area":"Kitchen","unit":"Lowboy","sec":"Bottom left","r":12},{"k":"kitchen-lowboy-bottom-left-chrysanthemum-honey","t":"Chrysanthemum honey","area":"Kitchen","unit":"Lowboy","sec":"Bottom left","r":4},{"k":"kitchen-lowboy-bottom-left-tamarind-agave","t":"Tamarind agave","area":"Kitchen","unit":"Lowboy","sec":"Bottom left","r":5},{"k":"kitchen-lowboy-bottom-right-coffee","t":"Coffee","area":"Kitchen","unit":"Lowboy","sec":"Bottom right","r":23},{"k":"kitchen-lowboy-bottom-right-lemongrass-raspberry-is-added-lemongrass-not-prebatched","t":"Lemongrass (raspberry is added lemongrass, not prebatched)","area":"Kitchen","unit":"Lowboy","sec":"Bottom right","r":3},{"k":"kitchen-lowboy-bottom-right-toasted-coconut-water","t":"Toasted coconut water","area":"Kitchen","unit":"Lowboy","sec":"Bottom right","r":20},{"k":"kitchen-lowboy-bottom-right-black-sesame-syrup","t":"Black sesame syrup","area":"Kitchen","unit":"Lowboy","sec":"Bottom right","r":6},{"k":"kitchen-lowboy-bottom-right-demerara-brown-sugar-syrup","t":"Demerara (brown sugar syrup)","area":"Kitchen","unit":"Lowboy","sec":"Bottom right","r":2},{"k":"kitchen-lowboy-bottom-right-coconut-syrup","t":"Coconut syrup","area":"Kitchen","unit":"Lowboy","sec":"Bottom right","r":9},{"k":"kitchen-lowboy-top-right-needs-to-chill-for-canisters-boba-water","t":"Boba water","area":"Kitchen","unit":"Lowboy","sec":"Top right (needs to chill for canisters)","r":19},{"k":"kitchen-lowboy-top-right-needs-to-chill-for-canisters-coconut-foam","t":"Coconut foam","area":"Kitchen","unit":"Lowboy","sec":"Top right (needs to chill for canisters)","r":21},{"k":"kitchen-lowboy-top-right-needs-to-chill-for-canisters-condensed-milk-foam","t":"Condensed milk foam","area":"Kitchen","unit":"Lowboy","sec":"Top right (needs to chill for canisters)","r":22},{"k":"kitchen-lowboy-top-right-needs-to-chill-for-canisters-simple-syrup","t":"Simple syrup","area":"Kitchen","unit":"Lowboy","sec":"Top right (needs to chill for canisters)","r":1},{"k":"kitchen-lowboy-top-right-needs-to-chill-for-canisters-citrus-cordial","t":"Citrus cordial","area":"Kitchen","unit":"Lowboy","sec":"Top right (needs to chill for canisters)","r":14},{"k":"kitchen-lowboy-top-right-needs-to-chill-for-canisters-stout-syrup","t":"Stout syrup","area":"Kitchen","unit":"Lowboy","sec":"Top right (needs to chill for canisters)","r":11},{"k":"kitchen-lowboy-top-right-needs-to-chill-for-canisters-jasmine-green-tea-five-spice","t":"Jasmine green tea five-spice","area":"Kitchen","unit":"Lowboy","sec":"Top right (needs to chill for canisters)","r":18},{"k":"kitchen-back-rack-canada-dry","t":"Canada Dry","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-back-rack-sprite","t":"Sprite","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-back-rack-topo-chico","t":"Topo Chico","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-back-rack-coca-cola","t":"Coca-Cola","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-back-rack-diet-coke","t":"Diet Coke","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-back-rack-tonic-water","t":"Tonic water","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-back-rack-club-soda","t":"Club soda","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-back-rack-ginger-ale","t":"Ginger ale","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-back-rack-ming-river","t":"Ming River","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-back-rack-red-bull","t":"Red Bull","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-back-rack-wakamomo-peaches","t":"Wakamomo Peaches","area":"Kitchen","unit":"Back rack","sec":""},{"k":"kitchen-left-rack-top-shelf-longan","t":"Longan","area":"Kitchen","unit":"Left rack","sec":"Top shelf"},{"k":"kitchen-left-rack-top-shelf-lychee","t":"Lychee","area":"Kitchen","unit":"Left rack","sec":"Top shelf"},{"k":"kitchen-left-rack-top-shelf-jackfruit","t":"Jackfruit","area":"Kitchen","unit":"Left rack","sec":"Top shelf"},{"k":"kitchen-left-rack-top-shelf-condensed-milk","t":"Condensed milk","area":"Kitchen","unit":"Left rack","sec":"Top shelf"},{"k":"kitchen-left-rack-top-shelf-evaporated-milk","t":"Evaporated milk","area":"Kitchen","unit":"Left rack","sec":"Top shelf"},{"k":"kitchen-left-rack-bottom-shelf-boba-packs","t":"Boba packs","area":"Kitchen","unit":"Left rack","sec":"Bottom shelf"},{"k":"kitchen-left-rack-bottom-shelf-peanut-butter","t":"Peanut butter","area":"Kitchen","unit":"Left rack","sec":"Bottom shelf"},{"k":"kitchen-left-rack-bottom-shelf-coconut-milk","t":"Coconut milk","area":"Kitchen","unit":"Left rack","sec":"Bottom shelf"},{"k":"kitchen-left-rack-bottom-shelf-coco-lopez","t":"Coco Lopez","area":"Kitchen","unit":"Left rack","sec":"Bottom shelf"},{"k":"kitchen-right-rack-opened-alcohol","t":"Opened alcohol","area":"Kitchen","unit":"Right rack","sec":""},{"k":"kitchen-prep-table-spices","t":"Spices","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-powders","t":"Powders","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-dehydrated-thai-chillies","t":"Dehydrated Thai chillies","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-black-garlic","t":"Black garlic","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-arugula","t":"Arugula","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-dashi-mushroom-powder","t":"Dashi = mushroom powder","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-sesame","t":"Sesame","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-tapioca","t":"Tapioca","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-goji-berries","t":"Goji berries","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-extracts","t":"Extracts","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-chicken-bouillon","t":"Chicken bouillon","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-dried-mushrooms","t":"Dried mushrooms","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-salt","t":"Salt","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-pandan-extract","t":"Pandan extract","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-coconut-oil","t":"Coconut oil","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-powdered-goods","t":"Powdered goods","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-maple-syrup","t":"Maple syrup","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-teas","t":"Teas","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-ginseng","t":"Ginseng","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-white-sugar","t":"White sugar","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-hot-spicy-squid-snack","t":"\"Hot & Spicy\" squid snack","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-table-angry-spicy-squid-snack","t":"\"Angry Spicy\" squid snack","area":"Kitchen","unit":"Prep table","sec":""},{"k":"kitchen-prep-shelf-extra-dried-garnish","t":"Extra dried garnish","area":"Kitchen","unit":"Prep shelf","sec":""},{"k":"freezer-front-freezer-shelf-raspberries","t":"Raspberries","area":"Freezer","unit":"Front freezer shelf","sec":""},{"k":"freezer-front-freezer-shelf-lemongrass","t":"Lemongrass","area":"Freezer","unit":"Front freezer shelf","sec":"","r":3},{"k":"freezer-front-freezer-shelf-pandan","t":"Pandan","area":"Freezer","unit":"Front freezer shelf","sec":"","r":8},{"k":"freezer-front-freezer-shelf-ghost-ice","t":"Ghost ice","area":"Freezer","unit":"Front freezer shelf","sec":""},{"k":"freezer-back-freezer-shelf-coconut-balls","t":"Coconut balls","area":"Freezer","unit":"Back freezer shelf","sec":"","r":32},{"k":"freezer-back-freezer-shelf-passion-yogurt-garnish","t":"Passion yogurt garnish","area":"Freezer","unit":"Back freezer shelf","sec":"","r":30},{"k":"alcohol-room-agave","t":"Agave","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-tanduay-rum","t":"Tanduay Rum","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-roku-gin","t":"Roku Gin","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-mizu-shochu","t":"Mizu Shochu","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-appleton-estate-jamaica","t":"Appleton Estate Jamaica","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-grand-marnier","t":"Grand Marnier","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-teeling-whiskey","t":"Teeling Whiskey","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-uninfused-mezcal-verde","t":"Uninfused Mezcal Verde","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-ritual-zero-proof-gin-alternative","t":"Ritual Zero Proof Gin Alternative","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-apl-s","t":"Aplós","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-lyre-s-non-alcoholic-agave-blanco","t":"Lyre's Non-Alcoholic Agave Blanco","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-coconut-aminos","t":"Coconut aminos","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-gosling-black-seal-bermuda-black-rum","t":"Gosling Black Seal Bermuda Black Rum","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-haku-vodka","t":"Haku Vodka","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-tito-s-vodka","t":"Tito's Vodka","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-suntory-toki-whisky","t":"Suntory Toki Whisky","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-hennessy-vs","t":"Hennessy VS","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-jameson-triple-distilled-irish-whiskey","t":"Jameson Triple Distilled Irish Whiskey","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-amaro-montenegro","t":"Amaro Montenegro","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-yola-mezcal","t":"Yola Mezcal","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-lustau-vi-a-ab-amontillado","t":"Lustau Viña AB Amontillado","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-lyre-s-non-alcoholic-gin-alternative","t":"Lyre's Non-Alcoholic Gin Alternative","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-honey","t":"Honey","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-tanduay-caribbean-dark-rum","t":"Tanduay Caribbean Dark Rum","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-bombay-sapphire","t":"Bombay Sapphire","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-grey-goose-vodka","t":"Grey Goose Vodka","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-fernet-branca","t":"Fernet-Branca","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-r-my-martin-1738","t":"Rémy Martin 1738","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-larceny-straight-bourbon","t":"Larceny Straight Bourbon","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-mijenta-blanco-tequila","t":"Mijenta Blanco Tequila","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-infused-mijenta-tequila-blanco","t":"Infused Mijenta Tequila Blanco","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-empirical-ayuuk","t":"Empirical Ayuuk","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-sugar-on-the-raw","t":"Sugar on the raw","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-planteray-original-dark","t":"Planteray Original Dark","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-hendrick-s-gin","t":"Hendrick's Gin","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-angel-s-envy-finished-rye","t":"Angel's Envy Finished Rye","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-carpano-antica-formula-vermouth","t":"Carpano Antica Formula Vermouth","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-tullamore-d-e-w-irish-whiskey","t":"Tullamore D.E.W. Irish Whiskey","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-mijenta-reposado-tequila","t":"Mijenta Reposado Tequila","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-disaronno-originale","t":"Disaronno Originale","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-empirical-the-plum-i-suppose","t":"Empirical \"The Plum, I Suppose\"","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-tanduay-boracay-ube-coconut-rum","t":"Tanduay Boracay Ube Coconut Rum","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-guilder-s-green-tea-dry-gin","t":"Guilder's Green Tea Dry Gin","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-ketel-one-vodka","t":"Ketel One Vodka","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-bottega-cinzano-vermouth-extra-dry","t":"Bottega Cinzano Vermouth — Extra Dry","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-michter-s-small-batch-bourbon","t":"Michter's Small Batch Bourbon","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-mijenta-a-ejo-gran-reserva-tequila","t":"Mijenta Añejo Gran Reserva Tequila","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-r-my-martin-black-bottle","t":"Rémy Martin black bottle","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-fortaleza-tequila-blanco","t":"Fortaleza Tequila Blanco","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-lychee-liqueur","t":"Lychee Liqueur","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-white-caribbean-white-rum","t":"White Caribbean White Rum","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-tanqueray-london-dry-gin","t":"Tanqueray London Dry Gin","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-aperol","t":"Aperol","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-hibiki-suntory-whisky","t":"Hibiki Suntory Whisky","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-bottega-cinzano-vermouth-di-torino-rosso","t":"Bottega Cinzano Vermouth di Torino — Rosso","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-roe-co-dublin-irish-whiskey","t":"Roe & Co Dublin Irish Whiskey","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-siempre-tequila","t":"Siempre Tequila","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-yoshi-matcha-liqueur","t":"Yoshi Matcha Liqueur","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-kanade-japanese-fruit-liqueurs","t":"Kanade Japanese Fruit Liqueurs","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-muyu-jasmine-verte","t":"Muyu Jasmine Verte","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-campari","t":"Campari","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-nikka-coffey-grain-whisky","t":"Nikka Coffey Grain Whisky","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-chinola-passion-fruit-liqueur","t":"Chinola Passion Fruit Liqueur","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-woodford-reserve-kentucky-straight-rye","t":"Woodford Reserve Kentucky Straight Rye","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-don-julio-reposado","t":"Don Julio Reposado","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-ume-plum-liqueur","t":"Ume Plum Liqueur","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-tanqueray-no-ten","t":"Tanqueray No. Ten","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-basil-hayden-malted-rye","t":"Basil Hayden Malted Rye","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-chinola-mango-liqueur","t":"Chinola Mango Liqueur","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-redemption-wheated-bourbon","t":"Redemption Wheated Bourbon","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-rockey-s-botanical-liqueur","t":"Rockey's Botanical Liqueur","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-monkey-47-dry-gin","t":"Monkey 47 Dry Gin","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-juliette-peach-liqueur","t":"Juliette Peach Liqueur","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-redemption-straight-bourbon","t":"Redemption Straight Bourbon","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-the-botanist-islay-dry-gin","t":"The Botanist Islay Dry Gin","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-luxardo-liqueur","t":"Luxardo Liqueur","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-paddy-irish-whiskey","t":"Paddy Irish Whiskey","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-song-cai-vietnamese-floral-gin","t":"Song Cai Vietnamese Floral Gin","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-lost-irish-whiskey","t":"Lost Irish Whiskey","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-cointreau","t":"Cointreau","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-pierre-ferrand-dry-cura-ao","t":"Pierre Ferrand Dry Curaçao","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-see-the-elephant-amaro","t":"See The Elephant Amaro","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-amaro-nonino","t":"Amaro Nonino","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-fruitful-banana-liqueur","t":"Fruitful Banana Liqueur","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-pathfinder-non-alcoholic-amaro","t":"Pathfinder (non-alcoholic amaro)","area":"Alcohol room","unit":"","sec":""},{"k":"alcohol-room-lillet-blanc","t":"Lillet Blanc","area":"Alcohol room","unit":"","sec":""},{"k":"unlocated-gunpowder-gin-no-storage","t":"Gunpowder gin (no storage)","area":"Unlocated","unit":"","sec":""}],"week":[[{"k":"wk-sun--finish-anything-still-to-strain","t":"Finish anything still to strain"},{"k":"wk-sun--check-label-and-put-away-the-dehydrated-fruit","t":"Check, label and put away the dehydrated fruit","d":"everything finished this week"}],[],[{"k":"wk-tue--lychee-martini-batch","t":"Lychee martini batch"},{"k":"wk-tue--dehydrated-lemons","t":"Dehydrated lemons"}],[{"k":"wk-wed--strain-the-lychee-martini","t":"Strain the lychee martini","d":"the batch started Tuesday"},{"k":"wk-wed--dehydrated-limes","t":"Dehydrated limes"}],[{"k":"wk-thu--top-up-demerara","t":"Top up Demerara","d":"check the level first"},{"k":"wk-thu--top-up-simple","t":"Top up Simple","d":"check the level first"},{"k":"wk-thu--top-up-lemongrass","t":"Top up Lemongrass","d":"check the level first"},{"k":"wk-thu--top-up-pandan","t":"Top up Pandan","d":"check the level first"},{"k":"wk-thu--top-up-black-sesame","t":"Top up Black Sesame","d":"check the level first"},{"k":"wk-thu--top-up-chrysanthemum-honey","t":"Top up Chrysanthemum Honey","d":"check the level first"},{"k":"wk-thu--top-up-tamarind-agave","t":"Top up Tamarind Agave","d":"check the level first"},{"k":"wk-thu--top-up-red-bean-orgeat","t":"Top up Red Bean Orgeat","d":"check the level first"},{"k":"wk-thu--top-up-vanilla","t":"Top up Vanilla","d":"check the level first"},{"k":"wk-thu--top-up-star-anise-vanilla","t":"Top up Star Anise Vanilla","d":"check the level first"}],[{"k":"wk-fri--juniper-tea-batch","t":"Juniper tea batch","d":"if low"},{"k":"wk-fri--ube-batch","t":"Ube batch","d":"if low"},{"k":"wk-fri--infuse-any-low-spirits","t":"Infuse any low spirits"}],[{"k":"wk-sat--strain-anything-started-friday","t":"Strain anything started Friday"},{"k":"wk-sat--more-dehydrated-lemons-and-limes","t":"More dehydrated lemons and limes"}]],"restock":[{"name":"Pure Alcohols","items":[{"k":"restock--roku-gin","t":"Roku Gin"},{"k":"restock--mijenta-blanco-tequila","t":"Mijenta Blanco Tequila"},{"k":"restock--ming-river-baijiu","t":"Ming River Baijiu"},{"k":"restock--haku-vodka","t":"Haku Vodka"},{"k":"restock--amas-verde-mezcal","t":"Amas Verde Mezcal"},{"k":"restock--infused-amas-verde-mezcal","t":"Infused Amas Verde Mezcal"},{"k":"restock--siempre-blanco-tequila","t":"Siempre Blanco Tequila"},{"k":"restock--yoshi-matcha-liqueur","t":"Yoshi Matcha Liqueur"}]},{"name":"Garnishes","items":[{"k":"restock--thai-chilies","t":"Thai Chilies"},{"k":"restock--dehydrated-lemons","t":"Dehydrated Lemons"},{"k":"restock--dehydrated-limes","t":"Dehydrated Limes"},{"k":"restock--dehydrated-pineapple","t":"Dehydrated Pineapple"},{"k":"restock--dehydrated-bitter-melon","t":"Dehydrated Bitter Melon"},{"k":"restock--coffee-beans","t":"Coffee Beans"},{"k":"restock--nutmeg","t":"Nutmeg"}]},{"name":"Rimmers","items":[{"k":"restock--smoked-salt","t":"Smoked Salt"},{"k":"restock--white-sesame","t":"White Sesame"},{"k":"restock--shrimp-salt","t":"Shrimp Salt"},{"k":"restock--arugula-cinnamon","t":"Arugula Cinnamon"},{"k":"restock--raspberry-powder","t":"Raspberry Powder"}]}]}</script>
+<script>
+/* Juniper & Co barback board — app logic. Data lives in window.JC (embedded). */
+(function () {
+  "use strict";
+  const JC = window.JC;
+  const OZ = 29.5735;
+  const FILL_MAX = 99;
+
+  // ---------- tiny DOM helpers ----------
+  const $ = (s, r) => (r || document).querySelector(s);
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    if (attrs) for (const k in attrs) {
+      const v = attrs[k];
+      if (v == null || v === false) continue;
+      if (k === "class") n.className = v;
+      else if (k === "text") n.textContent = v;
+      else if (k === "html") n.innerHTML = v;
+      else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+      else if (k === "dataset") Object.assign(n.dataset, v);
+      else n.setAttribute(k, v === true ? "" : v);
+    }
+    for (const c of kids.flat()) if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(String(c)));
+    return n;
+  }
+  const fmtNum = (x) => (Math.round(x * 10) / 10).toLocaleString("en-US", { maximumFractionDigits: 1 });
+  const pad = (n) => String(n).padStart(2, "0");
+
+  // ---------- bar-day: 05:00 local to 04:59 next day ----------
+  function barDate(d) {
+    d = d ? new Date(d) : new Date();
+    d = new Date(d.getTime() - 5 * 3600 * 1000);
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+  function prettyDay(iso) {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+  }
+  function timeAgo(iso) {
+    if (!iso) return "";
+    const s = (Date.now() - Date.parse(iso)) / 1000;
+    if (s < 60) return "just now";
+    if (s < 3600) return Math.floor(s / 60) + " min ago";
+    if (s < 86400) return Math.floor(s / 3600) + " hr ago";
+    return Math.floor(s / 86400) + " d ago";
+  }
+
+  // ---------- state ----------
+  const state = {
+    tab: "open",
+    today: barDate(),
+    day: barDate(),           // day being viewed on Open / Close
+    run: { open: {}, fill: {}, close: {}, wk: {}, by: {} },
+    stock: {},                // key -> {s, at}
+    prep: { sel: [], checks: {} },
+    days: [],                 // recent run docs [{id, open, fill, close}]
+    db: null,
+    dbStatus: "local",        // local | live | offline
+    unsub: {},
+    openRecipe: null,
+    factor: {},               // recipe id -> scale factor
+    oz: false,
+    stockFilter: "", stockOnlyLow: false,
+    mapFilter: "",
+    cocktailFilter: "", recipeFilter: "", recipeKind: "batch",
+    prepView: "recipes",      // recipes | plan
+    picker: false, pickerSel: new Set(),
+    fillOpen: false,
+    shifts: {}, shiftWeek: null, // date -> [start, end] for the week bar
+    who: "BQ",                // personal Hub copy: no initials gate, every write is his
+  };
+  const isToday = () => state.day === state.today;
+
+  // ---------- persistence: shared db with a local fallback ----------
+  const LS = {
+    get(k) { try { return JSON.parse(localStorage.getItem("jc:" + k) || "null"); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem("jc:" + k, JSON.stringify(v)); } catch (e) { } },
+  };
+  function stampSync() {
+    const n = $("#syncDot");
+    if (!n) return;
+    n.className = "sync " + state.dbStatus;
+    n.title = state.dbStatus === "live" ? "Shared live with everyone on this page" : state.dbStatus === "offline" ? "Shared board unreachable, saving on this device only" : "Saving on this device only";
+    n.textContent = state.dbStatus === "live" ? "shared" : state.dbStatus === "offline" ? "offline" : "this device";
+  }
+  async function write(path, patch) {
+    // patch is a nested object; nested objects merge, scalars replace.
+    if (!state.db) { LS.set(path, deepMerge(LS.get(path) || {}, patch)); return; }
+    const ref = state.db.doc(path);
+    try { await ref.update(patch); }
+    catch (e) {
+      if (e && e.code === "invalid_argument") { try { await ref.set(patch); } catch (e2) { console.warn(e2); } }
+      else if (e && (e.code === "unavailable")) { setTimeout(() => ref.update(patch).catch(() => { }), 500 + Math.random() * 800); }
+      else console.warn(e);
+    }
+  }
+  // Snapshot data() is frozen and shared across deliveries; copy anything we mutate in place.
+  const thaw = (o) => Object.assign({}, o && typeof o === "object" ? o : null);
+  function deepMerge(a, b) { for (const k in b) { if (b[k] && typeof b[k] === "object" && !Array.isArray(b[k])) a[k] = deepMerge(a[k] && typeof a[k] === "object" ? a[k] : {}, b[k]); else a[k] = b[k]; } return a; }
+
+  // Every action, one row, nothing derived: who, when, what, and the value written. The tabs
+  // read the current-state docs; this collection is the tape behind them, for Claude to read back.
+  // ponytail: append-only and unbounded — trim by date from the vault side if it ever gets heavy
+  function logEvent(kind, key, value) {
+    const row = { at: new Date().toISOString(), by: state.who || "??", day: state.today, kind: kind, key: key, value: value === undefined ? null : value };
+    if (!state.db) { const log = LS.get("events") || []; log.push(row); LS.set("events", log.slice(-300)); return; }
+    state.db.collection("events").add(row).catch((e) => console.warn(e));
+  }
+
+  function subscribeDay(day) {
+    if (state.unsub.run) state.unsub.run();
+    if (state.unsub.prep) state.unsub.prep();
+    state.run = { open: {}, fill: {}, close: {}, wk: {}, by: {} };
+    state.prep = { sel: [], checks: {}, by: {} };
+    if (!state.db) {
+      const r = LS.get("runs/" + day) || {}; state.run = { open: thaw(r.open), fill: thaw(r.fill), close: thaw(r.close), wk: thaw(r.wk), by: thaw(r.by) };
+      const p = LS.get("prep/" + day) || {}; state.prep = { sel: Array.isArray(p.sel) ? p.sel.slice() : [], checks: thaw(p.checks), by: thaw(p.by) };
+      render(); return;
+    }
+    state.unsub.run = state.db.doc("runs/" + day).onSnapshot((snap) => {
+      const r = snap.exists ? snap.data() : {};
+      state.run = { open: thaw(r.open), fill: thaw(r.fill), close: thaw(r.close), wk: thaw(r.wk), by: thaw(r.by) };
+      render();
+    }, (e) => { console.warn(e); state.dbStatus = "offline"; stampSync(); });
+    state.unsub.prep = state.db.doc("prep/" + day).onSnapshot((snap) => {
+      const p = snap.exists ? snap.data() : {};
+      state.prep = { sel: Array.isArray(p.sel) ? p.sel.slice() : [], checks: thaw(p.checks), by: thaw(p.by) };
+      render();
+    }, (e) => console.warn(e));
+  }
+  function subscribeShared() {
+    if (!state.db) { state.stock = thaw((LS.get("stock/current") || {}).items); return; }
+    state.db.doc("stock/current").onSnapshot((snap) => {
+      state.stock = thaw(snap.exists && snap.data().items); render();
+    }, (e) => console.warn(e));
+    state.db.collection("runs").orderBy("day", "desc").limit(14).onSnapshot((qs) => {
+      state.days = qs.docs.map((d) => ({ id: d.id, ...d.data() })); render();
+    }, (e) => console.warn(e));
+  }
+  async function connect() {
+    stampSync();
+    if (!window.claude || typeof window.claude.use !== "function") { subscribeShared(); subscribeDay(state.day); return; }
+    let db = null;
+    try { db = await window.claude.use("db"); } catch (e) { db = null; }
+    if (db) { state.db = db; state.dbStatus = "live"; }
+    stampSync();
+    subscribeShared();
+    subscribeDay(state.day);
+  }
+
+  // ---------- run mutations ----------
+  function setRunItem(kind, key, value) {
+    if (!isToday()) return;
+    state.run[kind][key] = value;
+    const patch = {}; patch[kind] = {}; patch[kind][key] = value; patch.day = state.day; patch.at = new Date().toISOString();
+    // the fill is a running count, not a thing one person owns; the checklists are
+    if (kind !== "fill") { const bk = kind + ":" + key; state.run.by[bk] = state.who; patch.by = {}; patch.by[bk] = state.who; }
+    write("runs/" + state.day, patch);
+    logEvent(kind, key, value);
+    render();
+  }
+  function clearFill() {
+    if (!isToday()) return;
+    const patch = { fill: {}, day: state.day, at: new Date().toISOString() };
+    for (const s of JC.fill) for (const { k } of s.items) if (k in state.run.fill) { patch.fill[k] = 0; state.run.fill[k] = 0; }
+    write("runs/" + state.day, patch); logEvent("fill", "*cleared*", 0); render();
+  }
+  function setStock(key, s) {
+    const cur = state.stock[key] || {};
+    const next = cur.s === s ? null : s;  // tapping the active state clears it
+    state.stock[key] = { s: next, at: new Date().toISOString(), day: state.today, by: state.who };
+    const patch = { items: {} }; patch.items[key] = state.stock[key];
+    write("stock/current", patch); logEvent("stock", key, next); render();
+  }
+  function setPrep(patch) {
+    Object.assign(state.prep, patch);
+    const p = {}; if (patch.sel) p.sel = patch.sel; if (patch.checks) p.checks = patch.checks; p.day = state.day;
+    write("prep/" + state.day, p); if (patch.sel) logEvent("prep-plan", "selection", patch.sel); render();
+  }
+  function togglePrepCheck(k) {
+    const checks = Object.assign({}, state.prep.checks); checks[k] = checks[k] ? 0 : 1;
+    state.prep.checks = checks; state.prep.by[k] = state.who;
+    const p = { checks: {}, by: {} }; p.checks[k] = checks[k]; p.by[k] = state.who; p.day = state.day;
+    write("prep/" + state.day, p); logEvent("prep", k, checks[k]); render();
+  }
+
+  // ---------- recipes index ----------
+  const R = {}; JC.recipes.forEach((r) => (R[r.id] = r));
+  const byKind = (k) => JC.recipes.filter((r) => r.kind === k);
+  // ponytail: cocktail specs live on their own tab only; a spec id must never be planned or made
+  const makeable = (id) => !!R[id] && R[id].kind !== "cocktail";
+  const tierName = ["Fresh", "Pantry", "Alcohol", "Refrigerated"];
+  const tierOf = (name) => { const t = JC.tiers[name.toLowerCase()]; return t == null ? 1 : t; };
+
+  // ---------- prep-day engine (raw -> build-up -> assemble) ----------
+  function plan(selIds) {
+    const raws = new Map();   // name -> {name, g, extra:{unit: qty}, tier}
+    const subs = new Map();   // rid -> depth
+    const seen = new Set();
+    function addRaw(ing, mult) {
+      const key = ing.n.toLowerCase();
+      let row = raws.get(key); if (!row) { row = { name: ing.n, g: 0, extra: {}, tier: tierOf(ing.n) }; raws.set(key, row); }
+      if (ing.q == null) return;
+      if (ing.u === "g") row.g += ing.q * mult;
+      else row.extra[ing.u] = (row.extra[ing.u] || 0) + ing.q * mult;
+    }
+    function walk(rid, depth, mult) {
+      const r = R[rid]; if (!r) return;
+      for (const ing of r.ings) {
+        if (ing.p && R[ing.p]) {
+          const d = Math.max(subs.get(ing.p) || 0, depth + 1);
+          subs.set(ing.p, d);
+          if (!seen.has(ing.p)) { seen.add(ing.p); walk(ing.p, d, 1); } // preps are made as whole card batches
+        } else addRaw(ing, mult);
+      }
+    }
+    selIds.filter(makeable).forEach((id) => walk(id, 0, 1));
+    const raw = [...raws.values()].sort((a, b) => a.tier - b.tier || a.name.localeCompare(b.name));
+    const build = [...subs.entries()].map(([rid, depth]) => ({ rid, depth, lead: R[rid].lead || 0 }))
+      .filter((b) => !selIds.includes(b.rid))
+      .sort((a, b) => b.depth - a.depth || b.lead - a.lead || R[a.rid].name.localeCompare(R[b.rid].name));
+    const memo = {};
+    function cp(rid, stack) {
+      if (memo[rid] != null) return memo[rid];
+      if (stack.has(rid)) return 0;
+      stack.add(rid);
+      let best = 0;
+      for (const ing of R[rid].ings) if (ing.p && R[ing.p]) best = Math.max(best, (R[ing.p].lead || 0) + cp(ing.p, stack));
+      stack.delete(rid); memo[rid] = best; return best;
+    }
+    const assemble = selIds.filter(makeable).map((id) => ({ rid: id, eta: cp(id, new Set()) }));
+    return { raw, build, assemble };
+  }
+  function humanEta(min) {
+    if (!min) return ""; if (min < 60) return "~" + min + " min"; if (min < 1440) return "~" + Math.round(min / 60) + " hr";
+    if (min < 10080) { const d = Math.round(min / 1440); return "~" + d + " day" + (d > 1 ? "s" : ""); }
+    const w = Math.round(min / 10080); return "~" + w + " week" + (w > 1 ? "s" : "");
+  }
+
+  // ---------- who is on shift ----------
+  // Nobody gets past this without initials. The ghost ice log used to ask per action; now it is
+  const byOf = (kind, key) => (state.run.by && state.run.by[kind + ":" + key]) || "";
+  const prepBy = (k) => (state.prep.by && state.prep.by[k]) || "";
+  // ---------- rendering ----------
+  const TABS = [
+    ["open", "Open"], ["close", "Close"], ["prep", "Batch prep"], ["cocktails", "Cocktails"], ["map", "Map"], ["stock", "Stock"],
+  ];
+  function needsMaking() {
+    return JC.stock.filter((it) => it.r && makeable(it.r) && state.stock[it.k] && (state.stock[it.k].s === "low" || state.stock[it.k].s === "out"))
+      .map((it) => ({ ...it, st: state.stock[it.k] }))
+      .sort((a, b) => (a.st.s === "out" ? 0 : 1) - (b.st.s === "out" ? 0 : 1) || a.t.localeCompare(b.t));
+  }
+  function lowOut() {
+    return JC.stock.filter((it) => state.stock[it.k] && (state.stock[it.k].s === "low" || state.stock[it.k].s === "out"))
+      .map((it) => ({ ...it, st: state.stock[it.k] }));
+  }
+
+  function renderTabs() {
+    const bar = $("#tabs"); bar.replaceChildren();
+    const nm = needsMaking().length + carryOver().length, lo = lowOut().length;
+    for (const [id, label] of TABS) {
+      const badge = id === "prep" && nm ? el("span", { class: "badge", text: nm }) : id === "stock" && lo ? el("span", { class: "badge", text: lo }) : null;
+      bar.append(el("button", { class: "tab" + (state.tab === id ? " is-on" : ""), role: "tab", "aria-selected": state.tab === id ? "true" : "false", onclick: () => { state.tab = id; render(); window.scrollTo(0, 0); } }, label, badge));
+    }
+  }
+
+  // scheduled J&Co shifts (calendar sync -> earnings.db), fetched once per week shown
+  function loadShifts(from, to) {
+    state.shiftWeek = from;
+    fetch("/jc/api/shifts?from=" + from + "&to=" + to).then((r) => (r.ok ? r.json() : {})).then((j) => { state.shifts = j || {}; render(); }).catch(() => { });
+  }
+  function dayStrip() {
+    const wrap = el("div", { class: "daystrip" });
+    const label = isToday() ? "Tonight · " + prettyDay(state.day) : prettyDay(state.day) + " · read only";
+    wrap.append(el("span", { class: "daylabel", text: label }));
+    // ponytail: Mon-Sun of the week holding today; earlier weeks' run days are not reachable
+    const dow = (() => { const [y, m, d] = state.today.split("-").map(Number); return (new Date(y, m - 1, d).getDay() + 6) % 7; })();
+    const mon = isoShift(state.today, -dow), sun = isoShift(mon, 6);
+    if (state.shiftWeek !== mon) loadShifts(mon, sun);
+    // hour grid: each day a column running 2pm (top) to 4am (bottom), shifts as brass blocks
+    const W0 = 14, SPAN = 14, hr = (s) => { let [h, m] = s.split(":").map(Number); if (h < 12) h += 24; return h + m / 60; };
+    const ampm = (s) => { const [h, m] = s.split(":").map(Number); return ((h % 12) || 12) + (m ? ":" + pad(m) : "") + (h >= 12 ? "p" : "a"); };
+    const week = el("div", { class: "weekbar", role: "group", "aria-label": "Bar day" });
+    const days = [...Array(7)].map((_, i) => isoShift(mon, i));
+    week.append(el("span"));
+    days.forEach((d) => { const [y, m, dd] = d.split("-").map(Number);
+      week.append(el("span", { class: "wk-head" + (d === state.today ? " is-today" : "") + (d === state.day ? " is-on" : ""), text: new Date(y, m - 1, dd).toLocaleDateString("en-US", { weekday: "short" }) + " " + dd })); });
+    week.append(el("div", { class: "wk-axis", "aria-hidden": "true" }, ...["2p", "6p", "10p", "2a"].map((t, i) => el("span", { text: t, style: "top:" + (i * 4 / SPAN * 100) + "%" }))));
+    days.forEach((d) => {
+      const on = d === state.day, sh = state.shifts[d];
+      let blk = el("span", { class: "wk-off", text: "off" });
+      if (sh) { const s0 = hr(sh[0]), len = (hr(sh[1]) - s0 + 24) % 24 || 24;
+        blk = el("span", { class: "wk-blk", style: "top:" + ((s0 - W0) / SPAN * 100) + "%;height:" + (len / SPAN * 100) + "%" }, el("span", { text: ampm(sh[0]) }), el("span", { text: ampm(sh[1]) })); }
+      week.append(el("button", { type: "button", class: "wk-col" + (on ? " is-on" : "") + (d < state.today ? " is-past" : ""), "aria-pressed": on ? "true" : "false", "aria-label": prettyDay(d) + (sh ? ", shift " + ampm(sh[0]) + " to " + ampm(sh[1]) : ", off"), onclick: () => { state.day = d; subscribeDay(d); render(); } }, blk));
+    });
+    wrap.append(week);
+    return wrap;
+  }
+
+  function checklist(kind, sections) {
+    const list = el("div", { class: "checklist" });
+    let step = 0;
+    sections.forEach((sec) => {
+      const done = sec.items.filter((i) => state.run[kind][i.k]).length;
+      list.append(el("h3", { class: "sec-head" }, el("span", { text: sec.name }), el("span", { class: "sec-count", text: done + "/" + sec.items.length })));
+      sec.items.forEach((it) => {
+        step++;
+        const on = !!state.run[kind][it.k];
+        const row = el("button", {
+          class: "row duty" + (on ? " is-done" : "") + (it.pr === "red" ? " is-red" : ""), type: "button", "aria-pressed": on ? "true" : "false",
+          disabled: isToday() ? null : true,
+          onclick: () => setRunItem(kind, it.k, on ? 0 : 1),
+        },
+          el("span", { class: "tick", "aria-hidden": "true" }),
+          el("span", { class: "row-body" }, el("span", { class: "row-title" }, el("span", { class: "stepno", text: step }), it.t, on && byOf(kind, it.k) ? el("span", { class: "by", text: byOf(kind, it.k) }) : null), it.d ? el("span", { class: "row-detail", text: it.d }) : null),
+          it.dl ? el("span", { class: "deadline", text: "by " + it.dl.replace(/^(\d+):(\d+)$/, (m, h, mm) => ((+h % 12) || 12) + (mm !== "00" ? ":" + mm : "") + (+h >= 12 ? "pm" : "am")) }) : null,
+        );
+        list.append(row);
+      });
+    });
+    return list;
+  }
+
+  // Repaint one fill row in place. render() is coalesced to the next animation frame, which
+  // is fine for the tally but reads as lag on the thing your finger just hit.
+  function paintFillRow(row, n) {
+    row.classList.toggle("is-counted", !!n);
+    row.querySelector(".count").textContent = n || "";
+    row.querySelector(".row-clear").classList.toggle("is-idle", !n);
+  }
+
+  // restock=true draws "Other restocks" (JC.restock) with the same tap-to-count rows; its
+  // counts share run.fill under their own keys, and only the low boy gets the grab list.
+  function fillSection(restock) {
+    const secs = restock ? JC.restock : JC.fill, openKey = restock ? "restockOpen" : "fillOpen";
+    const tally = secs.reduce((a, s) => { s.items.forEach((i) => { const n = +state.run.fill[i.k] || 0; if (n) { a.rows++; a.units += n; } }); return a; }, { rows: 0, units: 0 });
+    const det = el("details", { class: "fill", open: state[openKey] ? true : null, ontoggle: (e) => (state[openKey] = e.target.open) });
+    det.append(el("summary", {}, el("span", { class: "fill-title", text: restock ? "Other restocks" : "Low boy fill" }), el("span", { class: "fill-tally", text: tally.units ? tally.units + " to grab · " + tally.rows + (tally.rows === 1 ? " product" : " products") : restock ? "count what else is running low" : "count what the low boy is missing" })));
+    const body = el("div", { class: "fill-body" });
+    body.append(el("p", { class: "hint", text: restock ? "Tap a product once per unit it is short." : "Walk the low boy shelf by shelf. Tap a product once per unit it is short. The grab list at the bottom groups it by where you collect from." }));
+    secs.forEach((sec) => {
+      body.append(el("h4", { class: "shelf-head" }, el("span", { text: sec.name }), sec.tag ? el("span", { class: "shelf-tag", text: sec.tag }) : null));
+      sec.items.forEach((it) => {
+        const n = +state.run.fill[it.k] || 0;
+        const row = el("div", { class: "row fillrow" + (n ? " is-counted" : "") });
+        row.append(el("button", {
+          class: "fill-main", type: "button", disabled: isToday() ? null : true, "aria-label": it.t + (it.d ? " (" + it.d + ")" : "") + ", " + n + " to grab, add one",
+          onclick: () => {
+            // read the live count, not the one captured at render: two taps inside one
+            // animation frame would otherwise both write the same number and swallow one
+            const next = Math.min(FILL_MAX, (+state.run.fill[it.k] || 0) + 1);
+            paintFillRow(row, next);   // the tap lands now; the full render follows on the next frame
+            setRunItem("fill", it.k, next);
+          },
+        }, el("span", { class: "row-title", text: it.t }), it.d ? el("span", { class: "row-detail", text: it.d }) : null, el("span", { class: "count", text: n || "" })));
+        row.append(el("button", { class: "row-clear" + (n ? "" : " is-idle"), type: "button", "aria-label": "Back to zero", onclick: (e) => { e.stopPropagation(); paintFillRow(row, 0); setRunItem("fill", it.k, 0); } }, "✕"));
+        body.append(row);
+      });
+    });
+    if (restock) { det.append(body); return det; }
+    // grab sweep grouped by where you collect it from
+    const groups = new Map();
+    JC.fill.forEach((sec) => sec.items.forEach((it) => {
+      const n = +state.run.fill[it.k] || 0; if (!n) return;
+      const loc = JC.loc[it.t.toLowerCase()] || "Unsorted";
+      const area = loc === "Unsorted" ? "Unsorted" : loc.split(" · ")[0];
+      if (!groups.has(area)) groups.set(area, []);
+      groups.get(area).push({ it, n, loc });
+    }));
+    if (groups.size) {
+      const sweep = el("section", { class: "sweep" }, el("h4", { class: "sweep-head", text: "Grab list" }));
+      const order = [...groups.keys()].sort((a, b) => (a === "Unsorted") - (b === "Unsorted") || a.localeCompare(b));
+      for (const area of order) {
+        sweep.append(el("h5", { class: "sweep-area", text: area }));
+        groups.get(area).sort((a, b) => a.loc.localeCompare(b.loc)).forEach(({ it, n, loc }) => {
+          sweep.append(el("div", { class: "sweep-line" }, el("span", { class: "sweep-n", text: n + "×" }), el("span", { class: "sweep-name", text: it.t }), el("span", { class: "sweep-loc", text: loc === "Unsorted" ? "no shelf on file" : loc.split(" · ").slice(1).join(" · ") }),
+            el("button", { class: "row-clear", type: "button", "aria-label": "Clear " + it.t, onclick: () => setRunItem("fill", it.k, 0) }, "✕")));
+        });
+      }
+      sweep.append(el("button", { class: "btn ghost sweep-clear", type: "button", onclick: () => { if (confirm("Clear every count on the low boy fill?")) clearFill(); } }, "Clear all counts"));
+      body.append(sweep);
+    }
+    det.append(body);
+    return det;
+  }
+
+  function renderOpen(root) {
+    root.append(el("header", { class: "tab-head" }, el("h2", { text: "Opening" }), dayStrip()));
+    root.append(fillSection());
+    root.append(fillSection(true));
+    root.append(checklist("open", JC.open));
+  }
+  function renderClose(root) {
+    root.append(el("header", { class: "tab-head" }, el("h2", { text: "Closing" }), el("p", { class: "lede", text: "Most of closing happens during service. Front-load it so the block after everyone leaves is short. Downstairs is done by 10pm, and the dishwasher gets cleaned every night." }), dayStrip()));
+    root.append(checklist("close", JC.close));
+  }
+
+  // ----- recipe card -----
+  function amountText(ing, factor) {
+    if (ing.q == null || ing.ns) return ing.a || "";
+    const q = ing.q * factor;
+    if (ing.u === "g") return state.oz ? fmtNum(q / OZ) + " oz" : fmtNum(q) + " g";
+    return fmtNum(q) + " " + ing.u + (factor !== 1 || !ing.a ? "" : "");
+  }
+  function recipeCard(r, opts) {
+    opts = opts || {};
+    const factor = state.factor[r.id] || 1;
+    const card = el("div", { class: "recipe-panel" });
+    const meta = [];
+    if (r.yq) meta.push("yields " + (r.yu === "g" ? (r.yq * factor >= 1000 ? fmtNum(r.yq * factor / 1000) + " kg" : fmtNum(r.yq * factor) + " g") : fmtNum(r.yq * factor) + " " + r.yu));
+    if (r.leadl) meta.push(r.leadl);
+    if (meta.length) card.append(el("p", { class: "recipe-meta", text: meta.join(" · ") }));
+    if (!opts.readonly) {
+      const ctl = el("div", { class: "scaler" });
+      ctl.append(el("span", { class: "scaler-label", text: factor === 1 ? "Full batch" : "Scaled ×" + fmtNum(factor) }));
+      if (factor !== 1) ctl.append(el("button", { class: "btn ghost small", type: "button", onclick: () => { delete state.factor[r.id]; render(); } }, "Reset to full"));
+      if (r.ings.some((i) => i.u === "g")) ctl.append(el("button", { class: "btn ghost small", type: "button", onclick: () => { state.oz = !state.oz; render(); } }, state.oz ? "Show grams" : "Show oz"));
+      card.append(ctl);
+      card.append(el("p", { class: "hint", text: "Type over any amount to scale the whole recipe from that ingredient." }));
+    }
+    const list = el("div", { class: "ings" });
+    r.ings.forEach((ing) => {
+      const sub = ing.p && R[ing.p];
+      const row = el("div", { class: "ing" + (sub ? " has-sub" : "") });
+      const name = el("span", { class: "ing-name", text: ing.n });
+      if (sub) {
+        row.classList.add("is-expandable");
+        name.append(" ", el("span", { class: "chip", text: "made in house" }));
+      }
+      row.append(name, el("span", { class: "leader" }));
+      if (!opts.readonly && ing.q != null && !ing.ns) {
+        const base = ing.u === "g" && state.oz ? ing.q / OZ : ing.q;
+        const inp = el("input", { class: "ing-qty", type: "number", inputmode: "decimal", step: "any", value: fmtNum(base * factor).replace(/,/g, ""), "aria-label": ing.n + " amount" });
+        inp.addEventListener("change", () => { const v = parseFloat(inp.value); if (v > 0) { state.factor[r.id] = v / base; render(); } });
+        row.append(el("span", { class: "ing-amt" }, inp, el("span", { class: "unit", text: ing.u === "g" ? (state.oz ? "oz" : "g") : ing.u })));
+      } else row.append(el("span", { class: "ing-amt", text: amountText(ing, factor) }));
+      list.append(row);
+      if (sub) {
+        const det = el("details", { class: "sub" });
+        det.append(el("summary", { text: "Card for " + sub.name }));
+        det.append(recipeCard(sub, { readonly: true }));
+        list.append(det);
+      }
+    });
+    card.append(list);
+    if (r.method) card.append(el("details", { class: "method" }, el("summary", { text: "Method" }), el("p", { text: r.method })));
+    if (r.notes) card.append(el("p", { class: "note", text: r.notes }));
+    return card;
+  }
+  function recipeList(kind, filter) {
+    const list = el("div", { class: "rlist" });
+    const q = filter.trim().toLowerCase();
+    let items = byKind(kind).filter((r) => !q || r.name.toLowerCase().includes(q) || (r.cat || "").toLowerCase().includes(q));
+    items.sort((a, b) => a.cat.localeCompare(b.cat) || a.name.localeCompare(b.name));
+    let lastCat = null;
+    items.forEach((r) => {
+      if (r.cat !== lastCat) { lastCat = r.cat; list.append(el("h3", { class: "cat-head", text: r.cat || "Other" })); }
+      const open = state.openRecipe === r.id;
+      const subs = r.ings.filter((i) => i.p).length;
+      const meta = [];
+      if (r.yq) meta.push(r.yu === "g" && r.yq >= 1000 ? fmtNum(r.yq / 1000) + " kg" : fmtNum(r.yq) + " " + r.yu);
+      meta.push(r.ings.length + " ingredients");
+      if (r.leadl) meta.push(r.leadl);
+      const row = el("button", { class: "row rrow" + (open ? " is-open" : ""), type: "button", "aria-expanded": open ? "true" : "false", onclick: () => { state.openRecipe = open ? null : r.id; render(); } },
+        el("span", { class: "row-body" }, el("span", { class: "row-title", text: r.name }), el("span", { class: "row-detail", text: meta.join(" · ") })),
+        el("span", { class: "chip " + (subs ? "multi" : "direct"), text: subs ? "multi-step" : "direct" }), el("span", { class: "chev", "aria-hidden": "true" }));
+      list.append(row);
+      if (open) list.append(recipeCard(r));
+    });
+    if (!items.length) list.append(el("p", { class: "empty", text: "Nothing matches." }));
+    return list;
+  }
+
+  // ----- weekly prep rotation -----
+  // Ticks live in runs/<day>.wk, so the last-14-days subscription already carries the
+  // history carryover needs — no second collection, no second subscription.
+  function isoWeekday(iso) { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).getDay(); }
+  function isoShift(iso, n) { const [y, m, d] = iso.split("-").map(Number); const t = new Date(y, m - 1, d + n); return t.getFullYear() + "-" + pad(t.getMonth() + 1) + "-" + pad(t.getDate()); }
+  function dayName(iso) { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("en-US", { weekday: "long" }); }
+  const weekTasks = (iso) => JC.week[isoWeekday(iso)] || [];
+  function wkDone(day, k) {
+    if (day === state.day) return !!state.run.wk[k];
+    const rec = state.days.find((x) => x.id === day);
+    return !!(rec && rec.wk && rec.wk[k]);
+  }
+  // A day with no run doc means nobody worked the board that night, so there is no
+  // evidence anything was missed. Only days that were actually run can leave a debt.
+  function carryOver() {
+    const out = [];
+    for (let i = 6; i >= 1; i--) {
+      const d = isoShift(state.day, -i);
+      if (!state.days.some((x) => x.id === d)) continue;
+      weekTasks(d).forEach((it) => { if (!wkDone(d, it.k)) out.push({ day: d, it }); });
+    }
+    return out;
+  }
+  function setWeekItem(day, key, value) {
+    if (!isToday()) return;
+    if (day === state.day) state.run.wk[key] = value;
+    else { const rec = state.days.find((x) => x.id === day); if (rec) rec.wk = Object.assign({}, rec.wk, { [key]: value }); }
+    write("runs/" + day, { wk: { [key]: value }, day: day, at: new Date().toISOString() });
+    render();
+  }
+  function wkRow(day, it, tag) {
+    const on = wkDone(day, it.k);
+    return el("button", {
+      class: "row duty" + (on ? " is-done" : ""), type: "button", "aria-pressed": on ? "true" : "false",
+      disabled: isToday() ? null : true, onclick: () => setWeekItem(day, it.k, on ? 0 : 1),
+    },
+      el("span", { class: "tick", "aria-hidden": "true" }),
+      el("span", { class: "row-body" }, el("span", { class: "row-title" }, it.t), it.d ? el("span", { class: "row-detail", text: it.d }) : null),
+      tag ? el("span", { class: "deadline", text: tag }) : null);
+  }
+  function weekSection() {
+    const today = weekTasks(state.day), carry = carryOver();
+    const done = today.filter((it) => wkDone(state.day, it.k)).length;
+    const sec = el("section", { class: "need" + (carry.length ? " has-items" : "") });
+    sec.append(el("h3", { class: "need-head" }, el("span", { text: "Weekly prep · " + dayName(state.day) }),
+      el("span", { class: "sec-count" + (carry.length ? " warn" : ""), text: today.length ? done + " of " + today.length + " done" : "nothing scheduled" })));
+    if (!today.length) sec.append(el("p", { class: "hint", text: "Nothing on the rotation today. The week starts Tuesday with the lychee martini batch and dehydrated lemons." }));
+    today.forEach((it) => sec.append(wkRow(state.day, it, null)));
+    if (carry.length) {
+      sec.append(el("h4", { class: "sec-head" }, el("span", { text: "Carried over" }), el("span", { class: "sec-count warn", text: carry.length + " still owed" })));
+      sec.append(el("p", { class: "hint", text: "Left unfinished on an earlier shift. Pick these up or hand them on \u2014 they stay here until someone does." }));
+      carry.forEach(({ day, it }) => sec.append(wkRow(day, it, prettyDay(day).replace(/,.*$/, ""))));
+    }
+    return sec;
+  }
+
+  function renderPrep(root) {
+    const nm = needsMaking();
+    root.append(el("header", { class: "tab-head" }, el("h2", { text: "Batch prep" }), el("p", { class: "lede", text: "Every batch and prep on the summer menu in the card's own units. Scale any recipe from one ingredient, or build a prep day and work it from the ground up." })));
+    // needs-making table
+    const need = el("section", { class: "need" + (nm.length ? " has-items" : "") });
+    need.append(el("h3", { class: "need-head" }, el("span", { text: "Needs making" }), el("span", { class: "sec-count", text: nm.length ? nm.length + " flagged on stock" : "nothing flagged" })));
+    if (nm.length) {
+      const tbl = el("table", { class: "need-table" });
+      tbl.append(el("thead", {}, el("tr", {}, el("th", { text: "Item" }), el("th", { text: "Level" }), el("th", { text: "Where" }), el("th", { text: "Flagged" }), el("th", { text: "" }))));
+      const tb = el("tbody");
+      nm.forEach((it) => {
+        const inPlan = state.prep.sel.includes(it.r);
+        tb.append(el("tr", {},
+          el("td", {}, el("span", { class: "need-name", text: R[it.r].name }), it.t !== R[it.r].name ? el("span", { class: "row-detail", text: "on shelf as " + it.t }) : null),
+          el("td", {}, el("span", { class: "lvl " + it.st.s, text: it.st.s })),
+          el("td", { text: it.unit ? it.area + " · " + it.unit : it.area }),
+          el("td", { text: timeAgo(it.st.at) + (it.st.by ? " · " + it.st.by : "") }),
+          el("td", {}, el("button", { class: "btn small" + (inPlan ? " ghost" : ""), type: "button", disabled: inPlan ? true : null, onclick: () => setPrep({ sel: [...state.prep.sel, it.r] }) }, inPlan ? "In plan" : "Plan it")),
+        ));
+      });
+      tbl.append(tb);
+      need.append(el("div", { class: "scroll-x" }, tbl));
+      const missing = nm.filter((it) => !state.prep.sel.includes(it.r)).map((it) => it.r);
+      if (missing.length > 1) need.append(el("button", { class: "btn", type: "button", onclick: () => { setPrep({ sel: [...new Set([...state.prep.sel, ...missing])] }); state.prepView = "plan"; render(); } }, "Plan all " + missing.length));
+    } else need.append(el("p", { class: "hint", text: "When something is marked Low or Out on the Stock tab and there is a recipe for it, it shows up here." }));
+    root.append(need);
+    root.append(weekSection());
+    // sub-tabs
+    const sub = el("div", { class: "subtabs", role: "tablist" });
+    [["recipes", "Recipes"], ["plan", "Prep day" + (state.prep.sel.length ? " · " + state.prep.sel.length : "")]].forEach(([id, label]) => sub.append(el("button", { class: "subtab" + (state.prepView === id ? " is-on" : ""), role: "tab", type: "button", onclick: () => { state.prepView = id; render(); } }, label)));
+    root.append(sub);
+    if (state.prepView === "recipes") {
+      const ctl = el("div", { class: "controls" });
+      const kinds = el("div", { class: "seg" });
+      [["batch", "Drinks"], ["prep", "Preps"]].forEach(([k, l]) => kinds.append(el("button", { class: "seg-btn" + (state.recipeKind === k ? " is-on" : ""), type: "button", onclick: () => { state.recipeKind = k; render(); } }, l)));
+      ctl.append(kinds, el("input", { class: "search", type: "search", placeholder: "Search recipes", value: state.recipeFilter, oninput: (e) => { state.recipeFilter = e.target.value; renderBody(); } }));
+      root.append(ctl, recipeList(state.recipeKind, state.recipeFilter));
+    } else renderPlan(root);
+  }
+  function renderPlan(root) {
+    const sel = state.prep.sel.filter(makeable);
+    const tray = el("div", { class: "tray" });
+    sel.forEach((id) => tray.append(el("span", { class: "chip sel" }, R[id].name, el("button", { class: "chip-x", type: "button", "aria-label": "Remove " + R[id].name, onclick: () => setPrep({ sel: sel.filter((x) => x !== id) }) }, "✕"))));
+    tray.append(el("button", { class: "btn small", type: "button", onclick: () => { state.picker = !state.picker; render(); } }, state.picker ? "Done picking" : "+ Add drinks or preps"));
+    if (sel.length) tray.append(el("button", { class: "btn small ghost", type: "button", onclick: () => { if (confirm("Reset this prep day? All checks are cleared.")) setPrep({ sel: [], checks: {} }); } }, "Reset day"));
+    root.append(tray);
+    if (state.picker) {
+      const pick = el("div", { class: "picker" });
+      ["batch", "prep"].forEach((kind) => {
+        pick.append(el("h3", { class: "cat-head", text: kind === "batch" ? "Drinks" : "Preps" }));
+        const cats = {};
+        byKind(kind).forEach((r) => (cats[r.cat] = cats[r.cat] || []).push(r));
+        Object.keys(cats).sort().forEach((cat) => {
+          const det = el("details", { class: "bucket" });
+          const n = cats[cat].filter((r) => sel.includes(r.id)).length;
+          det.append(el("summary", {}, el("span", { text: cat }), el("span", { class: "sec-count", text: n + "/" + cats[cat].length })));
+          const wall = el("div", { class: "chipwall" });
+          cats[cat].sort((a, b) => a.name.localeCompare(b.name)).forEach((r) => {
+            const on = sel.includes(r.id);
+            wall.append(el("button", { class: "pick-chip" + (on ? " is-on" : ""), type: "button", "aria-pressed": on ? "true" : "false", onclick: () => setPrep({ sel: on ? sel.filter((x) => x !== r.id) : [...sel, r.id] }) }, r.name));
+          });
+          det.append(wall); pick.append(det);
+        });
+      });
+      root.append(pick);
+    }
+    if (!sel.length) { root.append(el("p", { class: "empty", text: "Pick the batches and preps you are making tonight. The plan pools every raw ingredient, orders the build-up longest-brew-first, and shows each batch's full card." })); return; }
+    const P = plan(sel);
+    const wrap = el("div", { class: "plan" });
+    const ck = (k) => !!state.prep.checks[k];
+    // raw
+    let done = 0, total = 0;
+    const rawSec = el("section", { class: "phase" });
+    const rawRows = [];
+    let lastTier = -1;
+    P.raw.forEach((row) => {
+      const key = "raw:" + row.name.toLowerCase();
+      total++; if (ck(key)) done++;
+      if (row.tier !== lastTier) { lastTier = row.tier; rawRows.push(el("h4", { class: "tier-head", text: tierName[row.tier] })); }
+      const parts = [];
+      if (row.g) parts.push(state.oz ? fmtNum(row.g / OZ) + " oz" : fmtNum(row.g) + " g");
+      for (const u in row.extra) parts.push(fmtNum(row.extra[u]) + " " + u);
+      rawRows.push(el("button", { class: "row duty small" + (ck(key) ? " is-done" : ""), type: "button", "aria-pressed": ck(key) ? "true" : "false", onclick: () => togglePrepCheck(key) },
+        el("span", { class: "tick", "aria-hidden": "true" }), el("span", { class: "row-body" }, el("span", { class: "row-title" }, row.name, ck(key) && prepBy(key) ? el("span", { class: "by", text: prepBy(key) }) : null)), el("span", { class: "ing-amt", text: parts.join(" + ") || "as needed" })));
+    });
+    rawSec.append(el("h3", { class: "phase-head" }, el("span", { text: "1 · Gather raw" }), el("span", { class: "sec-count", text: done + "/" + total })), ...rawRows);
+    wrap.append(rawSec);
+    // build-up
+    function stepBlock(rid, prefix, extraLabel) {
+      const r = R[rid];
+      const rows = []; let d = 0, t = 0;
+      r.ings.forEach((ing, i) => {
+        const key = prefix + rid + ":" + i; t++; if (ck(key)) d++;
+        const label = ing.p && R[ing.p] ? R[ing.p].name : ing.n;
+        rows.push(el("button", { class: "row duty small" + (ck(key) ? " is-done" : ""), type: "button", "aria-pressed": ck(key) ? "true" : "false", onclick: () => togglePrepCheck(key) },
+          el("span", { class: "tick", "aria-hidden": "true" }), el("span", { class: "row-body" }, el("span", { class: "row-title" }, label, ck(key) && prepBy(key) ? el("span", { class: "by", text: prepBy(key) }) : null)), el("span", { class: "ing-amt", text: ing.a || "" })));
+      });
+      const block = el("div", { class: "step" + (d === t && t ? " is-done" : "") });
+      block.append(el("div", { class: "step-head" }, el("span", { class: "step-name", text: (prefix === "b:" ? "Make " : "Assemble ") + r.name }), el("span", { class: "sec-count", text: d + "/" + t })));
+      if (extraLabel) block.append(el("p", { class: "lead", text: extraLabel }));
+      block.append(...rows);
+      if (r.method) block.append(el("p", { class: "method-line", text: r.method }));
+      return block;
+    }
+    if (P.build.length) {
+      const b = el("section", { class: "phase" }, el("h3", { class: "phase-head" }, el("span", { text: "2 · Build up" }), el("span", { class: "sec-count", text: "longest brew first" })));
+      P.build.forEach((s) => b.append(stepBlock(s.rid, "b:", R[s.rid].leadl || "")));
+      wrap.append(b);
+    }
+    const a = el("section", { class: "phase" }, el("h3", { class: "phase-head" }, el("span", { text: (P.build.length ? "3" : "2") + " · Assemble" })));
+    P.assemble.forEach((s) => a.append(stepBlock(s.rid, "a:", s.eta ? "earliest ready " + humanEta(s.eta) : "")));
+    wrap.append(a);
+    root.append(wrap);
+  }
+
+  function renderCocktails(root) {
+    root.append(el("header", { class: "tab-head" }, el("h2", { text: "Cocktails" }), el("p", { class: "lede", text: "The summer menu, spec by spec: what goes in, what it is served in, and how it is finished. Open the batch behind any drink to see the full card." })));
+    root.append(el("div", { class: "controls" }, el("input", { class: "search", type: "search", placeholder: "Search drinks", value: state.cocktailFilter, oninput: (e) => { state.cocktailFilter = e.target.value; renderBody(); } })));
+    const q = state.cocktailFilter.trim().toLowerCase();
+    const list = el("div", { class: "rlist" });
+    const items = byKind("cocktail").filter((r) => !q || r.name.toLowerCase().includes(q) || (r.cat || "").toLowerCase().includes(q) || r.ings.some((i) => i.n.toLowerCase().includes(q)))
+      .sort((a, b) => a.cat.localeCompare(b.cat) || a.name.localeCompare(b.name));
+    let lastCat = null;
+    items.forEach((r) => {
+      if (r.cat !== lastCat) { lastCat = r.cat; list.append(el("h3", { class: "cat-head", text: r.cat })); }
+      const open = state.openRecipe === r.id;
+      list.append(el("button", { class: "row rrow" + (open ? " is-open" : ""), type: "button", "aria-expanded": open ? "true" : "false", onclick: () => { state.openRecipe = open ? null : r.id; render(); } },
+        el("span", { class: "row-body" }, el("span", { class: "row-title", text: r.name }), el("span", { class: "row-detail", text: [r.glass, r.garnish].filter(Boolean).join(" · ") })), el("span", { class: "chev", "aria-hidden": "true" })));
+      if (open) {
+        const card = el("div", { class: "recipe-panel spec" });
+        const dl = el("dl", { class: "spec-grid" });
+        if (r.glass) dl.append(el("dt", { text: "Glass" }), el("dd", { text: r.glass }));
+        if (r.garnish) dl.append(el("dt", { text: "Garnish" }), el("dd", { text: r.garnish }));
+        if (r.desc) dl.append(el("dt", { text: "Build" }), el("dd", { text: r.desc }));
+        if (r.allergy) dl.append(el("dt", { text: "Allergy" }), el("dd", { text: r.allergy }));
+        if (r.notes) dl.append(el("dt", { text: "Notes" }), el("dd", { text: r.notes }));
+        card.append(dl);
+        if (r.ings.length) {
+          const ings = el("div", { class: "ings" });
+          r.ings.forEach((ing) => ings.append(el("div", { class: "ing" }, el("span", { class: "ing-name", text: ing.n }), el("span", { class: "leader" }), el("span", { class: "ing-amt" + (ing.a === "in batch" ? " muted" : ""), text: ing.a || "" }))));
+          card.append(el("h4", { class: "spec-h", text: "What is in it" }), ings);
+        }
+        if (r.batch && R[r.batch]) card.append(el("button", { class: "btn ghost small", type: "button", onclick: () => { state.tab = "prep"; state.prepView = "recipes"; state.recipeKind = "batch"; state.recipeFilter = ""; state.openRecipe = r.batch; render(); window.scrollTo(0, 0); } }, "Open the " + R[r.batch].name + " batch card"));
+        list.append(card);
+      }
+    });
+    if (!items.length) list.append(el("p", { class: "empty", text: "Nothing matches." }));
+    root.append(list);
+  }
+
+  function renderMap(root) {
+    root.append(el("header", { class: "tab-head" }, el("h2", { text: "The map" }), el("p", { class: "lede", text: "Where everything lives, room by room, in the order you see it standing in front of the shelf." })));
+    root.append(el("div", { class: "controls" }, el("input", { class: "search", type: "search", placeholder: "Find an item", value: state.mapFilter, oninput: (e) => { state.mapFilter = e.target.value; renderBody(); } })));
+    const q = state.mapFilter.trim().toLowerCase();
+    const match = (it) => !q || it.t.toLowerCase().includes(q) || (it.n || "").toLowerCase().includes(q);
+    JC.map.forEach((area) => {
+      const units = area.units.map((u) => {
+        function secNode(sec, depth) {
+          const items = sec.items.filter(match);
+          const subs = (sec.subs || []).map((s) => secNode(s, depth + 1)).filter(Boolean);
+          if (!items.length && !subs.length) return null;
+          const n = el("div", { class: "shelf depth-" + depth });
+          if (sec.name) n.append(el("h5", { class: "shelf-name", text: sec.name }));
+          if (items.length) { const w = el("div", { class: "chipwall" }); items.forEach((it) => w.append(el("span", { class: "chip item", title: it.n || null }, it.t, it.n ? el("span", { class: "chip-note", text: it.n }) : null))); n.append(w); }
+          subs.forEach((s) => n.append(s));
+          return n;
+        }
+        const secs = u.sections.map((s) => secNode(s, 0)).filter(Boolean);
+        if (!secs.length) return null;
+        const count = (function c(s) { return s.items.length + (s.subs || []).reduce((a, x) => a + c(x), 0); });
+        const total = u.sections.reduce((a, s) => a + count(s), 0);
+        const det = el("details", { class: "unit", open: q || area.name === "Bar Room" ? true : null });
+        det.append(el("summary", {}, el("span", { class: "unit-name", text: u.name || "Loose in the room" }), el("span", { class: "sec-count", text: total })));
+        secs.forEach((s) => det.append(s));
+        return det;
+      }).filter(Boolean);
+      if (!units.length) return;
+      root.append(el("section", { class: "area" }, el("h3", { class: "area-head", text: area.name }), ...units));
+    });
+  }
+
+  function renderStock(root) {
+    const lo = lowOut();
+    root.append(el("header", { class: "tab-head" }, el("h2", { text: "Stock" }), el("p", { class: "lede", text: "Low, not out. Flag anything that is running down while there is still time to make or order it. Batches and preps you flag show up on Batch prep as needing to be made." })));
+    const sum = el("section", { class: "lowout" + (lo.length ? " has-items" : "") });
+    sum.append(el("h3", { class: "need-head" }, el("span", { text: "Low and out" }), el("span", { class: "sec-count", text: lo.length ? lo.length + " items" : "all clear" })));
+    if (lo.length) {
+      const w = el("div", { class: "chipwall" });
+      lo.sort((a, b) => (a.st.s === "out" ? 0 : 1) - (b.st.s === "out" ? 0 : 1) || a.t.localeCompare(b.t)).forEach((it) => w.append(el("span", { class: "chip lvlchip " + it.st.s, title: it.area + (it.unit ? " · " + it.unit : "") }, it.t, el("span", { class: "chip-note", text: it.st.s + " · " + timeAgo(it.st.at) + (it.st.by ? " · " + it.st.by : "") }))));
+      sum.append(w);
+    }
+    root.append(sum);
+    const ctl = el("div", { class: "controls" });
+    ctl.append(el("input", { class: "search", type: "search", placeholder: "Find an item", value: state.stockFilter, oninput: (e) => { state.stockFilter = e.target.value; renderBody(); } }));
+    ctl.append(el("button", { class: "btn small" + (state.stockOnlyLow ? "" : " ghost"), type: "button", "aria-pressed": state.stockOnlyLow ? "true" : "false", onclick: () => { state.stockOnlyLow = !state.stockOnlyLow; render(); } }, "Only low / out"));
+    root.append(ctl);
+    const q = state.stockFilter.trim().toLowerCase();
+    const groups = new Map();
+    JC.stock.forEach((it) => {
+      const st = state.stock[it.k];
+      if (q && !it.t.toLowerCase().includes(q)) return;
+      if (state.stockOnlyLow && !(st && (st.s === "low" || st.s === "out"))) return;
+      const g = it.area + (it.unit ? " · " + it.unit : "");
+      if (!groups.has(g)) groups.set(g, []);
+      groups.get(g).push(it);
+    });
+    if (!groups.size) root.append(el("p", { class: "empty", text: state.stockOnlyLow ? "Nothing is flagged." : "Nothing matches." }));
+    for (const [g, items] of groups) {
+      const det = el("details", { class: "unit", open: q || state.stockOnlyLow || g.startsWith("Bar Room") ? true : null });
+      const flagged = items.filter((it) => state.stock[it.k] && state.stock[it.k].s && state.stock[it.k].s !== "good").length;
+      det.append(el("summary", {}, el("span", { class: "unit-name", text: g }), el("span", { class: "sec-count" + (flagged ? " warn" : ""), text: flagged ? flagged + " flagged" : items.length })));
+      let lastSec = null;
+      items.forEach((it) => {
+        if (it.sec !== lastSec) { lastSec = it.sec; if (it.sec) det.append(el("h5", { class: "shelf-name", text: it.sec })); }
+        const st = state.stock[it.k] || {};
+        const row = el("div", { class: "row stockrow" + (st.s ? " is-" + st.s : "") });
+        row.append(el("span", { class: "row-body" }, el("span", { class: "row-title", text: it.t }), st.at && st.s ? el("span", { class: "row-detail", text: timeAgo(st.at) + (st.by ? " · " + st.by : "") }) : null));
+        const seg = el("div", { class: "seg lvlseg", role: "group", "aria-label": it.t + " level" });
+        ["good", "low", "out"].forEach((s) => seg.append(el("button", { class: "seg-btn " + s + (st.s === s ? " is-on" : ""), type: "button", "aria-pressed": st.s === s ? "true" : "false", onclick: () => setStock(it.k, s) }, s)));
+        row.append(seg);
+        det.append(row);
+      });
+      root.append(det);
+    }
+  }
+
+  // ---------- root render ----------
+  let raf = 0;
+  function render() { if (raf) return; raf = requestAnimationFrame(() => { raf = 0; renderTabs(); renderBody(); stampSync(); }); }
+  function renderBody() {
+    const root = $("#panel");
+    const active = document.activeElement; const keep = active && active.classList && active.classList.contains("search") ? { sel: active.selectionStart } : null;
+    root.replaceChildren();
+    ({ open: renderOpen, close: renderClose, prep: renderPrep, cocktails: renderCocktails, map: renderMap, stock: renderStock })[state.tab](root);
+    if (keep) { const s = $(".search", root); if (s) { s.focus(); try { s.setSelectionRange(keep.sel, keep.sel); } catch (e) { } } }
+  }
+
+  // ---------- boot ----------
+  function boot() {
+    state.today = barDate(); state.day = state.today;
+    render();
+    connect();
+    // roll the day over at 05:00 if the page is left open
+    setInterval(() => { const t = barDate(); if (t !== state.today) { const wasToday = isToday(); state.today = t; if (wasToday) { state.day = t; subscribeDay(t); } render(); } }, 60 * 1000);
+  }
+  // iOS Safari pinch-zooms straight through touch-action, so refuse the gesture itself.
+  ["gesturestart", "gesturechange", "gestureend"].forEach((g) => document.addEventListener(g, (e) => e.preventDefault(), { passive: false }));
+  // trackpad pinch and ctrl+wheel arrive as a wheel event, not a gesture
+  document.addEventListener("wheel", (e) => { if (e.ctrlKey) e.preventDefault(); }, { passive: false });
+  // and a second finger landing anywhere is a pinch, never a scroll on this page
+  document.addEventListener("touchmove", (e) => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+})();
+
+</script>
+
+
+<script>
+/* Phone tab row parks under the Liquid bar, whose height (56/64px) and float offset change with
+   width and scroll, so its bottom edge is measured rather than declared. */
+(function () {
+  var hooked = false;
+  var f = function () {
+    var b = document.querySelector(".topbar"); if (!b) return;
+    /* the bar eases its margins for ~0.8s after a scroll; re-measure when that settles */
+    if (!hooked) { hooked = true; b.addEventListener("transitionend", f); }
+    document.documentElement.style.setProperty("--bar-b", Math.round(b.getBoundingClientRect().bottom) + "px");
+  };
+  addEventListener("scroll", f, { passive: true }); addEventListener("resize", f); addEventListener("load", f); setTimeout(f, 300);
+})();
+</script>
+</body></html>

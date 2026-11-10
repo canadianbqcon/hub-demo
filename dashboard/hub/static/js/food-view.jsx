@@ -768,9 +768,9 @@ window.HubUI = window.HubUI || {};
             value={text}
             onChange={(e) => { setText(e.target.value); upd({ q: e.target.value.trim().toLowerCase() }, true); }} /></span>
           <span className="fview-count">{shown.length} of {places.length} shown</span>
-          <button type="button" className="filter-reset" id="fvReset" hidden={!filtersActive(filters)}
+          <button type="button" className="hub-btn filter-reset" id="fvReset" hidden={!filtersActive(filters)}
                   onClick={() => { setText(""); setFilters(() => emptyFilters()); }}>clear filters</button>
-          {portal ? <a className="fview-portal" href={portal}>open the full research</a> : null}
+          {portal ? <a className="hub-btn fview-portal" href={portal}>open the full research</a> : null}
         </div>
       );
       listEl = <div className="results"><Results shown={shown} places={places} area={area} selected={selected} onOpen={showPlace} /></div>;

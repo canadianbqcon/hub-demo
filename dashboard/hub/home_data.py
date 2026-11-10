@@ -318,7 +318,44 @@ def _gcal_events_by_date(today: date) -> dict[str, list]:
     return gcal_by_date
 
 
-def _day_events(d: date, d_str: str, trips_in_window: list[dict], gcal_by_date: dict[str, list]) -> list[dict]:
+def _booked_stays() -> list[dict]:
+    con = _db(TRIPS_DB)
+    try:
+        return [dict(r) for r in con.execute(
+            "SELECT address, check_in_method, checkout_tasks FROM housing WHERE status = 'booked'")]
+    except sqlite3.OperationalError:   # a trips.db without the stay columns: no stay asks, never a 500
+        return []
+    finally:
+        con.close()
+
+
+_HOUSE_NO = re.compile(r"(?:^|,)\s*(\d+)\s")
+_ZIP = re.compile(r"\b(\d{5})\b")
+
+
+def _stay_prep(summary: str, location: str, stays: list[dict]) -> list[str] | None:
+    """What a booked stay itself asks at check-in or checkout (door code, "start the
+    dishwasher"), for the Today card's prep list. The calendar event and the stay row
+    spell the street differently ("W 70th Dr" / "West 70th Drive"), so they are
+    matched on house number plus ZIP. No guessing: no match or no text gives None."""
+    col = ("check_in_method" if re.search(r"check.?in", summary or "", re.I)
+           else "checkout_tasks" if re.search(r"check.?out", summary or "", re.I) else None)
+    if not col or not location:
+        return None
+    no, zips = _HOUSE_NO.search(location), _ZIP.findall(location)
+    if not no or not zips:
+        return None
+    for st in stays:
+        a = st.get("address") or ""
+        sno = _HOUSE_NO.search(a)
+        if sno and sno.group(1) == no.group(1) and zips[-1] in _ZIP.findall(a):
+            lines = [ln.strip() for ln in (st.get(col) or "").splitlines() if ln.strip()]
+            return lines or None
+    return None
+
+
+def _day_events(d: date, d_str: str, trips_in_window: list[dict], gcal_by_date: dict[str, list],
+                stays: list[dict] | None = None) -> list[dict]:
     events = []
 
     for t in trips_in_window:
@@ -361,6 +398,7 @@ def _day_events(d: date, d_str: str, trips_in_window: list[dict], gcal_by_date: 
                 "endDt": ev.get("end_dt", ""),
                 "allDay": ev.get("all_day", False),
                 "rolled": rolled,
+                "stayPrep": _stay_prep(ev["summary"], ev.get("location", ""), stays or []),
             }
         )
 
@@ -396,6 +434,7 @@ def _build_schedule() -> list:
 
     trips_in_window = _trips_in_window(window_start, end_window)
     gcal_by_date = _gcal_events_by_date(today)
+    stays = _booked_stays()
 
     # i = -7..-1 is the past week; 0 is today; 1..7 are the next seven days.
     days_data = []
@@ -408,7 +447,7 @@ def _build_schedule() -> list:
                 "date": f"{_MONTHS[d.month - 1]} {d.day}",
                 "isoDate": d_str,
                 "isToday": i == 0,
-                "events": _day_events(d, d_str, trips_in_window, gcal_by_date),
+                "events": _day_events(d, d_str, trips_in_window, gcal_by_date, stays),
             }
         )
 

@@ -1,4 +1,5 @@
-/* work portal — tokens only, no raw hex. Matches the home/sibling shell pattern
+/* work portal — tokens only, except J&Co's own band colours (#114038 is the job's
+   tint, #f2efe4 the sorrel's cream), which stay literal on every theme. Matches the home/sibling shell pattern
    (home `.shell`, trips `.shell`, purchases `.pe-shell`): a 3-row grid that pins
    the status strip to the bottom and lets the body fill the frame, instead of the
    old min-height flow that floated two tiles in a void. */
@@ -33,65 +34,41 @@ body {
 .work-body::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); }
 .work-body::-webkit-scrollbar-track { background: transparent; }
 
-/* capped width — critique P2: an edge-to-edge section under two tiles read as
-   an unfinished load, not a deliberate index. Committing to a tight column lets
-   the leftover space read as intentional negative space instead. */
-.work-job { margin-bottom: var(--s-6); max-width: 600px; }
-.work-job:last-child { margin-bottom: 0; }
+[data-theme="liquid"] .work-body { padding: var(--s-2) 18px var(--s-6); }
 
-/* cobalt blueprint dot-grid (cobalt.css, applied to every .col) — work never uses
-   .col, so its signature cobalt texture was missing here, part of the "65% dead
-   void" critique. Page-owned override per THEMING-SPEC Rule 1: does not touch
-   the frozen theme file. */
-[data-theme="cobalt"] .work-body {
-  background-image: radial-gradient(var(--line-soft) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* section header in home's panel-head voice: violet lowercase display title +
-   dim italic meta, separated from the tiles by a full-width hairline rule. */
-.work-job-head {
-  display: flex; align-items: baseline; gap: var(--s-3);
-  padding-bottom: var(--s-3); margin-bottom: var(--s-4);
-  border-bottom: 1px solid var(--line);
-}
-.work-job-title {
-  font-family: var(--font); font-feature-settings: var(--feat-display);
-  font-weight: 500; font-size: var(--fs-title); letter-spacing: 0.01em;
-  color: var(--violet-label); text-transform: lowercase;
-  line-height: 1; margin: 0;
-}
-.work-job-meta {
-  font-family: var(--font-body); font-feature-settings: var(--feat-meta);
-  font-style: italic; font-size: var(--fs-footnote); color: var(--fg-dim);
-  letter-spacing: 0.01em;
-}
-
-/* left-aligned tile row — fixed comfortable width so 2 boards read as a section,
-   not stretched edge-to-edge. Reuses the chrome module-launcher tile voice. */
-.work-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 260px));
-  gap: var(--s-3);
-}
-/* .launch-tile in chrome.css is a <button> (border:0, no link reset needed);
-   here it's an <a> (work.jsx), so border/color/text-decoration stay page-owned
-   to undo anchor defaults -- not duplicates of chrome's button styling. */
-.work-grid .launch-tile {
-  border: 1px solid var(--line); color: var(--fg); text-decoration: none;
-  min-height: 128px;
-  transition: background 120ms ease-out, border-color 120ms ease-out;
-}
-.work-grid .launch-tile:hover {
-  border-color: var(--accent-dim);
-  background: linear-gradient(135deg, var(--accent-faint) 50%, var(--bg-elev-2) 50%);
-}
-.work-grid .launch-tile:focus-visible {
-  outline: 2px solid var(--accent); outline-offset: 2px;
-}
-.work-grid .tile-meta {
-  color: var(--fg-dim); /* accent measured 4.22:1 on bg-elev at this size, fails AA; fg-dim clears at 7.36:1 */
-}
+/* J&Co page, from Workbench work-page-richer option C (2026-11-09) */
+.wx { display: flex; flex-direction: column; gap: 12px; font-family: var(--font); color: var(--fg); font-variant-numeric: tabular-nums; }
+.wx p { margin: 0; }
+.wx a { color: inherit; text-decoration: none; }
+.wx .b { font-weight: 600; }
+.wx .dim, .wx-dim { color: var(--fg-dim); }
+.wx-slab { background: var(--bg-elev); box-shadow: var(--lq-slab-shade); border-radius: 26px; padding: 16px 18px; min-width: 0; box-sizing: border-box; }
+.wx-k { font-size: var(--fs-footnote); color: var(--fg-dim); font-weight: 500; }
+.wx-row { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.wx-empty { padding: 8px 0; border-top: 1px solid var(--line); }
+.wx-mark { width: 44px; height: 44px; border-radius: 50%; background: #114038; object-fit: contain; flex: none; }
+.wx-open { flex: none; padding: 9px 14px; border-radius: 14px; background: var(--accent); color: #fff !important; font-weight: 600; font-size: var(--fs-body); text-align: center; }
+.wx-open b { font-weight: 400; }
+.wx-open:focus-visible, .wx-tool:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.wx-l { list-style: none; margin: 0; padding: 0; }
+.wx-l li { display: grid; grid-template-columns: 7.2em 1fr auto; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }
+.wx-l .end { font-weight: 600; text-align: right; }
+.wx-tools { padding: 14px 8px 8px; }
+.wx-tools .wx-row { padding: 0 10px; }
+.wx-tool { display: grid; grid-template-columns: 6.5em 1fr auto; gap: 8px; align-items: center; padding: 10px; border-radius: 14px; }
+.wx-tool:hover { background: var(--bg-elev-2); }
+.wx-tool > b { color: var(--fg-faint); font-weight: 400; }
+.wx-three { display: grid; gap: 12px; align-items: start; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.wc-band { display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 18px 22px; padding: 22px 24px; border-radius: 28px; background: linear-gradient(135deg, #114038, #1d5a4e); color: #f2efe4; box-shadow: var(--lq-slab-shade); }
+.wx-mark.big { width: 64px; height: 64px; background: rgba(255,255,255,.08); }
+.wc-id h1 { margin: 0; font: 700 26px/1.1 var(--font); }
+.wc-id p { opacity: .75; font-size: var(--fs-footnote); margin-top: 4px !important; }
+.wc-nums { display: flex; gap: 28px; justify-content: center; }
+.wc-nums div { display: flex; flex-direction: column; gap: 2px; }
+.wc-nums p { font-size: var(--fs-footnote); opacity: .75; }
+.wc-nums b { font-size: 20px; }
+.wc-nums span { font-size: var(--fs-footnote); opacity: .75; }
+.wx-open.on-band { background: #f2efe4; color: #114038 !important; }
 
 /* ---- phone. Last in the file on purpose: these override the rules above, and
    a media query carries no extra specificity, so source order is the win. ---- */
@@ -100,32 +77,11 @@ body {
      --status-h track would clip it. */
   .work-shell { grid-template-rows: auto 1fr auto; }
   .work-body { padding: var(--s-4) var(--s-4) var(--s-5); }
-  /* the 240–260px tile cap leaves a dead 130px gutter on a 390px screen. */
-  .work-grid { grid-template-columns: minmax(0, 1fr); }
-  .work-job { max-width: none; }
+  .wx-three { grid-template-columns: 1fr; }
+  .wc-band { grid-template-columns: auto 1fr; padding: 18px; }
+  .wc-nums { grid-column: 1 / -1; justify-content: space-between; gap: 10px; }
+  .wc-nums b { font-size: 16px; }
+  .wx-open.on-band { grid-column: 1 / -1; }
+  .wx-l li { grid-template-columns: 6.5em 1fr auto; font-size: var(--fs-footnote); }
 }
 
-/* ---- liquid. Own block, liquid-scoped (liquid.css is frozen). The vesper voice
-   above (violet lowercase title, hairline under the head, 1px bordered tile on a
-   diagonal hover fill) reads as a different app on liquid: here the head is a
-   sentence-case label on the wallpaper and the board is a solid slab that
-   lifts a step on hover, like the Purchases and Trips cards. ---- */
-[data-theme="liquid"] .work-body { padding: var(--s-2) 18px var(--s-6); }
-[data-theme="liquid"] .work-job-head { border-bottom: 0; padding: 0 0 0 4px; margin-bottom: var(--s-3); gap: var(--s-3); }
-[data-theme="liquid"] .work-job-title {
-  font: 700 var(--fs-title)/1.2 var(--font); letter-spacing: -.01em;
-  text-transform: none; color: var(--fg);
-}
-[data-theme="liquid"] .work-job-meta { font: 500 var(--fs-footnote)/1.2 var(--font); font-style: normal; letter-spacing: 0; color: var(--fg-dim); }
-[data-theme="liquid"] .work-grid { gap: 10px; }
-[data-theme="liquid"] .work-grid .launch-tile {
-  /* head and tile share one left edge */
-  min-height: 0; padding: 16px 18px; gap: 4px;
-  border: 0; border-radius: 26px; background: var(--bg-elev); box-shadow: var(--lq-slab-shade);
-}
-[data-theme="liquid"] .work-grid .launch-tile:hover { border: 0; background: var(--bg-elev-2); }
-[data-theme="liquid"] .work-grid .launch-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-/* tile copy is stored proper case; the older themes keep their lowercase look */
-:root:not([data-theme="liquid"]) .work-grid .tile-name,
-:root:not([data-theme="liquid"]) .work-grid .tile-desc { text-transform: lowercase; }

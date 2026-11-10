@@ -323,6 +323,158 @@ def view(destinations: list[str], riding: list[str] | None = None, day: str = ""
             "stops": sorted(relevant), "fetched": int(time.time() * 1000)}
 
 
+# Google's own transit routes for the card (2026-11-07 mark: "can we just use the
+# google recommended routes? why is it suggesting bus when its like an 8 minute
+# walk"). The self-hosted router put him on the M15 for the last stretch from
+# Delancey; Google walks it, which is what he does. Same itinerary shape the card
+# already draws from /trips/api/transit, so the card only swaps its URL.
+ROUTES_URL = "https://routes.googleapis.com/directions/v2:computeRoutes"
+ROUTES_MASK = ",".join([
+    "routes.duration",
+    "routes.legs.steps.travelMode",
+    "routes.legs.steps.staticDuration",
+    "routes.legs.steps.transitDetails.headsign",
+    "routes.legs.steps.transitDetails.stopDetails",
+    "routes.legs.steps.transitDetails.transitLine.nameShort",
+    "routes.legs.steps.transitDetails.transitLine.name",
+    "routes.legs.steps.transitDetails.transitLine.color",
+    "routes.legs.steps.transitDetails.transitLine.vehicle.type",
+])
+_routes_cache: dict[str, tuple[float, list]] = {}
+
+
+def _secs(s: str | None) -> int:
+    return int(float((s or "0s").rstrip("s") or 0))
+
+
+def _local(ts: str) -> datetime:
+    from zoneinfo import ZoneInfo
+    return datetime.fromisoformat(ts.replace("Z", "+00:00")).astimezone(ZoneInfo("America/New_York"))
+
+
+def _shape_route(r: dict) -> dict | None:
+    """One Google route as the card's itinerary: consecutive walk steps merged into
+    one walk leg, each ride a leg with its line, colour and stops."""
+    from trips.api_transit import _line_color
+    legs: list[dict] = []
+    for st in (r.get("legs") or [{}])[0].get("steps") or []:
+        dur = _secs(st.get("staticDuration"))
+        td = st.get("transitDetails")
+        if st.get("travelMode") != "TRANSIT" or not td:
+            if legs and not legs[-1]["transit"]:
+                legs[-1]["dur"] += dur
+            else:
+                legs.append({"mode": "WALK", "transit": False, "dur": dur})
+            continue
+        ln = td.get("transitLine") or {}
+        sd = td.get("stopDetails") or {}
+        mode = ((ln.get("vehicle") or {}).get("type") or "TRANSIT").upper()
+        mode = "SUBWAY" if mode in ("SUBWAY", "METRO_RAIL") else mode
+        short = (ln.get("nameShort") or ln.get("name") or "").strip()
+        dep, arr = _local(sd["departureTime"]), _local(sd["arrivalTime"])
+        legs.append({
+            "mode": mode, "transit": True, "line": short,
+            "headsign": (td.get("headsign") or "").strip(),
+            "color": _line_color(mode, short, ln.get("color")) or "#808183",
+            "from": (sd.get("departureStop") or {}).get("name", ""),
+            "to": (sd.get("arrivalStop") or {}).get("name", ""),
+            "dur": int((arr - dep).total_seconds()),
+            "start_min": dep.hour * 60 + dep.minute, "end_min": arr.hour * 60 + arr.minute,
+        })
+    rides = [lg for lg in legs if lg["transit"]]
+    if not rides:
+        return None  # a walk-only answer is drawn from Google's WALK route instead (_walk_route)
+    # Leave = first boarding minus the walk to it; land = last alighting plus the walk off.
+    first, last = legs.index(rides[0]), legs.index(rides[-1])
+    walk_in = sum(lg["dur"] for lg in legs[:first]) // 60
+    walk_out = -(-sum(lg["dur"] for lg in legs[last + 1:]) // 60)
+    start, end = rides[0]["start_min"] - walk_in, rides[-1]["end_min"] + walk_out
+    return {"start_min": start, "end_min": end, "dur": (end - start) * 60,
+            "transfers": len(rides) - 1, "legs": legs}
+
+
+def google_routes(frm: str, to: str, arrive: str = "") -> list | None:
+    """Up to three Google transit routes from `frm` to `to` ("lat,lng"), arriving
+    by `arrive` (naive local ISO, the event start) or leaving now. None on any
+    failure, so the caller can fall back to the self-hosted router."""
+    import os
+    import sys
+    from zoneinfo import ZoneInfo
+    sys.path.insert(0, os.path.expanduser("~/.config/vault-api"))
+    try:
+        from services import PLACES_API_KEY  # pyright: ignore[reportAttributeAccessIssue]
+    except Exception:
+        return None
+    key = f"{frm}|{to}|{arrive}"
+    hit = _routes_cache.get(key)
+    if hit and time.time() - hit[0] < ALERT_TTL:
+        return hit[1]
+
+    def pt(s: str) -> dict:
+        lat, lng = (float(x) for x in s.split(","))
+        return {"location": {"latLng": {"latitude": lat, "longitude": lng}}}
+
+    try:
+        body: dict = {"origin": pt(frm), "destination": pt(to), "travelMode": "TRANSIT",
+                      "computeAlternativeRoutes": True}
+    except ValueError:
+        return None
+    if arrive:
+        try:
+            at = datetime.fromisoformat(arrive[:19]).replace(tzinfo=ZoneInfo("America/New_York"))
+            if at.timestamp() > time.time() + 60:
+                body["arrivalTime"] = at.isoformat()
+        except ValueError:
+            pass
+    req = urllib.request.Request(ROUTES_URL, data=json.dumps(body).encode(), headers={
+        "Content-Type": "application/json", "X-Goog-Api-Key": PLACES_API_KEY,
+        "X-Goog-FieldMask": ROUTES_MASK})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = json.load(resp)
+    except Exception:
+        return None
+    out = [x for x in (_shape_route(r) for r in data.get("routes") or []) if x]
+    # Google's own order: its first route is the one it recommends, and the card shows
+    # only that one until he expands (2026-11-07 send-back).
+    walk = _walk_route(pt(frm), pt(to), body.get("arrivalTime"), out, PLACES_API_KEY)
+    if walk:
+        out.insert(0, walk)
+    _routes_cache[key] = (time.time(), out)
+    return out
+
+
+WALK_LEADS_MIN = 20  # ponytail: fixed cutoff; a walk this short or faster than the ride leads
+
+
+def _walk_route(o: dict, d: dict, arrival: str | None, rides: list, api_key: str) -> dict | None:
+    """Google's walk-only route as an itinerary, when it is short or beats every ride
+    (2026-11-07 mark: "why is it suggesting bus when its like an 8 minute walk").
+    Transit mode never answers walk-only, so this is its own WALK request."""
+    req = urllib.request.Request(ROUTES_URL, data=json.dumps(
+        {"origin": o, "destination": d, "travelMode": "WALK"}).encode(), headers={
+        "Content-Type": "application/json", "X-Goog-Api-Key": api_key,
+        "X-Goog-FieldMask": "routes.duration"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            secs = _secs(((json.load(resp).get("routes") or [{}])[0]).get("duration"))
+    except Exception:
+        return None
+    mins = -(-secs // 60)
+    if not secs or (mins > WALK_LEADS_MIN and any(r["dur"] <= secs for r in rides)):
+        return None
+    if arrival:
+        a = datetime.fromisoformat(arrival)
+        end = a.hour * 60 + a.minute
+        start = end - mins
+    else:
+        n = datetime.now(_local("2000-01-01T00:00:00Z").tzinfo)
+        start = n.hour * 60 + n.minute
+        end = start + mins
+    return {"start_min": start, "end_min": end, "dur": mins * 60, "transfers": 0,
+            "legs": [{"mode": "WALK", "transit": False, "dur": secs}]}
+
+
 if __name__ == "__main__":
     # smallest check that fails if the plumbing breaks: a real Brooklyn pin lands
     # on a station carrying one of the home lines and carries a GTFS Stop ID, and

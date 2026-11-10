@@ -149,7 +149,8 @@
       S.boot = "ready";
       bump();
       if (S.all.length) {
-        const storedId = +(localStorage.getItem(U.ACTIVE_KEY) || 0);
+        // ?id=N (the Today card's "open checklist" link) beats the remembered one
+        const storedId = +(new URLSearchParams(location.search).get("id") || localStorage.getItem(U.ACTIVE_KEY) || 0);
         const startId  = (storedId && S.all.find(c => c.id === storedId))
           ? storedId
           : firstSidebarId();
@@ -472,7 +473,7 @@
     if (S.boot === "loading") return <div className="cl-loading">Loading…</div>;
     if (S.boot === "failed") {
       return (
-        <div className="hub-error">Couldn't load checklists — {S.bootErr}<button type="button" className="hub-error-retry" id="cl-boot-retry" onClick={boot}>retry</button></div>
+        <div className="hub-error">Couldn't load checklists — {S.bootErr}<button type="button" className="hub-btn hub-error-retry" id="cl-boot-retry" onClick={boot}>retry</button></div>
       );
     }
     syncGroupOrder();

@@ -338,7 +338,7 @@
       "use_when": "Every fetch that can fail. A panel that renders empty on error is indistinguishable from one with no data.",
       "dont": "Do not swallow a failed fetch. Do not invent a per-module error style. Append the block as a CHILD rather than overwriting the container's className -- several containers carry a layout class that has to survive the next successful render.",
       "markup_from": "batch_prep/frontend/static/batch.js renderError()",
-      "markup": "<div class=\"hub-error\">\n  <span>Could not reach the calendar.</span>\n  <button type=\"button\" class=\"hub-error-retry\">retry</button>\n</div>"
+      "markup": "<div class=\"hub-error\">\n  <span>Could not reach the calendar.</span>\n  <button type=\"button\" class=\"hub-btn hub-error-retry\">retry</button>\n</div>"
     },
     {
       "id": "status-dot",
@@ -1685,7 +1685,10 @@
       "descendants": [
         ".hub-t3p-rail.is-open",
         ".hub-t3p-tab.active",
-        ".hub-t3p-split.is-full"
+        ".hub-t3p-split.is-full",
+        ".hub-t3p-split.is-reader",
+        ".hub-t3p-split.is-reader.is-empty",
+        ".hub-t3p-split.is-reader .hub-t3p-reader-close", ".hub-t3p-context.hub-t3p-read", ".hub-t3p-read-head", ".hub-t3p-read-title", ".hub-t3p-read-meta", ".hub-t3p-read-stack", ".hub-t3p-read-float"
       ],
       "template_classes": [
         "hub-t3p",
@@ -1735,7 +1738,7 @@
         ]
       ],
       "purpose": "The whole-page chassis a database dashboard is built on: a rail of tabs down the left, a pane head slot over a column of accent-plated cards, a context rail of cards on the right, a status bar, and the phone shape (a slide-out tab drawer, a full-viewport context slide-over). It composes page-shell, topbar, nav-rail, split-pane, section-head, detail-panel and status-strip and adds only the layout that binds them.",
-      "use_when": "Any new dashboard that holds a database of separate things. Paste the skeleton with the hub-t3p shell as a direct child of <body>, link this file after components.css, put your body class on <body>, register the page under derivatives, and write only page mods. A tab that needs the whole width sets is-full on the split.",
+      "use_when": "Any new dashboard that holds a database of separate things. Paste the skeleton with the hub-t3p shell as a direct child of <body>, link this file after components.css, put your body class on <body>, register the page under derivatives, and write only page mods. A tab that needs the whole width sets is-full on the split. A list you open items from to read them (mail, automations) sets is-reader on the split, plus is-empty while nothing is open, and puts a hub-btn hub-t3p-reader-close in the detail rail: at 1200px and up the list narrows and the item springs in beside it. The open item reads the way mail reads a thread: add hub-t3p-read to the context, then a hub-t3p-read-head (hub-t3p-read-title, hub-t3p-read-meta, an optional hub-btn-row), a hub-t3p-read-stack of hub-detail-cards, and an optional hub-t3p-read-float action bar last in the stack; everything pads by --card-pad (components.css, 16px), the one inset every card holds its content off its edge by.",
       "dont": "Never copy a rule out of this file into a page mods sheet. Never re-declare a hub-t3p- class bare in a module sheet: qualify it with your own class or your body class, or the override check fails and the rule silently redefines the origin for your page. Do not put one page's features here: a map slot, a notice strip, per-tab split ratios, a day picker, or whatever fills the pane head belong to the page that uses them. Do not remove the theme hook classes from the markup until the theme files are audited.",
       "regions": [
         {
@@ -2327,7 +2330,7 @@
       "page_mods": "automations/frontend/static/automations.css",
       "body_class": "automations",
       "href": "/automations/",
-      "note": "rail tabs are gmail/finance/decisions/runs/updates; actionable details end in a sticky action dock (glass under liquid)"
+      "note": "rail tabs are gmail/finance/decisions/runs/burn/updates/rules; rows are hub-row bands as mail draws them, and the split is the origin's reader split (is-reader), so an opened item springs in beside a narrowed list; the open item is the origin's read layout (hub-t3p-read-head, -stack, -float), the same pieces mail's thread uses, so actionable details end in the floating action bar (glass under liquid)"
     },
     {
       "dashboard": "inventory",
@@ -2345,7 +2348,7 @@
       "page_mods": "mail/frontend/static/mail.css",
       "body_class": "mail",
       "href": "/mail/",
-      "note": "Workbench set mail-layout, 2026-10-20 (one line per sender, opens in place): the rail is Inbox/Waiting/Unread/Sent/Drafts plus the label tree, the list flips between Newest and By sender (one hub-collapsible-group per sender), and the context rail holds the open thread"
+      "note": "Workbench set mail-layout, 2026-10-20 (one line per sender, opens in place): the rail is Inbox/Waiting/Unread/Sent/Drafts plus the label tree, the list flips between Newest and By sender (one hub-collapsible-group per sender), and the context rail holds the open thread; the list | thread split is the origin's reader split (is-reader), first built here"
     },
     {
       "dashboard": "viewer",
@@ -2420,7 +2423,6 @@
       "blueprints/frontend/static/blueprints.jsx: <section el-card>",
       "capabilities/frontend/static/capabilities.jsx: <button toolbtn>",
       "checklists/frontend/checklists.html: <button cl-new-btn>",
-      "checklists/frontend/static/checklists-core.jsx: <button cl-toast-undo>",
       "checklists/frontend/static/checklists-list.jsx: <button cl-add-item-submit>",
       "checklists/frontend/static/checklists-list.jsx: <button cl-add-section-btn>",
       "checklists/frontend/static/checklists-list.jsx: <button cl-btn cl-btn-danger>",
@@ -2436,7 +2438,6 @@
       "checklists/frontend/static/checklists.jsx: <button cl-btn cl-btn-primary>",
       "checklists/frontend/static/checklists.jsx: <button cl-btn>",
       "checklists/frontend/static/checklists.jsx: <button cl-new-btn>",
-      "finances/frontend/static/finances-core.jsx: <button table-empty-cta>",
       "finances/frontend/static/finances-core.jsx: <button>",
       "finances/frontend/static/finances-core.jsx: <div total-card>",
       "finances/frontend/static/finances-core.jsx: <table dow-table shift-table>",
@@ -2458,15 +2459,6 @@
       "finances/frontend/static/finances-panels.jsx: <table dow-table>",
       "finances/frontend/static/finances-panels.jsx: <table>",
       "finances/frontend/static/finances-transactions.jsx: <table>",
-      "jc/frontend/jc.html: <button btn-save>",
-      "jc/frontend/jc.html: <button jc-tab nav-item>",
-      "jc/frontend/jc.html: <button map-edit-toggle>",
-      "jc/frontend/jc.html: <button map-expand-toggle>",
-      "jc/frontend/jc.html: <button pick-expand-toggle>",
-      "jc/frontend/jc.html: <button prep-add>",
-      "jc/frontend/jc.html: <button prep-cancel>",
-      "jc/frontend/jc.html: <button prep-reset>",
-      "jc/frontend/jc.html: <button rtab>",
       "jobs/frontend/jobs.html: <button funnel-ready-row>",
       "jobs/frontend/jobs.html: <button high risk-btn>",
       "jobs/frontend/jobs.html: <button jobs-mode>",
@@ -2546,16 +2538,13 @@
       "static/js/chrome.jsx: <button ast-handle>",
       "static/js/food-view.js: <button detail-back>",
       "static/js/food-view.js: <button filter-chip on>",
-      "static/js/food-view.js: <button filter-reset>",
       "static/js/food-view.js: <button row sel>",
       "static/js/food-view.js: <div hcard-pills>",
       "static/js/food-view.jsx: <button detail-back>",
-      "static/js/food-view.jsx: <button filter-reset>",
       "static/js/food-view.jsx: <div hcard-pills>",
       "static/js/today-day.jsx: <button event-row-ghost>",
       "static/js/today-day.jsx: <button tb-day-ev-edit>",
       "static/js/today-parts.jsx: <div tb-card tb-card-alert>",
-      "static/js/today.jsx: <button gt-more>",
       "static/js/today.jsx: <div gt-card tb-card tb-card-alert>",
       "static/js/today.jsx: <span overdue tb-pill tb-pill-soft>",
       "static/js/today.jsx: <span tb-pill tb-pill-stale>",
@@ -2599,7 +2588,7 @@
       "trips/frontend/trip-intake.html: <button abtn abtn-accent>",
       "vault_map/frontend/static/vault_map.jsx: <button copybtn tbtn>"
     ],
-    "markup_max": 202,
+    "markup_max": 188,
     "page_css_files": [
       "automations/frontend/static/automations.css",
       "barback/frontend/static/barback.css",
@@ -2611,7 +2600,6 @@
       "food/frontend/static/food.css",
       "forge/frontend/static/build-overlay.css",
       "forge/frontend/static/forge-base.css",
-      "forge/frontend/static/forge-themes.css",
       "forge/frontend/static/loadout.css",
       "inventory/frontend/static/inventory.css",
       "jc/frontend/static/jc.css",

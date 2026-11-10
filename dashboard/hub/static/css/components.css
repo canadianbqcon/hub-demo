@@ -442,7 +442,10 @@ select.hub-input { appearance: none; -webkit-appearance: none; cursor: pointer; 
 /* one read in a detail rail is one card, on the card's own ground. its head is
    10px caps at 0.16em, which needs the 600 weight: at 400 the tracking pulls the
    letters apart and the head reads as a whisper. */
-.hub-detail-card { background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--s-4); }
+/* --card-pad: the one inset a card and a reading pane hold their content off the edge by (send-back on
+   mark 044606 #1, 2026-11-07: "we should have a univeralized padding size for cards") */
+:root { --card-pad: var(--s-4); }
+.hub-detail-card { background: var(--bg-elev); border: 1px solid var(--line); border-radius: var(--r-card); padding: var(--card-pad); }
 [data-theme="cobalt"] .hub-detail-card { border-width: 2px; }
 .hub-detail-card-head { font-size: var(--fs-caption); font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--violet-label); margin-bottom: var(--s-3); }
 

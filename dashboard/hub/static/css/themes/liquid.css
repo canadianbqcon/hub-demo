@@ -739,7 +739,7 @@
 @media (max-width:900px) {
   [data-theme="liquid"] .hub-slide-over.is-open { background:var(--bg); }
   [data-theme="liquid"] .hub-slide-over.is-open .hub-slide-over-close { border-bottom:0; }
-  [data-theme="liquid"] .hub-slide-over.is-open .hub-detail-rail-inner { min-height:0; margin:0 10px calc(10px + env(safe-area-inset-bottom,0px)); border-radius:26px; background:var(--bg-elev); box-shadow:inset 0 0 0 1px var(--line-soft); }
+  [data-theme="liquid"] .hub-slide-over.is-open .hub-detail-rail-inner { min-height:0; margin:0 10px calc(10px + var(--safe-b)); border-radius:26px; background:var(--bg-elev); box-shadow:inset 0 0 0 1px var(--line-soft); }
 }
 
 [data-theme="liquid"] .hub-carousel { border:0; border-radius:24px; clip-path:var(--lg-corner-24); background:var(--lq-tile); }
@@ -917,7 +917,7 @@
 
 /* phone: identity row up top, controls in one glass capsule at the thumb */
 @media (max-width:640px) {
-  [data-theme="liquid"] .topbar { height:56px; min-height:56px; padding:0 12px; }
+  [data-theme="liquid"] .topbar { box-sizing:border-box; height:calc(56px + var(--safe-t)); min-height:calc(56px + var(--safe-t)); padding:var(--safe-t) 12px 0; }   /* clears the clock: the home-screen app draws under the status bar */
   /* the dock is fixed inside .topbar, and a backdrop-filter on .topbar would become its containing
      block: on phone the island is .topbar-l, the bar itself stays clear */
   [data-theme="liquid"] .topbar[data-scrolled] { translate:none; margin-inline:0; border-radius:0; }
@@ -935,14 +935,17 @@
   [data-theme="liquid"] .topbar-l > .crumb-block ~ * { flex-shrink:1; min-width:0; overflow-x:auto; scrollbar-width:none; mask-image:linear-gradient(to right, #000 calc(100% - 18px), transparent); }
   [data-theme="liquid"] .topbar[data-scrolled] .topbar-l::before { opacity:1; border-radius:24px; transition:opacity 180ms ease-out, border-radius 260ms cubic-bezier(.2,.8,.2,1); }
   [data-theme="liquid"] .crumb-block { padding-left:0; border-left:0; }
-  [data-theme="liquid"] .topbar-r { --ctl-h:44px; left:14px; right:14px; bottom:calc(14px + env(safe-area-inset-bottom,0px)); height:60px; padding:0 8px; gap:4px; border:0; border-radius:999px; corner-shape:round; background:var(--lg-thick-fill); -webkit-backdrop-filter:blur(24px) saturate(200%); backdrop-filter:blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow:var(--lg-thick-rim), 0 0 0 .5px var(--lg-edge), var(--lq-bar-shade); }
+  [data-theme="liquid"] .topbar-r { --ctl-h:44px; left:14px; right:14px; bottom:var(--dock-gap); height:60px; padding:0 8px; gap:4px; border:0; border-radius:999px; corner-shape:round; background:var(--lg-thick-fill); -webkit-backdrop-filter:blur(24px) saturate(200%); backdrop-filter:blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow:var(--lg-thick-rim), 0 0 0 .5px var(--lg-edge), var(--lq-bar-shade); }
   [data-theme="liquid"] .topbar-r :is(.surface-toggle, .theme-picker-btn, .launcher) { height:44px; min-width:44px; padding:0 12px; }
   [data-theme="liquid"] .topbar-r :is(.surface-toggle-icon, .launcher-icon, .module-launcher) { width:44px; padding:0; }
   [data-theme="liquid"] .topbar-r .theme-picker-menu { top:auto; bottom:calc(100% + 16px); right:-8px; }
-  [data-theme="liquid"] body { padding-bottom:calc(88px + env(safe-area-inset-bottom,0px)); }
+  /* the dock sits low like iOS's own tab bar, its edge 21px off the bottom with the home bar just under it; 14px
+     plus the full 34px inset floated it 48px up (2026-11-07, his phone) */
+  :root[data-theme="liquid"] { --dock-gap:max(14px, calc(var(--safe-b) - 13px)); }
+  [data-theme="liquid"] body { padding-bottom:calc(74px + var(--dock-gap)); }
   /* a viewport-tall shell (home, trips list) would run under the dock and hide its status strip */
-  [data-theme="liquid"] { --dock-h:calc(88px + env(safe-area-inset-bottom,0px)); }
-  :root[data-theme="liquid"] { scroll-padding-bottom:calc(88px + env(safe-area-inset-bottom,0px)); }
+  [data-theme="liquid"] { --dock-h:calc(74px + var(--dock-gap)); }
+  :root[data-theme="liquid"] { scroll-padding-bottom:calc(74px + var(--dock-gap)); }
 }
 
 /* ===== 13. Shell, rail, launcher, status strip, origins (sets 14-15). =====
@@ -1058,10 +1061,10 @@
   [data-theme="liquid"] .launch-grid.tier-home { grid-template-columns:minmax(0, 1fr); }
   [data-theme="liquid"] .launch-tile .tile-name { font-size:var(--fs-subhead); }
   /* the drawer floats above the controls dock instead of running under it */
-  [data-theme="liquid"] .hub-t3p-rail { bottom:calc(88px + env(safe-area-inset-bottom,0px)); }
+  [data-theme="liquid"] .hub-t3p-rail { bottom:calc(74px + var(--dock-gap)); }
   [data-theme="liquid"] .status { width:fit-content; flex-wrap:wrap; justify-content:center; gap:4px 12px; height:auto; min-height:auto; overflow:visible; margin-bottom:14px; padding:6px 14px; border-radius:18px; corner-shape:auto; white-space:normal; }   /* one capsule cannot hold the sources at 390: it wraps into a card; fit-content, since max-content made the strip's one-line width the shell grid's floor (home ran 909px wide); min-height auto + overflow visible so the shell's 1fr status row grows to the wrapped card (a fixed min or a scroll container let it shrink to 44px and cut 43px off home) */
   /* the origins fill one screen; the dock covers its last 88px, so the frame ends above it */
-  [data-theme="liquid"] :is(.hub-t3p, .hub-e3p) { min-height:calc(100dvh - 88px - env(safe-area-inset-bottom,0px)); }
+  [data-theme="liquid"] :is(.hub-t3p, .hub-e3p) { min-height:calc(100dvh - 74px - var(--dock-gap)); }
 }
 
 /* ===== 14. Rung 3: refraction (Blink only). =====

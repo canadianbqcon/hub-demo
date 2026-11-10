@@ -136,8 +136,8 @@ function PurchasesApp() {
         {loadErr && (
           <div className="hub-error pe-loaderr" role="alert">
             Couldn't load your purchase data.
-            <button type="button" className="hub-error-retry" onClick={retryLoad}>Retry</button>
-            <button type="button" className="hub-error-retry" onClick={() => setLoadErr(null)}>Dismiss</button>
+            <button type="button" className="hub-btn hub-error-retry" onClick={retryLoad}>Retry</button>
+            <button type="button" className="hub-btn hub-error-retry" onClick={() => setLoadErr(null)}>Dismiss</button>
           </div>
         )}
         {toast && <div id="toast" className={`show ${toast.kind}`}>{toast.msg}</div>}

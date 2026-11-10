@@ -151,12 +151,7 @@ summary.filters-head { cursor: pointer; padding: 2px 0; }
   border-bottom: 1px solid var(--line); flex-shrink: 0;
   font-size: var(--fs-caption); font-style: italic; color: var(--fg-dim);
 }
-.filter-reset {
-  border: 0; background: none; cursor: pointer; padding: 0;
-  color: var(--accent); font-size: var(--fs-caption); font-style: italic;
-  text-decoration: underline; text-underline-offset: 2px;
-}
-.filter-reset:hover { color: var(--fg); }
+.filter-reset { font-style: normal; flex: none; }
 .filter-reset[hidden] { display: none; }
 
 /* Takes the row's slack so the count and the reset stay pinned right. */
@@ -176,11 +171,7 @@ summary.filters-head { cursor: pointer; padding: 2px 0; }
 .fview-count { white-space: nowrap; }
 /* Only Hub renders this: the public mirror has no /food to open, so the trips
    endpoint sends no portal and the link is simply absent there. */
-.fview-portal {
-  white-space: nowrap; color: var(--accent); font-size: var(--fs-caption); font-style: italic;
-  text-decoration: underline; text-underline-offset: 2px;
-}
-.fview-portal:hover { color: var(--fg); }
+.fview-portal { white-space: nowrap; font-style: normal; }
 
 /* ---------------- scene rundown ---------------- */
 

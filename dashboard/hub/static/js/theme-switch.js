@@ -191,6 +191,11 @@
   function injectUniversalCss() {
     if (document.getElementById("hub-universal-css")) return;
     var css =
+      /* iPhone notch and home bar, one place (2026-11-07). The home-screen app draws
+         under the status bar (black-translucent, app.py), so phone chrome pads by
+         these. Tokens, not env() at each use: the desktop phone view (topbar.jsx)
+         sets them to an iPhone's 47/34 so it shows what the phone really does. */
+      ":root{--safe-t:env(safe-area-inset-top,0px);--safe-b:env(safe-area-inset-bottom,0px);}" +
       /* ---- full topbar layout: brand lockup (left) + page crumb (right) ---- */
       /* min-width:0 is load-bearing, not tidiness. Every module wraps its page
          in a `.shell` grid, and a grid item's automatic minimum size is its
@@ -262,8 +267,9 @@
          The old two-row bar spent 89px on itself, and 118px on /apply and /trips,
          where the extra button knocked the controls onto a third row. Half-screen
          and desktop are untouched: this whole block is phone-only. */
-      "@media (max-width:640px){.topbar{flex-wrap:nowrap;gap:var(--s-3);height:48px;min-height:48px;" +
-          "padding:0 var(--s-4);}" +
+      "@media (max-width:640px){.topbar{flex-wrap:nowrap;gap:var(--s-3);box-sizing:border-box;" +
+          "height:calc(48px + var(--safe-t));min-height:calc(48px + var(--safe-t));" +
+          "padding:var(--safe-t) var(--s-4) 0;}" +
         ".topbar-l{flex:1 1 auto;min-width:0;gap:var(--s-3);}" +
         ".brand-wordmark,.brand-slogan,.crumb-meta{display:none;}" +
         /* the mark alone: the ::before sits in the padding, so the box is just its 32px */
@@ -273,12 +279,12 @@
         /* the dock. position:relative is dropped for fixed, which still anchors
            the menus that hang off .topbar-r, so they only have to open upward. */
         ".topbar-r{--ctl-h:40px;position:fixed;left:0;right:0;bottom:0;z-index:1050;" +
-          "height:calc(56px + env(safe-area-inset-bottom,0px));padding:0 var(--s-3) env(safe-area-inset-bottom,0px);" +
+          "height:calc(56px + var(--safe-b));padding:0 var(--s-3) var(--safe-b);" +
           "background:var(--bg-elev);border-top:1px solid var(--line);gap:var(--s-2);}" +
-        "body{padding-bottom:calc(56px + env(safe-area-inset-bottom,0px));}" +
+        "body{padding-bottom:calc(56px + var(--safe-b));}" +
         /* scrollIntoView and #anchor jumps land under the dock without this
            (a focused /apply row on phone Back sat fully behind it, 2026-09-25) */
-        "html{scroll-padding-bottom:calc(56px + env(safe-area-inset-bottom,0px));}" +
+        "html{scroll-padding-bottom:calc(56px + var(--safe-b));}" +
         /* right-handed: whatever the page added (+ new) and sign-out
            (its order:99 from the rule below) on the left, a spacer, then the chrome
            under the right thumb in desktop order (light/dark, theme, modules). */
@@ -439,7 +445,7 @@
       "@media (max-width:640px),(max-height:500px){" +
         ".launch-scrim{padding:0;align-items:stretch;}" +
         /* dvh so iOS Safari's collapsing toolbar cannot park the foot under it */
-        ".launch-panel{width:100%;height:100vh;height:100dvh;border:0;border-radius:0;" +
+        ".launch-panel{width:100%;height:100vh;height:100dvh;border:0;border-radius:0;box-sizing:border-box;padding-top:var(--safe-t);" +
           "overflow-y:auto;-webkit-overflow-scrolling:touch;}" +
         ".launch-head{position:sticky;top:0;z-index:1;align-items:center;background:var(--bg-elev);}" +
         ".launch-close{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s-2);" +

@@ -138,7 +138,7 @@ window.CapabilitiesUI = window.CapabilitiesUI || {};
     if (err) {
       body = (
         <div className="hub-error">{`couldn't load capabilities — ${err.message}`}
-          <button type="button" className="hub-error-retry" id="retryLoad" onClick={() => location.reload()}>retry</button></div>
+          <button type="button" className="hub-btn hub-error-retry" id="retryLoad" onClick={() => location.reload()}>retry</button></div>
       );
     } else if (data) {
       const { shown, total, groups } = Categories({ data, q });

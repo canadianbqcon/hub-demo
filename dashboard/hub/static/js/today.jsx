@@ -22,7 +22,7 @@ function computeTodayView({ now, schedule, wx, tasks, cards, snapshots, selected
   const due = BL ? BL.selectDueItemsForDay(tasks, cards, selIso, tIso) : { tasks: [], cards: [] };
   // the week after the selected day, so the due card shows what is coming and not one row in a big box
   const soon = !BL ? [] : [
-    ...(tasks || []).filter((t) => !t.done && t.due_target).map((t) => ({ key: `t${t.id}`, label: t.title || t.name, d: BL.dayOffset(selIso, BL.localDayString(t.due_target)) })),
+    ...(tasks || []).filter((t) => !t.done && t.due_target).map((t) => ({ key: `t${t.id}`, label: t.title || t.name, desc: t.description || "", d: BL.dayOffset(selIso, BL.localDayString(t.due_target)) })),
     ...(cards || []).filter((c) => c.due_in_days != null).map((c) => ({ key: `c${c.name}`, label: c.name, d: c.due_in_days - BL.dayOffset(tIso, selIso) })),
   ].filter((x) => x.d >= 1 && x.d <= 14).sort((a, b) => a.d - b.d);
   // the next day in the coming week with prep on its calendar, and the next place to be
@@ -382,11 +382,11 @@ function LineBullet({ line, hit }) {
    word "walk" was too long for an action (2026-10-21 mark, sent back). Glyph is
    Material's directions_walk (Apache 2.0). */
 const WALK_D = "M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7";
-function LegChip({ leg }) {
+function LegChip({ leg, icon }) {
   const mins = Math.round((leg.dur || 0) / 60);
   if (!leg.transit) return (
     <span className="gt-leg-walk t-num" title={`walk ${mins} min`} aria-label={`walk ${mins} minutes`}>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d={WALK_D} fill="currentColor" /></svg>{mins}m
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d={WALK_D} fill="currentColor" /></svg>{icon ? null : `${mins}m`}
     </span>
   );
   const wide = (leg.line || "").length > 2;
@@ -396,6 +396,43 @@ function LegChip({ leg }) {
           title={`${leg.line} ${leg.headsign ? `→ ${leg.headsign}` : ""} · ${leg.from} → ${leg.to} · ${mins} min`}>
       {leg.line || leg.mode.toLowerCase()}
     </span>
+  );
+}
+/* Google's recommended route spelled out as steps, the way Maps lists directions
+   (2026-11-09 Workbench pick "Step list", mark 042217): walk to the station, the
+   ride with its stops, boarding time and direction, the walk in. A walk-only
+   route is one step. The other ways stay as compact rows behind the button. */
+function RouteSteps({ it, place }) {
+  const legs = it.legs.filter((l) => l.transit || Math.round((l.dur || 0) / 60) > 0);
+  return (
+    <div className="gt-steps">
+      <div className="gt-steps-h t-num">
+        <span className="gt-route-t">{dayFmtMin(it.start_min)}</span>
+        <span className="gt-route-dur">
+          {it.end_min != null ? <span className="gt-route-arr">arrive {dayFmtMin(it.end_min)} · </span> : null}
+          {Math.round((it.dur || 0) / 60)}m
+        </span>
+      </div>
+      <ol className="gt-steps-list">
+        {legs.map((l, j) => {
+          const to = legs.slice(j + 1).find((x) => x.transit);
+          return (
+            <li className="gt-step" key={j}>
+              <span className="gt-step-ic"><LegChip leg={l} icon /></span>
+              <span className="gt-step-tx">
+                {l.transit ? `${l.from} → ${l.to}` : `walk to ${to ? to.from : place}`}
+                {l.transit && (l.start_min != null || l.headsign) ? (
+                  <span className="gt-step-sub t-num">
+                    {l.start_min != null ? ` ${dayFmtMin(l.start_min)}` : ""}{l.headsign ? `, toward ${l.headsign}` : ""}
+                  </span>
+                ) : null}
+              </span>
+              <span className="gt-step-m t-num">{Math.round((l.dur || 0) / 60)}m</span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
 function GettingThere({ view, now }) {
@@ -415,6 +452,7 @@ function GettingThere({ view, now }) {
   // trips React's "fewer hooks than expected" (#300) and unmounts the page.
   const [showAll, setShowAll] = useState(false);
   const [routes, setRoutes] = useState(null);
+  const [allRoutes, setAllRoutes] = useState(false);
   const [feedsEnded, setFeedsEnded] = useState(null);
   /* The SUBWAY lines the router put him on, once it has answered. They go back up
      with the next alert fetch, which then watches each of them end to end instead
@@ -474,8 +512,12 @@ function GettingThere({ view, now }) {
     let cancelled = false;
     const [frm, to, when] = routeKey.split("|");
     const q = `from=${frm}&to=${to}&arriveBy=1${when ? `&time=${encodeURIComponent(when)}` : ""}`;
-    fetch(`/trips/api/transit?${q}`)
+    /* Google's routes first (2026-11-07 mark: the router put him on a bus for what is
+       an 8-minute walk); the self-hosted router only when Google gives nothing. */
+    fetch(`/api/transit/routes?${q}`)
       .then((r) => (r.ok ? r.json() : null))
+      .then((g) => g?.itineraries?.length ? g
+        : fetch(`/trips/api/transit?${q}`).then((r) => (r.ok ? r.json() : null)))
       /* An answer for the WRONG DAY is the one failure this card must not pass
          off as real: past the end of a timetable the router answers with the last
          day it holds, dated that day, with no flag on it (trips/MOTIS.md — the
@@ -526,6 +568,19 @@ function GettingThere({ view, now }) {
   const shown = Math.min(ride.length, 3);
   const rideLabel = nextT ? `${dayFmtMin(rideFrom)}–${dayFmtMin(nextT.start)}` : "";
   const hitLines = new Set(ride.flatMap((a) => a.lines));
+  const routeRow = (it, i) => (
+    <div className="gt-route" key={i}>
+      <span className="gt-route-t t-num">{dayFmtMin(it.start_min)}</span>
+      <span className="gt-route-legs">
+        {it.legs.map((l, j) => <LegChip key={j} leg={l} />)}
+      </span>
+      {/* 2026-11-07 mark: "these dont show arrival times" */}
+      <span className="gt-route-dur t-num">
+        {it.end_min != null ? <span className="gt-route-arr">arrive {dayFmtMin(it.end_min)} · </span> : null}
+        {Math.round((it.dur || 0) / 60)}m
+      </span>
+    </div>
+  );
   const alertRow = (a, i) => (
     <div className="gt-alert" key={i}>
       <span className="gt-alert-lines">{a.lines.filter((l) => watched.includes(l)).map((l) => <LineBullet key={l} line={l} hit={ride.includes(a)} />)}</span>
@@ -556,16 +611,18 @@ function GettingThere({ view, now }) {
               </div>
             ) : null}
             {routes?.length ? (
+              /* 2026-11-07 send-back: "hide all the methods besides the top one, and click
+                 to expand". Google's own first pick shows; the rest open under it. */
               <div className="gt-routes">
-                {routes.map((it, i) => (
-                  <div className="gt-route" key={i}>
-                    <span className="gt-route-t t-num">{dayFmtMin(it.start_min)}</span>
-                    <span className="gt-route-legs">
-                      {it.legs.map((l, j) => <LegChip key={j} leg={l} />)}
-                    </span>
-                    <span className="gt-route-dur t-num">{Math.round((it.dur || 0) / 60)}m</span>
-                  </div>
-                ))}
+                <RouteSteps it={routes[0]} place={next.location.split(",")[0].trim()} />
+                <HubCollapse open={allRoutes}>
+                  <div className="gt-routes-more">{routes.slice(1).map((it, i) => routeRow(it, i + 1))}</div>
+                </HubCollapse>
+                {routes.length > 1 ? (
+                  <button type="button" className="hub-btn gt-more" aria-expanded={allRoutes} onClick={() => setAllRoutes((v) => !v)}>
+                    {allRoutes ? "fewer" : `+${routes.length - 1} more ${routes.length === 2 ? "way" : "ways"}`}
+                  </button>
+                ) : null}
               </div>
             ) : routes && !routes.length ? (
               <div className="gt-routes-none">
@@ -577,6 +634,9 @@ function GettingThere({ view, now }) {
             <div className="gt-btns">
               {uber ? <a className="gt-btn" href={uber} target="_blank" rel="noreferrer">uber</a> : null}
               {lyft ? <a className="gt-btn" href={lyft} target="_blank" rel="noreferrer">lyft</a> : null}
+              {/* 2026-11-07 mark "can we add empower?". Its rider link (from driveempower.com/riders)
+                  only opens the app: Empower publishes no pickup/drop-off deep link. */}
+              {geo && geo.lat != null ? <a className="gt-btn" href="https://rideempower.app.link/websiterider" target="_blank" rel="noreferrer">empower</a> : null}
               {transit ? <a className="gt-btn" href={transit} target="_blank" rel="noreferrer">transit</a> : null}
             </div>
           </div>
@@ -606,7 +666,7 @@ function GettingThere({ view, now }) {
         {alerts.slice(0, shown).map((a, i) => alertRow(a, i))}
         <HubCollapse open={showAll}>{alerts.slice(shown).map((a, i) => alertRow(a, i))}</HubCollapse>
         {alerts.length > shown ? (
-          <button type="button" className="gt-more" aria-expanded={showAll} onClick={() => setShowAll((v) => !v)}>
+          <button type="button" className="hub-btn gt-more" aria-expanded={showAll} onClick={() => setShowAll((v) => !v)}>
             {showAll ? "fewer" : `+${alerts.length - shown} more today${ride.length <= shown ? ", not on your ride" : ""}`}
           </button>
         ) : null}
@@ -663,6 +723,20 @@ function TodayPrepCap({ view, onRefresh }) {
   const readKept = () => { try { const a = JSON.parse(localStorage.getItem(keptKey)); return Array.isArray(a) ? a : []; } catch { return []; } };
   const [keptDone, setKeptDone] = useState(readKept);
   useEffect(() => { setKeptDone(readKept()); }, [dayStr]);
+  // Hub checklists the day's event kits pull in, plus Daily on every day. Read live
+  // from /checklists, so editing a list there edits the card. { name: {id, items} }
+  const clNames = ["Daily", ...((view?.agg?.checklists) || [])];
+  const [lists, setLists] = useState({});
+  useEffect(() => {
+    const want = clNames.filter((n) => !lists[n]);
+    if (!want.length) return;
+    fetch("/checklists/api/checklists").then((r) => (r.ok ? r.json() : [])).then((all) =>
+      Promise.all(want.map((n) => {
+        const c = all.find((x) => x.name === n);
+        return !c ? [n, { id: null, items: [] }]
+          : fetch(`/checklists/api/checklists/${c.id}`).then((r) => r.json()).then((d) => [n, { id: c.id, items: (d.items || []).map((i) => i.text) }]);
+      }))).then((pairs) => setLists((prev) => ({ ...prev, ...Object.fromEntries(pairs) }))).catch(() => {});
+  }, [clNames.join("|")]);
   const completeTask = async (t) => {
     if (t.id == null || completing.has(t.id)) return;
     setCompleting((prev) => new Set(prev).add(t.id));
@@ -688,6 +762,8 @@ function TodayPrepCap({ view, onRefresh }) {
   if (!view || !BL) return null;
   const { tIso, due, agg, prepItems, bringItems = [], soon, nextPrep } = view;
   const todayStr = tIso;
+  const clGroups = clNames.map((n) => [n, lists[n]]).filter(([, cl]) => cl && cl.id && cl.items.length);
+  const clCount = clGroups.reduce((sum, [, cl]) => sum + cl.items.length, 0);
   const kept = keptDone.filter((k) => !due.tasks.some((t) => t.id === k.id));
   const dueCount = due.tasks.length + due.cards.length + kept.length;
   const taskOverdue = (t) => !t.done && t.due_target && BL.localDayString(t.due_target) < todayStr;
@@ -707,12 +783,20 @@ function TodayPrepCap({ view, onRefresh }) {
         after={soon.length ? (
           <div className="tb-soon">
             <div className="tb-soon-k">coming up</div>
-            {soon.map((x) => (
-              <div className="tb-li tb-soon-li" key={x.key}>
+            {/* 2026-11-07 mark: "allow me to click to get more details". A row with a
+                description opens it in place (native details, no popover). */}
+            {soon.map((x) => {
+              const head = (<>
                 <span className="tb-soon-t">{x.label}</span>
                 <span className="tb-soon-d t-num">{x.d === 1 ? "tomorrow" : `in ${x.d}d`}</span>
-              </div>
-            ))}
+              </>);
+              return x.desc ? (
+                <details className="tb-soon-more" key={x.key}>
+                  <summary className="tb-li tb-soon-li">{head}</summary>
+                  <div className="tb-soon-desc">{x.desc}</div>
+                </details>
+              ) : <div className="tb-li tb-soon-li" key={x.key}>{head}</div>;
+            })}
           </div>
         ) : null}>
         {due.tasks.map((t, i) => (
@@ -738,8 +822,8 @@ function TodayPrepCap({ view, onRefresh }) {
 
       {/* one card for everything before you head out: Prep: lines to do, then things to
           pack (2026-11-03 send-back "merge" on "what is prep vs bring") */}
-      <Card name="before you go" count={prepItems.length + bringItems.length} placeholder="nothing to do or pack"
-        after={!prepItems.length && !bringItems.length && nextPrep ? (
+      <Card name="before you go" count={prepItems.length + bringItems.length + clCount} placeholder="nothing to do or pack"
+        after={!prepItems.length && !bringItems.length && !clCount && nextPrep ? (
           <div className="tb-soon">
             <div className="tb-soon-k">{nextPrep.d === 1 ? "tomorrow" : `in ${nextPrep.d} days`}</div>
             {nextPrep.prep.map((it) => <div className="tb-li tb-soon-li" key={it}><span className="tb-soon-t">{it}</span></div>)}
@@ -763,6 +847,15 @@ function TodayPrepCap({ view, onRefresh }) {
             done={done.has(`bring:${it.label}`)}
             onToggle={toggleDone}
           />
+        ))}
+        {clGroups.map(([n, cl]) => (
+          <React.Fragment key={`cl:${n}`}>
+            <a className="tb-li tb-li-src tb-cl-link" href={`/checklists/?id=${cl.id}`}>{n.toLowerCase()} checklist ↗</a>
+            {cl.items.map((t) => (
+              <CheckItem key={`cl:${n}:${t}`} itemKey={`cl:${n}:${t}`} label={t} tag="pack"
+                done={done.has(`cl:${n}:${t}`)} onToggle={toggleDone} />
+            ))}
+          </React.Fragment>
         ))}
       </Card>
 

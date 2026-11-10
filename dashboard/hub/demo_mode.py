@@ -463,7 +463,8 @@ BANNER = (
     'padding:.4em .8em;font:13px/1.35 system-ui,sans-serif;background:#1f2a44;color:#f3f5fa">'
     '<span>Demo with fake data, shared by all visitors, resets daily</span>'
     '<span aria-hidden="true">&middot;</span><span>Built by Brendan Quan</span>'
-    '<span aria-hidden="true">&middot;</span><a href="/guide/" style="color:#9cc3ff">Guide</a>'
+    '<span aria-hidden="true">&middot;</span>'
+    '<a id="demo-guide-link" href="/guide/" style="color:#9cc3ff">Guide</a>'
     '<span aria-hidden="true">&middot;</span>'
     f'<a href="{html.escape(REPO_URL)}" style="color:#9cc3ff">Source code</a></div>'
 )
@@ -482,6 +483,18 @@ const b=last&&last.isConnected?last.getBoundingClientRect():null;
 const x=b?Math.min(b.left,innerWidth-310):12,y=b?(b.bottom+8>innerHeight-60?b.top-60:b.bottom+8):innerHeight-70;
 n.style.left=Math.max(8,x)+'px';n.style.top=Math.max(8,y)+'px';document.body.appendChild(n);setTimeout(()=>n.remove(),6000)}
 })()</script>"""
+# The Guide as a frosted side panel over every page (except /guide/ itself).
+# Styles and behaviour live in guide/frontend/panel.css and panel.js; the tour
+# body is fetched from /guide/panel. The Hub's asset stamp rewrites ?v= to the file time.
+PANEL = (
+    '<link rel="stylesheet" href="/guide/static/guide.css?v=1">'
+    '<link rel="stylesheet" href="/guide/static/panel.css?v=1">'
+    '<aside id="demo-guide" class="is-closed" aria-label="Guide"><header><span>Guide</span>'
+    '<button class="dg-x" type="button" aria-label="Close guide">&times;</button></header>'
+    '<div class="dg-body"></div></aside>'
+    '<button id="demo-guide-tab" type="button" aria-controls="demo-guide" aria-expanded="false" hidden>Guide</button>'
+    '<script src="/guide/static/panel.js?v=1" defer></script>'
+)
 _BODY = re.compile(rb"<body[^>]*>", re.I)
 
 
@@ -497,8 +510,60 @@ def _banner(resp):
     m = _BODY.search(data)
     if not m:
         return resp
-    resp.set_data(data[:m.end()] + BANNER.encode() + NOTE_JS.encode() + data[m.end():])
+    extra = BANNER + NOTE_JS + ("" if request.path.startswith("/guide/") else PANEL)
+    resp.set_data(data[:m.end()] + extra.encode() + data[m.end():])
     return resp
+
+
+# ---------------------------------------------------------------- calendar
+# Google Calendar is integration-class, so the home schedule would sit empty.
+# These stand in for it: (day offset from today, start, end, title, location,
+# Google colorId; never "11": Tomato events become tasks.db rows on every
+# /api/home read). Start None = all-day. Same fake persona as the seeders.
+CAL_EVENTS = [
+    (-6, "09:30", "10:00", "Team Standup", "Larkspur Labs", "7"),
+    (-5, "18:00", "23:30", "Shift at Juniper & Co", "Juniper & Co", "6"),
+    (-4, "12:30", "13:30", "Lunch with Priya Nair", "Little Goat Diner", ""),
+    (-3, "19:00", "21:00", "Climbing with Marcus", "First Ascent Avondale", "2"),
+    (-2, "09:30", "10:00", "Team Standup", "Larkspur Labs", "7"),
+    (-1, "17:00", "23:00", "Shift at Juniper & Co", "Juniper & Co", "6"),
+    (0, "09:30", "10:00", "Team Standup", "Larkspur Labs", "7"),
+    (0, "13:00", "14:00", "Quarterly ops review", "Larkspur Labs", ""),
+    (0, "18:30", "20:00", "Dinner with Elena Ortiz", "Avec", ""),
+    (1, None, None, "Rent due", "", ""),
+    (1, "08:00", "09:00", "Gym", "", "2"),
+    (1, "17:00", "23:30", "Shift at Juniper & Co", "Juniper & Co", "6"),
+    (2, "10:00", "10:45", "Phone screen: Product Ops role", "Video call", "5"),
+    (2, "19:30", "22:00", "Trivia night", "The Whistler", ""),
+    (3, "09:30", "10:00", "Team Standup", "Larkspur Labs", "7"),
+    (3, "15:00", "15:30", "Dentist", "Lakeview Dental", ""),
+    (4, "11:00", "13:00", "Farmers market with Hana", "Green City Market", "2"),
+    (5, None, None, "Lisbon trip planning", "", ""),
+    (5, "17:00", "23:30", "Shift at Juniper & Co", "Juniper & Co", "6"),
+    (6, "09:30", "10:00", "Team Standup", "Larkspur Labs", "7"),
+    (7, "12:00", "13:00", "Coffee with Dev Chandra", "Intelligentsia", ""),
+]
+
+
+def _demo_week_events(days: int = 7, days_back: int = 0) -> list[dict]:
+    import gcal
+    today = dt.date.today()  # home_data buckets on local date.today() too
+    out = []
+    for i, (off, start, end, title, loc, color) in enumerate(CAL_EVENTS):
+        if not -days_back <= off <= days:
+            continue
+        day = today + dt.timedelta(days=off)
+        if start is None:
+            span = {"start": {"date": day.isoformat()},
+                    "end": {"date": (day + dt.timedelta(days=1)).isoformat()}}
+        else:
+            # each its own offset, so a week across a DST change stays on the clock
+            at = lambda hm: dt.datetime.combine(day, dt.time.fromisoformat(hm)).astimezone().isoformat()
+            span = {"start": {"dateTime": at(start)}, "end": {"dateTime": at(end)}}
+        out.append(gcal._week_event_row({"id": f"demo-ev-{i}", "summary": title, "location": loc,
+                                         "colorId": color, "_cal_id": "primary", **span}))
+    out.sort(key=lambda e: (e["date"], e["start_dt"]))
+    return out
 
 
 # ---------------------------------------------------------------- entry points
@@ -550,6 +615,12 @@ def finish(app) -> None:
     # like gcal (a token file); every Gmail route is integration-class anyway.
     import gmail
     gmail.is_authenticated = lambda: True
+    # Home only: a global gcal.is_authenticated would switch on the trips and
+    # tasks calendar writes. home_data calls these two and nothing else on gcal.
+    import types
+    import home_data
+    home_data.gcal = types.SimpleNamespace(is_authenticated=lambda: True,
+                                           fetch_week_events=_demo_week_events)
     check_endpoints(app)
     reset()
     # Render's free instance has 512 MB and one node transpile peaks near 126 MB, so

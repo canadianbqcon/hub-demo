@@ -71,7 +71,13 @@
      topbar and the components, not the page body. Without this the tokens resolve
      to a dark palette over a white default ground and the whole table goes
      invisible, which is exactly what the first render did. */
+  /* The bar sits in a grid like every other Hub page's shell. In a plain block its height is not
+     definite, so the modules button (bar-height square, aspect-ratio:1) was sized at ~20px for
+     layout, then drawn 51px wide and hung 11-19px off the right edge. margin:0 drops the browser's
+     8px body inset that held the bar off the window edges. */
+  .shell { display: grid; grid-template-columns: minmax(0, 1fr); }
   body {
+    margin: 0;
     background: var(--bg); color: var(--fg);
     font-family: var(--font-body);
     font-feature-settings: var(--feat-text);

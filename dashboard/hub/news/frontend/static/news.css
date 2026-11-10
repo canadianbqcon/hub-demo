@@ -62,7 +62,6 @@ button, input, textarea, select { font: inherit; color: inherit; background: non
   font-size: var(--fs-footnote); font-weight: 400; color: var(--warn);
   border-left: 2px solid var(--warn); padding: 0 0 0 var(--s-2);
 }
-.hub-btn.news-stale:hover { background: none; text-decoration: underline; }
 .hub-btn.news-stale[hidden] { display: none; }
 
 /* the list's scrollbar takes its own lane instead of riding the cards' right edge */

@@ -397,8 +397,8 @@
         aria-label="search ${esc(state.area.name)}" placeholder="cuisine, neighborhood, name"
         value="${esc(state.filters.q || "")}"></span>
       <span class="fview-count">${shown.length} of ${state.places.length} shown</span>
-      <button class="filter-reset" id="fvReset" ${filtersActive() ? "" : "hidden"}>clear filters</button>
-      ${state.portal ? `<a class="fview-portal" href="${esc(state.portal)}">open the full research</a>` : ""}
+      <button class="hub-btn filter-reset" id="fvReset" ${filtersActive() ? "" : "hidden"}>clear filters</button>
+      ${state.portal ? `<a class="hub-btn fview-portal" href="${esc(state.portal)}">open the full research</a>` : ""}
     </div>`;
     list.innerHTML = `<div class="results">${resultsHTML(shown)}</div>`;
 

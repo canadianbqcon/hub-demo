@@ -60,6 +60,7 @@ The top bar is ONE React component, `static/js/topbar.jsx` (2026-10-12; before t
 | Brand wordmark + slogan | nothing | `TopbarInner` in `topbar.jsx` (slogan from `HubTheme.slogan()`) |
 | Back button | nothing | `BackButton` in `topbar.jsx` (behavior `window.HubBack`) |
 | Light/dark toggle, theme picker, sign-out, modules launcher | nothing | `topbar.jsx`; surface persisted by `HubTheme.surface`; module list and the sign-out flag from `/hub-modules.js` (`hub_modules.py`, `DASHBOARD_EXPOSED`) |
+| Phone view (gear → view: desktop / phone, desktop pointers only) | nothing | `phoneView()` in `topbar.jsx`: the page laid out at 390x844 in a same-origin iframe under the bar, scaled as a whole to the window height so the phone's shape holds (`fit()`, refit on resize), with an iPhone's 47px notch and 34px home-bar insets set on the frame (`--safe-t`/`--safe-b`, theme-switch.js) and its island and home bar drawn over it, on a frosted-glass backdrop over the page (liquid solid: the theme's colour wall; a11y modes: plain background), kept on across pages in `localStorage` `hub.phoneview`; the frame's own bars (native and liquid's `#sb-layer`) are hidden and `phoneScrollbar()` draws one just outside its right edge, following the last-scrolled pane |
 | Phone dock (`.topbar-r` under 900px) | nothing | `injectUniversalCss()` in `theme-switch.js` |
 
 **The one exception is Forge** (`/forge`, four pages): a project, not part of the Hub, reached from artifacts links, with its own bar and theme system. It stays out until a Hub "side tools" module exists.

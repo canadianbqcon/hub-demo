@@ -57,7 +57,7 @@ function Failed({ msg, onRetry }) {
   return (
     <div className="hub-error" style={{ margin: 16 }}>
       Couldn't load: {msg}
-      {onRetry && <button type="button" className="hub-error-retry" onClick={onRetry}>Retry</button>}
+      {onRetry && <button type="button" className="hub-btn hub-error-retry" onClick={onRetry}>Retry</button>}
     </div>
   );
 }

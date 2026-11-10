@@ -10,6 +10,8 @@ Cross-module rules live here. Module-specific rules live in subfolder CLAUDE.md 
 
 **Any UI element work:** load `dashboard/CLAUDE-blueprints.md` in addition to this file. It holds the read-first rule for the shared blueprint index at `/blueprints` — build from an existing component before writing a new one, and a new shared element gets its blueprint in the same change. Hook-free but suite-enforced.
 
+**No link-styled text as a control.** An action (show more, retry, reset, open) is a `.hub-btn`, never accent or underlined text (his words, 2026-11-08 send-back on mark 042217: "never have hyperlink text anywhere in my hub"). Older sites still styled that way turn up with a grep for `text-decoration: *underline` in hub CSS; convert any you touch.
+
 **Page text is labels, never sentences [BINDING] (his rule, 2026-11-03 /finances marks).** Titles, subtitles, notes under a heading, `<summary>` lines, empty states and readouts are short phrases or figures (`shifts + unemployment`, `inputs`, `1.8× Sunday pool · $90 tips`), never a sentence explaining how something works or talking to him. The why lives in code comments and wiki nodes. A sentence on the page only when he asks for one there. **Not covered:** full descriptions, where the description is the content itself (a stored note, an item's description field, a research write-up, an expandable details body); those stay full text (his send-back on mark 041538:2).
 
 **Trips work:** load `dashboard/CLAUDE-trips.md` in addition to this file. It holds the trip-planner duo pattern and the mandatory-field rules for every `data/trips.db` activity row.

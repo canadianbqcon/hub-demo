@@ -197,6 +197,39 @@
         "WebFetch",
         "Bash(python3 \"{code}/dashboard/hub/trips/intake.py\" *)"
       ]
+    },
+    {
+      "job": "demo-views",
+      "description": "Checks the public hub-demo repo for new visitors and pushes them to your phone",
+      "time": "09:00",
+      "enabled": true
+    },
+    {
+      "job": "demo-refresh",
+      "description": "Exports the live Hub to the public demo repo and commits it locally; parks an approve item on the planner",
+      "time": "03:00",
+      "enabled": true
+    },
+    {
+      "job": "demo-publish",
+      "description": "Pushes the prepared demo refresh once you tick its approve item on the planner",
+      "time": "*/15",
+      "enabled": true
+    },
+    {
+      "skill": "/before-you-go",
+      "description": "Researches the coming week's events with no bring or prep lines and writes them in, for the Today card",
+      "time": "22:00",
+      "days": [
+        "sun"
+      ],
+      "enabled": true,
+      "timeout_seconds": 1800,
+      "allowed_tools": [
+        "WebSearch",
+        "WebFetch",
+        "Bash(python3 \"{code}/dashboard/hub/briefing_research.py\" *)"
+      ]
     }
   ]
 }

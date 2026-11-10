@@ -39,6 +39,7 @@ import urllib.request
 from datetime import datetime
 from pathlib import Path
 
+import demo_views
 import window_chain
 from finances import shift_calendar
 from vault_path import vault_root
@@ -260,11 +261,12 @@ def run_shift_sync_job(job):
     swallowed inside `audit`, so a check that fails cannot take the sync down.
     """
     def work():
+        mirror = shift_calendar.mirror_spoton()  # SpotOn calendar -> Personal, first
         events = shift_calendar.list_events()
         shifts = shift_calendar.fetch_shifts(events=events)
         shift_calendar.replace_scheduled(shifts)
         a = shift_calendar.audit(events, shifts)
-        return {"status": "ok", "shifts": len(shifts),
+        return {"status": "ok", "shifts": len(shifts), "mirror": mirror,
                 "missed": len(a.get("missed") or []), "audit_error": a.get("error")}
 
     return _locked_run("shift-sync", job, work)
@@ -691,6 +693,20 @@ def run_branch_check_job(job):
     return _locked_run("branch-check", job, work)
 
 
+def _demo_refresh_job(cmd, job):
+    """tools/demo_export/refresh.py prepare|publish; its own lock, since prepare runs minutes."""
+    script = Path(__file__).resolve().parents[2] / "tools" / "demo_export" / "refresh.py"
+
+    def work():
+        r = subprocess.run([sys.executable, str(script), cmd], capture_output=True, text=True, timeout=1800)
+        try:
+            return json.loads(r.stdout.strip().splitlines()[-1])
+        except (IndexError, json.JSONDecodeError):
+            return {"status": "failed", "outcome": (r.stderr or r.stdout).strip()[-300:]}
+
+    return _locked_run(job.get("job", f"demo-{cmd}"), job, work, lock_path=LOCK_PATH.parent / "demo-refresh.lock")
+
+
 # Job name in scheduler-config.json -> the Python function that runs it. These are
 # the jobs whose decisions are all Python; everything else goes through run_skill.
 # shift-sync shells out to claude once for its report-only audit, but nothing that
@@ -709,6 +725,9 @@ PYTHON_JOBS = {
     "file-sort": run_file_sort_job,
     "downloads-tidy": run_downloads_tidy_job,
     "branch-check": run_branch_check_job,
+    "demo-views": lambda job: _locked_run("demo-views", job, lambda: {"status": "ok", **demo_views.check()}),
+    "demo-refresh": lambda job: _demo_refresh_job("prepare", job),
+    "demo-publish": lambda job: _demo_refresh_job("publish", job),
 }
 
 # Extra due checks on top of the clock slot. A "*:MM" time fires every hour at

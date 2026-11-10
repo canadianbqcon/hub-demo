@@ -9,7 +9,7 @@ body.guide { font-family: var(--font-body); }
 .gd-lede { font-size: 14px; max-width: 62ch; margin-bottom: 18px !important; color: var(--fg-dim, var(--fg)); }
 .gd-h { font-family: var(--font-display, inherit); font-size: 26px; margin: 0 0 6px; }
 .gd-h2 { font-family: var(--font-display, inherit); font-size: 19px; margin: 32px 0 6px; }
-.hub-block-label { margin-top: 10px; }
+.gd .hub-block-label { margin-top: 10px; }
 .gd-steps { list-style: none; padding: 0; margin: 0; }
 .gd-step { display: grid; grid-template-columns: 44px 1fr; gap: 12px; padding: 14px 0; border-left: 2px solid var(--line); margin-left: 20px; }
 .gd-step.is-hit { border-left-color: var(--accent); }
@@ -25,3 +25,4 @@ body.guide { font-family: var(--font-body); }
   .gd-num { width: 34px; height: 34px; margin-left: -18px; }
   .gd-num--dot { width: 12px; height: 12px; margin: 4px 0 0 -7px; }
 }
+.gd-wip { font-size: 13px; max-width: 62ch; margin: -8px 0 18px !important; padding: 8px 12px; border-left: 3px solid var(--accent); color: var(--fg-dim, var(--fg)); }

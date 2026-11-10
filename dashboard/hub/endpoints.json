@@ -228,6 +228,10 @@
     "class": "integration",
     "why": "transit feed and geocode"
   },
+  "GET /api/transit/routes": {
+    "class": "integration",
+    "why": "google routes transit lookup"
+  },
   "GET /api/wx-extras": {
     "class": "integration",
     "why": "pollen api fetch"
@@ -512,6 +516,11 @@
     "demo_only": true,
     "why": "demo guide page"
   },
+  "GET /guide/panel": {
+    "class": "read",
+    "demo_only": true,
+    "why": "demo guide side panel fragment"
+  },
   "GET /guide/static/<path:filename>": {
     "class": "read",
     "demo_only": true,
@@ -545,6 +554,9 @@
     "path-pinned": true
   },
   "GET /jc/": {
+    "class": "read"
+  },
+  "GET /jc/api/shifts": {
     "class": "read"
   },
   "GET /jc/static/<path:filename>": {
@@ -637,6 +649,9 @@
   "GET /mail/api/attachment/<msg>/<att>": {
     "class": "integration",
     "why": "gmail attachment fetch"
+  },
+  "GET /mail/api/brief": {
+    "class": "read"
   },
   "GET /mail/api/labels": {
     "class": "read"
@@ -902,6 +917,9 @@
     "path-pinned": true
   },
   "GET /work/": {
+    "class": "read"
+  },
+  "GET /work/api/summary": {
     "class": "read"
   },
   "GET /work/static/<path:filename>": {
@@ -1325,6 +1343,19 @@
   "POST /mail/api/act": {
     "class": "integration",
     "why": "gmail write"
+  },
+  "POST /mail/api/brief/<int:eid>/delete": {
+    "class": "local-write"
+  },
+  "POST /mail/api/brief/<int:eid>/restore": {
+    "class": "local-write"
+  },
+  "POST /mail/api/brief/sender": {
+    "class": "integration",
+    "why": "unsub choice runs the gmail unsubscribe"
+  },
+  "POST /mail/api/brief/sender/done": {
+    "class": "local-write"
   },
   "POST /mail/api/decision/<int:item_id>": {
     "class": "integration",

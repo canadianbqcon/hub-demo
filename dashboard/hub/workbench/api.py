@@ -272,6 +272,7 @@ def _read(f: Path) -> str | None:
 
 # set dir -> (file stat signature, sha256): a set is rehashed only when a file in
 # it is added, removed or rewritten, not on every list load
+READY_STAMP_SINCE = 1794274800  # 2026-11-10 UTC, when shot_set.py began writing ready.txt
 _HASH_CACHE: dict[str, tuple[frozenset, str]] = {}
 _META_CACHE: dict[str, tuple[tuple, tuple]] = {}
 
@@ -282,6 +283,7 @@ def _option_item(d: Path, real_root: Path) -> dict:
     newest = 0
     sig = set()
     build_sig = None
+    ready_at = None
     for top, _dirs, files in os.walk(d):
         for name in files:
             try:
@@ -290,6 +292,9 @@ def _option_item(d: Path, real_root: Path) -> dict:
                 continue
             if top == str(d) and name == "build.txt":
                 build_sig = (st.st_mtime_ns, st.st_size)
+                continue
+            if top == str(d) and name == "ready.txt":
+                ready_at = st.st_mtime
                 continue
             newest = max(newest, st.st_mtime)
             sig.add((top, name, st.st_mtime_ns, st.st_size))
@@ -323,6 +328,9 @@ def _option_item(d: Path, real_root: Path) -> dict:
         "path": str(real_root / d.name),
         "title": title,
         "cards": cards,
+        # shot_set.py stamps ready.txt on a passing check: a set still being written (or edited since)
+        # stays out of Waiting on you. Sets last written before the stamp existed count as ready.
+        "ready": cards > 0 and (ready_at >= newest if ready_at is not None else newest < READY_STAMP_SINCE),
         "mtime": newest,
         "sha256": sha256,
     }
@@ -369,16 +377,37 @@ def api_option_asset():
 _CARD_RE = re.compile(r'(?=<article\b[^>]*\bclass="[^"]*\bopt\b)')
 
 
-def drop_cards(html: str, letters) -> str:
+_H2_RE = re.compile(r"<h2[^>]*>(.*?)</h2>", re.DOTALL)
+
+
+class CardMismatch(ValueError):
+    """The card at a letter is not the one the page showed there."""
+
+
+def card_title(card: str) -> str:
+    m = _H2_RE.search(card)
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", m.group(1)))).strip() if m else ""
+
+
+def drop_cards(text: str, letters, titles=None) -> str:
     """options.html with the cards at these letters removed. Raises
-    ValueError on a letter that names no card."""
-    head, *cards = _CARD_RE.split(html)
+    ValueError on a letter that names no card or a drop of every card, and
+    CardMismatch when titles (parallel to letters) name a different card
+    at that letter: the page's letters are positions, so this is the check
+    that the card he clicked is the card removed."""
+    head, *cards = _CARD_RE.split(text)
+    if titles is not None and len(titles) != len(letters):
+        raise ValueError("titles must match letters one to one")
     idx = set()
-    for L in letters:
+    for k, L in enumerate(letters):
         i = ord(str(L).upper()) - ord("A") if len(str(L)) == 1 else -1
         if not 0 <= i < len(cards):
             raise ValueError(f"no option {L!r} (set has {len(cards)})")
+        if titles is not None and card_title(cards[i]) != re.sub(r"\s+", " ", str(titles[k])).strip():
+            raise CardMismatch(f"option {L} is now {card_title(cards[i])!r}, not {titles[k]!r}")
         idx.add(i)
+    if cards and len(idx) == len(cards):
+        raise ValueError("cannot delete every option in a set")
     return head + "".join(c for i, c in enumerate(cards) if i not in idx)
 
 
@@ -395,7 +424,9 @@ def api_option_delete():
         return jsonify({"error": "option set changed since it was rendered"}), 409
     f = folder / "options.html"
     try:
-        f.write_text(drop_cards(f.read_text(encoding="utf-8"), letters), encoding="utf-8")
+        f.write_text(drop_cards(f.read_text(encoding="utf-8"), letters, data.get("titles")), encoding="utf-8")
+    except CardMismatch as exc:
+        return jsonify({"error": str(exc)}), 409
     except ValueError as exc:
         return jsonify({"error": str(exc)}), 400
     return jsonify({"sha256": store.doc_hash(folder)})

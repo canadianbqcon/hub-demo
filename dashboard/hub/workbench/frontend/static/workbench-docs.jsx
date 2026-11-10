@@ -521,7 +521,8 @@ window.WorkbenchUI = window.WorkbenchUI || {};
     });
     S.options.forEach((d) => {
       const one = d.cards === 1, oneoff = !d.build, slug = d.build || d.slug;
-      if (!waitsOnHim("design", d) || !isNext(slug, d.path)) return;
+      // a set Claude is still building has no ready stamp yet: no row until it does
+      if (d.ready === false || !waitsOnHim("design", d) || !isNext(slug, d.path)) return;
       rows.push({ key: `${oneoff ? "oneoff" : "build"}:${slug}:${d.slug}`, source: oneoff ? "oneoff" : "build",
         kind: one ? "check" : "pick", verb: one ? "Check" : "Pick", object: shortTitle(d.title),
         tag: oneoff ? "One-off" : name(slug), time: (d.mtime || 0) * 1000, open: { build: slug, step: d.slug } });

@@ -108,7 +108,7 @@ window.BatchUI = window.BatchUI || {};
     return (
       <div className="hub-error">
         <span>{props.msg}</span>
-        {props.retry ? <button type="button" className="hub-error-retry" onClick={props.retry}>retry</button> : null}
+        {props.retry ? <button type="button" className="hub-btn hub-error-retry" onClick={props.retry}>retry</button> : null}
       </div>
     );
   };

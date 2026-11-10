@@ -87,6 +87,60 @@ body:has(> .hub-t3p) { overflow: hidden; }
 .hub-t3p-split.is-full { grid-template-columns: minmax(0, 1fr); }
 .hub-t3p-split.is-full > .hub-t3p-side { display: none; }
 
+/* ===== THE READER SPLIT (.is-reader) -- a narrow list and the open item read
+   in the rest, Apple Mail's split. Built on /mail (mark 224420 #3 and its seven
+   send-backs, 2026-10-20), promoted here 2026-11-07 when /automations took the
+   same shape (marks 044523 #1, 044606 #1). .is-empty = nothing open: the list
+   takes the page and the side waits off to the right; opening narrows the list
+   and springs the side in. Close is the open reversed: the content fades out
+   first, then the space closes on an ease with no overshoot (an overshoot pushed
+   the side into the list and squeezed the rows). Flex, because flex-basis
+   animates where grid tracks do not. Below 1200 the plain split rules stand. */
+@media (min-width: 1200px) {
+  .hub-t3p-split.is-reader { display: flex; height: 100%;
+    --hub-t3p-spring: linear(0, .012, .043 3.2%, .167 6.6%, .5 13.9%, .751 20.5%, .886 26.4%, .968 33.2%, .992 40.9%, 1 55%, 1);
+    --hub-t3p-close: cubic-bezier(.45, 0, .2, 1); }
+  .hub-t3p-split.is-reader > .hub-t3p-list-col { flex: 0 0 clamp(320px, 30%, 420px); transition: flex 720ms var(--hub-t3p-spring); }
+  .hub-t3p-split.is-reader > .hub-t3p-side { flex: 1 1 0; transform-origin: 0 50%;
+    transition: flex 720ms var(--hub-t3p-spring), margin 720ms var(--hub-t3p-spring), opacity 380ms ease 60ms, filter 520ms ease, transform 720ms var(--hub-t3p-spring); }
+  /* the content keeps its reading width while the side narrows, so it is cut at the edge instead of squeezed
+     (liquid only: its side clips; elsewhere the text would spill over the list) */
+  [data-theme="liquid"] .hub-t3p-split.is-reader > .hub-t3p-side > .hub-detail-rail { min-width: 480px; }
+  .hub-t3p-split.is-reader.is-empty > .hub-t3p-list-col { flex: 1 1 100%; transition: flex 680ms var(--hub-t3p-close) 80ms; }
+  .hub-t3p-split.is-reader.is-empty > .hub-t3p-side { flex: 0 0 0; opacity: 0; filter: blur(6px); transform: translateX(72px) scale(.97); pointer-events: none; margin-left: 0; margin-right: 0;
+    transition: opacity 620ms cubic-bezier(.4, 0, .6, 1), filter 620ms ease-in, transform 680ms var(--hub-t3p-close), flex 680ms var(--hub-t3p-close) 80ms, margin 680ms var(--hub-t3p-close) 80ms; }
+  /* the open item's own close: a round chevron on the side's top right corner (a hub-btn) */
+  .hub-t3p-split.is-reader .hub-detail-rail { position: relative; }
+  .hub-t3p-reader-close { position: absolute; z-index: 5; top: 12px; right: 12px; width: 34px; height: 34px; min-height: 0; padding: 0; display: grid; place-items: center; border-radius: 999px; }
+  .hub-t3p-reader-close svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+}
+@media (max-width: 1199px) { .hub-t3p-reader-close { display: none; } }
+@media (min-width: 1200px) and (prefers-reduced-motion: reduce) {
+  .hub-t3p-split.is-reader > :is(.hub-t3p-list-col, .hub-t3p-side) { transition: none; }
+}
+/* the open item, read the way mail reads a thread (send-back on mark 044606 #1, 2026-11-07: "you didnt copy the
+   email ui inside the email pane"). The context drops its gutter; the head (display title, name + chip + date
+   line, a pill action row) and the stack below it each pad by --card-pad, and the stack ends in an optional
+   floating action bar, glass under liquid, that sticks to the foot while the read scrolls. Built on /mail. */
+.hub-t3p-context.hub-t3p-read { padding: 0; gap: 0; min-height: 100%; box-sizing: border-box; }
+.hub-t3p-read-head { display: grid; gap: 6px; padding: var(--card-pad) var(--card-pad) var(--s-3); }
+@media (min-width: 1200px) { .hub-t3p-split.is-reader .hub-t3p-read-head { padding-right: 56px; } }  /* room for the close chevron */
+.hub-t3p-read-title { margin: 0; font-family: var(--font-display); font-size: var(--fs-title); font-weight: 400; line-height: 1.25; text-wrap: balance; overflow-wrap: anywhere; }
+.hub-t3p-read-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px var(--s-2); font-size: var(--fs-footnote); color: var(--fg); overflow-wrap: anywhere; }
+.hub-t3p-read-meta > span { color: var(--fg-dim); }
+.hub-t3p-read-meta > span:last-child { white-space: nowrap; }  /* the date wraps as one piece, never a lone "AM" */
+.hub-t3p-read-meta > .hub-pill { max-width: 100%; vertical-align: middle; font-size: var(--fs-caption); }
+.hub-t3p-read-head > .hub-btn-row { flex-wrap: wrap; margin-top: 4px; }
+.hub-t3p-read-stack { flex: 1; display: flex; flex-direction: column; gap: var(--s-3); padding: 0 var(--card-pad) var(--s-5); min-width: 0; }
+.hub-t3p-read-float { position: sticky; bottom: var(--s-5); z-index: 5; margin-top: auto; max-height: 45vh; overflow-y: auto; container-type: inline-size;
+  border: 1px solid var(--line-soft); border-radius: 16px; background: var(--bg-elev); box-shadow: 0 10px 32px rgba(0, 0, 0, .3); }
+.hub-t3p-read-float > .hub-detail-card { border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+/* a card in the read is a one-column grid, rows --s-2 apart, its head label a row like the rest (mail's mx-card) */
+:is(.hub-t3p-read-stack, .hub-t3p-read-float) > .hub-detail-card { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-2); min-width: 0; }
+:is(.hub-t3p-read-stack, .hub-t3p-read-float) > .hub-detail-card > .hub-detail-card-head { margin-bottom: 0; }
+[data-theme="liquid"] .hub-t3p-read-float { border: 0; background: var(--lg-thick-fill); -webkit-backdrop-filter: blur(24px) saturate(200%); backdrop-filter: blur(var(--lg-thick-blur)) saturate(var(--lg-thick-sat)); box-shadow: var(--lg-thick-rim), 0 0 0 .5px var(--lg-edge), 0 10px 32px rgba(0, 0, 0, .35); }
+[data-theme="liquid"] .hub-t3p-read-float > .hub-detail-card { background: transparent; box-shadow: none; clip-path: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+
 /* ===== THE BOARD IS A STACK OF CARDS =====
    One read, one card, on a shared ground, border and radius. The card frame
    and the head plate key on the components section head every card's own

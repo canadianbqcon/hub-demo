@@ -100,13 +100,21 @@ window.AutomationsUI = window.AutomationsUI || {};
 
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const isFin = (r) => r.lane.startsWith("finance");
-  const ruleSrc = (r) => ({note: r.scope === "once" ? "your note, judged this email only" : "your note", streak: "3 answers in a row",
+  const ruleSrc = (r) => ({note: r.scope === "once" ? "your note, judged this email only" : "your note", streak: `${(r.answers || []).length} answers in a row`,
     sender: "file-without-asking list", payee: `${r.count} of ${r.total} answers`})[r.source] || r.source;
   const ruleLast = (r) => r.source === "note" ? r.at : r.answers && r.answers.length ? r.answers[r.answers.length - 1].at : "";
   const RULE_STACKS = [["proposed", "to confirm"], ["confirmed", "confirmed"], ["off", "off"], ["rejected", "rejected"]];
+  // the row already names who, so line 2 is only what happens (marks 044523 #1: the full sentence repeated the sender)
+  const ruleEffect = (r) => {
+    if (isFin(r) && r.category) return `→ ${r.category}`;
+    const w = r.who || "";
+    let d = (r.does || "").split(` from ${w}`).join("").split(` ${w} `).join(" ");
+    if (w && d.toLowerCase().startsWith(w.toLowerCase() + " ")) d = d.slice(w.length + 1);
+    return cap(d);
+  };
   const ruleRow = (r) => {
     const n = (r.recent || []).length;
-    return {sel: `l:${r.id}`, kind: "rule", t: shortDay(ruleLast(r)), from: r.who, subj: cap(r.does),
+    return {sel: `l:${r.id}`, kind: "rule", t: shortDay(ruleLast(r)), from: r.who, subj: ruleEffect(r),
       sub: `${isFin(r) ? "category" : "gmail"} · ${ruleSrc(r)}${n ? ` · acted ${n}× this week` : ""}`, bad: false, day: "", rule: r};
   };
 
@@ -221,18 +229,17 @@ window.AutomationsUI = window.AutomationsUI || {};
 
   // ── list ───────────────────────────────────────────────────────────────────
 
+  // the shared list row (hub-row), drawn as mail's flat edge-to-edge band: who and time, then what, then the dim detail
   function Row({r, selected, onPick}) {
-    if (r.href) return <a className="am-row" href={r.href}><span className="am-row-t">{r.t}</span>
-      <span className="am-row-main"><span className="am-row-from">{r.from}</span><span className="am-row-subj">{r.subj}</span></span></a>;
-    return <button type="button" className={`am-row${selected ? " is-sel" : ""}${r.bad ? " is-bad" : ""}`} data-sel={r.sel}
-                   aria-current={selected ? "true" : undefined} onClick={() => onPick(r.sel)}>
-      <span className="am-row-t">{r.t}</span>
-      <span className="am-row-main">
-        <span className="am-row-from">{r.from}</span>
-        {r.subj ? <span className="am-row-subj">{r.subj}</span> : null}
-        {r.sub ? <span className="am-row-sub">{r.sub}</span> : null}
-      </span>
-    </button>;
+    const meat = <span className="hub-row-meat">
+      <span className="hub-row-title">{r.from}</span>
+      {r.subj ? <span className="hub-row-sub am-row-subj">{r.subj}</span> : null}
+      {r.sub ? <span className="hub-row-sub am-row-sub">{r.sub}</span> : null}
+    </span>;
+    const right = <span className="hub-row-right am-row-t">{r.t}</span>;
+    if (r.href) return <a className="hub-row am-row" href={r.href}>{meat}{right}</a>;
+    return <button type="button" className={`hub-row am-row${selected ? " selected" : ""}${r.bad ? " is-bad" : ""}`} data-sel={r.sel}
+                   aria-current={selected ? "true" : undefined} onClick={() => onPick(r.sel)}>{meat}{right}</button>;
   }
 
   // ── detail: one card per row kind; actionable cards end in the dock ───────
@@ -246,9 +253,21 @@ window.AutomationsUI = window.AutomationsUI || {};
   };
   const gmDate = (t) => (t || "").replace("T", " ").slice(0, 16);
 
-  function Head({from, title, when}) {
-    return <div className="am-head"><div className="am-from">{from}</div>
-      <div className="am-title" role="heading" aria-level="2">{title}</div><div className="am-when">{when}</div></div>;
+  // read the way mail reads a thread: display title, who + chip + when, then a pill action row (send-back on 044606 #1)
+  function Head({from, chip, title, when, acts}) {
+    return <div className="hub-t3p-read-head">
+      <h2 className="hub-t3p-read-title">{title}</h2>
+      <div className="hub-t3p-read-meta"><b>{from}</b>{chip ? <span className="hub-pill">{chip}</span> : null}{when ? <span>{when}</span> : null}</div>
+      {acts ? <div className="hub-btn-row">{acts}</div> : null}
+    </div>;
+  }
+
+  // the read under the head: one card (mail's summary card), then the dock floating at the foot
+  function Sheet({label, children, dock}) {
+    return <div className="hub-t3p-read-stack">
+      <div className="hub-detail-card"><div className="hub-detail-card-head">{label}</div>{children}</div>
+      {dock || null}
+    </div>;
   }
 
   // own(key) says which action keys belong to this card; dis = one of them is running or the list is stale
@@ -263,18 +282,21 @@ window.AutomationsUI = window.AutomationsUI || {};
       {mine && o.kind === "stale" ? <button type="button" className="hub-btn" data-act="retry" onClick={() => cx.reload(["feed", "dec"])}>retry</button> : null}</p>;
   }
 
-  function Dock({prop, g, cx, children, noterow}) {
-    return <div className="am-dock"><p className="am-dock-prop">{prop}</p>{noterow || null}{children}<Out cx={cx} mine={g.mine} /></div>;
+  // mail's sort-decision bar: a card floating at the foot of the read, glass under liquid
+  function Dock({prop, g, cx, children, noterow, label}) {
+    return <div className="hub-t3p-read-float am-dock"><div className="hub-detail-card">
+      <div className="am-dock-prop"><span className="hub-detail-card-head">{label}</span>{prop}</div>
+      {noterow || null}{children}<Out cx={cx} mine={g.mine} /></div></div>;
   }
 
   function OpenLink({i}) {
-    return i.gmail_link ? <a className="hub-link-chip" href={i.gmail_link} target="_blank" rel="noopener">open in gmail</a> : null;
+    return i.gmail_link ? <a className="hub-btn" href={i.gmail_link} target="_blank" rel="noopener">open in gmail</a> : null;
   }
 
   function Back({i, cx}) {
     const key = `g:${i.id}:back`, g = guard(cx, (k) => k === key);
-    return <Dock g={g} cx={cx} prop={<React.Fragment><span className="hub-pill">{i.state}</span> moved by the sorter; put it back if it was wrong</React.Fragment>}>
-      <div className="am-btns"><button type="button" className="hub-btn" data-act="back" disabled={g.dis}
+    return <Dock g={g} cx={cx} label="sort decision" prop={<React.Fragment><span className="hub-pill">{i.state}</span> moved by the sorter; put it back if it was wrong</React.Fragment>}>
+      <div className="hub-btn-row am-btns"><button type="button" className="hub-btn" data-act="back" disabled={g.dis}
         onClick={() => cx.post("/automations/api/act", {id: i.id, action: "back"}, key, "moved back")}>back to inbox</button></div>
     </Dock>;
   }
@@ -282,21 +304,22 @@ window.AutomationsUI = window.AutomationsUI || {};
   // a row he answered in words: Claude carries the note out on the next /gmail run
   function GmailNoted({i}) {
     return <React.Fragment>
-      <Head from={i.sender} title={i.subject} when={gmDate(i.received_at)} />
-      <p className="am-sum">{i.details || i.summary}</p>
-      <OpenLink i={i} />
-      <p className="am-why"><span className="hub-pill">note sent</span> your note: {i.note}</p>
-      <p className="am-note">the next /gmail run does this</p>
+      <Head from={i.sender} chip="note sent" title={i.subject} when={gmDate(i.received_at)} acts={<OpenLink i={i} />} />
+      <Sheet label="summary">
+        <p className="am-sum">{i.details || i.summary}</p>
+        <p className="am-why"><b>your note</b>{i.note}</p>
+        <p className="am-note">the next /gmail run does this</p>
+      </Sheet>
     </React.Fragment>;
   }
 
   function GmailSorted({row, cx}) {
     const i = row.item;
     return <React.Fragment>
-      <Head from={i.sender} title={i.subject} when={row.e ? gmDate(row.e.t) : gmDate(i.received_at)} />
-      <p className="am-sum">→ {i.label || i.action} <span className="hub-pill">{i.state}</span></p>
-      <OpenLink i={i} />
-      {i.state === "moved" ? <Back i={i} cx={cx} /> : null}
+      <Head from={i.sender} chip={i.state} title={i.subject} when={row.e ? gmDate(row.e.t) : gmDate(i.received_at)} acts={<OpenLink i={i} />} />
+      <Sheet label="sorted" dock={i.state === "moved" ? <Back i={i} cx={cx} /> : null}>
+        <p className="am-sum">→ {i.label || i.action}</p>
+      </Sheet>
     </React.Fragment>;
   }
 
@@ -310,7 +333,7 @@ window.AutomationsUI = window.AutomationsUI || {};
         <option value="">{ready ? "category…" : rc.loading ? "loading categories…" : "categories unavailable"}</option>
         {cats.map((c) => <option key={c.id} value={c.id}>{c.full_name}</option>)}</select>
       {noMemoBox ? null : <input className="hub-input" maxLength={500} value={memoV} onChange={(ev) => setMemo(ev.target.value)} placeholder="memo…" aria-label="memo" />}
-      <div className="am-btns"><button type="button" className="hub-btn hub-btn--accent" data-act={act} disabled={dis || !can} onClick={() => save(false)}>{text}</button>
+      <div className="hub-btn-row am-btns"><button type="button" className="hub-btn hub-btn--accent" data-act={act} disabled={dis || !can} onClick={() => save(false)}>{text}</button>
         {canSkip ? <button type="button" className="hub-btn" data-act="no_memo" disabled={dis || !can} onClick={() => save(true)}>no memo needed</button> : null}</div></div>;
   }
 
@@ -319,21 +342,22 @@ window.AutomationsUI = window.AutomationsUI || {};
     const find = (n) => n && cats.find((c) => c.name === n || c.full_name === n);
     const pre = (find(f.suggested_category_name) || find(f.category_name))?.id;
     return <React.Fragment>
-      <Head from={f.payee} title={f.amount_str} when={f.date} />
-      <p className="am-sum">{f.category_name ? `now ${f.category_name}` : "no category"}{f.suggested_category_name ? ` · suggested ${f.suggested_category_name}` : ""}</p>
-      <Dock g={g} cx={cx} prop={<React.Fragment><span className="hub-pill is-warn">{f.needs.join(" · ")}</span> {f.suggested_category_name ? `claude's pick: ${f.suggested_category_name}` : "claude has no category pick"}</React.Fragment>}>
+      <Head from={f.payee} chip="waiting on you" title={f.amount_str} when={f.date} />
+      <Sheet label="transaction" dock={<Dock g={g} cx={cx} label="categorize" prop={<React.Fragment><span className="hub-pill is-warn">{f.needs.join(" · ")}</span> {f.suggested_category_name ? `claude's pick: ${f.suggested_category_name}` : "claude has no category pick"}</React.Fragment>}>
         <FinForm cx={cx} cats={cats} catPre={pre} memoPre={f.memo || f.memo_draft} text="save and approve" act="save" dis={g.dis} canSkip={f.needs.includes("memo")}
           onSave={(cat, memo, noMemo) => cx.post("/automations/api/finance/act",
             {uid: f.uid, category_id: cat, memo: noMemo ? undefined : memo, approve: true, no_memo: noMemo || undefined}, key, "saved")} />
-      </Dock>
+      </Dock>}>
+        <p className="am-sum">{f.category_name ? `now ${f.category_name}` : "no category"}{f.suggested_category_name ? ` · suggested ${f.suggested_category_name}` : ""}</p>
+      </Sheet>
     </React.Fragment>;
   }
 
   function FinAuto({row}) {
     const f = row.txn;
     return <React.Fragment>
-      <Head from={f.payee || f.raw_description} title={money(f.amount_cents)} when={row.e ? gmDate(row.e.t) : ""} />
-      <p className="am-sum">auto-approved as {f.category}</p>
+      <Head from={f.payee || f.raw_description} chip="auto-approved" title={money(f.amount_cents)} when={row.e ? gmDate(row.e.t) : ""} />
+      <Sheet label="transaction"><p className="am-sum">auto-approved as {f.category}</p></Sheet>
     </React.Fragment>;
   }
 
@@ -360,24 +384,26 @@ window.AutomationsUI = window.AutomationsUI || {};
       const b = (a, t, c) => <button type="button" className={`hub-btn ${c}`} data-act={a} disabled={off} onClick={() => fixPost({action: a, label: folder || ""})}>{t}</button>;
       ctl = <div className="am-acts"><select className="hub-input" aria-label="folder to move to" disabled={!fd} value={folder || ""} onChange={(ev) => setFold(ev.target.value)}>
           {fd ? labels.map((l) => <option key={l}>{l}</option>) : <option>folders unavailable</option>}</select>
-        <div className="am-btns">{b("move", "move to", "")}{b("keep", "keep", "")}{b("delete", "delete", "hub-btn--danger")}</div></div>;
+        <div className="hub-btn-row am-btns">{b("move", "move to", "")}{b("keep", "keep", "")}{b("delete", "delete", "hub-btn--danger")}</div></div>;
     } else if (fixing) {
       ctl = <FinForm cx={cx} cats={cats} memoPre="" text="fix" act="fix_save" dis={g.dis}
         onSave={(cat, memo) => fixPost({category_id: cat, memo: memo || undefined, approve: true})} />;
     }
+    const dock = st === "applied" ? <Dock g={g} cx={cx} label="undo or fix" prop={<React.Fragment><span className="hub-pill is-good">applied</span> {can ? (fixable ? "undo puts it back, fix answers it again" : "undo puts it back") : "this one cannot be undone"}</React.Fragment>}>
+        <div className="hub-btn-row am-btns">
+          {can ? <button type="button" className="hub-btn" data-act="undo" disabled={g.dis} onClick={() => cx.post(`/automations/api/decisions/${d.id}/undo`, {}, ukey, "undone")}>undo</button> : <span className="am-note">cannot undo</span>}
+          {fixable ? <button type="button" className="hub-btn" data-act="fix" onClick={() => setFixing(!fixing)}>{fixing ? "close" : "fix"}</button> : null}</div>
+        {ctl}
+      </Dock> : null;
     return <React.Fragment>
-      <Head from={d.title || d.ref} title={`${LANES[d.lane] || d.lane} · ${d.action}`} when={utc.toLocaleString([], {month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"})} />
+      <Head from={d.title || d.ref} chip={st} title={`${LANES[d.lane] || d.lane} · ${d.action}`} when={utc.toLocaleString([], {month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"})} />
+      <Sheet label="decision" dock={dock}>
       <p className="am-sum"><span className="hub-pill">{LANES[d.lane] || d.lane}</span> <span className={`hub-pill${bad ? " is-alert" : st === "applied" ? " is-good" : ""}`}>{st}</span> {d.made_by === "auto" ? "auto" : "you"} · {d.action}</p>
       {diff ? <p className="am-sum">{diff}</p> : null}
       {d.reason ? <p className="am-why">{d.reason}</p> : null}
       {d.rule ? <p className="am-why">rule: <a href="#" className="rx-link" onClick={(ev) => { ev.preventDefault(); cx.go("rules", `l:${d.rule.id}`); }}>{d.rule.text}</a></p>
         : d.made_by === "auto" ? <p className="am-why">model's own call, no rule</p> : null}
-      {st === "applied" ? <Dock g={g} cx={cx} prop={<React.Fragment><span className="hub-pill is-good">applied</span> {can ? (fixable ? "undo puts it back, fix answers it again" : "undo puts it back") : "this one cannot be undone"}</React.Fragment>}>
-        <div className="am-btns">
-          {can ? <button type="button" className="hub-btn" data-act="undo" disabled={g.dis} onClick={() => cx.post(`/automations/api/decisions/${d.id}/undo`, {}, ukey, "undone")}>undo</button> : <span className="am-note">cannot undo</span>}
-          {fixable ? <button type="button" className="hub-btn" data-act="fix" onClick={() => setFixing(!fixing)}>{fixing ? "close" : "fix"}</button> : null}</div>
-        {ctl}
-      </Dock> : null}
+      </Sheet>
     </React.Fragment>;
   }
 
@@ -385,19 +411,23 @@ window.AutomationsUI = window.AutomationsUI || {};
   function OldCard({row, cx}) {
     const i = row.item, f = row.txn, e = row.e;
     return <React.Fragment>
-      <Head from={i ? i.sender : f.payee || f.raw_description} title={i ? i.subject : money(f.amount_cents)} when={gmDate(e.t)} />
-      <p className="am-sum"><span className="hub-pill">{i ? "gmail" : "category"}</span> <span className="hub-pill">{i ? i.state : "approved"}</span> auto · before the decision log</p>
-      <p className="am-sum">{i ? `${i.subject} → ${i.label || i.action}` : `${money(f.amount_cents)} approved as ${f.category}`}</p>
-      {i && i.state === "moved" ? <Back i={i} cx={cx} /> : <p className="am-note">cannot undo</p>}
+      <Head from={i ? i.sender : f.payee || f.raw_description} chip={i ? "gmail" : "category"} title={i ? i.subject : money(f.amount_cents)} when={gmDate(e.t)} />
+      <Sheet label="before the decision log" dock={i && i.state === "moved" ? <Back i={i} cx={cx} /> : null}>
+        <p className="am-sum"><span className="hub-pill">{i ? i.state : "approved"}</span> auto · before the decision log</p>
+        <p className="am-sum">{i ? `${i.subject} → ${i.label || i.action}` : `${money(f.amount_cents)} approved as ${f.category}`}</p>
+        {i && i.state === "moved" ? null : <p className="am-note">cannot undo</p>}
+      </Sheet>
     </React.Fragment>;
   }
 
   function RunCard({row}) {
     const r = row.run, bits = runBits(r);
     return <React.Fragment>
-      <Head from={r.job} title={r.status} when={gmDate(row.e.t)} />
-      <p className="am-sum"><span className={`hub-pill${row.bad ? " is-alert" : " is-good"}`}>{r.status}</span> {bits}</p>
-      {r.detail && r.detail !== bits ? <p className="am-sum">{r.detail}</p> : null}
+      <Head from={r.job} chip="run" title={r.status} when={gmDate(row.e.t)} />
+      <Sheet label="run">
+        <p className="am-sum"><span className={`hub-pill${row.bad ? " is-alert" : " is-good"}`}>{r.status}</span> {bits}</p>
+        {r.detail && r.detail !== bits ? <p className="am-sum">{r.detail}</p> : null}
+      </Sheet>
     </React.Fragment>;
   }
 
@@ -409,34 +439,38 @@ window.AutomationsUI = window.AutomationsUI || {};
     const r = b.report, skip = ["jobs", "budget", "budget_end"];
     const extras = Object.keys(r).filter((k) => !skip.includes(k)).map((k) => [k.replace(/_/g, " "), r[k]]);
     return <React.Fragment>
-      <Head from="burn run" title={`${shortDay(b.started_at)} ${hhmm(b.started_at)}`} when={`${gmDate(b.started_at)} to ${hhmm(b.ended_at)}`} />
-      <p className="am-sum"><span className={`hub-pill${b.failed ? " is-alert" : " is-good"}`}>{b.status}</span> {b.merged} merged · {b.failed} failed</p>
-      <Facts pairs={[["five-hour window", burnWindow(b)],
-        ["week", `${pct(b.week_start)} to ${pct(b.week_end)} (allowed ${pct(b.week_allow)})`]].concat(extras, [["budget", r.budget], ["budget at end", r.budget_end], ["run id", b.run]])} />
+      <Head from="burn run" chip={b.status} title={`${shortDay(b.started_at)} ${hhmm(b.started_at)}`} when={`${gmDate(b.started_at)} to ${hhmm(b.ended_at)}`} />
+      <Sheet label="run summary">
+        <p className="am-sum"><span className={`hub-pill${b.failed ? " is-alert" : " is-good"}`}>{b.status}</span> {b.merged} merged · {b.failed} failed</p>
+        <Facts pairs={[["five-hour window", burnWindow(b)],
+          ["week", `${pct(b.week_start)} to ${pct(b.week_end)} (allowed ${pct(b.week_allow)})`]].concat(extras, [["budget", r.budget], ["budget at end", r.budget_end], ["run id", b.run]])} />
+      </Sheet>
     </React.Fragment>;
   }
 
   function BurnJobCard({j, b}) {
     const bad = BAD_JOB.includes(j.status);
     return <React.Fragment>
-      <Head from={`${j.source} · chain ${j.chain}`} title={j.id} when={`${gmDate(j.started)} to ${hhmm(j.ended)}`} />
-      <p className="am-sum"><span className={`hub-pill${bad ? " is-alert" : " is-good"}`}>{j.status}</span> {j.summary}</p>
-      <Facts pairs={[["why it stopped", j.reason], ["worker said", j.worker_status], ["files changed", j.files], ["touched but not declared", j.undeclared],
-        ["database writes", j.db_writes], ["copy check", j.copy_verify], ["live check", j.live_verify], ["tests", j.tests], ["run", b.run]]} />
+      <Head from={`${j.source} · chain ${j.chain}`} chip={j.status} title={j.id} when={`${gmDate(j.started)} to ${hhmm(j.ended)}`} />
+      <Sheet label="job">
+        <p className="am-sum"><span className={`hub-pill${bad ? " is-alert" : " is-good"}`}>{j.status}</span> {j.summary}</p>
+        <Facts pairs={[["why it stopped", j.reason], ["worker said", j.worker_status], ["files changed", j.files], ["touched but not declared", j.undeclared],
+          ["database writes", j.db_writes], ["copy check", j.copy_verify], ["live check", j.live_verify], ["tests", j.tests], ["run", b.run]]} />
+      </Sheet>
     </React.Fragment>;
   }
 
   function UpdCard({row, cx}) {
     if (row.state !== "ok") {
       return <React.Fragment>
-        <Head from="updater log" title={row.state === "missing" ? "the updater has not run yet" : "could not read the updater log"} when="" />
-        <p className="am-sum">{row.state === "missing" ? "the updater runs on the PC" : "the log exists but could not be read"}</p>
-        <div className="am-btns"><button type="button" className="hub-btn" data-act="retry" onClick={() => cx.reload(["upd"])}>retry</button></div>
+        <Head from="updater log" title={row.state === "missing" ? "the updater has not run yet" : "could not read the updater log"} when=""
+          acts={<button type="button" className="hub-btn" data-act="retry" onClick={() => cx.reload(["upd"])}>retry</button>} />
+        <Sheet label="updater"><p className="am-sum">{row.state === "missing" ? "the updater runs on the PC" : "the log exists but could not be read"}</p></Sheet>
       </React.Fragment>;
     }
     return <React.Fragment>
       <Head from="updater log" title={row.line.t || "update line"} when={`line ${row.line.n}`} />
-      <p className={`am-sum${row.bad ? " is-bad" : ""}`}>{row.line.text}</p>
+      <Sheet label="log line"><p className={`am-sum${row.bad ? " is-bad" : ""}`}>{row.line.text}</p></Sheet>
     </React.Fragment>;
   }
 
@@ -451,34 +485,47 @@ window.AutomationsUI = window.AutomationsUI || {};
         : r.scope === "once" ? "this email only: carried out once, no standing rule"
         : `${r.scope === "both" ? "this email and " : ""}a standing rule for ${r.who}${r.kind ? ` ${r.kind}` : ""} mail`}</p>
     </React.Fragment>;
-    if (r.source === "streak" || r.source === "payee") return <div className="am-why"><b>{r.source === "streak" ? "your last 3 answers" : `your last ${r.answers.length} answers`}</b>
+    if (r.source === "streak" || r.source === "payee") return <div className="am-why"><b>{`your last ${r.answers.length} answers`}</b>
       <ul className="rx-ev">{r.answers.map((a, k) => <li key={k}><span className="rx-ev-t">{shortDay(a.at)}</span><span>{a.subject || (a.amount != null ? money(a.amount) : "your answer")}</span><span className="rx-ev-a">{a.action || a.category}</span></li>)}</ul></div>;
     return <p className="am-why"><b>from the file-without-asking list</b>{r.comment}</p>;
   }
 
   function RuleCard({r, cx}) {
     const key = `l:${r.id}:`, g = guard(cx, (k) => k.startsWith(key));
-    const [editing, setEditing] = useState(false);
+    const [editing, setEditing] = useState(false), [back, setBack] = useState(false), [why, setWhy] = useState("");
     const fd = cx.res.feed.data, labels = fd ? fd.labels || [] : [];
     const [act, setAct] = useState(r.action || (/^delete/.test(r.does) ? "delete" : /^keep/.test(r.does) ? "keep" : "move"));
-    const [fold, setFold] = useState(r.target || labels[0] || ""), [text, setText] = useState(r.note || r.does);
-    useEffect(() => { if (cx.outcome && cx.outcome.key.startsWith(key) && cx.outcome.kind === "ok") setEditing(false); }, [cx.outcome]);
+    const [fold0, setFold] = useState(r.target || ""), [text, setText] = useState(r.note || r.does);
+    // the folder list can load after this card mounts: fall back to its first folder at render,
+    // or the box shows a folder while save stays off (2026-11-08, found answering mark 072053 #1)
+    const fold = fold0 || labels[0] || "";
+    useEffect(() => { if (cx.outcome && cx.outcome.key.startsWith(key) && cx.outcome.kind === "ok") { setEditing(false); setBack(false); setWhy(""); } }, [cx.outcome]);
+    const sb = r.sent_back;
+    // Claude rewrites a sent-back rule in the background: look again until it lands
+    useEffect(() => { if (sb && sb.status === "revising") { const t = setTimeout(() => cx.reload(["rules"]), 4000); return () => clearTimeout(t); } }, [cx.res.rules.data]);
     const send = (what, fields, ok) => cx.post(`/automations/api/rules/${r.id}/${what}`, ext({rev: r.rev}, fields), key + what, ok);
     const n = (r.recent || []).length, w = r.waiting || [];
     const st = r.state === "rejected" && r.source === "note" ? ["is-alert", "rejected", "it comes back only if you write a new note"] : RULE_STATE[r.state];
     let ed = null;
-    if (editing && isFin(r)) ed = <FinForm cx={cx} cats={cx.cats} catPre={r.action} noMemoBox text="save" act="edit_save" dis={g.dis}
+    if (back) ed = <div className="am-acts"><input className="hub-input" maxLength={500} value={why} placeholder="what is wrong with it" aria-label="why you are sending it back" onChange={(ev) => setWhy(ev.target.value)} />
+      <div className="hub-btn-row am-btns"><button type="button" className="hub-btn hub-btn--accent" data-act="sendback_save" disabled={g.dis || !why.trim()} onClick={() => send("sendback", {note: why.trim()}, "sent back: Claude is rewriting it")}>send back</button></div></div>;
+    else if (editing && isFin(r)) ed = <FinForm cx={cx} cats={cx.cats} catPre={r.action} noMemoBox text="save" act="edit_save" dis={g.dis}
       onSave={(cat) => cat && send("edit", {action: cat}, "saved")} />;
     else if (editing && r.source === "note") ed = <div className="am-acts"><input className="hub-input" maxLength={500} value={text} aria-label="rule text" onChange={(ev) => setText(ev.target.value)} />
-      <div className="am-btns"><button type="button" className="hub-btn hub-btn--accent" data-act="edit_save" disabled={g.dis || !text.trim()} onClick={() => send("edit", {note: text.trim()}, "saved")}>save</button></div></div>;
+      <div className="hub-btn-row am-btns"><button type="button" className="hub-btn hub-btn--accent" data-act="edit_save" disabled={g.dis || !text.trim()} onClick={() => send("edit", {note: text.trim()}, "saved")}>save</button></div></div>;
     else if (editing) ed = <div className="am-acts"><select className="hub-input" aria-label="what it does" value={act} onChange={(ev) => setAct(ev.target.value)}>
         <option value="move">move to a folder</option><option value="delete">delete</option><option value="keep">keep</option></select>
       {act === "move" ? <select className="hub-input" aria-label="folder to move to" value={fold} onChange={(ev) => setFold(ev.target.value)}>
         {labels.map((l) => <option key={l}>{l}</option>)}</select> : null}
-      <div className="am-btns"><button type="button" className="hub-btn hub-btn--accent" data-act="edit_save" disabled={g.dis || (act === "move" && !fold)}
+      <div className="hub-btn-row am-btns"><button type="button" className="hub-btn hub-btn--accent" data-act="edit_save" disabled={g.dis || (act === "move" && !fold)}
         onClick={() => send("edit", act === "move" ? {action: act, target: fold} : {action: act}, "saved")}>save</button></div></div>;
+    const dock = <RuleDock r={r} cx={cx} g={g} st={st} ed={ed} editing={editing} setEditing={(v) => { setEditing(v); setBack(false); }}
+      back={back} setBack={(v) => { setBack(v); setEditing(false); }} send={send} />;
     return <React.Fragment>
-      <Head from={`${r.who} · ${isFin(r) ? "category" : "gmail"}`} title={cap(r.does)} when={`${ruleSrc(r)}${ruleLast(r) ? ` · ${shortDay(ruleLast(r))}` : ""}`} />
+      <Head from={r.who} chip={isFin(r) ? "category" : "gmail"} title={cap(r.does)} when={`${ruleSrc(r)}${ruleLast(r) ? ` · ${shortDay(ruleLast(r))}` : ""}`} />
+      <Sheet label="rule" dock={dock}>
+      {sb ? <p className="am-why"><b>you sent it back · {shortDay(sb.at)}</b>"{sb.note}"<br />{{revising: "Claude is rewriting it from your note",
+        revised: "Claude rewrote it from your note: confirm it, or send it back again", failed: "Claude could not rewrite it: edit it yourself, or send it back again"}[sb.status]}</p> : null}
       <p className="am-why"><b>waiting now</b>{isFin(r)
         ? (r.waiting_n ? `${r.waiting_n} uncategorized ${r.who} transaction would be categorized` : `nothing from ${r.who} is waiting`)
         : w.length ? w.map((m, k) => <React.Fragment key={k}>{k ? <br /> : null}{m.subject} · {shortDay(m.at)}</React.Fragment>) : `no mail from ${r.who} is waiting`}</p>
@@ -487,16 +534,21 @@ window.AutomationsUI = window.AutomationsUI || {};
         <ul className="rx-ev">{r.recent.slice(0, 4).map((d) => <li key={d.id}><span className="rx-ev-t">{shortDay(d.made_at)}</span>
           <a href="#" className="rx-link" onClick={(ev) => { ev.preventDefault(); cx.go("decisions", `d:${d.id}`); }}>{d.title}</a><span className="rx-ev-a">{d.action}</span></li>)}
           {n > 4 ? <li className="rx-more">and {n - 4} more on the decisions tab</li> : null}</ul></div> : null}
-      <Dock g={g} cx={cx} prop={<React.Fragment><span className={`hub-pill ${st[0]}`}>{st[1]}</span> {st[2]}</React.Fragment>}>
+      </Sheet>
+    </React.Fragment>;
+  }
+
+  function RuleDock({r, cx, g, st, ed, editing, setEditing, back, setBack, send}) {
+    return <Dock g={g} cx={cx} label="rule" prop={<React.Fragment><span className={`hub-pill ${st[0]}`}>{st[1]}</span> {st[2]}</React.Fragment>}>
         {ed}
-        {r.state === "proposed" || r.state === "confirmed" ? <div className="am-btns">
+        {r.state === "proposed" || r.state === "confirmed" ? <div className="hub-btn-row am-btns">
           {r.state === "proposed" ? <button type="button" className="hub-btn hub-btn--accent" data-act="confirm" disabled={g.dis} onClick={() => send("confirm", {}, "confirmed")}>confirm</button>
             : <button type="button" className="hub-btn" data-act="off" disabled={g.dis} onClick={() => send("off", {}, "turned off")}>turn off</button>}
           <button type="button" className="hub-btn" data-act="edit" onClick={() => setEditing(!editing)}>{editing ? "close" : "edit"}</button>
+          {r.state === "proposed" ? <button type="button" className="hub-btn" data-act="sendback" disabled={g.dis} onClick={() => setBack(!back)}>{back ? "close" : "send back"}</button> : null}
           {r.state === "proposed" ? <button type="button" className="hub-btn hub-btn--danger" data-act="reject" disabled={g.dis} onClick={() => send("reject", {}, "rejected")}>reject</button> : null}
         </div> : null}
-      </Dock>
-    </React.Fragment>;
+      </Dock>;
   }
 
   function Detail({cx}) {
@@ -509,8 +561,7 @@ window.AutomationsUI = window.AutomationsUI || {};
       case "dec": return <DecCard d={row.d} cx={cx} />;
       case "old": return <OldCard row={row} cx={cx} />;
       case "run": return <RunCard row={row} />;
-      case "digest": return <React.Fragment><Head from="news digest" title={`saved ${row.e.bullets} bullets`} when={gmDate(row.e.t)} />
-        <a className="hub-link-chip" href="/news/">open news</a></React.Fragment>;
+      case "digest": return <Head from="news digest" title={`saved ${row.e.bullets} bullets`} when={gmDate(row.e.t)} acts={<a className="hub-btn" href="/news/">open news</a>} />;
       case "burnrun": return <BurnRunCard b={row.burn} />;
       case "burnjob": return <BurnJobCard j={row.job} b={row.burn} />;
       case "upd": return <UpdCard row={row} cx={cx} />;
@@ -658,9 +709,9 @@ window.AutomationsUI = window.AutomationsUI || {};
       {ReactDOM.createPortal(<Nav tabs={tabs} tab={tab} onTab={pickTab} />, $("amCol"))}
       {failed.length ? <div className="hub-pane-head hub-t3p-head">
         <div className="hub-error"><span>could not load {failed.map((n) => ({feed: "the feed", dec: "decisions", upd: "the updater log", rules: "the rules", burns: "the burn runs"})[n]).join(", ")}</span>
-          <button type="button" className="hub-error-retry" onClick={() => reload(failed)}>retry</button></div>
+          <button type="button" className="hub-btn hub-error-retry" onClick={() => reload(failed)}>retry</button></div>
       </div> : null}
-      <div className="hub-split hub-t3p-split">
+      <div className={`hub-split hub-t3p-split is-reader${showOpen ? "" : " is-empty"}`}>
         <div className="hub-pane-col hub-t3p-list-col">
           <div className="hub-pane-list hub-t3p-list am-list">
             {cur.lanes ? <div className="hub-tags">{LANE_TAGS.map(([k, t]) =>
@@ -678,7 +729,9 @@ window.AutomationsUI = window.AutomationsUI || {};
         <div className="side-pane hub-t3p-side">
           <section className={`hub-detail-rail hub-slide-over context${showOpen ? " is-open" : ""}`}>
             <button type="button" className="hub-slide-over-close" aria-label="back to list" onClick={() => setOpen(false)}>← back</button>
-            <div className="hub-detail-rail-inner context-inner hub-t3p-context am-detail">
+            {showOpen ? <button type="button" className="hub-btn hub-t3p-reader-close" aria-label="Close" title="Close" onClick={() => setOpen(false)}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg></button> : null}
+            <div className="hub-detail-rail-inner context-inner hub-t3p-context hub-t3p-read am-detail">
               {row ? <Detail key={row.sel} cx={{row, post, busy, outcome, say, reload, res, cats, go}} /> : <div className="hub-empty-state">Pick an item.</div>}
             </div>
           </section>

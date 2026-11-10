@@ -42,3 +42,42 @@ def test_every_entry_has_try_and_a_live_link():
 
 def test_guide_is_first_in_module_menu():
     assert MODULES[0]["href"] == "/guide/"
+
+
+def test_panel_fragment_carries_tour_and_refining_note():
+    r = client.get("/guide/panel")
+    body = r.get_data(as_text=True)
+    assert r.status_code == 200 and "<script" not in body and "demo-banner" not in body
+    assert body.count('class="gd-num"') == 7 and guide_api.REFINING in body
+
+
+def test_panel_on_every_page_but_the_guide():
+    assert 'id="demo-guide"' in client.get("/").get_data(as_text=True)
+    page = client.get("/guide/").get_data(as_text=True)
+    assert 'id="demo-guide"' not in page and guide_api.REFINING in page
+
+
+def test_home_schedule_shows_seeded_calendar():
+    import demo_mode
+    days = client.get("/api/home").get_json()["SCHEDULE"]
+    today = next(d for d in days if d["isToday"])
+    names = [e["name"] for e in today["events"] if e["sub"] == "cal"]
+    assert names == [t for off, _s, _e, t, *_ in demo_mode.CAL_EVENTS if off == 0]
+    assert sum(len(d["events"]) for d in days) >= 15
+
+
+def test_panel_assets_served_and_linked():
+    page = client.get("/").get_data(as_text=True)
+    for f in ("panel.css", "panel.js"):
+        assert f"/guide/static/{f}?v=" in page
+        assert client.get(f"/guide/static/{f}").status_code == 200
+
+
+def test_calendar_stays_on_home_only():
+    import gcal
+    import home_data
+    import demo_mode
+    # the real gcal is untouched, so trips and tasks calendar writes stay off
+    assert gcal.fetch_week_events is not demo_mode._demo_week_events
+    assert home_data.gcal.fetch_week_events is demo_mode._demo_week_events
+    assert all(c != "11" for *_, c in demo_mode.CAL_EVENTS)  # Tomato would become a task row

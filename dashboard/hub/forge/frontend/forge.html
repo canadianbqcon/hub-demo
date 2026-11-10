@@ -36,17 +36,20 @@
     };
   }());
 </script>
-<link rel="stylesheet" href="static/forge-base.css">
-<link rel="stylesheet" href="static/forge-themes.css">
-<link rel="stylesheet" href="static/loadout.css">
-<!-- Before first paint: a theme read after the page has painted is a flash of the
-     previous one. Deliberately not a module - modules defer. -->
 <script>
-  try {
-    var t = localStorage.getItem('forge:theme');
-    if (t) document.documentElement.dataset.theme = t;
-  } catch (e) { /* private mode: the default theme is a fine place to land */ }
+/* Forge is one theme: the Hub's Liquid Glass bar and wallpaper, retinted Rift by the
+   html[data-theme][data-surface] block in forge-base.css. Pinned here, not read from hub.theme. */
+document.documentElement.setAttribute("data-theme", "liquid");
+document.documentElement.setAttribute("data-glass", "frost");
+document.documentElement.setAttribute("data-surface", "dark");
 </script>
+<link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+<link rel="stylesheet" href="/static/css/base.css?v=6">
+<link rel="stylesheet" href="/static/css/components.css?v=5">
+<link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
+<link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
+<link rel="stylesheet" href="static/forge-base.css">
+<link rel="stylesheet" href="static/loadout.css">
 
 <style>
   /* The editor. Palette, controls and top bar are in static/forge-base.css, shared
@@ -1104,15 +1107,17 @@
 </style>
 </head>
 <body class="forge builder">
+<header class="topbar"><span data-slot="crumb" class="crumb">forge · builder</span></header>
 
 <div id="forge-root" style="display: contents"></div>
 
 <script src="/static/vendor/react.production.min.js"></script>
 <script src="/static/vendor/react-dom.production.min.js"></script>
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
 <!-- the logic modules (itemset, patchstrip, loadout, build-overlay) reach the JSX through window.ForgeLib -->
 <script type="module" src="static/forge-lib-bridge.js"></script>
 <!-- defer keeps document order: the part files assign into window.ForgeUI, forge.jsx mounts last -->
-<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=2"></script>
 <script defer src="/jsx/forge/frontend/static/forge-shop.jsx?v=2"></script>
 <script defer src="/jsx/forge/frontend/static/forge-blocks.jsx?v=3"></script>
 <script defer src="/jsx/forge/frontend/static/forge-stats.jsx?v=2"></script>

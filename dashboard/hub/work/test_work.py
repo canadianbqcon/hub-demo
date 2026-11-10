@@ -17,3 +17,17 @@ def test_modules_work_in_career_and_no_barback_tile():
     assert mods["work"]["tier"] == "career"
     assert mods["work"]["href"] == "/work/"
     assert mods["work"]["meta"] == "→ /work"
+
+def test_hours_cross_midnight():
+    from work.api import _hours
+    assert _hours("16:30", "00:00") == 7.5
+    assert _hours("21:00", "03:00") == 6.0
+    assert _hours("16:30", "23:30") == 7.0
+
+def test_summary_endpoint_shape():
+    r = hub_app.app.test_client().get("/work/api/summary")
+    assert r.status_code == 200
+    d = r.get_json()
+    assert set(d) == {"today", "up", "last_pay", "ytd", "paid", "tools"}
+    assert [t[0] for t in d["tools"]] == ["Open", "Close", "Batch prep", "Cocktails", "Map", "Stock"]
+    assert all(u["date"] >= d["today"] for u in d["up"])

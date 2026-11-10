@@ -30,8 +30,8 @@ def judge_note(client, note, item, pressed):
         resp = client.messages.create(
             model=MODEL, max_tokens=300,
             system="Sam typed a note on one email in his inbox. Decide its reach from what it says: "
-                   "once (an instruction about this one email only), standing (a rule for future mail from "
-                   "this sender), or both. Restate any standing part as one short rule about the sender in "
+                   "once (an instruction about this one email only), standing (a rule for future mail of "
+                   "this kind), or both. Restate any standing part as one short rule about this kind of mail in "
                    "rule_text (empty for once). Also pick the one fixed operation the standing part selects: "
                    "craft_update (install the app update the release email announces), "
                    "keep_until_superseded (keep the newest, trash older ones once a newer one arrives), "
@@ -53,8 +53,52 @@ def judge_note(client, note, item, pressed):
     return {"scope": got["scope"], "op": op, "rule_text": str(got.get("rule_text") or "").strip() or note}
 
 
-def _rule_key(n):
-    return f"{n['domain'] or '*'}|{n['kind'] or '*'}"
+def revise_rule(client, rule_line, note, lane, kind_of_rule, choices):
+    """One Haiku call: rewrite a proposed rule from his send-back note. choices are the folder
+    names (gmail) or {category id: full name} (finance). Returns the fields for rules.revise,
+    or None on a refusal, an answer outside the choices, or an API error."""
+    if lane != "gmail":
+        props = {"category": {"type": "string"}}
+        ask = f"Pick the category it should use instead, by its exact name, from: {'; '.join(choices.values())}."
+    elif kind_of_rule == "instruction":
+        props = {"rule_text": {"type": "string"}}
+        ask = "Rewrite the rule as one short instruction about this kind of mail in rule_text."
+    else:
+        props = {"action": {"type": "string", "enum": ["MOVE", "DELETE", "KEEP"]}, "target": {"type": "string"}}
+        ask = f"Pick what it should do instead: MOVE (target = one folder from: {', '.join(choices)}), DELETE or KEEP (target empty)."
+    try:
+        resp = client.messages.create(
+            model=MODEL, max_tokens=300,
+            system="Claude proposed an automation rule for Sam and he sent it back with a note saying "
+                   "what is wrong. Propose the better rule his note asks for. " + ask,
+            messages=[{"role": "user", "content": f"Proposed rule: {rule_line}\nHis note: {note}"}],
+            output_config={"effort": "low", "format": {"type": "json_schema", "schema": {
+                "type": "object", "properties": props, "required": list(props), "additionalProperties": False}}})
+        got = json.loads(next(b.text for b in resp.content if b.type == "text"))
+    except Exception as e:
+        print(f"  revise_rule failed: {e}", file=sys.stderr)
+        return None
+    if lane != "gmail":
+        cid = next((k for k, v in choices.items() if v == got.get("category")), None)
+        return {"action": cid} if cid else None
+    if kind_of_rule == "instruction":
+        text = str(got.get("rule_text") or "").strip()
+        return {"note": text, "op": None} if text else None
+    act, target = got.get("action"), got.get("target")
+    if act == "MOVE":
+        return {"action": act, "target": target} if target in choices else None
+    return {"action": act, "target": None} if act in ("DELETE", "KEEP") else None
+
+
+def _rule_key(n, op=None):
+    """A note's rule covers its archetype from every sender, except a typed op (it acts on one
+    sender's mail, like installing that app's update) and security mail, which stay per sender."""
+    from automations import gmail_lane, rules
+    kind = gmail_lane.archetype(n["kind"]) if n["kind"] else "*"
+    dom = n["domain"] or "*"
+    if not op and kind != "*" and kind not in rules.SENDER_SCOPED:
+        dom = "*"
+    return f"{dom}|{kind}"
 
 
 def propose_note_rule(conn, n, rule_text, op):
@@ -66,7 +110,7 @@ def propose_note_rule(conn, n, rule_text, op):
         return None
     if conn.execute("SELECT 1 FROM rule WHERE source='note' AND source_ref=?", (ref,)).fetchone():
         ref += "@" + rules._now()
-    return rules.propose(conn, lane="gmail", rule_key=_rule_key(n), kind_of_rule="instruction",
+    return rules.propose(conn, lane="gmail", rule_key=_rule_key(n, op), kind_of_rule="instruction",
                          source="note", source_ref=ref, note=rule_text, op=op)
 
 

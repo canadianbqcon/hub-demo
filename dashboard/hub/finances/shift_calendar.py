@@ -172,6 +172,96 @@ def fetch_shifts(months_ahead: int = 6, today: date | None = None,
     return found
 
 
+# ── SpotOn mirror ─────────────────────────────────────────────────────────────
+# SpotOn Teamwork's calendar sync writes shifts to its own "Juniper & Co's Work
+# Schedule" calendar, titled "Juniper &amp; Co Barback" (HTML-escaped, by them).
+# Shifts belong on Personal as "Barback Shift" (calendar-event-conventions), so
+# each shift-sync run copies them over, keyed by the SpotOn event id in a private
+# extended property, and unticks the SpotOn calendar so nothing shows twice.
+# Only future shifts are touched: past ones get hand-corrected to actual times.
+
+SPOTON_CAL = "Juniper & Co's Work Schedule"
+JC_LOCATION = "Juniper & Co, 200 Example Ave, New York, NY 10002"
+
+
+def _spoton_role(summary: str) -> str:
+    """'Juniper &amp; Co Barback' -> 'Barback'."""
+    import html
+    s = html.unescape(summary or "").strip()
+    s = re.sub(r"^(Juniper\s*(&|and)\s*Sorrel|J&Co)\s*[-—:]?\s*", "", s, flags=re.IGNORECASE)
+    return s or "Barback"
+
+
+def mirror_spoton(now: datetime | None = None) -> dict:
+    import gcal
+    svc = gcal._get_service()
+    cals = [c for c in svc.calendarList().list().execute().get("items", [])
+            if c.get("summary") == SPOTON_CAL]
+    if not cals:
+        return {"created": 0, "updated": 0, "deleted": 0, "note": "no SpotOn calendar"}
+    now = now or datetime.now().astimezone()
+    lo = now.astimezone().isoformat(timespec="seconds")
+    hi = (now + timedelta(days=200)).astimezone().isoformat(timespec="seconds")
+
+    def window(cal_id):
+        out, page = [], None
+        while True:
+            r = svc.events().list(calendarId=cal_id, timeMin=lo, timeMax=hi, singleEvents=True,
+                                  maxResults=250, pageToken=page).execute()
+            out += r.get("items", [])
+            page = r.get("nextPageToken")
+            if not page:
+                return out
+
+    src = [e for c in cals for e in window(c["id"])
+           if e.get("status") != "cancelled" and "dateTime" in e["start"]]
+    mine = [e for e in window("primary")
+            if source_for(e.get("summary", ""), e.get("description"), e.get("location"))]
+    by_id = {e.get("extendedProperties", {}).get("private", {}).get("spoton_id"): e for e in mine}
+    by_date = {e["start"].get("dateTime", "")[:10]: e for e in mine}
+    seen, n = set(), {"created": 0, "updated": 0, "deleted": 0}
+
+    for s in src:
+        start, end = s["start"]["dateTime"], s["end"]["dateTime"]
+        p = by_id.get(s["id"]) or by_date.get(start[:10])
+        if p:
+            seen.add(p["id"])
+            patch = {}
+            if p.get("extendedProperties", {}).get("private", {}).get("spoton_id") != s["id"]:
+                patch["extendedProperties"] = {"private": {"spoton_id": s["id"]}}
+            elif (p["start"].get("dateTime"), p["end"].get("dateTime")) != (start, end):
+                # Mirrored before and SpotOn moved it: follow the roster.
+                patch.update(start={"dateTime": start}, end={"dateTime": end})
+            if patch:
+                svc.events().patch(calendarId="primary", eventId=p["id"], body=patch).execute()
+                n["updated"] += 1
+            continue
+        role = _spoton_role(s.get("summary"))
+        made = gcal.create_event({
+            "summary": f"{role} Shift",
+            "location": JC_LOCATION,
+            "description": f"Role: {role}\nCompany: Juniper & Co\n"
+                           f"Source: SpotOn Teamwork calendar (auto-mirrored)",
+            "start": {"dateTime": start}, "end": {"dateTime": end},
+            "reminders": {"useDefault": False},
+            "extendedProperties": {"private": {"spoton_id": s["id"]}},
+        }, label="Work Shifts")
+        seen.add(made["id"])
+        n["created"] += 1
+
+    # A mirrored shift SpotOn no longer lists was dropped from the roster.
+    # Hand-made shifts (no spoton_id) are never deleted.
+    for p in mine:
+        if p["id"] not in seen and p.get("extendedProperties", {}).get("private", {}).get("spoton_id"):
+            svc.events().delete(calendarId="primary", eventId=p["id"]).execute()
+            n["deleted"] += 1
+
+    for c in cals:
+        if c.get("selected"):
+            svc.calendarList().patch(calendarId=c["id"], body={"selected": False}).execute()
+    return n
+
+
 # ── The Haiku backstop ────────────────────────────────────────────────────────
 # Report-only. Nothing below writes a shift row, and every failure path here is
 # swallowed: a check that can break the sync it is checking is worse than no
@@ -362,6 +452,7 @@ def main() -> None:
     args = ap.parse_args()
 
     if not args.show:
+        print(f"SpotOn mirror: {mirror_spoton()}")
         events = list_events(args.months)
         shifts = fetch_shifts(events=events)
         replace_scheduled(shifts)

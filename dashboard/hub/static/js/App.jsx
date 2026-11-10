@@ -160,13 +160,13 @@ function App() {
         {apiError && (
           <div className="hub-error hub-error-home" role="alert">
             couldn't reach /api/home — panels below may be stale or empty, not actually clear.
-            <button type="button" className="hub-error-retry" onClick={refresh}>retry</button>
+            <button type="button" className="hub-btn hub-error-retry" onClick={refresh}>retry</button>
           </div>
         )}
         {!apiError && offlineNote && (
           <div className="hub-error hub-error-home" role="status">
             {offlineNote}
-            <button type="button" className="hub-error-retry" onClick={refresh}>retry</button>
+            <button type="button" className="hub-btn hub-error-retry" onClick={refresh}>retry</button>
           </div>
         )}
         <main className="lh-main">

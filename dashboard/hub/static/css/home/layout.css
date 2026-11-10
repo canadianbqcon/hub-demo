@@ -26,6 +26,19 @@
 @container (max-width: 520px) { .lp-glance { grid-template-columns: minmax(0, 1fr); } }
 .lp-glance > .col-bring, .lp-glance > .col-prep { display: contents; }
 .lp-glance .tb-card, .lp-glance .col-prep .tb-card { margin: 0; min-width: 0; }
+/* the today view fits the window on desktop (mark 2026-11-07 042505:1 "always the length that
+   fits nicely in the browser"): the row takes the scroll region's height, the calendar grows
+   hours into that room (today-day.jsx dayRange) and scrolls inside past it, and the right
+   column's cards scroll inside rather than push the row past the window. */
+body.home .scroll-region { container-type: size; }
+@media (min-width: 900px) {
+  .lh-top { height: calc(100cqh - var(--s-4)); min-height: 560px; }
+  .lp-today, .lh-top-r { min-height: 0; }
+  .lp-today .col-cal { display: flex; flex-direction: column; }
+  .lp-today .col-cal .tb-day { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  /* rounded like the cards it clips, so a card cut by the scroll edge keeps a card's corner (mark 055757 #1) */
+  .lp-glance { min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-radius: var(--r-card); }
+}
 .lh-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-5); align-items: stretch; }
 .lh-stack { display: grid; gap: var(--s-5); align-content: start; min-width: 0; }
 /* planner: as tall as the taller of the other two stacks, its list scrolls inside.

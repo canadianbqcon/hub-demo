@@ -2,6 +2,8 @@
 
 Scoped rules for the barback module. For cross-module dashboard rules (wiki–implementation sync, code standards, STRICT conversion), see `dashboard/CLAUDE.md` — it loads in addition to this file when you work here.
 
+**Since 2026-11-09 `/jc/` serves the Bar Back artifact copy instead (see `jc/CLAUDE.md`), so `barback.jsx` below has no page; the API and `work.db` tables still work.**
+
 This module lives under the Hub dashboard (port 5002). Since the 2026-07-29 J&Co merge it owns **data + behaviour only, not a page**: `barback.jsx` renders the **bar back** tab of the juniper & co umbrella (`dashboard/hub/jc/`, route `/jc/#barback`) and nothing else — the React copy of the topbar, status strip, module launcher and the one-way "Batch prep →" link are all gone, because that duplicated chrome is exactly what made this surface and batch prep read as two products. It mounts lazily off the umbrella's `jc:tab` event so starting a run (and the archival sweep that rides along with it) does not fire on every page view. `/barback/` 308-redirects to `/jc/#barback`; `/barback/api/barback/*` and `/barback/static/*` are otherwise unchanged. It is the **second UI onto `work.db`** — the first being `batch_prep` ([[wiki/decisions/onboard-jc-batch-prep]]). Onboarded via [[wiki/decisions/onboard-barback-dashboard]].
 
 ## The sub-tabs ARE the runs [BINDING]

@@ -174,7 +174,7 @@ function ArtifactsApp() {
                ref={indexRef}>
         {error
           ? <div className="hub-error">couldn't load artifacts {"—"} {error}
-              <button type="button" className="hub-error-retry" id="retryLoad"
+              <button type="button" className="hub-btn hub-error-retry" id="retryLoad"
                       onClick={() => location.reload()}>retry</button></div>
           : sorted ? <Index artifacts={sorted} tabs={tabs} current={current} /> : null}
       </section>

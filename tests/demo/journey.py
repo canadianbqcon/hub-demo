@@ -106,6 +106,20 @@ def main(argv=None) -> int:
             open_page(pg, a.base + page)
             if not pg.locator("#demo-banner").count():
                 problems.append(f"{page}: no demo banner")
+            if not page.startswith("/guide/"):
+                # open on a first visit, with the tour loaded; Escape tucks it away
+                # (and is remembered), so the presses below are not under it
+                try:
+                    pg.locator("#demo-guide .gd-step").first.wait_for(timeout=5000)
+                except Exception:  # noqa: BLE001
+                    problems.append(f"{page}: guide panel did not open with the tour")
+                pg.keyboard.press("Escape")
+                try:  # wait out the slide, or its close button is counted below and then hides
+                    pg.locator("#demo-guide").wait_for(state="hidden", timeout=3000)
+                except Exception:  # noqa: BLE001
+                    problems.append(f"{page}: guide panel did not close on Escape")
+                if pg.locator("#demo-guide-tab:visible").count() != 1:
+                    problems.append(f"{page}: guide panel did not tuck into its tab")
             pg.screenshot(path=str(a.shots / f"{page.strip('/').replace('/', '_') or 'home'}.png"))
 
             labels = []

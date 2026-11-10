@@ -449,7 +449,7 @@ window.BlueprintsUI = window.BlueprintsUI || {};
         }).catch(err => {
           document.getElementById("cards-basics").innerHTML =
             `<div class="hub-error">Could not read the shared layer (${esc(String(err))}).
-             <button class="hub-error-retry" onclick="location.reload()">Retry</button></div>`;
+             <button class="hub-btn hub-error-retry" onclick="location.reload()">Retry</button></div>`;
           setDebt("unavailable");
           document.getElementById("panel-pages").innerHTML =
             `<p class="el-intro">pages unavailable (${esc(String(err))}).</p>`;

@@ -45,7 +45,6 @@ body.viewer .vw-tools { margin-top: 4px; display: flex; align-items: center; jus
 body.viewer .vw-stage { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; padding: var(--s-3); }
 body.viewer .vw-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 10px; display: block; }
 body.viewer .vw-ph { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--fg-dim); font-size: var(--fs-footnote); text-align: center; overflow-wrap: anywhere; }
-body.viewer .vw-lnk, body.viewer .vw-lnkbtn { color: var(--accent); text-decoration: underline; background: none; height: auto; padding: 0; font: inherit; letter-spacing: 0; cursor: pointer; }
 body.viewer .vw-line { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: var(--fs-caption); color: var(--fg-dim); padding: 0 var(--s-3) var(--s-3); justify-content: center; position: relative; }
 body.viewer .vw-line b { color: var(--fg); font-weight: 500; }
 body.viewer .vw-menu { position: relative; }

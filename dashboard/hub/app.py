@@ -431,6 +431,10 @@ _ICON_LINK = re.compile(rb'(<link rel="icon"[^>]*>)')
 _HEAD_TAGS = (
     b'\n<link rel="apple-touch-icon" href="/static/assets/apple-touch-icon.png">'
     b'\n<link rel="manifest" href="/static/assets/manifest.webmanifest">'
+    # Home-screen app: without this iOS paints a black band under the notch and
+    # starts the page below it. Translucent lets the wallpaper run to the top
+    # edge; the bar pads itself by --safe-t (theme-switch.js) to clear the clock.
+    b'\n<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">'
 )
 # Split from the links above 2026-09-18: the trips templates declare their own
 # manifest and so were skipped whole, which left a phone that only ever opens
@@ -870,6 +874,15 @@ def api_transit():
     # blank waiting for a route.
     return jsonify(transit.view(request.args.getlist("dest"), request.args.getlist("line"),
                                 request.args.get("day", "")))
+
+
+@app.route("/api/transit/routes")
+def api_transit_routes():
+    # ?from=lat,lng&to=lat,lng&time=<event start, naive local>. Google's transit
+    # routes (transit.google_routes); {"itineraries": null} tells the card to fall
+    # back to the self-hosted router.
+    return jsonify({"itineraries": transit.google_routes(
+        request.args.get("from", ""), request.args.get("to", ""), request.args.get("time", ""))})
 
 
 @app.route("/api/wx-extras")
