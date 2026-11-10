@@ -28,8 +28,9 @@ Built by Brendan Quan.
 Many parts of the Hub are still being refined and completed, so some pages are rougher than others.
 
 - **2026-11-06, first public version:** every page on fake data, with the Guide tour at `/guide`.
-- **In progress, next update expected 2026-11-07:** the Guide as a frosted side panel on every page,
-  a seeded week on the Home calendar, and fixes from a code review of both.
+- **2026-11-09:** the Guide as a frosted side panel on every page, a seeded week on the Home calendar,
+  and the Hub fixes made since launch.
+- **From here on:** a nightly job re-exports the live Hub, and each refresh is published here after I approve it.
 
 ## What it covers
 
