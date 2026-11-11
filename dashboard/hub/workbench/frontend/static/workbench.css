@@ -111,6 +111,13 @@ body.workbench [hidden] { display: none !important; }
 .wb-sel input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); cursor: pointer; }
 .wb-grid .opt.selected { box-shadow: 0 0 0 3px var(--accent); }
 
+/* carousel: the rig in the top layer, one card at a time across the whole viewport */
+.wb-rig.wb-carousel { position: fixed; inset: 0; width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; border: 0; padding: 0 var(--wb-gut) var(--wb-gut); overflow-y: auto; background: var(--bg); color: var(--fg); }
+.wb-rig.wb-carousel::backdrop { background: var(--bg); }
+.wb-rig.wb-carousel .rig-head, .wb-rig.wb-carousel .opt:not(.wb-cur) { display: none; }
+.wb-car-bar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: var(--s-2); padding: 12px 0; margin-bottom: 12px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.wb-car-t { flex: 1 1 auto; min-width: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
 /* card plumbing: the plate's button wrapper carries the origin's head-act class, so it
    drops that class's own button box; the strip and body take the card's padding */
 body.workbench .wb-acts { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s-2); padding: 0; border: 0; background: none; }
@@ -128,7 +135,7 @@ body.workbench .wb-dim { opacity: .45; }
 body.workbench .wb-hist > summary { cursor: pointer; padding: var(--s-2) var(--s-3); }
 
 /* the header: one card holding the title, the progress pill, the three-stage track and the set carousel */
-body.workbench .hub-e3p-head.hub-plate-card { margin: var(--s-4) var(--s-5) 0; padding: 22px var(--wb-gut) 6px; border: 0; background: var(--bg-elev); }
+body.workbench .hub-e3p-head.hub-plate-card { margin: var(--s-4) var(--s-5) 0; padding: 22px var(--wb-gut) 6px; border: 0; background: var(--lq-card, var(--bg-elev)); }   /* liquid.css section 16 card rule */
 body.workbench .hub-e3p-head-sep:empty { display: none; }
 body.workbench .hub-e3p-head-t { font-size: var(--fs-title); font-weight: 600; letter-spacing: -.01em; }
 /* a build has no sub line; the empty slot still took the row gap and pushed the title 8px off the cards below */
@@ -219,6 +226,11 @@ body.workbench .wb-log-toggle { margin-left: auto; height: 28px; padding: 0 12px
 @media (min-width: 901px) {
   body.workbench .hub-e3p-main { overflow-y: auto; }
   body.workbench .hub-e3p-cards { flex: none; overflow: visible; }
+  /* the scroller runs to the window's bottom edge under the status island, so cards slide under it instead of
+     being cut flat 56px above it (mark 211915 #1 "why sharp corners"); the room moves inside the scrollers */
+  [data-theme="liquid"] body.workbench .hub-shell .hub-e3p-split { padding-bottom: 0; }
+  [data-theme="liquid"] body.workbench .hub-e3p-main { padding-bottom: var(--dock-clear); }
+  [data-theme="liquid"] body.workbench .hub-e3p-rail { padding-bottom: var(--dock-clear); }
 }
 /* the head-to-cards gap matches the gap between cards (send-back on mark 235445 #1; the 28px was room for the old fade) */
 body.workbench .hub-e3p-cards { padding-top: var(--s-4); }

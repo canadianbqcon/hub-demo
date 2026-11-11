@@ -52,8 +52,11 @@ def _calendars(force: bool = False) -> list:
     global _cal_cache
     if not force and _cal_cache and time.monotonic() - _cal_cache[0] < _CAL_TTL:
         return _cal_cache[1]
+    # SpotOn's calendar is mirrored onto Personal as "Barback Shift" (hub/finances/shift_calendar.py
+    # SPOTON_CAL); reading both showed every shift twice (mark 2026-11-11-003157 #2)
     items = [c for c in _get_service().calendarList().list().execute().get("items", [])
-             if not any(k in c["id"] for k in _CAL_SKIP)]
+             if not any(k in c["id"] for k in _CAL_SKIP)
+             and c.get("summary") != "Juniper & Co's Work Schedule"]
     _cal_cache = (time.monotonic(), items)
     return items
 

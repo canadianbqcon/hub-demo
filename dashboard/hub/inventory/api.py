@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 import platform
+import shutil
 import socket
 import subprocess
 import threading
@@ -146,6 +147,93 @@ def api_uninstall():
         code, output = run_uninstall(argv)
     except (OSError, subprocess.SubprocessError) as e:
         return _err(f"uninstall failed to run: {e}", 502)
+    threading.Thread(target=_safe_scan, daemon=True).start()
+    return jsonify({"ok": code == 0, "exit": code, "output": output[-2000:]})
+
+
+# ---- app updates (winget, this computer only) ----
+# Third-party self-updaters are switched off in favour of this list (2026-11-10:
+# Lightshot's 01:58 updater could pull focus mid-game). winget runs through WSL
+# interop, which has no console window of its own.
+WINGET_ARGS = ["--accept-source-agreements", "--disable-interactivity"]
+UPGRADE_TIMEOUT = 900
+# Upgrading these from inside the Hub kills the Hub mid-install.
+HUB_HOSTS = {"Microsoft.WSL": "it restarts WSL and the Hub with it, run it from a Windows terminal"}
+
+
+def _winget() -> str | None:
+    return shutil.which("winget.exe") or shutil.which("winget")
+
+
+def parse_upgrades(text: str) -> list[dict]:
+    """Rows of every `winget upgrade` table. Parsed from the right: Id has no spaces,
+    Version may be '< 3.1' (two tokens), Name is whatever is left."""
+    out, in_table = [], False
+    for raw in text.split("\n"):
+        line = raw.split("\r")[-1].rstrip()  # drop spinner frames before a \r
+        if set(line.strip()) == {"-"}:
+            in_table = True
+            continue
+        t = line.split()
+        if not in_table or not line.strip():
+            in_table = in_table and bool(line.strip())
+            continue
+        # a footnote can follow a table with no blank line; real rows end in a source
+        if len(t) < 5 or t[-1] not in ("winget", "msstore"):
+            in_table = False
+            continue
+        if t[-4] in ("<", ">") and len(t) >= 6:
+            ver, pid, name = t[-4] + " " + t[-3], t[-5], t[:-5]
+        else:
+            ver, pid, name = t[-3], t[-4], t[:-4]
+        out.append({"name": " ".join(name), "id": pid, "version": ver, "available": t[-2], "source": t[-1],
+                    "blocked": HUB_HOSTS.get(pid, "")})
+    return out
+
+
+def run_winget(args, timeout):
+    """Module-level so tests patch it. Returns (exit code, combined output)."""
+    exe = _winget()
+    if not exe:
+        raise FileNotFoundError("winget not found on this computer")
+    p = subprocess.run([exe, *args, *WINGET_ARGS], capture_output=True, text=True, timeout=timeout,
+                       stdin=subprocess.DEVNULL)
+    return p.returncode, (p.stdout or "") + (p.stderr or "")
+
+
+def list_upgrades() -> list[dict]:
+    _code, text = run_winget(["upgrade"], 120)
+    return parse_upgrades(text)
+
+
+@bp.route("/api/updates")
+def api_updates():
+    try:
+        return jsonify({"machine": local_machine(), "updates": list_upgrades()})
+    except (OSError, subprocess.SubprocessError) as e:
+        return _err(f"winget did not run: {e}", 503)
+
+
+@bp.route("/api/update", methods=["POST"])
+def api_update():
+    if bad := _cross_site():
+        return bad
+    pid = (request.get_json(silent=True) or {}).get("id")
+    if not isinstance(pid, str) or not pid:
+        return _err("id required", 400)
+    try:
+        row = next((u for u in list_upgrades() if u["id"] == pid), None)
+    except (OSError, subprocess.SubprocessError) as e:
+        return _err(f"winget did not run: {e}", 503)
+    if row is None:  # never upgrade an id winget did not just offer
+        return _err("no update waiting for that app", 400)
+    if row["blocked"]:
+        return _err(row["blocked"], 409)
+    try:
+        code, output = run_winget(["upgrade", "--id", pid, "--exact", "--silent",
+                                   "--accept-package-agreements"], UPGRADE_TIMEOUT)
+    except (OSError, subprocess.SubprocessError) as e:
+        return _err(f"update failed to run: {e}", 502)
     threading.Thread(target=_safe_scan, daemon=True).start()
     return jsonify({"ok": code == 0, "exit": code, "output": output[-2000:]})
 

@@ -169,6 +169,23 @@ MODULES = [
         ),
     },
     {
+        "name": "gaming",
+        "desc": "league and cs2 tools, notes and dossiers.",
+        "meta": "→ /gaming",
+        "href": "/gaming/",
+        "tier": "life",
+        # A game controller from above: rounded body, d-pad cross left, two button ticks
+        # right. Straight stroke centres on 1.2n + 0.6 per the grid rules at the top of
+        # this file; body spans 3.0 to 22.2, centred on x = 12.6.
+        "icon": (
+            '<rect x="3" y="7.8" width="19.2" height="9.6" rx="4.2"/>'
+            '<path d="M7.8 10.2 V15"/>'
+            '<path d="M5.4 12.6 H10.2"/>'
+            '<path d="M16.2 11.4 H17.4"/>'
+            '<path d="M18.6 13.8 H19.8"/>'
+        ),
+    },
+    {
         "name": "work",
         "desc": "all your work dashboards, by job.",
         "meta": "→ /work",

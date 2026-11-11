@@ -187,6 +187,8 @@ body.builder > .topbar { grid-column: 1 / -1; grid-row: bar; margin-left: calc(-
 /* the rail */
 .frail { position: sticky; top: 12px; display: grid; gap: 12px; padding: 12px;
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--rad); box-shadow: 0 8px 28px oklch(0 0 0 / .28); }
+/* liquid's bar sticks as an island on scroll (76px, dropped 10px, over 900px wide where the rail sticks): clear it */
+[data-theme="liquid"] .frail { top: 98px; }
 .frail .navtabs { display: grid; gap: 2px; }
 .frail .navtabs a { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 12px; border: 0;
   color: var(--ink-2); text-decoration: none; font-size: var(--fs-subhead); font-weight: 600; }
@@ -331,3 +333,7 @@ body.builder > .topbar { grid-column: 1 / -1; grid-row: bar; margin-left: calc(-
  */
 .ratio { color: color-mix(in oklab, var(--sc, var(--ink)) 72%, var(--ink)); font-weight: 600; white-space: nowrap; }
 .ratio img { width: 1em; height: 1em; vertical-align: -0.15em; margin-right: 0.15em; }
+/* the rail's pool, sorted under lane headings (mark 2026-11-10-042636 #2) */
+.fs-lane { display: flex; align-items: center; gap: 6px; margin: 8px 8px 2px; font-size: var(--fs-caption); font-weight: 600; color: var(--dim); }
+.fs-lane:first-child { margin-top: 0; }
+.fs-lane .role-ico { width: 13px; height: 13px; }

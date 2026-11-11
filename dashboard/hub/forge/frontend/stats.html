@@ -29,6 +29,7 @@ document.documentElement.setAttribute("data-surface", "dark");
 <link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
 <link rel="stylesheet" href="/static/css/themes/liquid.css?v=10">
 <link rel="stylesheet" href="static/forge-base.css">
+<link rel="stylesheet" href="static/stats-history.css?v=7">
 
 <style>
   /* His own record, the third top-level surface.
@@ -48,6 +49,8 @@ document.documentElement.setAttribute("data-surface", "dark");
   .wrap { max-width: 1500px; margin: 0 auto; padding: 22px 20px 90px; display: grid; gap: 22px; }
 
   .lede { display: grid; gap: 6px; max-width: 74ch; }
+  .lede-hd { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .lede-hd .ml-tab[disabled] { opacity: .6; cursor: default; }
   .lede h2 { margin: 0; font-size: var(--t-lg); font-weight: 600; letter-spacing: -0.015em; }
   .lede p { margin: 0; color: var(--dim); font-size: var(--t-sm); text-wrap: pretty; }
   .lede b { color: var(--ink-2); font-weight: 600; }
@@ -83,9 +86,8 @@ document.documentElement.setAttribute("data-surface", "dark");
   .season.now { border-color: var(--accent-lo); background: var(--accent-bg); color: var(--accent); }
   .season.now .s { color: inherit; }
 
-  /* ── the two panels ───────────────────────────────────────────────────── */
-  .panes { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(340px, 1fr); gap: 22px; align-items: start; }
-  @media (max-width: 1040px) { .panes { grid-template-columns: minmax(0, 1fr); } }
+  /* ── panels: rank graph and match history full width, then the champion pool ── */
+  .panes { display: grid; gap: 22px; }
 
   .pane { display: grid; gap: 11px; min-width: 0; }
   .pane > h3 {
@@ -140,38 +142,6 @@ document.documentElement.setAttribute("data-surface", "dark");
      that is not arithmetic on kills, so it gets the gold. */
   .op { font: 600 var(--t-sm)/1 var(--mono); color: var(--gold); font-variant-numeric: tabular-nums; }
 
-  /* ── recent games ─────────────────────────────────────────────────────── */
-  .games { display: grid; }
-  /* Only once the columns are side by side. Stacked, the document scrolls and a
-     nested scroller would be a box inside a box for no reason. */
-  @media (min-width: 1041px) {
-    .feed { max-height: 560px; overflow-y: auto; }
-  }
-  .game {
-    display: grid; grid-template-columns: 3px 34px minmax(0, 1fr) auto;
-    gap: 0 11px; align-items: center;
-    padding: 9px 12px 9px 0;
-  }
-  .game + .game { border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
-  .game:hover { background: var(--raised); }
-  .game .edge { align-self: stretch; }
-  .game.win .edge { background: var(--buff); }
-  .game.loss .edge { background: var(--nerf); }
-  .game img { width: 34px; height: 34px; border-radius: var(--r-sm); }
-  .game .who { display: grid; gap: 2px; min-width: 0; }
-  .game .who .n { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .game .who .m {
-    font: 500 var(--t-xs)/1 var(--mono); color: var(--dim);
-    font-variant-numeric: tabular-nums;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .game .right { display: grid; gap: 3px; justify-items: end; }
-  .game .kda { font: 600 var(--t-sm)/1 var(--mono); font-variant-numeric: tabular-nums; }
-  .game .when { font-size: var(--t-xs); color: var(--dim); white-space: nowrap; }
-  .game .res { font-size: var(--t-xs); font-weight: 600; }
-  .game.win .res { color: var(--buff); }
-  .game.loss .res { color: var(--nerf); }
-
   .queue {
     font-size: var(--t-xs); color: var(--dim);
     border: 1px solid var(--line); border-radius: var(--r-sm);
@@ -205,8 +175,8 @@ document.documentElement.setAttribute("data-surface", "dark");
 <script src="/static/vendor/react-dom.production.min.js"></script>
 <script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
 <!-- defer keeps document order: forge-bar.jsx (ForgeUI.Bar) before the page body -->
-<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=2"></script>
-<script defer src="/jsx/forge/frontend/static/stats-page.jsx?v=1"></script>
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=5"></script>
+<script defer src="/jsx/forge/frontend/static/stats-page.jsx?v=9"></script>
 <script>
 // load fallback: if the React body never mounted, say so instead of leaving a blank page
 window.addEventListener("load", function () {

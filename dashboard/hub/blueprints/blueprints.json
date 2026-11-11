@@ -198,6 +198,43 @@
       "markup": ""
     },
     {
+      "id": "notify-bell",
+      "liquid_layer": "glass",
+      "name": "Notification bell",
+      "tier": "modules",
+      "source": "static/css/chrome.css",
+      "classes": [
+        "nb",
+        "nb-btn",
+        "nb-g",
+        "nb-badge",
+        "nb-pane",
+        "nb-head",
+        "nb-fail",
+        "nb-all",
+        "nb-list",
+        "nb-grp",
+        "nb-row",
+        "nb-tx",
+        "nb-body",
+        "nb-ic",
+        "nb-when"
+      ],
+      "descendants": [
+        ".nb-row.is-unread",
+        ".nb-row.is-unread .nb-ic",
+        ".nb-ic .nb-dot"
+      ],
+      "purpose": "The bell in the top bar: an unread count badge and a glass drop-down listing new above earlier notifications, each row led by its module's launcher icon in a glass tile.",
+      "use_when": "Nowhere by hand. topbar.jsx draws it before the control pane on every page that loads /hub-modules.js. A module posts with notify.post(...) from Python; it never touches the bar.",
+      "dont": "Do not render a notification title or body as HTML, and do not draw a second bell or badge per module. The bar must keep working when the store fails, so the bell fails quiet.",
+      "live": {
+        "sel": ".nb-btn",
+        "expand": ".nb-pane"
+      },
+      "markup": ""
+    },
+    {
       "id": "module-launcher",
       "liquid_layer": "glass",
       "name": "Module launcher",
@@ -711,7 +748,7 @@
     },
     {
       "id": "notice-warn",
-      "liquid_layer": "solid",
+      "liquid_layer": "tinted",
       "name": "Warning notice",
       "tier": "elements",
       "source": "static/css/components.css",
@@ -748,7 +785,7 @@
     },
     {
       "id": "card",
-      "liquid_layer": "solid",
+      "liquid_layer": "tinted",
       "name": "Card",
       "tier": "elements",
       "source": "static/css/components.css",
@@ -1444,7 +1481,7 @@
     },
     {
       "id": "plate-card",
-      "liquid_layer": "solid",
+      "liquid_layer": "tinted",
       "name": "Plate card",
       "tier": "elements",
       "source": "static/css/components.css",
@@ -1476,7 +1513,7 @@
     },
     {
       "id": "infocard",
-      "liquid_layer": "solid",
+      "liquid_layer": "tinted",
       "name": "Infocard",
       "tier": "elements",
       "source": "static/css/components.css",
@@ -2601,6 +2638,7 @@
       "forge/frontend/static/build-overlay.css",
       "forge/frontend/static/forge-base.css",
       "forge/frontend/static/loadout.css",
+      "gaming/frontend/static/gaming.css",
       "inventory/frontend/static/inventory.css",
       "jc/frontend/static/jc.css",
       "jobs/frontend/static/jobs.css",

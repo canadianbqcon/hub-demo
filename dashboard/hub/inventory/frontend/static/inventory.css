@@ -38,5 +38,14 @@ body.inventory .ij-r { border-top: 1px solid var(--line); }
 body.inventory .ij-r > summary { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; cursor: pointer; list-style: none; }
 body.inventory .ij-r > summary::-webkit-details-marker { display: none; }
 body.inventory .ij-r b { font-weight: 500; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-@media (max-width: 700px) { body.inventory .inv-kv { grid-template-columns: 1fr; gap: 1px; } }
-@media (max-width: 900px) { body.inventory .inv-head { width: auto; margin-inline: 10px; } body.inventory .it-tabs, body.inventory .ij-map { margin-inline: 10px; } }
+body.inventory .inv-upd-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+body.inventory .inv-upd-top .inv-when { margin-right: auto; }
+body.inventory .inv-upd-r { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 7px 0; border-top: 1px solid var(--line); }
+body.inventory .inv-upd-n { display: grid; gap: 1px; }
+body.inventory .inv-upd-n b { font-weight: 500; color: var(--fg); overflow-wrap: anywhere; }
+body.inventory .inv-upd { flex: none; }
+@media (max-width: 700px) { body.inventory .inv-kv { grid-template-columns: 1fr; gap: 1px; }
+  /* three tabs do not fit 390px; the theme's pill row scrolls them off-screen with no scrollbar */
+  html[data-theme] body.inventory .hub-tabs.it-tabs { flex-wrap: wrap; overflow: visible; border-radius: 18px; }
+  html[data-theme] body.inventory .hub-tabs.it-tabs .hub-tab { padding: 6px 12px; } }
+@media (max-width: 900px) { body.inventory .inv-head { width: auto; margin-inline: 10px; } body.inventory .it-tabs, body.inventory .ij-map, body.inventory .inv-upd-top { margin-inline: 10px; } }

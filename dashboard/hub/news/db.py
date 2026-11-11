@@ -25,11 +25,11 @@ _cache_path: Path | None = None
 # reads, three levels up from this file (news/ -> hub/ -> dashboard/ -> repo root).
 _MIGRATIONS_DIR = Path(__file__).resolve().parents[3] / "db" / "migrations"
 _MIGRATION_FILENAME_RE = re.compile(r"^(\d{3})_([a-z0-9_-]+)\.sql$")
-_MARKER_TABLE = {"news": "sources", "news-cache": "items", "automations": "gmail_item", "mail": "account"}
+_MARKER_TABLE = {"news": "sources", "news-cache": "items", "automations": "gmail_item", "mail": "account", "notify": "notification"}
 # Gitignored, per-machine and rebuildable, so it also takes its later migrations
 # here: the Mac's copy would otherwise fail every grouping call on a missing
 # table until someone ran migrate.py there. Tracked dbs keep migrate.py's backups.
-_SELF_MIGRATING = {"news-cache"}
+_SELF_MIGRATING = {"news-cache", "notify"}
 
 
 def _migration_files(module: str) -> list[tuple[int, str, Path]]:

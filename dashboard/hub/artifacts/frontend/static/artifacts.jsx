@@ -48,12 +48,31 @@ function hashFor(key) {
   return key === ALL ? "all" : key === LIVE ? "live" : key === TOOL ? "tools" : slug(key);
 }
 
+// icon "brand/x" = a vendor's mark from its source file, shown as is;
+// "mono/x" = a Lucide topic icon, white on a colour tile.
+// ponytail: colour from a hash of the icon name, so one icon is always one colour;
+// a hand map per icon if two neighbours ever clash.
+const TILES = ["#ff3b30", "#ff9500", "#ffcc00", "#34c759", "#00c7be", "#30b0c7",
+  "#007aff", "#5856d6", "#af52de", "#ff2d55", "#a2845e"];
+function tileFor(icon) {
+  let h = 0;
+  for (const c of icon) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return TILES[h % TILES.length];
+}
+function RowIcon({ icon }) {
+  const src = "/artifacts/static/icons/" + icon + ".svg";
+  return icon.startsWith("mono/")
+    ? <span className="row-icon mono" aria-hidden="true" style={{ "--ic": `url("${src}")`, "--tile": tileFor(icon) }} />
+    : <img className="row-icon" src={src} alt="" aria-hidden="true" />;
+}
+
 function Row({ a, showSubject }) {
   const live = isLive(a);
   return (
     <a className="row" href={a.url}
        {...(live ? {} : { target: "_blank", rel: "noopener noreferrer" })}>{/* internal stays in-tab */}
-      {a.favicon ? <span className="row-fav" aria-hidden="true">{a.favicon}</span> : null}
+      {a.icon ? <RowIcon icon={a.icon} />
+        : a.favicon ? <span className="row-fav" aria-hidden="true">{a.favicon}</span> : null}
       <span className="row-head">
         <span className="row-title">{a.title}</span>
         {live ? <span className="row-live hub-dot">live</span> : null}
@@ -176,7 +195,9 @@ function ArtifactsApp() {
           ? <div className="hub-error">couldn't load artifacts {"—"} {error}
               <button type="button" className="hub-btn hub-error-retry" id="retryLoad"
                       onClick={() => location.reload()}>retry</button></div>
-          : sorted ? <Index artifacts={sorted} tabs={tabs} current={current} /> : null}
+          : sorted ? <React.Fragment>
+              <Index artifacts={sorted} tabs={tabs} current={current} />
+            </React.Fragment> : null}
       </section>
     </React.Fragment>
   );

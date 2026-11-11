@@ -1,0 +1,129 @@
+/* Stats page: match history (Workbench forge-opgg-match-list, option A Scoreboard rows)
+   and the Solo / Duo rank graph. Ported from the picked option's shared.css + a.css. */
+.ml { display: grid; gap: 12px; min-width: 0; }
+.ml-ic { width: 22px; height: 22px; border-radius: 4px; display: inline-block; flex: none; background: var(--raised); vertical-align: middle; }
+.ml-ic.none { border: 1px solid var(--line); }
+.ml-pt { width: 44px; height: 44px; border-radius: var(--r-md); flex: none; display: block; }
+.ml-pt.none { background: var(--raised); }
+.ml-spells, .ml-runes { display: inline-grid; gap: 2px; }
+.ml-runes .tree { width: 16px; height: 16px; justify-self: center; background: none; }
+.ml-runes .key { background: #0008; border-radius: 50%; }
+.ml-items { display: inline-flex; gap: 2px; flex-wrap: nowrap; }
+.ml-kda { font: 600 var(--t-md)/1.1 var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ml-kda .d { color: var(--nerf); }
+.ml-tag { font: 600 10px/1 var(--font); letter-spacing: .04em; padding: 3px 6px; border-radius: 999px; background: var(--raised); color: var(--dim); white-space: nowrap; }
+.ml-tag.mvp { background: var(--gold); color: #1b1300; }
+.ml-tag.ace { background: color-mix(in oklab, var(--accent) 70%, #000); color: #fff; }
+.ml-multi { font-size: var(--t-xs); font-weight: 600; color: var(--nerf); background: var(--nerf-bg); padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
+.ml-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.ml-tab { font: 600 var(--t-xs)/1 var(--font); color: var(--ink-2); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; cursor: pointer; }
+.ml-tab span { color: var(--dim); font-family: var(--mono); margin-left: 3px; }
+.ml-tab.on { background: var(--accent-bg); border-color: var(--accent-lo); color: var(--accent); }
+.ml-tab.on span { color: inherit; }
+.ml-more { justify-self: center; font: 600 var(--t-sm)/1 var(--font); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 10px 22px; cursor: pointer; }
+.ml-more span { color: var(--dim); font-weight: 500; margin-left: 6px; }
+.ml-end { margin: 0; text-align: center; color: var(--dim); font-size: var(--t-xs); text-wrap: pretty; }
+.ml-win { color: var(--buff); } .ml-loss { color: var(--nerf); }
+.ml-dim { color: var(--dim); }
+.ml-num { font: 500 var(--t-sm)/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+.ml-a .a-strip { display: grid; grid-template-columns: auto auto 1fr auto; gap: 28px; align-items: center; padding: 16px 20px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.ml-a .a-big { font: 700 26px/1.1 var(--mono); letter-spacing: -.02em; }
+.ml-a .a-big small { font-size: var(--t-xs); color: var(--dim); font-weight: 500; }
+.ml-a .a-avg { display: grid; gap: 3px; }
+.ml-a .a-chs { display: flex; gap: 18px; flex-wrap: wrap; }
+.ml-a .a-ch { display: flex; gap: 9px; align-items: center; }
+.ml-a .a-ch .ml-pt { width: 34px; height: 34px; }
+.ml-a .a-ch div { display: grid; gap: 2px; } .ml-a .a-ch b { font-size: var(--t-sm); } .ml-a .a-ch span { font-size: var(--t-xs); color: var(--dim); }
+.ml-a .a-roles { display: flex; gap: 8px; height: 58px; align-items: end; }
+.ml-a .a-role { width: 26px; height: 100%; display: grid; grid-template-rows: 1fr auto; gap: 4px; justify-items: center; }
+.ml-a .a-role i { width: 10px; align-self: end; background: var(--accent); border-radius: 3px; min-height: 2px; }
+.ml-a .a-role span { font-size: 10px; color: var(--dim); }
+.ml-a .a-list { display: grid; gap: 6px; }
+.ml-a .a-row { display: grid; grid-template-columns: 84px minmax(190px, 1fr) 120px 118px auto 52px; gap: 14px; align-items: center; padding: 10px 16px; border-radius: var(--r-md); border-left: 5px solid; }
+.ml-a .a-row.w { background: color-mix(in oklab, var(--buff) 11%, var(--surface)); border-color: var(--buff); }
+.ml-a .a-row.l { background: color-mix(in oklab, var(--nerf) 11%, var(--surface)); border-color: var(--nerf); }
+.ml-a .a-meta { display: grid; gap: 2px; font-size: var(--t-xs); color: var(--dim); }
+.ml-a .a-meta b { color: var(--ink-2); } .ml-a .a-meta i { height: 1px; background: var(--line); margin: 3px 0; width: 50%; }
+.ml-a .a-who { display: flex; gap: 6px; align-items: center; min-width: 0; }
+.ml-a .a-cn { display: grid; gap: 2px; min-width: 0; margin-left: 4px; } .ml-a .a-cn span { font-size: var(--t-xs); white-space: nowrap; }
+.ml-a .a-k { display: grid; gap: 4px; justify-items: start; }
+.ml-a .a-st { display: grid; gap: 3px; white-space: nowrap; font-size: var(--t-xs); color: var(--dim); }
+.ml-a .a-st b { color: var(--ink-2); }
+.ml-a .a-op { display: grid; gap: 4px; justify-items: center; } .ml-a .a-op b { font: 700 var(--t-md)/1 var(--mono); color: var(--gold); }
+/* Good-vs-bad colour (marks 2026-11-10-103343 #2, #3): --q from grade() in
+   stats-page.jsx, 0 = red, 1 = green, hue walks 25 -> 145 in oklch. Doubled class
+   so it beats `.ml-a .a-op b` and `.ml-a .a-st b` without !important. */
+.ml .grade.grade[style], .ml-a .grade.grade[style] { color: oklch(0.8 0.15 calc(25 + var(--q) * 120)); }
+@media (max-width: 700px) {
+  .ml-a .a-strip { grid-template-columns: 1fr 1fr; gap: 14px; padding: 14px; }
+  .ml-a .a-chs, .ml-a .a-roles { grid-column: 1 / -1; }
+  .ml-a .a-row { grid-template-columns: 1fr auto; gap: 8px 10px; padding: 10px 12px; }
+  .ml-a .a-meta { grid-column: 1 / -1; display: flex; gap: 8px; flex-wrap: wrap; } .ml-a .a-meta i { display: none; }
+  .ml-a .a-who { grid-column: 1; } .ml-a .a-op { grid-column: 2; grid-row: 2; }
+  .ml-a .a-k { grid-column: 1 / -1; grid-template-columns: auto auto auto; align-items: center; gap: 10px; }
+  .ml-a .a-st { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; }
+  .ml-a .a-it { grid-column: 1 / -1; }
+}
+.ml-pt { object-fit: cover; }
+.a-cn a { color: var(--ink); text-decoration: none; } .a-cn a:hover { color: var(--accent); text-decoration: underline; }
+
+/* rank graph: one series in the accent, 2px line, 8px dots, division gridlines */
+.lpg { padding: 12px 14px 10px; display: grid; gap: 6px; }
+.lpg svg { width: 100%; height: auto; display: block; overflow: visible; }
+.lpg .ml-tabs { margin-bottom: 2px; }
+.ml-a .a-meta .a-lp { font: 600 var(--t-xs) var(--mono); margin-left: 6px; }
+.lpg .gl { stroke: var(--line); stroke-width: 1; }
+.lpg .ax { fill: var(--dim); font: 500 11px var(--mono); }
+.lpg .ln { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.lpg .dot { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+.lpg .dot.on { r: 6; }
+.lpg .hit { fill: transparent; cursor: default; }
+.lpg g:focus { outline: none; } .lpg g:focus .dot { r: 6; }
+.lpg-read { margin: 0; font-size: var(--t-xs); color: var(--dim); }
+.lpg-read b { color: var(--ink); font-family: var(--mono); }
+
+/* game detail (Workbench forge-game-detail option A + his notes): click a row to open */
+.ml-a .a-row { grid-template-columns: 84px minmax(190px, 1fr) 120px 118px auto 52px 52px; cursor: pointer; }
+.ml-a .a-open { font: 600 var(--t-xs)/1 var(--font); color: var(--accent); background: none; border: 1px solid var(--line); border-radius: var(--r-md); padding: 7px 0; cursor: pointer; }
+.ml-a .a-open:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ml-a .a-game.on { border: 1px solid var(--accent-lo); border-radius: var(--r-md); background: var(--surface); }
+.gd-wait { padding: 14px; font-size: var(--t-sm); }
+.gd-body { padding: 12px; display: grid; gap: 14px; min-width: 0; }
+.gd-vs { display: grid; gap: 8px; }
+.gd-vs-h { display: flex; justify-content: space-between; font-size: var(--t-sm); }
+.gd-tugs { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 56px; }
+.gd-tug { display: grid; grid-template-columns: 6ch 1fr 6ch; gap: 8px; align-items: end; }
+.gd-tug > span:last-child { text-align: right; }
+.gd-tug small { display: block; text-align: center; font-size: var(--t-xs); color: var(--dim); }
+.gd-tbar { position: relative; height: 8px; border-radius: 4px; background: var(--nerf); overflow: hidden; }
+.gd-tbar::after { content: ''; position: absolute; left: calc(50% - 1px); top: 0; bottom: 0; width: 2px; background: var(--text, #fff); opacity: .7; }
+.gd-tbar i { display: block; height: 100%; background: var(--accent); }
+.gd-scroll { overflow-x: auto; min-width: 0; }
+.gd-tb { width: 100%; min-width: 880px; border-collapse: collapse; font-size: var(--t-sm); }
+.gd-tb th, .gd-tb td { text-align: left; padding: 5px 6px; white-space: nowrap; vertical-align: middle; }
+.gd-tb .gd-th th { font-size: var(--t-xs); font-weight: 600; color: var(--dim); padding-top: 12px; text-transform: none; letter-spacing: 0; }
+.gd-tb .gd-th th.ml-win { color: var(--buff); } .gd-tb .gd-th th.ml-loss { color: var(--nerf); }
+.gd-tb tbody:first-child .gd-th th { padding-top: 4px; }
+.gd-tb td { border-top: 1px solid var(--line); }
+.gd-tb td > span { display: block; }
+.gd-tb td.gd-who { display: flex; align-items: center; gap: 6px; }
+.gd-who > span { display: inline-grid !important; }
+.gd-who div { display: grid; min-width: 0; } .gd-who div span { font-size: var(--t-xs); max-width: 14ch; overflow: hidden; text-overflow: ellipsis; }
+.gd-who .ml-ic { width: 16px; height: 16px; }
+.gd-who .ml-runes .tree { width: 12px; height: 12px; }
+.ml-pt.sm { width: 32px; height: 32px; }
+.gd-me td { background: var(--accent-bg); }
+.gd-bar { height: 6px; border-radius: 3px; background: var(--raised); overflow: hidden; min-width: 80px; }
+.gd-bar i { display: block; height: 100%; background: var(--accent); }
+.gd-bar.red i { background: var(--nerf); }
+.gd-tb .gd-bans td { font-size: var(--t-xs); border-top: 0; padding-bottom: 6px; }
+@media (max-width: 700px) {
+  .ml-a .a-row { grid-template-columns: 1fr auto; }
+  .ml-a .a-meta { grid-column: 1; grid-row: 1; }
+  .ml-a .a-open { grid-column: 2; grid-row: 1; padding: 6px 12px; }
+  .gd-body { padding: 10px 8px; }
+  .gd-tb { min-width: 720px; }
+  .gd-who .ml-spells, .gd-who .ml-runes { display: none !important; }
+  .gd-tb td.gd-who, .gd-tb .gd-th th:first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); }
+  .gd-tb tr.gd-me td.gd-who { background: linear-gradient(var(--accent-bg), var(--accent-bg)), var(--surface); }
+}

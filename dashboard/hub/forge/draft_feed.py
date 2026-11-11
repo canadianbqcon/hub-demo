@@ -82,6 +82,7 @@ def parse(session, runes=None, queue_id=None) -> dict:
 
     picks: dict[int, int] = {}
     bans: set[int] = set()
+    banned_by: dict[int, int] = {}   # seat cellId -> the champion that seat banned
     acts = session.get("actions") or []
     if not isinstance(acts, list):
         raise ValueError("actions is not a list")
@@ -93,6 +94,8 @@ def parse(session, runes=None, queue_id=None) -> dict:
                 picks[a["actorCellId"]] = a["championId"]
             elif a.get("type") == "ban":
                 bans.add(a["championId"])
+                if isinstance(a.get("actorCellId"), int):
+                    banned_by[a["actorCellId"]] = a["championId"]
     b = session.get("bans") or {}
     for key in ("myTeamBans", "theirTeamBans"):
         bans.update(c for c in (b.get(key) or []) if c)
@@ -111,6 +114,7 @@ def parse(session, runes=None, queue_id=None) -> dict:
             provisional = champ is not None
         return {"cellId": cell, "role": _role(p.get("assignedPosition")),
                 "championId": champ, "provisional": provisional,
+                "ban": banned_by.get(cell),
                 "spells": [p.get("spell1Id") or 0, p.get("spell2Id") or 0]}
 
     allies = [seat(p) for p in mine]
@@ -121,13 +125,19 @@ def parse(session, runes=None, queue_id=None) -> dict:
     me = {"cellId": me["cellId"], "role": me["role"],
           "championId": None if me["provisional"] else me["championId"],
           "hover": me["championId"] if me["provisional"] else None,
-          "spells": me["spells"]}
+          "ban": me["ban"], "spells": me["spells"]}
     # Enemies only once locked: a hover on their side is not visible, and a
     # championId there before the pick completes would be a guess.
-    enemies = [{"championId": p.get("championId"), "likelyRole": None}
+    # Each enemy carries the ban its seat made, which the engine reads as a role hint.
+    enemies = [{"championId": p.get("championId"), "likelyRole": None,
+                "cellId": p.get("cellId"), "ban": banned_by.get(p.get("cellId"))}
                for p in theirs if isinstance(p, dict) and p.get("championId")]
+    # Enemy seats still picking, so the page can show their ban before they lock.
+    enemy_bans = [banned_by[p["cellId"]] for p in theirs if isinstance(p, dict)
+                  and not p.get("championId") and p.get("cellId") in banned_by]
     perks = (runes or {}).get("selectedPerkIds") if isinstance(runes, dict) else None
     return {"me": me, "allies": allies, "enemies": enemies, "bans": sorted(bans),
+            "pendingEnemyBans": enemy_bans,
             "runes": perks if isinstance(perks, list) else None,
             # None (an old poller) reads ranked and the page says so
             "queueId": queue_id if isinstance(queue_id, int) and not isinstance(queue_id, bool) else None}

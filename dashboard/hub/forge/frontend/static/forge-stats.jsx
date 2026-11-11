@@ -99,6 +99,22 @@
      The caveat that stays on the page rather than getting buried here: lolalytics'
      win rate is a raw win rate, not WPA. */
   const lola = st.lola = () => st.LOLA.champions?.[M.champ]?.[M.role] || null;
+  /* st.LOLA starts with one champion (forge.html asks for the URL's), so switching
+     champion fetches that one and repaints. Asked once per name, so a champion the bake
+     has no rows for reads as dashes without looping. Until it lands the figures show
+     as dashes, the same as a champion with no rows. */
+  const LOLA_ASKED = new Set();
+  const lolaFor = champ => {
+    if (!champ || st.LOLA.champions?.[champ] || LOLA_ASKED.has(champ)) return;
+    LOLA_ASKED.add(champ);
+    fetch(`api/lolalytics?champ=${encodeURIComponent(champ)}`)
+      .then(r => r.json())
+      .then(d => {
+        st.LOLA = { ...st.LOLA, champions: { ...st.LOLA.champions, ...(d.champions || {}) } };
+        if (M.champ === champ && d.champions?.[champ]) st.renderMeta();
+      })
+      .catch(() => LOLA_ASKED.delete(champ));   // a failed read is retried on the next change
+  };
   /* Runes are read under the picked keystone when the bake has a block for it, the
      same way every coachless figure on this page is. It matters: Legend: Alacrity is
      8.0% pick on Shyvana jungle under Press the Attack and 80.0% under Conqueror,
@@ -434,7 +450,7 @@
       return dropped ? ` · items read across every build${dropped}` : '';
     return data.itemsByKeystone?.[String(R.keystone)]
       ? ` · items read under ${runeMeta(R.keystone)?.name || 'this keystone'}${dropped}`
-      : ' · items read across all keystones \u2014 too few games under this one';
+      : ` · items read across all keystones \u2014 too few games under this one${dropped}`;
   };
 
   /* The same sentence readingLabel writes for the shop, said inside the set and
@@ -725,6 +741,7 @@
   /* Everything a champion/role change repaints. The shop figures, the blocks' hover
      figures and the crossed reading all hang off it. */
   st.renderMeta = () => {
+    lolaFor(M.champ);    // fetches a champion the page does not have yet, then repaints
     st.seedRunes();      // no-op once a page has been picked or loaded
     st.renderRunes();
     st.paintItems();

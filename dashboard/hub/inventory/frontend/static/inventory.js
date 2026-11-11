@@ -15,7 +15,8 @@
   var size = function (mb) { return mb == null ? "" : mb >= 1024 ? (mb / 1024).toFixed(1) + " GB" : Math.max(mb, 1) + " MB"; };
   var total = function (xs) { return xs.reduce(function (a, i) { return a + (i.size || 0); }, 0); };
 
-  var S = {machines: [], progs: {}, merr: {}, sel: null, tab: "rec", q: "", only: null, open: {}, busy: false, error: ""};
+  var S = {machines: [], progs: {}, merr: {}, sel: null, tab: "rec", q: "", only: null, open: {}, busy: false, error: "",
+           upd: null, updBusy: false, updState: {}};
 
   function getJSON(url) {
     return fetch(url).then(function (r) {
@@ -97,10 +98,62 @@
     }
     var all = current();
     var rec = all.filter(function (i) { return HOOD.indexOf(i.cat) < 0; });
+    var nUpd = S.upd && S.upd.list ? S.upd.list.length : "";
     var head = '<div class="hub-tabs it-tabs"><button type="button" class="hub-tab' + (S.tab === "rec" ? " active" : "") + '" data-t="rec">My programs <em>' + rec.length +
-      '</em></button><button type="button" class="hub-tab' + (S.tab === "now" ? " active" : "") + '" data-t="now">On this computer <em>' + all.length + "</em></button></div>";
+      '</em></button><button type="button" class="hub-tab' + (S.tab === "now" ? " active" : "") + '" data-t="now">On this computer <em>' + all.length + "</em></button>" +
+      '<button type="button" class="hub-tab' + (S.tab === "upd" ? " active" : "") + '" data-t="upd">Updates <em>' + nUpd + "</em></button></div>";
     var merr = S.merr[S.sel.machine] ? '<p class="inv-note">Hand-added list not read: ' + esc(S.merr[S.sel.machine]) + "</p>" : "";
-    el.innerHTML = merr + head + '<div class="it-body">' + (S.tab === "rec" ? recordHtml(filt(rec)) : nowHtml(filt(all))) + "</div>";
+    var body = S.tab === "rec" ? recordHtml(filt(rec)) : S.tab === "now" ? nowHtml(filt(all)) : updHtml();
+    el.innerHTML = merr + head + '<div class="it-body">' + body + "</div>";
+  }
+
+  // ---- updates: winget on this computer; the server only upgrades ids it just offered ----
+  function updHtml() {
+    if (!S.sel.local) return card("Updates", "this computer only", '<p class="inv-note">Updates are checked and installed on the computer itself. Open the Hub on ' + esc(S.sel.machine) + ".</p>");
+    var u = S.upd;
+    if (!u || u.loading) return card("Updates", "checking", '<p class="inv-note">Asking winget what has a newer version.</p>');
+    if (u.error) return card("Updates", "could not check", '<p class="inv-note">' + esc(u.error) + "</p>");
+    var q = S.q.trim().toLowerCase();
+    var xs = u.list.filter(function (i) { return !q || (i.name + " " + i.id).toLowerCase().indexOf(q) >= 0; });
+    var ready = u.list.filter(function (i) { return !i.blocked; }).length;
+    var top = '<div class="inv-upd-top"><span class="inv-when">' + (u.list.length ? u.list.length + " waiting" : "everything is current") + "</span>" +
+      '<button type="button" class="hub-btn inv-upd-recheck"' + (S.updBusy ? " disabled" : "") + ">Check again</button>" +
+      '<button type="button" class="hub-btn hub-btn--accent inv-upd-all"' + (S.updBusy || !ready ? " disabled" : "") + ">Update all " + ready + "</button></div>";
+    var rows = xs.slice().sort(byName).map(function (i) {
+      var st = S.updState[i.id] || "";
+      return '<div class="inv-upd-r"><div class="inv-upd-n"><b>' + esc(i.name) + '</b><span class="inv-when">' + esc(i.version) + " → " + esc(i.available) + "</span>" +
+        (i.blocked ? '<span class="inv-when">' + esc(i.blocked) + "</span>" : "") + (st ? '<span class="inv-when">' + esc(st) + "</span>" : "") + "</div>" +
+        '<button type="button" class="hub-btn inv-upd" data-id="' + esc(i.id) + '"' + (i.blocked || S.updBusy ? " disabled" : "") + ">Update</button></div>";
+    }).join("");
+    return top + card("Updates", xs.length + (q ? " match" : ""), rows || '<p class="inv-note">' + (u.list.length ? "No updates match." : "No updates waiting.") + "</p>");
+  }
+  function loadUpd() {
+    S.upd = {loading: true}; renderList();
+    return getJSON(API + "updates").then(function (d) { S.upd = {list: d.updates || []}; }, function (e) { S.upd = {error: String(e.message || e)}; })
+      .then(function () { renderList(); });
+  }
+  function runUpd(ids) {
+    if (S.updBusy || !ids.length) return;
+    S.updBusy = true; renderList();
+    var done = 0, failed = 0;
+    (function next() {
+      if (!ids.length) {
+        S.updBusy = false;
+        say(done + " updated" + (failed ? ", " + failed + " failed" : ""));
+        return loadUpd().then(function () { load().then(render); });
+      }
+      var id = ids.shift(), i = S.upd.list.filter(function (x) { return x.id === id; })[0];
+      var name = i ? i.name : id;
+      S.updState[id] = "updating"; renderList(); say("updating " + name);
+      fetch(API + "update", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({id: id})})
+        .then(function (r) { return r.json().then(function (j) { return {s: r.status, j: j}; }); })
+        .then(function (x) {
+          var ok = x.s === 200 && x.j.ok;
+          if (ok) done++; else failed++;
+          S.updState[id] = ok ? "updated" : x.s !== 200 ? "refused: " + (x.j.error || x.s) : "failed (exit " + x.j.exit + "): " + String(x.j.output || "").trim().slice(-120);
+        }, function (e) { failed++; S.updState[id] = "failed: " + e.message; })
+        .then(function () { renderList(); next(); });
+    })();
   }
   function recordHtml(rec) {
     if (!rec.length) return '<p class="inv-note">No programs match.</p>';
@@ -242,7 +295,10 @@
       S.only = null; drawer(false); render();
     });
     $("invList").addEventListener("click", function (ev) {
-      var t = ev.target.closest("[data-t]"); if (t) { S.tab = t.dataset.t; return render(); }
+      var t = ev.target.closest("[data-t]"); if (t) { S.tab = t.dataset.t; if (S.tab === "upd" && !S.upd && S.sel.local) loadUpd(); return render(); }
+      var up = ev.target.closest(".inv-upd"); if (up && !up.disabled) return runUpd([up.dataset.id]);
+      if (ev.target.closest(".inv-upd-all") && S.upd && S.upd.list) return runUpd(S.upd.list.filter(function (i) { return !i.blocked; }).map(function (i) { return i.id; }));
+      if (ev.target.closest(".inv-upd-recheck") && !S.updBusy) return loadUpd();
       var c = ev.target.closest("[data-c]"); if (c) { S.only = c.dataset.c; return render(); }
       var u = ev.target.closest(".inv-un"); if (u && !u.disabled) confirmUninstall(u.dataset.key);
     });

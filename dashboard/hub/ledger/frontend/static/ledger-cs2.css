@@ -1,0 +1,21 @@
+/* Ledger is one theme: the Hub's Liquid Glass bar and wallpaper (pinned by each page's head
+   script), retinted CS2: orange accent over steel blue-grey. Same recipe as Forge's Rift block
+   (forge/frontend/static/forge-base.css). Specificity (0,2,1) beats the Hub theme token blocks
+   (0,2,0). Ledger's own tokens (--good, --warn, --alert, --violet-label) are left alone. */
+html[data-theme][data-surface] {
+  color-scheme: dark;
+  --bg: oklch(0.17 0.010 255); --line: oklch(0.31 0.014 255); --accent: #f0a53a;
+  --danger: oklch(0.66 0.170 25); --on-accent: #1d1407;
+  --font: "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: var(--font); --font-body: var(--font);
+  --bg-elev: #1d2127; --bg-elev-2: #292e35; --bg-hover: #292e35; --chrome: #0c0e12;
+  --line-soft: #1d2127; --line-strong: #4a515a;
+  --fg: #e9ecef; --fg-dim: #b4b9c0; --fg-faint: #8b9199; --fg-ghost: rgba(233,236,239,.24);
+  --accent-dim: #8a5d17; --accent-faint: #2e2108;
+  --launch-scrim: rgba(6,8,11,.6); --modal-shadow: 0 8px 32px rgba(0,0,0,.5);
+  /* Liquid Glass in CS2: wallpaper glows orange and steel, glass fills tint steel not graphite */
+  --lg-wall-base: #090b0e; --lg-hue-1: 240 165 58; --lg-hue-2: 96 118 142; --lg-hue-3: 70 84 102;
+  --lg-wall-a1: .30; --lg-wall-a2: .20; --lg-wall-a3: .32;
+  --lg-fill: rgba(24,27,32,var(--lg-fill-a)); --lg-thick-fill: rgba(24,27,32,.6);
+  --lg-ov-fill: rgba(24,27,32,.78); --lg-row-on: rgba(240,165,58,.16);
+}

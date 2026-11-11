@@ -80,6 +80,62 @@ def _cache_read() -> dict:
         return {}
 
 
+# Stale-while-revalidate. The live Google Calendar call was ~0.4 s of every /api/home
+# (2026-11-10). A copy under _FRESH_S old is served as live; one under _STALE_S is
+# served at once while a background thread refreshes it, and the payload says
+# REFRESHING so App.jsx asks again a second later and gets the fresh copy. Older than
+# that, or nothing held, it fetches live as before. invalidate() (any Hub write, see
+# app.py) drops the copies so a change made through the Hub shows on the next load.
+_FRESH_S = 30
+_STALE_S = 600
+_MEM: dict[str, tuple[float, object]] = {}
+_REFRESHING: set[str] = set()
+_BROKEN: set[str] = set()  # last refresh came back empty: fetch live so blank shows
+_INVALID_AT = 0.0          # copies taken before the last Hub write are never served
+
+
+def invalidate() -> None:
+    global _INVALID_AT
+    _INVALID_AT = time.time()
+    _MEM.clear()
+
+
+def _save_good(key: str, data) -> None:
+    _MEM[key] = (time.time(), data)
+    with _LAST_GOOD_LOCK:
+        store = _cache_read()
+        store[key] = {"at": int(time.time() * 1000), "data": data}
+        try:
+            _LAST_GOOD.write_text(json.dumps(store))
+        except OSError:
+            pass  # a cache we cannot write is not a reason to fail the page
+
+
+def _refresh_in_background(key: str, fetch) -> None:
+    with _LAST_GOOD_LOCK:
+        if key in _REFRESHING:
+            return            # one refresh per key in flight
+        _REFRESHING.add(key)
+
+    def run():
+        started = time.time()
+        try:
+            data = fetch()
+            if not data:
+                _BROKEN.add(key)  # dead login: the re-ask a second later goes live, blank
+            elif started > _INVALID_AT:   # a Hub write mid-fetch voids it
+                _save_good(key, data)
+        except Exception:
+            pass              # the held copy stays; the next load tries again
+        finally:
+            _REFRESHING.discard(key)
+    threading.Thread(target=run, daemon=True).start()
+
+
+def refreshing() -> bool:
+    return bool(_REFRESHING)
+
+
 def _last_good(key: str, fetch):
     """Live data when there is a network; the last live data when there is not.
 
@@ -89,15 +145,23 @@ def _last_good(key: str, fetch):
     if not _online():
         entry = _cache_read().get(key)
         return entry["data"] if entry else fetch()
+    held = _MEM.get(key)
+    if held is None:          # after a restart: the disk copy, if it is recent
+        entry = _cache_read().get(key)
+        if entry and isinstance(entry, dict) and "at" in entry:
+            held = (entry["at"] / 1000, entry["data"])
+    if held and (held[0] <= _INVALID_AT or key in _BROKEN):
+        held = None
+    age = time.time() - held[0] if held else None
+    if age is not None and age < _FRESH_S:
+        return held[1]
+    if age is not None and age < _STALE_S:
+        _refresh_in_background(key, fetch)
+        return held[1]
     data = fetch()
     if data:
-        with _LAST_GOOD_LOCK:
-            store = _cache_read()
-            store[key] = {"at": int(time.time() * 1000), "data": data}
-            try:
-                _LAST_GOOD.write_text(json.dumps(store))
-            except OSError:
-                pass  # a cache we cannot write is not a reason to fail the page
+        _BROKEN.discard(key)
+        _save_good(key, data)
     return data
 
 
@@ -150,13 +214,13 @@ def _next_trip() -> dict:
     )
     row = cur.fetchone()
     # what is settled for it: the booked outbound flight and stay, and who is coming
-    fl = st = None
+    fl = rt = st = None
     who = []
     if row:
-        fl = cur.execute(
-            "SELECT airline, flight_num, from_airport, to_airport, departure_time FROM flights "
-            "WHERE trip_id = ? AND direction = 'outbound' AND status = 'booked' ORDER BY id LIMIT 1",
-            (row["id"],)).fetchone()
+        legs = ("SELECT airline, flight_num, from_airport, to_airport, departure_time FROM flights "
+                "WHERE trip_id = ? AND direction = ? AND status = 'booked' ORDER BY id LIMIT 1")
+        fl = cur.execute(legs, (row["id"], "outbound")).fetchone()
+        rt = cur.execute(legs, (row["id"], "return")).fetchone()
         st = cur.execute(
             "SELECT name FROM housing WHERE trip_id = ? AND status = 'booked' ORDER BY id LIMIT 1",
             (row["id"],)).fetchone()
@@ -185,11 +249,17 @@ def _next_trip() -> dict:
 
     dest = row["destination"] or row["name"]
     dest = dest.split(",")[0].strip()
-    # "Dec 16, 5:50 AM" -> "5:50a"; the date is the trip's first day already shown
-    dep = (fl["departure_time"] or "").split(",")[-1].strip().lower().replace(" am", "a").replace(" pm", "p") if fl else ""
+    def leg(f):
+        # "Dec 16, 5:50 AM" -> "5:50a"; the card shows the day beside it
+        if not f:
+            return ""
+        t = (f["departure_time"] or "").split(",")[-1].strip().lower().replace(" am", "a").replace(" pm", "p")
+        return f"{f['flight_num'] or f['airline']} {f['from_airport']} → {f['to_airport']}" + (f" · {t}" if t else "")
+
+    # start/end drive the month calendar on the card (mark 2026-11-11 "options", December calendar pick)
     return {"days": max(0, days_away), "dest": dest, "window": window, "nights": (end - start).days,
-            "url": f"/trips/{row['id']}",
-            "flight": f"{fl['flight_num'] or fl['airline']} {fl['from_airport']} → {fl['to_airport']}" + (f" · {dep}" if dep else "") if fl else "",
+            "url": f"/trips/{row['id']}", "start": row["start_date"], "end": row["end_date"],
+            "flight": leg(fl), "ret": leg(rt),
             "stay": st["name"] if st else "", "with": who}
 
 
@@ -204,6 +274,28 @@ def _first_digest_line(markdown: str) -> str | None:
             continue
         return _DIGEST_CITATION_RE.sub("", line).strip()
     return None
+
+
+# the attribution tail the digest writes on every bullet: "..., per Reuters and WSJ." / "No left coverage."
+_DIGEST_TAIL_RE = re.compile(r"(,? (?:per|reported by) [^.]*\.)|(,?\s*(?:a story carried|No (?:left|right|left or right) coverage)[^.]*\.)", re.I)
+
+
+def _digest_leads(markdown: str, n: int = 3) -> list[dict]:
+    """The lead bullet of the digest's first `n` sections, as {section, text}: the bullet
+    dash, citations and source attribution stripped, so Home reads as headlines (mark
+    2026-11-10-112734 #1: the raw first line "- ... No left or right coverage." looked broken)."""
+    out, section, taken = [], None, False
+    for line in markdown.splitlines():
+        line = line.strip()
+        if line.startswith("#"):
+            section, taken = line.lstrip("#").strip(), False
+        elif line.startswith(("- ", "* ")) and not taken:
+            text = _DIGEST_TAIL_RE.sub(".", _DIGEST_CITATION_RE.sub("", line[2:])).strip()
+            out.append({"section": section, "text": re.sub(r"\.{2,}$", ".", text).strip()})
+            taken = True
+            if len(out) == n:
+                break
+    return out
 
 
 def _news_card() -> dict:
@@ -248,9 +340,10 @@ def _news_card() -> dict:
         digest = news_db.get_digest(today.isoformat())
         digest_line = _first_digest_line(digest["markdown"]) if digest else None
 
-        return {"clusters_today": clusters_today, "digest_line": digest_line}
+        return {"clusters_today": clusters_today, "digest_line": digest_line,
+                "digest_leads": _digest_leads(digest["markdown"]) if digest else []}
     except Exception:
-        return {"clusters_today": 0, "digest_line": None}
+        return {"clusters_today": 0, "digest_line": None, "digest_leads": []}
 
 
 def _event_minutes(time_str: str) -> int:
@@ -510,6 +603,7 @@ _SUBS_EXCLUDE_TOKENS = {"google", "mcdonald", "mcdonalds"}
 _SUBS_RENAME = {
     "Supercell": "Clash of Clans Gold Pass",
     "Apple Digital Services": "iCloud+ 2TB",
+    "Apple": "iCloud+ 2TB",   # the receipt-mail row too; other Apple products are one-offs or cancelled
     "Spotify": "Spotify Family Plan",
 }
 
@@ -710,7 +804,8 @@ def _email_subs(skip_tokens: set[str], today: date | None = None) -> list[dict]:
     out = []
     for brand, r in live.items():
         m = _SUB_NAME.search(r["subject"] or "")
-        sub = {"name": ((m.group(1) or m.group(2)).strip() if m else brand.title()), "cycle": "monthly", "_brand": brand}
+        name = (m.group(1) or m.group(2)).strip() if m else brand.title()
+        sub = {"name": _SUBS_RENAME.get(name, name), "cycle": "monthly", "_brand": brand}
         # ponytail: a one-off order that is the nearest charge to an email, or that
         # matches payee word, day of month and price band, still reads as the price
         hits, day = _sub_charges(charges.get(brand) or charges.get(_first_token(sub["name"]), []), mailed.get(brand, []))
@@ -719,7 +814,17 @@ def _email_subs(skip_tokens: set[str], today: date | None = None) -> list[dict]:
         if not hits and (not mailed.get(brand) or (today - max(mailed[brand])).days > 90):
             continue
         if hits:
-            last = hits[-1]
+            # Apple bills every product under one payee: the YNAB yearly renewal (Nov 2)
+            # landed after the iCloud+ receipt and priced the row at $118.67 (mark
+            # 2026-11-10-112647 #1). Price from the newest charge on the billing day of
+            # the last one counted, or of the next one (a real move of billing day).
+            near = lambda a, b: min(abs(a.day - b.day), 31 - abs(a.day - b.day)) <= _CHARGE_WINDOW
+            days = [date.fromisoformat(t["date"]) for t in hits]
+            beat = [0]
+            for i in range(1, len(hits)):
+                if near(days[i], days[beat[-1]]) or (i + 1 < len(hits) and near(days[i], days[i + 1])):
+                    beat.append(i)
+            last, day = hits[beat[-1]], days[beat[-1]].day
             nxt = _next_due(date.fromisoformat(last["date"]), day, today)
             sub["amt"] = f"${abs(last['amount']) / 1000.0:.2f}"
             sub["next_billing"] = f"{_MON_ABBR[nxt.month - 1]} {nxt.day}"
@@ -800,6 +905,9 @@ def _build_home_data() -> dict:
         # Non-null only when this box has no network and the calendar/money panels
         # are being served from the saved copy. App.jsx turns it into the banner.
         "CACHED_AT": _cached_at(),
+        # True when a panel was served from a copy under 10 min old while a fresh one
+        # is fetched; App.jsx asks again once, a second later. See _last_good.
+        "REFRESHING": refreshing(),
         "SCHEDULE": schedule,
         "CARDS": cards_list,
         # when the card balances last came from the bank (SimpleFIN into book.db)

@@ -45,7 +45,7 @@ button, input, textarea, select { font: inherit; color: inherit; background: non
    Without it the chassis columns go clear and the detail strip read as a black box over the wallpaper's
    dark corner (2026-10-22). Rows drop the hard outline for the rim liquid draws on its cards. */
 @media (min-width: 901px) {
-  [data-theme="liquid"] .automations .hub-t3p-split > :is(.hub-t3p-list-col, .hub-t3p-side) { margin: 10px 0 10px 10px; border: 0; border-radius: 26px; background: var(--bg-elev); box-shadow: inset 0 0 0 1px var(--line-soft), var(--lq-slab-shade); overflow: clip; }
+  [data-theme="liquid"] .automations .hub-t3p-split > :is(.hub-t3p-list-col, .hub-t3p-side) { margin: 10px 0 10px 10px; border: 0; border-radius: 26px; background: var(--lq-card, var(--bg-elev)); box-shadow: inset 0 0 0 1px var(--line-soft), var(--lq-slab-shade); overflow: clip; }   /* liquid.css section 16 card rule */
   [data-theme="liquid"] .automations .hub-t3p-split > .hub-t3p-side { margin-right: 10px; }
   [data-theme="liquid"] .automations .hub-slide-over.is-open { background: transparent; }
   /* the slabs end above the status island, so the scrollers inside drop its clearance */

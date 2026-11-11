@@ -89,64 +89,131 @@ window.ForgeUI = window.ForgeUI || {};
     );
   }
 
-  function PatchPage() {
-    const [notes, setNotes] = useState(null);
+  /* Buffs, then nerfs, then reworks (mark 2026-11-10-043901 #2), each under its own
+     heading, alphabetical inside. Anything untriaged sorts with the reworks. */
+  const ORDER = [['buff', 'Buffs'], ['nerf', 'Nerfs'], ['rework', 'Reworks']];
+  const triageOf = e => (e.triage === 'buff' || e.triage === 'nerf') ? e.triage : 'rework';
+
+  /* A portrait ringed in its verdict colour; the name is the tooltip and alt text. */
+  const Ico = ({ e }) => (
+    <span className="phead-ico" data-triage={triageOf(e)} title={`${e.name} · ${triageOf(e)}`}>
+      {e.icon ? <img src={e.icon} alt={e.name} loading="lazy" /> : null}
+    </span>);
+
+  /* "Nov 3, 2026 · 7 days ago" from the baked ISO date */
+  function released(iso) {
+    const d = new Date(`${iso}T12:00:00`);
+    if (isNaN(d)) return iso;
+    const ago = Math.max(0, Math.round((Date.now() - d) / 864e5));
+    return `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · ${
+      ago === 0 ? 'today' : ago === 1 ? 'yesterday' : `${ago} days ago`}`;
+  }
+
+  /* The patch note body: header, section tabs, entries. Shared by /forge/patch and the
+     landing page's inline Patch view, which hands it the same notes promise. */
+  function PatchBody({ notes }) {
     const [tab, setTab] = useState(0);
-
+    /* his pool: the landing's champion cards, the same list the rail draws. Both pages
+       start the api/landing fetch in their head preflight. */
+    const [pool, setPool] = useState(null);
     useEffect(() => {
-      window.__FORGE.notes.then(setNotes);
+      (window.__FORGE.landing || Promise.resolve({ champions: [] }))
+        .then(d => setPool((d.champions || []).map(c => ({ name: c.name, roles: c.poolRoles || [] }))));
     }, []);
-
     const sections = notes ? (notes.sections || []).filter(s => RIFT.includes(s.name)) : [];
     const all = sections.reduce((a, s) => a.concat(s.entries), []);
-    const n = t => all.filter(e => e.triage === t).length;
+    const n = t => all.filter(e => triageOf(e) === t).length;
     const loaded = notes !== null;
     const baked = loaded && sections.length > 0;
+    const entries = baked ? sections[Math.min(tab, sections.length - 1)].entries : [];
 
     return (
+      <div className="wrap pv">
+        {/* Roster header (Workbench pick, mark 2026-11-10-043901 #1): title, then his pool,
+            then every entry as a portrait under its verdict, so who changed reads before any card. */}
+        <header className="phead">
+          <div className="phead-top">
+            <div className="phead-main">
+              <p className="phead-kicker">Ranked Summoner&rsquo;s Rift</p>
+              <h2 id="title">{baked ? `Patch ${notes.patch}` : 'Patch notes'}</h2>
+              {baked && notes.date ? <p className="phead-date">Released {released(notes.date)}</p> : null}
+              {/* no explainer blurb (forge/CLAUDE-chrome.md): only loading and the empty state */}
+              {!baked ? <p id="lede" className="quiet">{!loaded ? 'Loading…'
+                : 'No patch notes are baked yet. Run bake_patchnotes.py.'}</p> : null}
+            </div>
+            {baked && notes.url ? <a className="phead-src" href={notes.url} target="_blank" rel="noopener">Riot&rsquo;s notes &rarr;</a> : null}
+          </div>
+          {baked && pool ? (() => {
+            const mine = all.filter(e => pool.some(p => p.name === e.name));
+            return (
+              <section className="phead-pool">
+                <p className="phead-label">Your pool &middot; {mine.length} of {pool.length} changed</p>
+                {mine.length ? mine.map(e => {
+                  const roles = (pool.find(p => p.name === e.name) || {}).roles || [];
+                  return (
+                    <div className="phead-mine" data-triage={triageOf(e)} key={e.name}>
+                      <Ico e={e} />
+                      <div>
+                        <p className="phead-mn">{e.name} <span className="tri">{triageOf(e)}</span>
+                          {roles.length ? <span className="phead-roles">{roles.join(' · ')}</span> : null}</p>
+                        {e.gist ? <p className="phead-gist" title={e.context || ''}>{e.gist}</p> : null}
+                      </div>
+                    </div>);
+                }) : <p className="phead-none">Nothing in your pool moved this patch.</p>}
+              </section>);
+          })() : null}
+          {baked ? (
+            <div className="phead-roster" id="tally">
+              {ORDER.filter(([t]) => n(t)).map(([t, label]) => (
+                <div className="phead-grp" data-triage={t} key={t}>
+                  <p className="phead-label">{label} <b>{n(t)}</b></p>
+                  <div className="phead-icos">{all.filter(e => triageOf(e) === t).map(e => <Ico e={e} key={e.name} />)}</div>
+                </div>))}
+            </div>) : null}
+        </header>
+
+        <div className="bar">
+          <nav className="tabs" id="tabs">
+            {baked ? sections.map((sec, i) => (
+              <button type="button" data-i={i} key={sec.name} aria-pressed={i === tab}
+                      onClick={() => setTab(i)}>{sec.name}{' '}
+                <span className="n">{sec.entries.length}</span></button>
+            )) : null}
+          </nav>
+        </div>
+
+        <div id="body">
+          {ORDER.map(([t, label]) => {
+            const group = entries.filter(e => triageOf(e) === t)
+              .sort((x, y) => x.name.localeCompare(y.name));
+            return group.length ? (
+              <section className="tgroup" data-triage={t} key={`${tab}:${t}`}>
+                <h3 className="tgroup-h">{label} <span className="n">{group.length}</span></h3>
+                <div className="entries">{group.map((e, i) => <Entry e={e} key={i} />)}</div>
+              </section>) : null;
+          })}
+        </div>
+      </div>
+    );
+  }
+
+  function PatchPage() {
+    const [notes, setNotes] = useState(null);
+    useEffect(() => { window.__FORGE.notes.then(setNotes); }, []);
+    const baked = notes && (notes.sections || []).length;
+    return (
       <React.Fragment>
-        <ForgeUI.Bar current="patch"
-          act={<a className="act" id="src" target="_blank" rel="noopener"
-                  href={baked ? (notes.url || '#') : undefined}>Riot&rsquo;s notes</a>}>
+        {/* Riot's link lives in the page header now, not twice */}
+        <ForgeUI.Bar current="patch">
           <span className="meta" id="patchTag">{baked ? `patch ${notes.patch}` : ''}</span>
           <span className="meta"></span>
         </ForgeUI.Bar>
-
-        <div className="wrap">
-          <div className="lede">
-            <h2 id="title">{baked
-              ? `Patch ${notes.patch}${notes.date ? ` · ${notes.date}` : ''}`
-              : 'Patch notes'}</h2>
-            {/* no explainer blurb (forge/CLAUDE-chrome.md): only loading and the empty state */}
-            {!baked ? <p id="lede" className="quiet">{!loaded ? 'Loading…'
-              : 'No patch notes are baked yet. Run bake_patchnotes.py.'}</p> : null}
-          </div>
-
-          <div className="tally" id="tally">
-            {baked ? [['buff', n('buff')], ['nerf', n('nerf')], ['rework', n('rework')]]
-              .filter(p => p[1])
-              .map(p => (
-                <span className={p[0]} key={p[0]}><b>{p[1]}</b> {p[0]}{p[1] === 1 ? '' : 's'}</span>
-              )) : null}
-          </div>
-
-          <div className="bar">
-            <nav className="tabs" id="tabs">
-              {baked ? sections.map((sec, i) => (
-                <button type="button" data-i={i} key={sec.name} aria-pressed={i === tab}
-                        onClick={() => setTab(i)}>{sec.name}{' '}
-                  <span className="n">{sec.entries.length}</span></button>
-              )) : null}
-            </nav>
-          </div>
-
-          <div className="entries" id="body">
-            {baked ? sections[tab].entries.map((e, i) => <Entry e={e} key={`${tab}:${i}`} />) : null}
-          </div>
-        </div>
+        <PatchBody notes={notes} />
       </React.Fragment>
     );
   }
+
+  window.ForgeUI.PatchBody = PatchBody;
 
   /* Render errors land here; the plain page had no equivalent, so a failed render says so. */
   class Boundary extends React.Component {
@@ -163,5 +230,7 @@ window.ForgeUI = window.ForgeUI || {};
     return <Boundary><PatchPage /></Boundary>;
   }
 
-  ReactDOM.createRoot(document.getElementById('forge-root')).render(<Root />);
+  // Only /forge/patch mounts itself; the landing page loads this file for PatchBody alone.
+  const root = document.getElementById('forge-root');
+  if (root && root.dataset.page === 'patch') ReactDOM.createRoot(root).render(<Root />);
 })();

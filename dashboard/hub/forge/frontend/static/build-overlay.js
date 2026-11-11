@@ -67,12 +67,14 @@ export const catalogExtras = () => ({ champs: CHAMPS, ver: VER });
  * still revalidates each on the way in, so nothing here can serve a stale bake. */
 export function prefetchCatalog() {
   const go = () => {
-    // The three small ones go first on purpose. A warm-up is only worth what it
+    // The small ones go first on purpose. A warm-up is only worth what it
     // finishes before the click that ends it, and 90 KB of bake reads land in the time
     // the 260 KB catalog spends on its first third.
     // .blob() matters: a response whose body is never read is not committed to the
     // HTTP cache, so a bare fetch() here would spend the bytes and warm nothing.
-    for (const u of ['api/stats', 'api/lolalytics', 'api/diff'])
+    // No api/lolalytics: the builder asks for one champion's slice now (forge.html),
+    // so warming the ~750 KB whole file here only cost bandwidth.
+    for (const u of ['api/stats', 'api/diff'])
       fetch(u).then(r => r.blob()).catch(() => {});
     catalog();
   };

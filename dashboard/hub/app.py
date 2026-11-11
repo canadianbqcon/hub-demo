@@ -86,6 +86,7 @@ from vault_map import api as vault_map_api
 from vault_map import db as vault_map_db
 from capabilities import api as capabilities_api
 from blueprints import api as blueprints_api
+from notify import api as notify_api
 from artifacts import api as artifacts_api
 from viewer import api as viewer_api
 from forge import api as forge_api
@@ -98,6 +99,7 @@ from purchases import db as purchases_db
 from checklists import api as checklists_api
 from checklists import db as checklists_db
 from work import api as work_api
+from gaming import api as gaming_api
 from finances import api as finances_api
 from finances import db as finances_db
 from finances import owed as finances_owed
@@ -105,6 +107,9 @@ from ledger import api as ledger_api
 from ledger import db as ledger_db
 from stocks import api as stocks_api
 from stocks import db as stocks_db
+from clash import api as clash_api
+from clash import db as clash_db
+from clash import gamedata as clash_gamedata
 from food import api as food_api
 from food import db as food_db
 from automations import api as automations_api
@@ -589,7 +594,17 @@ from home_data import (  # noqa: E402
     TRIPS_DB,
     _build_home_data,
     _shell_data,
+    invalidate as _invalidate_home,
 )
+
+
+@app.after_request
+def _drop_home_copies(resp):
+    # Any Hub write may change what Home shows (a calendar edit, a task), so the
+    # held Home copies are dropped and the next load fetches live.
+    if request.method not in ("GET", "HEAD", "OPTIONS") and resp.status_code < 400:
+        _invalidate_home()
+    return resp
 
 JSX_ROOT = Path(__file__).resolve().parent
 VAULT = vault_root()
@@ -603,6 +618,7 @@ WORK_DB = (
 EARNINGS_DB = VAULT / "data" / "earnings.db"
 OWED_DB = VAULT / "data" / "owed.db"  # what other people owe him; the /finances owed tab
 STOCKS_DB = VAULT / "data" / "stocks.db"
+CLASH_DB = VAULT / "data" / "clash.db"
 CS2_DB = VAULT / "data" / "cs2.db"
 FOOD_DB = VAULT / "data" / "food.db"
 NEWS_DB = VAULT / "data" / "news.db"
@@ -666,6 +682,7 @@ app.register_blueprint(inventory_api.bp)
 # and no DB. Registered here so /blueprints sits with the other read-only utilities.
 app.register_blueprint(blueprints_api.bp)
 app.register_blueprint(blueprints_api.legacy_bp)
+app.register_blueprint(notify_api.bp)
 
 # artifacts reads data/artifacts.json via vault_root() directly — no init() needed.
 app.register_blueprint(artifacts_api.bp)
@@ -707,6 +724,7 @@ checklists_db.init(CHECKLISTS_DB)
 app.register_blueprint(checklists_api.bp)
 
 app.register_blueprint(work_api.bp)
+app.register_blueprint(gaming_api.bp)
 
 finances_db.init(EARNINGS_DB)
 finances_owed.init(OWED_DB, TRIPS_DB)
@@ -714,6 +732,9 @@ app.register_blueprint(finances_api.bp)
 
 stocks_db.init(STOCKS_DB)
 app.register_blueprint(stocks_api.bp)
+
+clash_db.init(CLASH_DB)
+app.register_blueprint(clash_api.bp)
 
 try:
     news_db.init(NEWS_DB, NEWS_CACHE_DB)
@@ -1324,6 +1345,7 @@ if __name__ == "__main__":
     jsx_build.warm()
     mail_api.warm()
     news_api.warm()
+    clash_gamedata.warm()
     # Two things made every page load from Windows pay ~200ms PER REQUEST, measured
     # 2026-09-04 with curl.exe against this port: (1) Windows resolves `localhost`
     # to ::1 first and the server only listened on IPv4, so each new connection

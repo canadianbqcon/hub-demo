@@ -29,7 +29,7 @@ def test_pages_cover_every_module_once():
     d = guide_api.load()
     names = [p["name"] for p in d["pages"]]
     modules = [m["name"] for m in MODULES if m["href"] != "/guide/"]
-    assert sorted(names) == sorted(modules) and len(set(names)) == len(names) == 19
+    assert sorted(names) == sorted(modules) and len(set(names)) == len(names) == len(modules)
     assert set(d["tour"]) <= set(names) and len(d["tour"]) == 7
 
 

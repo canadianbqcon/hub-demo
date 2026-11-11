@@ -143,7 +143,10 @@ for iid, d in pool.items():
     })
 items.sort(key=lambda i: (i["g"], i["n"]))
 
-champs = sorted(({"k": int(c["key"]), "n": c["name"], "i": c["id"]} for c in champs_raw.values()),
+# "c" is Data Dragon's class tags (Fighter, Tank, Mage...): the draft engine's fallback
+# for a role OP.GG's lane meta lists no share for (draft_engine.likely_roles).
+champs = sorted(({"k": int(c["key"]), "n": c["name"], "i": c["id"], "c": c.get("tags", [])}
+                 for c in champs_raw.values()),
                 key=lambda c: c["n"])
 
 with ThreadPoolExecutor(16) as ex:

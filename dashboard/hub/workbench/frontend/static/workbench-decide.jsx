@@ -12,6 +12,23 @@
   const JSON_HEADERS = { "Content-Type": "application/json" };
   const msgOf = (e) => String((e?.message) || e);
 
+  /* POST a held write. fetch rejects only when no response came back: on this box that is the Hub
+     restarting (other sessions restart it often; it takes ~10 s to listen again). A write that hit
+     that gap used to revert with one line in the status bar, which read as the pick resetting
+     (2026-11-11, league-overlay-card F). So it retries every 2 s for a minute before giving up.
+     An HTTP error is an answer, never retried. */
+  const RETRY_MS = 2000, RETRY_FOR_MS = 60000;
+  function post(url, body, label) {
+    const t0 = Date.now();
+    const once = () => fetch(url, { method: "POST", headers: JSON_HEADERS, keepalive: true, body: JSON.stringify(body) })
+      .catch((e) => {
+        if (Date.now() - t0 >= RETRY_FOR_MS) throw new Error(`the Hub did not answer for a minute; ${label} not recorded`);
+        setStatus(`the Hub is restarting; ${label} will send when it is back…`);
+        return new Promise((ok) => { setTimeout(ok, RETRY_MS); }).then(once);
+      });
+    return once();
+  }
+
   // ── writes ───────────────────────────────────────────────────────────────
 
   /* The ledger row a write will record, drawn now so the click lands at once. It sits in S.pend,
@@ -38,15 +55,11 @@
   /* Resolves to the recorded row, or null after reporting the failure. */
   function decideNow(doc, step, at, verdict, comment) {
     setStatus(`recording ${verdict}…`);
-    return fetch(`${API}/decide`, {
-      method: "POST",
-      headers: JSON_HEADERS,
-      keepalive: true,  // a held write sent as the tab closes must outlive it
-      body: JSON.stringify({
-        slug: step.slug, kind: step.kind, path: step.path,
-        rendered_sha256: doc.sha256, verdict: verdict, comment: comment,
-      }),
-    }).then((r) => {
+    // keepalive (in post): a held write sent as the tab closes must outlive it
+    return post(`${API}/decide`, {
+      slug: step.slug, kind: step.kind, path: step.path,
+      rendered_sha256: doc.sha256, verdict: verdict, comment: comment,
+    }, verdict).then((r) => {
       if (r.status === 409) {
         // stale page: the doc changed, or it is already approved at this version
         return r.json().catch(() => ({})).then((e) => {
@@ -90,12 +103,9 @@
     if (!live.length) return Promise.resolve(set.sha256);
     const now = live.map((L) => letter(idxOf(L) - gone.filter((G) => idxOf(G) < idxOf(L)).length));
     setStatus(`deleting ${live.join(", ")}…`);
-    return fetch(`${API}/option/delete`, {
-      method: "POST",
-      headers: JSON_HEADERS,
-      keepalive: true,  // a held write sent as the tab closes must outlive it
-      body: JSON.stringify({ set: set.slug, letters: now, titles: live.map((L) => (set.titles || [])[idxOf(L)] || ""), sha256: set.sha256 }),
-    }).then((r) => {
+    return post(`${API}/option/delete`,
+      { set: set.slug, letters: now, titles: live.map((L) => (set.titles || [])[idxOf(L)] || ""), sha256: set.sha256 },
+      `delete ${live.join(", ")}`).then((r) => {
       if (r.status === 409) { staleSet(at); return null; }
       return r.json().then((b) => {
         if (!r.ok) throw new Error(b.error || "failed");
@@ -120,13 +130,9 @@
   /* Resolves to the recorded row, or null after reporting the failure. */
   function decideSetNow(set, at, verdict, comment, choice) {
     setStatus(`recording ${choice ? `pick ${choice}` : verdict}…`);
-    return fetch(`${API}/decide`, {
-      method: "POST",
-      headers: JSON_HEADERS,
-      keepalive: true,  // a held write sent as the tab closes must outlive it
-      body: JSON.stringify({ slug: set.slug, kind: "design", path: set.path,
-        rendered_sha256: set.sha256, verdict: verdict, comment: comment, choice: choice }),
-    }).then((r) => {
+    return post(`${API}/decide`, { slug: set.slug, kind: "design", path: set.path,
+      rendered_sha256: set.sha256, verdict: verdict, comment: comment, choice: choice },
+      choice ? `pick ${choice}` : verdict).then((r) => {
       if (r.status === 409) {
         // the same pick again is "already approved", not a changed set
         return r.json().catch(() => ({})).then((e) => {
@@ -423,6 +429,81 @@
       Array.prototype.forEach.call(grid().querySelectorAll("[data-pick], [data-note], [data-del], [data-fork]"), (p) => { p.disabled = locked; });
     }, [locked]);
 
+    /* Carousel: one card at a time, full screen. The rig itself goes to the top layer as a popover,
+       so no card moves in the DOM: moving an iframe reloads it, and the card listeners stay wired. */
+    function carousel() {
+      const rig = bodyRef.current.querySelector(".wb-rig");
+      const cards = () => Array.prototype.filter.call(grid().querySelectorAll(".opt"), (o) => !o.hidden);
+      let i = 0;
+      const bar = document.createElement("div");
+      bar.className = "wb-car-bar";
+      bar.innerHTML = '<button type="button" class="hub-btn" data-car="-1" aria-label="previous option">‹ prev</button>' +
+        '<span class="wb-car-t" aria-live="polite"></span>' +
+        '<button type="button" class="hub-btn" data-car="1" aria-label="next option">next ›</button>' +
+        '<button type="button" class="hub-btn" data-car="x" aria-label="close carousel">close</button>';
+      const show = (k) => {
+        const c = cards();
+        i = (k + c.length) % c.length;
+        c.forEach((o, j) => { o.classList.toggle("wb-cur", j === i); });
+        const t = c[i].querySelector(".opt-title");
+        bar.querySelector(".wb-car-t").textContent = `${c[i].dataset.letter}${t ? ` · ${t.textContent.replace(/\s+/g, " ").trim()}` : ""} · ${i + 1} / ${c.length}`;
+        rig.scrollTop = 0;
+      };
+      const onBar = (e) => {
+        const b = e.target.closest("[data-car]");
+        if (!b) return;
+        if (b.dataset.car === "x") rig.hidePopover(); else show(i + +b.dataset.car);
+      };
+      // arrows step, Escape closes; typing in a note box keeps its own keys
+      const onKey = (e) => {
+        if (e.target.closest("textarea, input")) return;
+        if (e.key === "ArrowLeft") show(i - 1);
+        else if (e.key === "ArrowRight") show(i + 1);
+        else if (e.key === "Escape") rig.hidePopover();
+        else return;
+        e.preventDefault();
+      };
+      /* swipe: a mostly-sideways drag of 60px steps. A drag that starts on something that scrolls
+         sideways (a wide stage) scrolls it instead; touches inside a live preview stay in its iframe. */
+      let x0 = null, y0 = 0;
+      const scrollsX = (el) => {
+        for (; el && el !== rig; el = el.parentElement) if (el.scrollWidth > el.clientWidth + 1 && /auto|scroll/.test(getComputedStyle(el).overflowX)) return true;
+        return false;
+      };
+      const onStart = (e) => {
+        x0 = e.touches.length === 1 && !scrollsX(e.target) ? e.touches[0].clientX : null;
+        y0 = e.touches[0].clientY;
+      };
+      const onEnd = (e) => {
+        if (x0 === null) return;
+        const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0;
+        x0 = null;
+        if (Math.abs(dx) > 60 && Math.abs(dx) > 2 * Math.abs(dy)) show(i + (dx < 0 ? 1 : -1));
+      };
+      const onToggle = (e) => {
+        if (e.newState !== "closed") return;
+        rig.removeEventListener("toggle", onToggle);
+        rig.removeEventListener("touchstart", onStart);
+        rig.removeEventListener("touchend", onEnd);
+        document.removeEventListener("keydown", onKey);
+        bar.remove();
+        rig.classList.remove("wb-carousel");
+        cards().forEach((o) => { o.classList.remove("wb-cur"); });
+        rig.removeAttribute("popover");
+      };
+      bar.addEventListener("click", onBar);
+      rig.prepend(bar);
+      rig.setAttribute("popover", "manual");
+      rig.classList.add("wb-carousel");
+      rig.addEventListener("toggle", onToggle);
+      rig.addEventListener("touchstart", onStart, { passive: true });
+      rig.addEventListener("touchend", onEnd);
+      document.addEventListener("keydown", onKey);
+      show(0);
+      rig.showPopover();
+      bar.querySelector('[data-car="1"]').focus();
+    }
+
     const total = totalRef.current;
     const defs = {
       fork: {
@@ -453,6 +534,7 @@
                    <ActBtn key="b" label="send back" cls="hub-btn--danger" disabled={locked}
                            onClick={(e) => { strip.show("back", e.currentTarget); }} />,
                  ] : [
+                   <ActBtn key="c" label="carousel" onClick={carousel} />,
                    <ActBtn key="f" label={n ? `fork ${n} selected` : "fork selected"} disabled={locked || !n}
                            onClick={(e) => {
                              const s = sel();
@@ -636,10 +718,8 @@
       hold(`mark ${m.n} ${{ close: "close", options: "make options" }[verdict] || "send back"}`, () => sendNow(verdict, reply),
         () => { delete S.markHeld[hk]; UI.rerender(); setResult(was[0]); setSaid(was[1]); });
     };
-    const sendNow = (verdict, reply) => fetch("/marks/api/walk/decide", {
-      method: "POST", headers: JSON_HEADERS, keepalive: true,
-      body: JSON.stringify({ session: session, n: m.n, verdict: verdict, reply: reply }),
-    }).then((r) => r.json().then((e) => { if (!r.ok) throw new Error(e.error || "failed"); }))
+    const sendNow = (verdict, reply) => post("/marks/api/walk/decide",
+      { session: session, n: m.n, verdict: verdict, reply: reply }, `mark ${m.n}`).then((r) => r.json().then((e) => { if (!r.ok) throw new Error(e.error || "failed"); }))
       .then(() => {
         // the server has it now; the refresh's counts replace the held one (no redraw in between)
         delete S.markHeld[hk];

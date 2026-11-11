@@ -6,6 +6,14 @@ grouped by category. Tier `utilities` (sits with vault-map, capabilities).
 - **Store:** `data/artifacts.json` (vault), read via `vault_root()` in `api.py`.
   No database — the list is tiny and hand-maintained. Each entry:
   `{title, url, updated, category, description, favicon}`.
+  Optional `icon` (since 2026-11-10) replaces the emoji `favicon` on the card:
+  `brand/<name>` is a vendor's mark from its source file (Commons first, per the
+  brand-marks rule), shown in its own colours on a white tile; `mono/<name>` is a
+  Lucide (ISC) topic icon drawn white on a colour tile (colour hashed from the
+  icon name in `RowIcon`). Every icon is the same 28px rounded tile, centred on
+  the title's first line (mark 2026-11-09-231213 #1 send-back). Files live in
+  `frontend/static/icons/{brand,mono}/<name>.svg`. Every Research row has one;
+  a new artifact arrives with only the emoji until someone picks its icon.
 - **Refresh:** automatic since 2026-08-10. The vault hook
   `.claude/hooks/vault-artifact-register.py` (PostToolUse:Artifact) upserts an
   entry on every publish, keyed by URL. Sam's rule is that **every** artifact

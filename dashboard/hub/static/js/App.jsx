@@ -78,6 +78,9 @@ function App() {
         window.GENERATED_AT = d.GENERATED_AT;
         window.CONNECTORS = d.CONNECTORS;
         setHome(d);
+        // served from a recent copy while the server fetches a fresh one (home_data
+        // _last_good): ask once more when that has landed. Once, never a loop.
+        if (d.REFRESHING) setTimeout(() => { if (!cancelled) refresh(); }, 1200);
         setApiError(false);
       })
       .catch(() => { if (!cancelled) setApiError(true); });

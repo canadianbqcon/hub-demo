@@ -63,8 +63,9 @@ NTFY_TOPIC_PATH = Path.home() / ".config" / "vault-api" / "ntfy_topic"
 
 # The Hub's tailnet-only HTTPS address (`tailscale serve` on demo-desktop
 # proxies it to 127.0.0.1:5002), the link Sam's phone uses.
-# ponytail: hardcoded; add a base-URL helper when a second caller needs it.
-HUB_NEWS_URL = "https://demo-desktop.tail0demo0.ts.net/news/"
+# ponytail: hardcoded; notify/db.py is the second caller and imports HUB_BASE.
+HUB_BASE = "https://demo-desktop.tail0demo0.ts.net"
+HUB_NEWS_URL = HUB_BASE + "/news/"
 
 
 def story_url(cluster_id: int) -> str:

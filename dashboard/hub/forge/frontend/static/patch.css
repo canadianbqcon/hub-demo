@@ -1,0 +1,302 @@
+/* patch.css - the patch note body, shared by /forge/patch and the landing page's
+   inline Patch view (mark 2026-11-10-042636 #1). Nested under .pv so its generic
+   class names (.lede, .tabs, .bar, .d) never reach the landing page's own. */
+.pv {
+  /* The patch note, on its own surface.
+
+     This used to be a section on top of the champion cards, which meant a
+     22-entry patch pushed the build shelf - the thing you open the tool for -
+     below the fold every second Tuesday. Builds and Patch are peers, so they
+     are tabs.
+
+     Three things are done to Riot's own words before they land here, all of
+     them in notes_read.py on the server:
+
+       the paragraph  is cut down to its gist. Riot writes for a blog and every
+                      entry opens with "We are continuing to..."; deletion only,
+                      so it can read clipped but never says something Riot did
+                      not. The full paragraph is still one hover away in `title`.
+       the numbers    are paired off one at a time. A bullet is not one change -
+                      "5 / 15 / 25%" -> "6 / 13 / 20%" is three, and two of them
+                      go the other way from the first. So every number that moved
+                      is its own little `old -> new`, sitting in place inside the
+                      line, and everything that did not move is printed once and
+                      dimmed.
+       the direction  is a colour per NUMBER, not per row, plus a badge per card.
+                      An ability buffed at rank 1 and cut at rank 3 shows green
+                      then red; painting the whole row one colour is what made
+                      Bel'Veth read as a flat nerf when her paragraph calls it a
+                      trade.
+
+     Two layout rules hold the page together:
+
+       one grid per CARD, not per group. Base Stats and each ability used to own
+       a separate two-column grid, so the label column was a different width in
+       every block and no value on a card began at the same x as the one above
+       it. The groups are `display: contents` inside a single grid now, so a card
+       is one aligned sheet however many abilities it carries.
+
+       nothing wraps mid-comparison. `old -> new` is nowrap; the dim text around
+       it wraps freely, which is what stops a long tail dragging the numbers off
+       the card. The one bullet a patch where Riot replaced the whole value
+       rather than a number in it has no per-number reading, and that single pair
+       stacks old-above-new once it is too long to sit side by side. */
+
+  &.wrap { max-width: 1500px; margin: 0 auto; padding: 22px 20px 90px; display: grid; gap: 18px; }
+
+  .lede { display: grid; gap: 6px; max-width: 74ch; }
+  .lede h2 { margin: 0; font-size: var(--t-lg); font-weight: 600; letter-spacing: -0.015em; }
+  .lede p { margin: 0; color: var(--dim); font-size: var(--t-sm); text-wrap: pretty; }
+
+  /* how the patch broke down, before you read any of it */
+  .tally { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tally span {
+    display: inline-flex; align-items: baseline; gap: 7px;
+    padding: 4px 11px;
+    font-size: var(--t-xs);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--raised);
+    color: var(--dim);
+  }
+  .tally b { font: 600 var(--t-sm)/1 var(--mono); font-variant-numeric: tabular-nums; }
+  .tally .buff   b { color: var(--buff); }
+  .tally .nerf   b { color: var(--nerf); }
+  .tally .rework b { color: var(--rework); }
+
+  .bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tabs button {
+    padding: 5px 13px;
+    font: inherit; font-size: var(--t-sm);
+    color: var(--ink-2);
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    cursor: pointer;
+  }
+  .tabs button:hover { color: var(--accent); border-color: var(--accent-lo); background: var(--accent-bg); }
+  .tabs button[aria-pressed="true"] { color: var(--ink); border-color: var(--line-lit); background: var(--raised-hi); }
+  .tabs button .n {
+    font: 500 var(--t-xs)/1 var(--mono);
+    font-variant-numeric: tabular-nums; color: var(--dim);
+    margin-left: 7px;
+  }
+
+  /* columns, because a patch is a long list of short entries; the cards are
+     wider than the landing page's because a stat line is a long string */
+  .entries { columns: 520px; column-gap: 16px; }
+  .entry {
+    break-inside: avoid; -webkit-column-break-inside: avoid;
+    margin: 0 0 14px;
+    padding: 16px 20px 18px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--line-lit);
+    border-radius: var(--r-md);
+    display: grid; gap: 12px;
+  }
+  /* the card's own edge carries its verdict, so a column of them reads as a
+     shape before it reads as text */
+  .entry[data-triage="buff"]   { border-left-color: var(--buff); }
+  .entry[data-triage="nerf"]   { border-left-color: var(--nerf); }
+  .entry[data-triage="rework"] { border-left-color: var(--rework); }
+
+  .entry > h3 {
+    display: flex; align-items: center; gap: 10px;
+    margin: 0; font-size: var(--fs-headline, 17px); font-weight: 600; color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  /* Card scale (mark 043901 #3 sent back: "larger doesn't just mean scale"):
+     the numbers are what you read, so they grew; the name and the note stay
+     one step above and below them instead of all three going big. */
+  .entry > h3 img { width: 36px; height: 36px; border-radius: var(--r-sm); display: block; }
+  .entry > h3 .nm { min-width: 0; }
+
+  /* the word, not only the colour: red and green are the same to a lot of eyes */
+  .tri {
+    margin-left: auto;
+    flex: none;
+    padding: 3px 9px;
+    font: 600 var(--t-xs)/1 var(--font);
+    letter-spacing: .07em; text-transform: uppercase;
+    border-radius: var(--r-sm);
+    border: 1px solid;
+  }
+  [data-triage="buff"]   > h3 .tri { color: var(--buff);   background: var(--buff-bg);   border-color: var(--buff); }
+  [data-triage="nerf"]   > h3 .tri { color: var(--nerf);   background: var(--nerf-bg);   border-color: var(--nerf); }
+  [data-triage="rework"] > h3 .tri { color: var(--rework); background: var(--rework-bg); border-color: var(--rework); }
+
+  /* why it moved, in as few words as deletion can get it. The full paragraph
+     is on the element's title, for the one time a month that matters. */
+  .gist { margin: 0; max-width: 72ch; font-size: var(--fs-subhead, 15px); line-height: 1.5; color: var(--ink-2); text-wrap: pretty; }
+
+  /* ONE grid for the whole card. The groups are `display: contents`, so every
+     label on the card shares a column and every value starts at the same x
+     whether it sits under Base Stats or under the third ability - which is what
+     a per-group grid could never do, because each one sized its own column. */
+  .sheet {
+    display: grid;
+    grid-template-columns: fit-content(14rem) minmax(0, 1fr);
+    gap: 7px 16px;
+    align-items: baseline;
+  }
+  .grp { display: contents; }
+  .grp > h4 {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; gap: 7px;
+    margin: 6px 0 1px;
+    font-size: var(--t-sm); font-weight: 600; color: var(--ink-2);
+    letter-spacing: .03em;
+  }
+  .grp:first-child > h4 { margin-top: 0; }
+  .grp > h4 img { width: 22px; height: 22px; display: block; border-radius: var(--r-sm); }
+
+  .rows { display: contents; }
+  .rows dt {
+    grid-column: 1;
+    font-size: var(--t-sm); color: var(--ink-2); font-weight: 600;
+    text-wrap: balance;
+  }
+  .rows dd {
+    grid-column: 2;
+    margin: 0; min-width: 0;
+    font: 500 14px/1.75 var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--dim);
+    overflow-x: auto;
+    scrollbar-width: thin;
+    overscroll-behavior-x: contain;
+  }
+
+  /* A handful of rows a patch - a passive rewritten in full - are too long to
+     fit even stacked. Those scroll, and the scrollbar is styled so it is drawn
+     permanently: the platform's overlay bar only appears once you are already
+     scrolling, which is no use as the hint that there is more to the right. */
+  .rows dd::-webkit-scrollbar { height: 5px; }
+  .rows dd::-webkit-scrollbar-track { background: transparent; }
+  .rows dd::-webkit-scrollbar-thumb { background: var(--line-lit); border-radius: 3px; }
+  .rows dd::-webkit-scrollbar-thumb:hover { background: var(--dim); }
+
+  /* the text that did not move, printed once */
+  .ctx { color: var(--dim); opacity: .75; }
+
+  /* One number that moved. Small and inline, because a row can hold five of
+     them and a heavy chip each turns a stat line into a row of buttons. The
+     comparison itself is nowrap - a number list broken across two lines is
+     unreadable, which is the whole complaint this page was rebuilt to answer -
+     while the dim text around it wraps freely. */
+  .d {
+    display: inline-flex; align-items: baseline; gap: 4px;
+    /* the tint BLEEDS around the numbers instead of pushing the line apart: a
+       chip with real side padding put a space between the value and the unit
+       Riot wrote against it, so "25% AP" rendered as "25 % AP" and "11s" as
+       "11 s". Negative margin cancels the padding, so the text sits exactly
+       where it would with no chip at all. */
+    padding: 1px 4px; margin: 0 -4px;
+    border-radius: var(--r-sm);
+    background: var(--raised);
+    white-space: nowrap;
+  }
+  .d > * { white-space: nowrap; }
+  .d .was { color: var(--dim); }
+  .d .ar { color: var(--dim); font-size: var(--fs-caption); opacity: .8; }
+  .d .now { color: var(--ink); font-weight: 700; }
+  .d[data-v="buff"] { background: var(--buff-bg); }
+  .d[data-v="buff"] .now { color: var(--buff); }
+  .d[data-v="nerf"] { background: var(--nerf-bg); }
+  .d[data-v="nerf"] .now { color: var(--nerf); }
+
+  /* a clause the patch bolted on that was not there before. No "+" marker: the
+     clause Riot adds is almost always itself written "(+8% per 1000 bonus
+     Health)", so a marker in front of it renders as "%+ (+8%..." */
+  .add {
+    color: var(--ink-2); font-weight: 600;
+    background: var(--buff-bg);
+    padding: 1px 4px; margin: 0 -4px;
+    border-radius: var(--r-sm);
+  }
+
+  /* The one bullet a patch where Riot replaced the whole value instead of a
+     number inside it: there is no per-number reading, so the pair is shown
+     whole. Long ones stack old-above-new, which is easier to compare at that
+     length than one line you have to scroll, and is still not a wrap. */
+  .d.whole { padding: 1px 7px; margin: 0; border: 1px solid var(--line); }
+  .d.tall { flex-direction: column; align-items: flex-start; gap: 1px; padding: 3px 7px; max-width: 100%; }
+  .d.tall .ar { display: none; }
+  .d.tall > * { white-space: normal; }
+
+  /* a bullet with no arrow at all: "NEW: resource bar turns purple when ..." */
+  .rows dd.plain { display: block; white-space: normal; color: var(--ink-2); font-family: var(--font); }
+  .tag {
+    display: inline-block; margin-right: 6px;
+    padding: 1px 6px;
+    font: 600 var(--fs-caption)/1.5 var(--font); letter-spacing: .07em;
+    color: var(--accent); background: var(--accent-bg);
+    border: 1px solid var(--accent-lo); border-radius: var(--r-sm);
+    vertical-align: 1px;
+  }
+
+  .quiet { margin: 0; font-size: var(--t-sm); color: var(--dim); }
+
+  /* The page header (mark 2026-11-10-043901 #1, Workbench pick "Roster"): title and
+     Riot's link, then his pool's changes, then every entry as a verdict-ringed portrait. */
+  .phead {
+    display: grid; gap: 18px;
+    padding: 22px 26px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg, 14px);
+  }
+  .phead p { margin: 0; }
+  .phead-top { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px 24px; }
+  .phead-main { display: grid; gap: 5px; min-width: 0; }
+  .phead-kicker { font: 600 var(--t-xs)/1.2 var(--font); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .phead h2 { margin: 0; font-size: var(--fs-large-title, 2rem); font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; color: var(--ink); }
+  .phead-date { font-size: var(--t-sm); color: var(--dim); }
+  .phead-src { font-size: var(--t-sm); font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; }
+  .phead-src:hover { text-decoration: underline; }
+  .phead-label { font: 600 var(--t-xs)/1 var(--font); letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+  .phead-label b { margin-left: 4px; font-family: var(--mono); }
+  [data-triage="buff"] > .phead-label b { color: var(--buff); }
+  [data-triage="nerf"] > .phead-label b { color: var(--nerf); }
+  [data-triage="rework"] > .phead-label b { color: var(--rework); }
+
+  /* every entry as a portrait, ringed by verdict, grouped under the verdict's word */
+  .phead-ico { display: inline-block; width: 40px; height: 40px; padding: 2px; flex: none; border: 2px solid var(--line); border-radius: 10px; }
+  .phead-ico img { display: block; width: 100%; height: 100%; border-radius: 7px; object-fit: cover; }
+  .phead-ico[data-triage="buff"] { border-color: var(--buff); }
+  .phead-ico[data-triage="nerf"] { border-color: var(--nerf); }
+  .phead-ico[data-triage="rework"] { border-color: var(--rework); }
+  .phead-roster { display: flex; flex-wrap: wrap; gap: 14px 28px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .phead-grp { display: grid; gap: 8px; align-content: start; }
+  .phead-icos { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* his pool, above the roster (his note on the pick) */
+  .phead-pool { display: grid; gap: 10px; padding: 14px 16px; border-radius: 10px; background: var(--raised); border: 1px solid var(--line); }
+  .phead-mine { display: flex; align-items: flex-start; gap: 12px; }
+  .phead-mine .phead-ico { width: 48px; height: 48px; }
+  .phead-mn { font-size: var(--fs-headline); font-weight: 700; }
+  .phead-mn .tri { margin-left: 6px; padding: 2px 7px; font: 700 10px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; border: 1px solid currentColor; border-radius: 4px; vertical-align: 3px; }
+  .phead-mine[data-triage="buff"] .tri { color: var(--buff); }
+  .phead-mine[data-triage="nerf"] .tri { color: var(--nerf); }
+  .phead-mine[data-triage="rework"] .tri { color: var(--rework); }
+  .phead-roles { margin-left: 8px; font: 500 var(--t-xs)/1 var(--font); color: var(--dim); text-transform: capitalize; }
+  .phead-gist { margin-top: 3px !important; font-size: var(--t-sm); color: var(--ink-2, var(--dim)); max-width: 80ch; text-wrap: pretty; }
+  .phead-none { font-size: var(--t-sm); color: var(--dim); }
+
+  @media (max-width: 600px) {
+    .phead { padding: 16px 16px 18px; }
+    .phead h2 { font-size: 28px; }
+    .phead-ico { width: 34px; height: 34px; border-radius: 9px; }
+    .phead-roster { gap: 12px; }
+  }
+
+  /* one heading per triage, buffs first (mark 2026-11-10-043901 #2) */
+  #body { display: grid; gap: 20px; }
+  .tgroup { display: grid; gap: 12px; }
+  .tgroup-h { margin: 0; font-size: var(--t-md); font-weight: 700; letter-spacing: -0.01em; }
+  .tgroup[data-triage="buff"] .tgroup-h { color: var(--buff); }
+  .tgroup[data-triage="nerf"] .tgroup-h { color: var(--nerf); }
+  .tgroup[data-triage="rework"] .tgroup-h { color: var(--rework); }
+  .tgroup-h .n { margin-left: 6px; font: 600 var(--t-sm)/1 var(--mono); color: var(--dim); }
+  .tgroup .entry:last-child { margin-bottom: 0; }
+}

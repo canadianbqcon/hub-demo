@@ -123,10 +123,21 @@
       "interval_minutes": 5
     },
     {
+      "job": "forge-rank",
+      "description": "Refreshes your OP.GG record so each new ranked game gets its LP",
+      "enabled": true,
+      "interval_minutes": 15
+    },
+    {
       "job": "sitesearch-alerts",
       "description": "Checks saved searches and pushes new listings under your price to your phone",
       "enabled": true,
       "interval_minutes": 30
+    },
+    {
+      "job": "notify-push",
+      "description": "Sends due Hub notifications marked for push to your phone",
+      "enabled": true
     },
     {
       "job": "news-digest",
@@ -145,6 +156,18 @@
       "job": "voice-memo",
       "description": "Acts on new voice memos with Sonnet the way /recap would; every action can be undone on the Automations page",
       "time": "*/5",
+      "enabled": true
+    },
+    {
+      "job": "clash-api",
+      "description": "Refreshes Clash of Clans profile and war data from the official API",
+      "time": "*/30",
+      "enabled": true
+    },
+    {
+      "job": "clash-patch",
+      "description": "Fetches the Supercell Clash blog and r/ClashOfClansLeaks, sorts new posts into patch notes",
+      "time": "07:00",
       "enabled": true
     },
     {

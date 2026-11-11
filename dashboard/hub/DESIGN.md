@@ -45,7 +45,9 @@ Spacing scale: `--s-1:4 --s-2:8 --s-3:12 --s-4:16 --s-5:20 --s-6:24 --s-7:32`. R
 
 ## Components
 
-Standard affordances, consistent vocabulary screen to screen. Cards only where they're the right affordance — never nested. Chips (`--r-pill`) for categories/state. Every interactive element carries default/hover/focus states through the tokens. Status band height is `--status-h`.
+Standard affordances, consistent vocabulary screen to screen. Cards only where they're the right affordance — never nested.
+
+**Card fill [BINDING] (2026-11-10, from the Game Hub slab):** under liquid every card paints `background:var(--lq-card)` with `box-shadow:var(--lq-slab-shade)`. `--lq-card` is translucent fill under a 150deg wash from `--lg-hue-1` into `--lq-card-h2`. Every page is the standard Apple blue (per-module hues dropped 2026-11-10; brand apps forge, ledger and barback keep their own), so all three wallpaper hues are one blue and the second colour comes from `--lq-card-h2`: indigo `94 92 230` on both surfaces (Workbench picks `hub-card-light` and `hub-card-dark`, 2026-11-11). Dark keeps the `/gaming` `.gx-slab` strength (washes `.20` / `.26` to 70%, over `rgb(28 28 30 / .72)`); light is washes `.18` / `.22` to 75% over white `.72`. /gaming follows the Hub's light/dark with its slabs taking the light fill in game hues. Hover on a clickable card uses `--lq-card-hi`. Defined in `themes/liquid.css` section 16, which lists every card class; a new card class joins that list (or uses the token in its own rule), never a solid `--bg-elev`. Page panes, list columns and headers take it too. A card nested in a card is cleared (`background:none`) so the wash never stacks; inner tiles stay solid. Blueprint layer: `tinted`. Chips (`--r-pill`) for categories/state. Every interactive element carries default/hover/focus states through the tokens. Status band height is `--status-h`.
 
 ## Always the same
 

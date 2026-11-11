@@ -125,10 +125,20 @@ def _book(c, rnd, p):
             if o <= 0:
                 add(o, ai, -round(amt * 100), name, cat, "monthly")
     # variable spend
+    # book.fetch_subscriptions reads any payee + whole-dollar pair seen ~monthly as a
+    # subscription, so a random draw that lands on one is re-rolled (Noodle Alley twice
+    # on Home's subscriptions card, 2026-11-11)
+    hits = {}
     for cat, (names, lo, hi, memos) in VAR.items():
         for _ in range(VAR_COUNT[cat]):
-            add(-rnd.randint(0, SPAN), rnd.choice(VAR_ACCT[cat]), -round(rnd.uniform(lo, hi) * 100),
-                rnd.choice(names), cat, rnd.choice(memos))
+            for _try in range(50):
+                off, cents, name = -rnd.randint(0, SPAN), round(rnd.uniform(lo, hi) * 100), rnd.choice(names)
+                offs = sorted(hits.get((name, round(cents / 100)), []) + [off])
+                gaps = [b - a for a, b in zip(offs, offs[1:]) if b > a]
+                if not gaps or not 25 <= sum(gaps) / len(gaps) <= 45:
+                    break
+            hits.setdefault((name, round(cents / 100)), []).append(off)
+            add(off, rnd.choice(VAR_ACCT[cat]), -cents, name, cat, rnd.choice(memos))
     add(-33, 3, -64000, "Skyline Air", "Travel", "Lisbon flights")
     add(-30, 3, -21800, "Casa Alfama Stays", "Travel", "Lisbon deposit")
     add(-12, 2, -38700, "Rockies Rail & Lodge", "Travel", "Denver weekend")

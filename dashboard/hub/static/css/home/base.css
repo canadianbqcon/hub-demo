@@ -347,10 +347,19 @@ input::placeholder { color: var(--fg-faint); font-style: italic; }
   letter-spacing: 0.01em;
 }
 .trip-arrow { font-family: var(--font-body); color: var(--fg-faint); font-size: var(--fs-body); }
-/* booked flight and stay under the countdown (mark 2026-11-03 "make nicer") */
-.trip-facts { grid-column: 1 / -1; display: grid; gap: var(--s-2); padding-top: var(--s-3); border-top: 1px solid var(--line); }
-.trip-fact { display: grid; grid-template-columns: 4.5em 1fr; gap: var(--s-3); font-family: var(--font-body); font-size: var(--fs-footnote); color: var(--fg); font-feature-settings: var(--feat-tnum); }
-.trip-fact-k { color: var(--fg-dim); }
+/* the trip's month with its days filled, legs beside it
+   (mark 2026-11-11 "options", Workbench pick "December calendar") */
+.trip-facts { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; gap: var(--s-4); align-items: start; padding-top: var(--s-4); border-top: 1px solid var(--line); }
+.trip-cals { display: grid; gap: var(--s-3); }
+.trip-cal-m { font-family: var(--font-body); font-size: var(--fs-caption); color: var(--fg-dim); letter-spacing: .14em; text-transform: uppercase; margin-bottom: 4px; }
+.trip-cal-g { display: grid; grid-template-columns: repeat(7, 20px); gap: 2px; font-family: var(--font-body); font-size: 10.5px; font-feature-settings: var(--feat-tnum); text-align: center; }
+.trip-cal-g span { height: 18px; line-height: 18px; border-radius: 5px; color: var(--fg-dim); }
+.trip-cal-g .trip-cal-h { color: var(--fg-faint); font-size: 9px; }
+.trip-cal-g .is-in { background: color-mix(in srgb, var(--hh, var(--accent)) 30%, transparent); color: var(--fg); font-weight: 600; }
+.trip-cal-g .is-fly { background: var(--accent); color: #fff; font-weight: 600; }
+.trip-legs { display: grid; gap: var(--s-2); min-width: 0; }
+.trip-fact { display: grid; gap: 1px; font-family: var(--font-body); font-size: var(--fs-footnote); color: var(--fg); font-feature-settings: var(--feat-tnum); min-width: 0; }
+.trip-fact-k { color: var(--fg-dim); font-size: var(--fs-caption); font-weight: 600; }
 .trip-fact.is-open { color: var(--alert); }
 
 /* ---------------- news ----------------
@@ -358,8 +367,8 @@ input::placeholder { color: var(--fg-faint); font-style: italic; }
    already covered by that pattern): count on the left, digest line filling
    the middle, arrow on the right. */
 .news-summary {
-  display: grid; grid-template-columns: auto 1fr auto;
-  align-items: center; gap: var(--s-4);
+  display: grid; grid-template-columns: 1fr;
+  gap: var(--s-3); color: inherit; text-decoration: none;
   padding: var(--s-4);
   border: 1px solid var(--line); border-radius: var(--r-card);
   background: var(--bg-elev); cursor: pointer;
@@ -382,12 +391,21 @@ input::placeholder { color: var(--fg-faint); font-style: italic; }
   letter-spacing: 0.22em; text-transform: uppercase;
   display: block; margin-top: 4px;
 }
+.news-lead { display: grid; grid-template-columns: 72px 1fr; gap: var(--s-3); align-items: baseline; }
+.news-lead + .news-lead { padding-top: var(--s-3); border-top: 1px solid var(--line); }
+.news-lead-k {
+  font-family: var(--font-body); font-feature-settings: var(--feat-meta);
+  font-weight: 500; font-size: var(--fs-caption); color: var(--fg-dim);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
 .news-line {
   font-family: var(--font-body);
   font-feature-settings: var(--feat-text);
   font-size: var(--fs-subhead); color: var(--fg);
-  letter-spacing: 0.01em;
+  letter-spacing: 0.01em; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
+.news-summary:hover .news-line { color: var(--accent); }
 .news-arrow { font-family: var(--font-body); color: var(--fg-faint); font-size: var(--fs-body); }
 
 /* ---------------- credit cards ---------------- */

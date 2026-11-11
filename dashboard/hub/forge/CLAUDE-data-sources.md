@@ -118,6 +118,31 @@ average: 989 kills on Viego, not 9.9. `_champ()` takes the averages once, on the
 server, because a total read as an average is the kind of wrong that looks
 entirely plausible on screen.
 
+**Kill participation is a different kind of total.** `ranked_most_champions`
+sends `basic.kill_participation` as each game's share (0 to 1) summed over the
+season: Viego `64.28` over 140 games is 45.9%, and his archived Viego games
+average 45.86%. Read as a percent it looks like a share of the season (the top
+two champions sum near 100), which is wrong. `_kps()` divides by games. Only
+that block carries it; `most_champions` does not, so `fetch()` asks for both and
+joins by champion name.
+
+### OP.GG returns 20 games, so history is kept locally
+
+`lol_list_summoner_matches` caps at 20 and ignores offset, end date and queue
+(probed 2026-11-10); `lp_histories` holds about four points. `_archive()` merges
+each fresh read into the cached file by game id (fresh copy wins, newest first)
+and LP points by time (oldest first), so **load more, queue tabs and the LP
+graph read the archive**, and it only grows from the day it started.
+
+### One game's full detail
+
+`GET /forge/api/me/game?id=<game id>&at=<created_at>` calls
+`lol_get_summoner_game_detail` through `opgg_me.detail()`: both teams in role
+order, his side first, per player KDA, kill share, damage share, CS, gold,
+wards, OP score and rank, items, spells, keystone. 400 without `id`, 502 on an
+OP.GG error, cached in memory per game (a finished game never changes). OP.GG
+sends `vision_score` null for every player, so screens show wards placed.
+
 ### The cache is on disk, and a stale answer says so
 
 `data/forge-me.json`, 15-minute TTL, `?refresh=1` to force past it. On disk

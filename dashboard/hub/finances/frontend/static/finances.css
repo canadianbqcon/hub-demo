@@ -1149,7 +1149,7 @@ body.finances .hub-error{margin-bottom:var(--s-2,.5rem);}
 [data-theme="liquid"] :is(.total-card, .expected, .by-source, .periods, .sp-committed,
   .owed-person, .owed-pay, .debt-stats .stat, .traj, .debt-cards, .scenarios, .payments,
   #panel-stocks .detail, #panel-stocks table.watchlist) {
-  border: 0; border-radius: var(--lq-pane-r); background: var(--bg-elev); box-shadow: var(--lq-slab-shade);
+  border: 0; border-radius: var(--lq-pane-r); background: var(--lq-card); box-shadow: var(--lq-slab-shade);   /* liquid.css section 16 card rule */
 }
 [data-theme="liquid"] :is(.total-card, .expected, .by-source, .periods, .sp-committed) { padding: 16px 20px; }
 [data-theme="liquid"] .debt-stats .stat { padding: 16px 20px; }

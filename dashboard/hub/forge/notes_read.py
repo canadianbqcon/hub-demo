@@ -57,7 +57,14 @@ OPENERS = re.compile(
 
 # ordered: the longest, most specific framing first, so a general rule never
 # eats the phrase a specific one was going to rewrite
-PHRASES: list[tuple[re.Pattern, str]] = [(re.compile(p, re.I), r) for p, r in [
+# Riot types a curly apostrophe ("we\u2019re"). Every pattern below is written with a
+# straight one and widened by _apos, or "we\u2019re" slips past the contraction rules
+# and the bare `we` rule leaves "\u2019re giving him a buff" behind.
+def _apos(p: str) -> str:
+    return p.replace("'", "['\u2019]")
+
+
+PHRASES: list[tuple[re.Pattern, str]] = [(re.compile(_apos(p), re.I), r) for p, r in [
     (r"\bwe are continuing to monitor\b",                        "still watching"),
     (r"\bwe continue to feel(?: like| that)?\b",                  ""),
     (r"\bwe(?:'re| are) continuing to\b",                        "still"),
@@ -68,6 +75,7 @@ PHRASES: list[tuple[re.Pattern, str]] = [(re.compile(p, re.I), r) for p, r in [
     (r"\bwe(?:'ll| will)\b",                                      ""),
     (r"\bwe(?: also)? hope(?: that)? this will\b",                "hoping to"),
     (r"\bwe (?:do |also )?(?:think|feel|believe)(?: like)?(?: that)?\b", ""),
+    (r"\bwe were\b",                                              ""),
     (r"\bwe(?:'re| are)(?: also| simultaneously)?\b",             ""),
     (r"\bwe(?:'ve| have)\b",                                      ""),
     (r"\bwe\b",                                                   ""),
@@ -103,15 +111,15 @@ SUBORDINATE = re.compile(r"^(?:while|since|although|though|given that|"
 
 # A sentence that says what Riot is DOING, as opposed to describing the problem.
 # Riot writes problem-first and action-last, so a naive head-clip drops the point.
-ACTION = re.compile(
+ACTION = re.compile(_apos(
     r"\bwe\b|\bwe(?:'re|'ve|'ll)\b|\blooking to\b|\bgoing to\b|"
-    r"\bopted to\b|\bbuff|\bnerf|\badjust|\bshift", re.I)
+    r"\bopted to\b|\bbuff|\bnerf|\badjust|\bshift"), re.I)
 
 # Narrower: first-person plans only. The badge reads THIS patch's intent, and
 # "Gwen has remained slightly weak since her nerfs earlier this year" is history
 # - counting its "nerfs" turned a straight buff into a rework.
-INTENT = re.compile(
-    r"\bwe\b|\bwe(?:'re|'ve|'ll)\b|\blooking to\b|\bgoing to\b|\bopted to\b", re.I)
+INTENT = re.compile(_apos(
+    r"\bwe\b|\bwe(?:'re|'ve|'ll)\b|\blooking to\b|\bgoing to\b|\bopted to\b"), re.I)
 
 # The keystones and runes Riot spells out in full every patch. Sam reads
 # them as initials, and a one-line gist has no room for "Press The Attack".
@@ -164,7 +172,7 @@ def _clean_sentence(raw: str, subject: str) -> tuple[bool, str] | None:
     s = FILLER.sub("", s)
     # "Azir has been..." -> "has been...": the name is the heading
     if subject:
-        s = re.sub(rf"^{re.escape(subject)}(?:'s|s')?\s+", "", s, flags=re.I)
+        s = re.sub(rf"^{re.escape(subject)}(?:['\u2019]s|s['\u2019])?\s+", "", s, flags=re.I)
     s = _tidy(s).rstrip(",;: ")
     if len(s.rstrip(".")) < 8:          # nothing left but punctuation
         return None
@@ -565,6 +573,13 @@ def demo() -> None:
     assert "We are" not in g and "we are" not in g, g
     assert "help him out" not in g, g
     assert len(g) < 150, g
+
+    # Riot's curly apostrophe: no "\u2019re" stub, no "Were watching" (patch 26.22 Shen)
+    g = gist("Along with Maokai, Shen jungle has been pushed too far out of the meta. "
+             "We were watching to see if some of the previous patches\u2019 changes "
+             "would bring him back up, but now we\u2019re confident we can buff him.", "Shen")
+    assert "\u2019re" not in g and "Were " not in g, g
+    assert "patches\u2019 changes" in g, g
 
     # deletion never invents: every word of the gist came from the source
     src = ("Gwen has remained slightly weak since her nerfs earlier this year. "

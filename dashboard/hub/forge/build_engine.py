@@ -571,7 +571,8 @@ def run(champ: str, role: str, draft: dict, stores: dict, keystone: int | None =
     enemy_names = [names[e["championId"]] for e in draft["enemies"] if e.get("championId") in names]
     # Every enemy keeps a row; one left without a free role (two supports) weighs the default.
     roles = {e: None for e in enemy_names}
-    roles.update(de.likely_roles(enemy_names, (stores.get("matchups") or {}).get("roleShares") or {}))
+    roles.update(de.likely_roles(enemy_names, (stores.get("matchups") or {}).get("roleShares") or {},
+                                 de.classes_of(stores), de.enemy_bans(draft, names)))
     enemy_t = de.team_traits(enemy_names, traits)
     enemy_rows = [{"burst": de._v(traits, e, "burstShare") or 0, "dive": de._v(traits, e, "dive") or 0,
                    "range": de._v(traits, e, "abilityRange") or 0} for e in enemy_names]

@@ -11,7 +11,11 @@ to be a section on top of the champion cards, which meant a 22-entry patch pushe
 the shelf — the thing you open the tool for — below the fold every second Tuesday.
 `Champions`, `Patch` and `Stats` are the three top-level surfaces and **all five**
 top bars carry the same `.navtabs` (see "One shell, six surfaces" in CLAUDE-chrome.md).
-The landing page does not fetch `/api/patchnotes` at all any more.
+The landing page shows the same note inline at `/forge/#patch` (mark 2026-11-10-042636 #1:
+"should not open a separate page"): `patch.jsx` exports `ForgeUI.PatchBody`, used by both
+`patch.html` and the landing, and the patch styles live in `static/patch.css`, nested under
+`.pv` so they cannot leak onto the cards. The landing fetches `/api/patchnotes` once at load
+for it. `/forge/patch` stays for the rail on every other page.
 
 Its content is **Riot's own patch notes**, baked from
 leagueoflegends.com by `bake_patchnotes.py`. It used to be a strip of item stat
@@ -87,3 +91,18 @@ be compared, which is the whole complaint the page was rebuilt to answer. So:
 **Colour is never the only carrier.** The badge prints the word (`BUFF`, `NERF`,
 `REWORK`) next to its colour and the card's left edge repeats it, because a red
 number and a green number are the same number to about 8% of men.
+
+**The card has one type scale, not a multiplier.** Mark 2026-11-10-043901 #3 asked for
+larger cards; a blanket enlarge was sent back ("larger doesn't just mean scale them by a
+multiplier"). Champion name `--fs-headline` (17px) with a 36px portrait, the gist
+`--fs-subhead` (15px) capped at 72ch, stat values 14px mono, labels and ability heads
+`--t-sm`. Grow the numbers before anything else; they are what the page is read for.
+
+**The header is a roster, with his pool on top.** Workbench pick on mark 2026-11-10-043901 #1
+(set `forge-patch-header`, option "Roster", his note "add a section covering my pool on top"):
+title, release date with days since, Riot's link; then a **Your pool** panel naming each pool
+champion this patch touched with its verdict, lanes and Riot's gist; then every Rift entry as
+a portrait ringed in its verdict colour under a Buffs / Nerfs / Reworks label (the word carries
+the verdict, not only the ring). The pool is the landing's champion list (`api/landing`
+`champions`, with `poolRoles`); both pages start that fetch in their head preflight and
+`PatchBody` reads `window.__FORGE.landing`, so no prop is threaded through the landing.

@@ -19,6 +19,7 @@ Exits non-zero on the first failing run, and prints every check either way.
 Screenshots land in the Downloads process folder.
 """
 import json
+import os
 import re
 import urllib.request
 import sys
@@ -40,34 +41,77 @@ SET_JSON = json.dumps({
     ],
 })
 
-# Same set, Core opening on an item people actually rush. 6676 (The Collector)
-# carries 39k games as a first legendary on Viego and is the fixture for a
-# measured reading; 6673 (Immortal Shieldbow) is nobody's rush and is the fixture
-# for the DROPPED path, where the condition has to be named as unmet rather than
-# collapsing the shop to one thin row.
+# The Core fixtures are picked off the live endpoint, not pinned. Pinned ids broke
+# on patch 16.22: a fresh patch reads one patch of games, The Collector into Lord
+# Dominik's fell from 8 rows over the floor to a 730-game top line, and nine
+# checks went red over a sample, not a code change. What the checks need is a
+# SHAPE, so they ask for the shape:
+#   RUSH         6676 (The Collector), Viego's most-rushed first legendary, the
+#                measured reading; 6673 (Immortal Shieldbow) in SET_JSON stays
+#                the first item nobody rushes, the DROPPED path.
+#   PAIR_READ    a second whose pair clears the floor alone and under KS_FAT
+#   PAIR_THIN    a second whose pair comes back under the floor
+#   KS_FAT/THIN  9923 Hail of Blades crosses with the pair; 8005 Press the
+#                Attack is thin even on the opener alone
+RUSH, KS_FAT, KS_THIN, FLOOR = '6676', '9923', '8005', 1000
+_COND = 'http://127.0.0.1:5002/forge/api/conditioned?champ=Viego&role=jungle'
+
+
+def _cond(q):
+    return json.loads(urllib.request.urlopen(_COND + q, timeout=60).read())
+
+
+def _top(rows):
+    return max([r.get('n') or 0 for r in rows], default=0)
+
+
+def _pick_pairs():
+    """(read, thin) second-item ids after RUSH, most-bought first."""
+    _items = json.load(open(os.path.join(os.path.dirname(__file__),
+                                         'frontend/static/catalog.json')))['items']
+    legendary = {str(i['id']) for i in _items if (i.get('g') or 0) >= 2500}
+    seconds = [str(r['id']) for r in sorted(_cond(f'&first={RUSH}'),
+                                            key=lambda r: -(r.get('n') or 0))
+               if str(r['id']) in legendary and str(r['id']) != RUSH]
+    read = thin = None
+    for sid in seconds:
+        pair = _cond(f'&first={RUSH}&second={sid}')
+        if read is None and _top(pair) >= FLOOR \
+                and _top(_cond(f'&first={RUSH}&second={sid}&keystone={KS_FAT}')) >= FLOOR:
+            read = sid
+        elif thin is None and pair and _top(pair) < FLOOR:
+            thin = sid
+        if read and thin:
+            break
+    return read, thin, {str(i['id']): i['n'] for i in _items}
+
+
+PAIR_READ, PAIR_THIN, ITEM_NAME = _pick_pairs()
+print(f'fixtures: rush {RUSH}, pair read {PAIR_READ}, pair thin {PAIR_THIN}')
+RUSH_N, READ_N = ITEM_NAME[RUSH], ITEM_NAME.get(PAIR_READ, '?')
+
 SET_RUSH = json.dumps({
     "title": "verify-rush",
     "associatedChampions": [234],
     "blocks": [
         {"type": "Starting Items", "items": [{"id": "1101", "count": 1}]},
         {"type": "Core", "items": [
-            {"id": "6676", "count": 1}, {"id": "3036", "count": 1}]},
+            {"id": RUSH, "count": 1}, {"id": PAIR_READ, "count": 1}]},
     ],
 })
 
-# Same rush, second slot on an item nobody actually takes second. 6676 -> 3033
-# (Mortal Reminder) comes back nine rows with a 828-game top line, so the PAIR is
-# under the floor while the single still carries 39k: the fixture for the middle
-# state, where slot 0 reads and slot 1 has to say it was dropped. Without it the
-# suite only ever sees both-read or both-thin, and a slot 1 that silently rides
-# along on slot 0's ring is exactly the lie the marker exists to prevent.
+# Same rush, second slot on a pair under the floor while the single still
+# measures: the middle state, where slot 0 reads and slot 1 has to say it was
+# dropped. Without it the suite only ever sees both-read or both-thin, and a slot
+# 1 that silently rides along on slot 0's ring is exactly the lie the marker
+# exists to prevent. Three deep, so the two-slot ceiling is exercised too.
 SET_PAIR_THIN = json.dumps({
     "title": "verify-pair-thin",
     "associatedChampions": [234],
     "blocks": [
         {"type": "Starting Items", "items": [{"id": "1101", "count": 1}]},
         {"type": "Core", "items": [
-            {"id": "6676", "count": 1}, {"id": "3033", "count": 1},
+            {"id": RUSH, "count": 1}, {"id": PAIR_THIN, "count": 1},
             {"id": "3031", "count": 1}]},
     ],
 })
@@ -235,7 +279,7 @@ def draft_pass(b):
     check('the Mock link stays on the Draft page', pm.url.endswith('/forge/draft?mock'), pm.url)
     check('mock status line', 'mock draft' in pm.locator('#status').inner_text())
     def no_bans():
-        return {'bans': pm.locator('#bans').count(), 'heading': pm.locator('h3', has_text='Bans').count(),
+        return {'bans': pm.locator('.bancol').count(), 'heading': pm.locator('h3', has_text='Bans').count(),
                 'aria': pm.locator('[aria-label^="Ban "]').count()}
     pickers = (pm.locator('#allies select.pickc').count(), pm.locator('#enemies select.pickc').count())
     check('five pickers a side', pickers == (5, 5), pickers)
@@ -305,8 +349,15 @@ def draft_pass(b):
         missing = [a['cellId'] for i, a in enumerate(seats)
                    if a.get('championId') and not pd.locator('#allies .seat').nth(i).locator('img').count()]
         check('every locked ally has a portrait', not missing, missing)
-        check('the live page draws every ban', pd.locator('#bans img').count() == len(body['draft']['bans']),
-              (pd.locator('#bans img').count(), len(body['draft']['bans'])))
+        d = body['draft']
+        want = len([k for k in d['bans'] if k > 0])
+        check('the live page draws every ban', pd.locator('.bancol img').count() == want,
+              (pd.locator('.bancol img').count(), want))
+        # each ban tile sits level with its own seat (forge-draft-bans pick F)
+        offs = pd.evaluate("""() => ['allies', 'enemies'].map((t, j) => {
+            const s = [...document.querySelectorAll('#' + t + ' .seat')], b = [...document.querySelectorAll('#bans-' + ['us', 'them'][j] + ' .ban')];
+            return s.map((x, i) => b[i] ? Math.abs(x.getBoundingClientRect().top - b[i].getBoundingClientRect().top) : 99); }).flat()""")
+        check('every ban tile is level with its seat', max(offs) < 2, offs)
         check('status line reads live', 'live' in pd.locator('#status').inner_text())
         check('team traits card shows paired rows', pd.locator('#traits .tr').count() > 5,
               pd.locator('#traits .tr').count())
@@ -581,9 +632,19 @@ with sync_playwright() as pw:
     def figs():
         return page.evaluate("""() => [...document.querySelectorAll('#shelves .fig')]
       .map(f => f.textContent.trim()).filter(Boolean)""")
+    # Clicked by id, and only one with its own bake: a fresh patch bakes few
+    # keystones (two on 16.22), and an unbaked one falls back to the flat list,
+    # so clicking whichever sits first proved nothing either way.
+    baked = json.loads(urllib.request.urlopen(f'{BASE}/api/stats', timeout=20).read())[
+        'champions']['Viego']['roles']['jungle'].get('itemsByKeystone', {})
+    key_btn = page.locator('#primaryCol .treebody:not([hidden]) .rpick.key').evaluate_all(
+        '(bs, baked) => (bs.find(b => baked.includes(b.dataset.rune)'
+        ' && b.getAttribute("aria-pressed") !== "true") || {}).dataset?.rune',
+        list(baked))
     before = figs()
-    page.locator('#primaryCol .treebody:not([hidden]) .rpick.key').first.click()
-    page.wait_for_timeout(300)
+    if key_btn:
+        page.locator(f'#primaryCol .rpick.key[data-rune="{key_btn}"]').click()
+        page.wait_for_timeout(300)
     after = figs()
     check('the shop figures are read under the keystone, not one flat average',
           bool(before) and bool(after) and before != after,
@@ -664,7 +725,7 @@ with sync_playwright() as pw:
           f"{strip.count()} on page vs {len(served_diff.get('items', []))} served")
     mine_n = page.locator('#patchChanges .change.mine').count()
     check('including items this champion does not buy',
-          strip.count() > mine_n > 0, f'{mine_n} of {strip.count()} are bought here')
+          strip.count() > mine_n, f'{mine_n} of {strip.count()} are bought here')
 
     # Collapsed to the icon: the numbers moved into the hover card, and the edge
     # carries the direction. A verdict of 'rework' on every entry is the failure
@@ -753,6 +814,15 @@ with sync_playwright() as pw:
 
     # ── step two ──────────────────────────────────────────────────────────
     print('\n== the item builder ==')
+    # Start from a keystone whose cross never clears (KS_THIN), so every reading
+    # below is the items' own. This used to be whatever step one happened to leave
+    # lit, which only worked while that was Press the Attack.
+    page.locator('#stepnav [data-step="runes"]').click()
+    page.wait_for_timeout(200)
+    page.locator('#primaryCol .treepick button[data-tree="8000"]').click()
+    page.wait_for_timeout(200)
+    page.locator(f'#primaryCol .rpick.key[data-rune="{KS_THIN}"]').click()
+    page.wait_for_timeout(200)
     page.locator('#stepnav [data-step="items"]').click()
     page.wait_for_timeout(300)
 
@@ -827,14 +897,13 @@ with sync_playwright() as pw:
           legend())
     check('and the shop figures actually moved onto it', pre_rush != figs(),
           f'{len(pre_rush)} figures -> {len(figs())}')
-    # This Core is two deep and both slots measure: 6676 -> 3036 is 15 rows with 8
-    # over the floor. So the reading is the PAIR, not the opener, and every surface
+    # This Core is two deep and both slots measure (PAIR_READ was picked for it). So the reading is the PAIR, not the opener, and every surface
     # has to say two rather than one.
     mk = marks()
     check('both core slots are read when the pair clears the floor',
           [x['state'] for x in mk['slots']] == ['read', 'read']
-          and 'Collector' in mk['slots'][0]['item']
-          and 'Dominik' in mk['slots'][1]['item'], mk['slots'])
+          and mk['slots'][0]['item'] == RUSH_N
+          and mk['slots'][1]['item'] == READ_N, mk['slots'])
     check('and the note says the stats are based on both, not on the opener',
           mk['noteState'] == 'read'
           and mk['note'].endswith('stats based on these as the first two items'),
@@ -842,14 +911,13 @@ with sync_playwright() as pw:
     # The legend names the condition and stops there. The swatch key it used to
     # carry said in words what every tile already says in colour and edge length.
     check('the legend names both items and nothing else',
-          legend().rstrip().endswith("The Collector into Lord Dominik's Regards"
-                                     ' first two items')
+          legend().rstrip().endswith(f"{RUSH_N} into {READ_N} first two items")
           and 'not crossed' not in legend(), legend())
     check('the swatch key is gone from the legend',
           page.locator('#shopLegend .swatch').count() == 0,
           page.locator('#shopLegend').inner_text().replace('\n', ' | '))
     served_cond = json.loads(urllib.request.urlopen(
-        f'{BASE}/api/conditioned?champ=Viego&role=jungle&first=6676', timeout=30).read())
+        f'{BASE}/api/conditioned?champ=Viego&role=jungle&first={RUSH}', timeout=30).read())
     check('the endpoint that fed it clears the sample floor it claims',
           any((r.get('n') or 0) >= MIN_GAMES for r in served_cond),
           f'{len(served_cond)} rows, max n='
@@ -867,7 +935,7 @@ with sync_playwright() as pw:
     # opposite, on a number measured against Press the Attack (2,909 games alone on
     # Viego, so anything crossed with it dies) and read as a property of the cross.
     ks_fat = json.loads(urllib.request.urlopen(
-        f'{BASE}/api/conditioned?champ=Viego&role=jungle&first=6676&keystone=9923',
+        f'{BASE}/api/conditioned?champ=Viego&role=jungle&first={RUSH}&keystone={KS_FAT}',
         timeout=30).read())
     check('a popular keystone crosses in rather than being ignored',
           ks_fat != served_cond
@@ -875,7 +943,7 @@ with sync_playwright() as pw:
           f'{len(ks_fat)} rows, max n='
           + str(max([r.get('n') or 0 for r in ks_fat], default=0)))
     ks_thin = json.loads(urllib.request.urlopen(
-        f'{BASE}/api/conditioned?champ=Viego&role=jungle&first=6676&keystone=8005',
+        f'{BASE}/api/conditioned?champ=Viego&role=jungle&first={RUSH}&keystone={KS_THIN}',
         timeout=30).read())
     check('and a thin one comes back under the floor, which is what the walk drops',
           not any((r.get('n') or 0) >= MIN_GAMES for r in ks_thin),
@@ -885,14 +953,14 @@ with sync_playwright() as pw:
     # Serving it live as well would be a second answer to a settled question.
     check('a keystone with no first item is not served live — that reading is baked',
           json.loads(urllib.request.urlopen(
-              f'{BASE}/api/conditioned?champ=Viego&role=jungle&keystone=9923',
+              f'{BASE}/api/conditioned?champ=Viego&role=jungle&keystone={KS_FAT}',
               timeout=20).read()) == [])
     # The second legendary is the one thing that IS crossed in, because it is the
     # one thing that survives the cross. If this ever stops differing the parameter
     # has stopped reaching the wire and every pair reading on the page is the
     # opener's reading wearing a two-item caption.
     served_pair = json.loads(urllib.request.urlopen(
-        f'{BASE}/api/conditioned?champ=Viego&role=jungle&first=6676&second=3036',
+        f'{BASE}/api/conditioned?champ=Viego&role=jungle&first={RUSH}&second={PAIR_READ}',
         timeout=30).read())
     check('a second legendary cuts the sample rather than being ignored',
           served_pair != served_cond and len(served_pair) < len(served_cond),
@@ -904,7 +972,7 @@ with sync_playwright() as pw:
     # builds. It has to fall to the unconditioned answer, not measure on its own.
     check('a second with no first is ignored, not honoured',
           json.loads(urllib.request.urlopen(
-              f'{BASE}/api/conditioned?champ=Viego&role=jungle&second=3036',
+              f'{BASE}/api/conditioned?champ=Viego&role=jungle&second={PAIR_READ}',
               timeout=20).read()) == [])
 
     # The middle state: the pair was asked and came back under the floor, the
@@ -916,7 +984,7 @@ with sync_playwright() as pw:
     settle(was)
     mk = marks()
     check('a pair under the floor falls back to the opener rather than emptying',
-          legend().rstrip().endswith('The Collector first item')
+          legend().rstrip().endswith(f'{RUSH_N} first item')
           and page.locator('#shelves .item:visible').count() > 5, legend())
     check('slot 0 reads and slot 1 says its cross was dropped',
           [x['state'] for x in mk['slots']] == ['read', 'thin'], mk['slots'])
@@ -947,16 +1015,14 @@ with sync_playwright() as pw:
     settle(was)
     check('a keystone whose cross clears the floor is named beside the items',
           'under Hail of Blades' in legend()
-          and legend().rstrip().endswith("The Collector into Lord Dominik's Regards"
-                                         ' first two items'), legend())
+          and legend().rstrip().endswith(f"{RUSH_N} into {READ_N} first two items"), legend())
     was = legend()
     pick_keystone(8000, 8005)          # Precision -> Press the Attack, 2,909 games
     settle(was)
     check('and one whose cross does not clear says so instead of going quiet',
           'too few games under Press the Attack' in legend()
           and 'read under Press the Attack' not in legend()
-          and legend().rstrip().endswith("The Collector into Lord Dominik's Regards"
-                                         ' first two items'), legend())
+          and legend().rstrip().endswith(f"{RUSH_N} into {READ_N} first two items"), legend())
 
     # Put the fixture back: everything below this line was written against the
     # five-slot set, and a probe that leaves the page in its own state quietly
@@ -1407,8 +1473,10 @@ with sync_playwright() as pw:
     check('and links to the patch tab instead',
           page3.locator('.navtabs a[href="patch"]').count() == 1)
     page3.locator('.navtabs a[href="patch"]').click()
-    page3.wait_for_load_state('networkidle')
-    check('the tab actually navigates', page3.url.endswith('/forge/patch'), page3.url)
+    page3.wait_for_timeout(1200)
+    # Patch shows inline on the landing (mark 2026-11-10-042636 #1), not a separate page
+    check('the tab opens the patch inline', page3.url.endswith('/forge/#patch') and page3.locator('.pv').count() > 0,
+          (page3.url, page3.locator('.pv').count()))
 
     check('no uncaught script errors on the patch page', not e3, e3[:3])
     check('every request answered on the patch page', not bad3, bad3[:4])

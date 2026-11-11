@@ -37,6 +37,7 @@ USER = Path("/app/home")
 SOURCES = [
     QM / "00-Downloads",
     USER / "Desktop",
+    Path("/mnt/c/Users/Public/Desktop"),  # installers drop all-users shortcuts here
     QM / "01-Personal" / "05-Documents",
     QM / "01-Personal" / "04-Media" / "Pictures",
     USER / "Pictures" / "Screenshots",
@@ -51,7 +52,10 @@ MIN_AGE = 15 * 60
 
 MEDIA = Path("01-Personal/04-Media")
 ADMIN = Path("01-Personal/02-Admin")
-INSTALLERS = Path("03-Applications/Installers")
+APPS = Path("03-Applications")
+INSTALLERS = APPS / "Installers"
+LOOSE_APPS = APPS / "Loose"  # Desk Fences shows it as the Loose fence
+DUP_SHORTCUTS = Path("00-Downloads/desk-fences/duplicate-shortcuts")
 SCREENSHOTS = MEDIA / "Pictures/Screenshots"
 PHOTOS = MEDIA / "Photos"
 VIDEOS = MEDIA / "Videos"
@@ -63,7 +67,8 @@ JOB_HUNT = Path("02-Work/02-Job Hunt")
 COLLEGE = Path("02-Work/01-College")
 
 SKIP_NAMES = {"desktop.ini", "thumbs.db"}
-SKIP_EXT = {".lnk", ".url", ".crdownload", ".part", ".partial", ".tmp", ".download", ".opdownload"}
+SHORTCUT_EXT = {".lnk", ".url"}  # sorted only off a desktop, so the fences hold them
+SKIP_EXT = {".crdownload", ".part", ".partial", ".tmp", ".download", ".opdownload"}
 INSTALLER_EXT = {".exe", ".msi", ".msix", ".msixbundle", ".appx"}
 IMAGE_EXT = {".jpg", ".jpeg", ".png", ".heic", ".webp", ".gif"}
 RAW_EXT = {".cr2", ".cr3", ".nef", ".arw", ".dng", ".raf", ".orf", ".rw2"}
@@ -84,9 +89,14 @@ COLLEGE_RE = re.compile(_W.format(r"(transcript|syllabus|diploma)"), re.I)
 YEAR_RE = re.compile(r"(?<!\d)(20\d\d)(?!\d)")
 
 
-def place(path: Path, source: Path) -> tuple[Path | None, str]:
+def place(path: Path, source: Path, root=QM) -> tuple[Path | None, str]:
     """(destination folder relative to Demo Files, reason), or (None, reason) when unsure."""
     ext, stem = path.suffix.lower(), path.stem
+    if ext in SHORTCUT_EXT:
+        apps = Path(root) / APPS
+        if apps.is_dir() and any((c / path.name).exists() for c in apps.iterdir() if c.is_dir()):
+            return DUP_SHORTCUTS, "shortcut already in a fence"
+        return LOOSE_APPS, "new app shortcut, shows in the Loose fence"
     from_shots = source.name == "Screenshots"
     from_recordings = source.name in ("Captures", "Screen Recordings")
     if ext in INSTALLER_EXT:
@@ -127,7 +137,10 @@ def candidates(sources=None, now=None):
         for p in sorted(source.iterdir()):
             if not p.is_file() or p.name.startswith(".") or p.name.lower() in SKIP_NAMES:
                 continue
-            if p.suffix.lower() in SKIP_EXT or now - p.stat().st_mtime < MIN_AGE:
+            ext = p.suffix.lower()
+            if ext in SKIP_EXT or (ext in SHORTCUT_EXT and source.name != "Desktop"):
+                continue
+            if now - p.stat().st_mtime < MIN_AGE:
                 continue
             yield p, source
 
@@ -136,7 +149,7 @@ def plan(sources=None, now=None, root=QM):
     """One row per candidate: src, dest (absolute, or None when unsure), why."""
     rows = []
     for p, source in candidates(sources, now):
-        dest, why = place(p, source)
+        dest, why = place(p, source, root)
         rows.append({"src": str(p), "dest": str(root / dest) if dest else None, "why": why})
     return rows
 

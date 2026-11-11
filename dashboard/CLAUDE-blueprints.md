@@ -267,6 +267,16 @@ used exactly as picked, everywhere from the registry keys to the page to the tes
   wants every origin in it linked parent first, the chassis check adds the parent's
   `template_classes` where the child's skeleton kept them, and the composes check treats the
   parent's classes as off-limits to a bare restyle. Workbench is its first derivative.
+- **icon wall** (2026-11-10): the page shape for a collection you act on tile by tile: one slab
+  per category, a grid of square tiles (icon, level over max, count badge, name), and a Start
+  button under each tile that has a next level. Maxed tiles dim, running ones get a green
+  border; 3 columns at 640px. Source: Workbench set `clash-tracker-screen`, pick D; built in
+  `hub/clash/frontend/static/clash.jsx` and `clash.css` (`.cx-wall`, `.cx-tile`).
+- **builder timeline** (2026-11-10): a seven-day lane chart: one lane per builder plus the lab
+  and the pet house, a bar per running timer that ends when the timer does (clipped at 7 days),
+  a dashed "free" lane when idle, and a bar click opens an edit strip for the finish time.
+  Pick B of the same set, used above the icon wall. Classes `.cx-gantt`, `.cx-lane`, `.cx-blk`.
+
 - **origin** — the base a dashboard is built from: one stylesheet in `static/css/origins/`,
   one markup skeleton in `blueprints/origins/`, one entry in `blueprints.json`'s `origins`
   list. Editing the origin edits every derivative.

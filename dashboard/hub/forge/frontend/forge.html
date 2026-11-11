@@ -25,12 +25,16 @@
     var j = function (u, fb) {
       return fetch(u).then(function (r) { return r.json(); }).catch(function () { return fb; });
     };
+    /* lolalytics for the URL's champion only (~5-30 KB, not the ~750 KB whole file);
+       on /edit it carries just the patch, and renderMeta (forge-stats.jsx) fetches
+       each champion the page turns to. */
+    var champ = (location.pathname.match(/\/c\/([^/]+)\/[^/]+\/build\/?$/) || [])[1] || '';
     window.__FORGE = {
       catalog: j('static/catalog.json', { items: [], champs: [] }),
       stats: j('api/stats', { champions: {}, patch: null }),
       runes: j('static/runes.json', { runes: {}, trees: {} }),
       diff: j('api/diff', {}),
-      lola: j('api/lolalytics', { champions: {}, patch: null }),
+      lola: j('api/lolalytics?champ=' + champ, { champions: {}, patch: null }),
       sets: j('api/sets', { sets: [] }),
       passives: j('api/passives', { items: {} }),
     };
@@ -616,7 +620,9 @@ document.documentElement.setAttribute("data-surface", "dark");
     padding: 7px 8px 7px 11px;
   }
   .saves .nm { min-width: 0; }
-  .saves .nm strong { display: block; font-size: var(--t-sm); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Wraps rather than ellipsizes: autobuild names its sets "Auto <keystone> <champ> <role>",
+     and the part an ellipsis cut was the champion, which is the whole identity of the row. */
+  .saves .nm strong { display: block; font-size: var(--t-sm); font-weight: 600; overflow-wrap: anywhere; }
   .saves .nm span { font: 500 var(--t-xs)/1.4 var(--mono); font-variant-numeric: tabular-nums; color: var(--dim); }
   .saves li button { padding: 4px 9px; font-size: var(--t-xs); }
   .saves li .del:hover:not(:disabled) { color: var(--danger); border-color: var(--danger); }
@@ -1117,7 +1123,7 @@ document.documentElement.setAttribute("data-surface", "dark");
 <!-- the logic modules (itemset, patchstrip, loadout, build-overlay) reach the JSX through window.ForgeLib -->
 <script type="module" src="static/forge-lib-bridge.js"></script>
 <!-- defer keeps document order: the part files assign into window.ForgeUI, forge.jsx mounts last -->
-<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=2"></script>
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=5"></script>
 <script defer src="/jsx/forge/frontend/static/forge-shop.jsx?v=2"></script>
 <script defer src="/jsx/forge/frontend/static/forge-blocks.jsx?v=3"></script>
 <script defer src="/jsx/forge/frontend/static/forge-stats.jsx?v=2"></script>

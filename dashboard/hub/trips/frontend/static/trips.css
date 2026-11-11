@@ -713,7 +713,7 @@ a.cform:hover { border-color: var(--accent); color: var(--fg); }
 /* the head figure sat loose on the page glass, the only text above the cards not
    inside one (mark 2026-10-14 send-back, "put it in a header card"); it takes the
    liquid card surface, and its delta/split lines become the card's hair rows */
-[data-theme="liquid"] #focusHead > .hub-figure { border-radius: 30px; clip-path: var(--lg-corner-30); background: var(--bg-elev); }
+[data-theme="liquid"] #focusHead > .hub-figure { border-radius: 30px; clip-path: var(--lg-corner-30); background: var(--lq-card, var(--bg-elev)); }   /* liquid.css section 16 card rule */
 [data-theme="liquid"] :is(.dstat, .dsum-day) { display: flex; flex-direction: column-reverse; gap: 4px; }
 [data-theme="liquid"] :is(.hub-stat-v.dstat-v, .dsum-day) { font: 600 var(--fs-body)/1.2 var(--font); }
 [data-theme="liquid"] :is(.dstat-l, .dsum-day i) { font: 400 var(--fs-footnote)/1.2 var(--font); letter-spacing: 0; text-transform: none; color: var(--fg-dim); }

@@ -53,10 +53,10 @@ self.addEventListener("activate", (e) => {
       .then((names) => Promise.all(
         names.filter((n) => n !== CACHE).map((n) => caches.delete(n))
       ))
-      // mail kept before /mail/ was exempted comes out too
+      // mail and bell lists kept before /mail/ and /notify/ were exempted come out too
       .then(() => caches.open(CACHE))
       .then((c) => c.keys().then((reqs) => Promise.all(
-        reqs.filter((r) => new URL(r.url).pathname.startsWith("/mail/")).map((r) => c.delete(r))
+        reqs.filter((r) => /^\/(mail|notify)\//.test(new URL(r.url).pathname)).map((r) => c.delete(r))
       )))
       .then(() => self.clients.claim())
   );
@@ -70,7 +70,9 @@ self.addEventListener("fetch", (e) => {
   if (req.method !== "GET") return;
   if (new URL(req.url).origin !== self.location.origin) return;
   // Mail is private and only useful live, so none of it lands in the phone's Cache Storage.
-  if (new URL(req.url).pathname.startsWith("/mail/")) return;
+  // The bell's list is live state too: a cached copy would show read rows as unread and hide
+  // the "unavailable" state its fail-open rule depends on.
+  if (/^\/(mail|notify)\//.test(new URL(req.url).pathname)) return;
 
   const patient = new URL(req.url).pathname.startsWith("/api/");
   const net = fetch(req).then((resp) => {

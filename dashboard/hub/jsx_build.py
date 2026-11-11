@@ -14,9 +14,10 @@ file's mtime, so saving a .jsx invalidates it and the next request recompiles. T
 is the whole point of the hub's edit-and-refresh model; see
 wiki/problems/vesper-template-cache-stale-html for the scar from breaking it.
 
-ponytail: an in-memory dict, no disk cache and no eviction — there are 20 files and
-a process restart costs one recompile each. Move it to disk if restarts start hurting.
+ponytail: an in-memory dict in front of a disk copy (~/.cache/hub-jsx, see _DISK), no
+eviction. Restarts did start hurting: ~94 files, ~19 restarts a day.
 """
+import hashlib
 import shutil
 import subprocess
 import threading
@@ -49,18 +50,42 @@ process.stdout.write(babel.transform(src, {
 
 _cache: dict[Path, tuple[float, str]] = {}
 
+# The compiled output also goes to disk, so a Hub restart does not recompile all ~94
+# files (one node spawn each, up to 1.7 s for a big one; measured 2026-11-10, a day with
+# ~19 restarts, where the first Forge visit after each one stalled on it). Native WSL
+# disk, not /mnt/c. Keyed by path + mtime + size + the compiler's own mtime, so an edit
+# or a babel upgrade still misses. ponytail: never pruned; stale entries are a few KB each.
+_DISK = Path.home() / ".cache" / "hub-jsx"
+
+
+def _disk_key(path: Path, st) -> Path:
+    raw = f"{path}|{st.st_mtime_ns}|{st.st_size}|{BABEL.stat().st_mtime_ns}"
+    return _DISK / (hashlib.md5(raw.encode(), usedforsecurity=False).hexdigest() + ".js")
+
 
 def transpile(path: Path) -> str:
     """JSX in, plain JS out. Cached until the source file's mtime moves."""
     path = path.resolve()
-    mtime = path.stat().st_mtime
+    st = path.stat()
+    mtime = st.st_mtime
     hit = _cache.get(path)
     if hit and hit[0] == mtime:
         return hit[1]
-    out = subprocess.run(
-        [shutil.which("node") or "node", "-e", _NODE, str(BABEL), str(path)],
-        capture_output=True, text=True, timeout=120, check=True,
-    ).stdout
+    disk = _disk_key(path, st)
+    try:
+        out = disk.read_text(encoding="utf-8")
+    except OSError:
+        out = subprocess.run(
+            [shutil.which("node") or "node", "-e", _NODE, str(BABEL), str(path)],
+            capture_output=True, text=True, timeout=120, check=True,
+        ).stdout
+        try:
+            _DISK.mkdir(parents=True, exist_ok=True)
+            tmp = disk.with_suffix(f".{threading.get_ident()}.tmp")
+            tmp.write_text(out, encoding="utf-8")
+            tmp.replace(disk)          # atomic: a half-written file is never read back
+        except OSError:
+            pass                       # the disk copy is only a speed-up
     _cache[path] = (mtime, out)
     return out
 

@@ -29,6 +29,7 @@
       landing: j('api/landing', { champions: [] }),
       runes: j('static/runes.json', { runes: {}, trees: {} }),
       sets: j('api/sets', { sets: [] }),
+      notes: j('api/patchnotes', { sections: [] }),   // the inline Patch view
     };
   }());
 </script>
@@ -47,6 +48,7 @@ document.documentElement.setAttribute("data-surface", "dark");
 <link rel="stylesheet" href="static/forge-base.css">
 <link rel="stylesheet" href="static/build-overlay.css">
 <link rel="stylesheet" href="static/loadout.css">
+<link rel="stylesheet" href="static/patch.css?v=3">
 
 <style>
   /* The front door. One card per champion in the pool, and the card is that
@@ -70,8 +72,8 @@ document.documentElement.setAttribute("data-surface", "dark");
   .card {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    padding: 16px 18px 18px;
+    gap: 11px;
+    padding: 13px 14px 14px;
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--r-lg);
@@ -81,13 +83,13 @@ document.documentElement.setAttribute("data-surface", "dark");
 
   /* start, not center: a champion played in five roles wraps its chips onto a
      second line, and centring would float the portrait away from its own name */
-  .card-head { display: grid; grid-template-columns: 62px 1fr; gap: 14px; align-items: start; }
+  .card-head { display: grid; grid-template-columns: 48px 1fr; gap: 12px; align-items: start; }
   .card-head img {
-    width: 62px; height: 62px; display: block;
+    width: 48px; height: 48px; display: block;
     border-radius: var(--r-md);
     border: 1px solid var(--line-lit);
   }
-  .card-head h3 { margin: 0 0 5px; font-size: var(--t-lg); font-weight: 600; letter-spacing: -0.015em; }
+  .card-head h3 { margin: 0 0 4px; font-size: var(--t-lg); font-weight: 600; letter-spacing: -0.015em; }
 
   /* the chips cycle the list below them, they do not leave the page: the card is
      one champion's shelf and the role is which shelf of it you are reading. The
@@ -116,8 +118,8 @@ document.documentElement.setAttribute("data-surface", "dark");
     background: var(--raised-hi);
   }
   /* a chip is the lane's glyph (Riot's position icon); the name is its tooltip and label */
-  .role { align-items: center; padding: 4px 9px; }
-  .role .role-ico { width: 18px; height: 18px; display: block; }
+  .role { align-items: center; padding: 3px 7px; }
+  .role .role-ico { width: 14px; height: 14px; display: block; }
   .role.empty { color: var(--dim); }
   .role[aria-pressed="true"] .role-ico { color: var(--accent); }
   .tile .role { padding: 3px 7px; }
@@ -147,6 +149,17 @@ document.documentElement.setAttribute("data-surface", "dark");
     letter-spacing: .09em; text-transform: uppercase; color: var(--dim);
   }
   .card section > h4 .where { letter-spacing: 0; text-transform: none; }
+  /* in / out of his pool for the lane on screen (mark 2026-11-10-042636 #2) */
+  .inpool { margin-left: auto; padding: 2px 8px; font: inherit; font-size: var(--t-xs); letter-spacing: 0; text-transform: none;
+    color: var(--dim); background: none; border: 1px dashed var(--line-lit); border-radius: 999px; cursor: pointer; }
+  .inpool:hover { color: var(--accent); border-color: var(--accent-lo); }
+  .inpool[aria-pressed="true"] { color: var(--accent); border-style: solid; border-color: var(--accent-lo); background: var(--accent-bg); }
+  /* Auto folds when he has his own builds on the role (mark 2026-11-10-042636 #4) */
+  .fold { display: inline-flex; align-items: baseline; gap: 8px; padding: 0; font: inherit; letter-spacing: inherit; text-transform: inherit;
+    color: inherit; background: none; border: 0; cursor: pointer; }
+  .fold::after { content: "\25B8"; letter-spacing: 0; transition: transform var(--mid) var(--ease); }
+  .fold[aria-expanded="true"]::after { transform: rotate(90deg); }
+  .fold.fold:hover, .fold.fold:focus { /* doubled class beats forge-base button:hover:not(:disabled) */ color: var(--ink-2); background: none; border: 0; box-shadow: none; }
 
   /* one row per saved build: its keystone, its name, and what is in it. The whole
      row is the link - a build you can see is a build you should be able to open. */
@@ -250,8 +263,9 @@ document.documentElement.setAttribute("data-surface", "dark");
   }
   /* the shell's panel shape (Workbench pick 2026-11-05, forge-hub-shape-layout B):
      rounder cards on 16px gaps, pill chips, as the Hub's floating panels */
-  .cards { gap: 16px; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); }
-  .card { border-radius: 20px; padding: 20px 22px 22px; box-shadow: 0 8px 28px oklch(0 0 0 / .28); }
+  /* mark 2026-11-10-042636 #3 "these are too big": a 290px floor puts three cards across at 1280 */
+  .cards { gap: 14px; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); }
+  .card { border-radius: 20px; padding: 14px 16px 16px; box-shadow: 0 8px 28px oklch(0 0 0 / .28); }
   .card-head img { border-radius: 14px; }
   .build { border-radius: 12px; padding: 7px 10px; }
   .open, .fresh, .role { border-radius: 999px; }
@@ -273,9 +287,10 @@ document.documentElement.setAttribute("data-surface", "dark");
 <script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
 <!-- defer keeps document order: the bridge module (ForgeLib), then the bar, then the page body -->
 <script type="module" src="static/forge-lib-bridge.js"></script>
-<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=2"></script>
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=5"></script>
 <script defer src="/jsx/forge/frontend/static/build-overlay.jsx?v=3"></script>
-<script defer src="/jsx/forge/frontend/static/landing.jsx?v=7"></script>
+<script defer src="/jsx/forge/frontend/static/patch.jsx?v=3"></script>
+<script defer src="/jsx/forge/frontend/static/landing.jsx?v=10"></script>
 <script>
 /* fallback outside React: if the body never mounted, say so instead of a blank page */
 window.addEventListener("load", function () {

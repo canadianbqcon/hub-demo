@@ -1,0 +1,24 @@
+/* plan.css: /clash/plan and /clash/layouts. Reuses the .cx slab look from clash.css. */
+.g-clash.cp { display: grid; gap: 16px; }
+.cp .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.cp .est { font-size: var(--fs-footnote); color: var(--fg-dim); }
+.cp .lane { display: grid; gap: 6px; margin-bottom: 14px; }
+.cp .lane h4 { font: 700 14px/1.2 var(--font); }
+.cp .step { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; font-size: var(--fs-footnote); min-width: 0; }
+.cp .step span { color: var(--fg-dim); white-space: nowrap; }
+.cp table { width: 100%; border-collapse: collapse; font-size: var(--fs-footnote); }
+.cp th, .cp td { text-align: left; padding: 6px 8px; border-bottom: 1px solid rgb(255 255 255 / .1); }
+.cp td.n, .cp th.n { text-align: right; font-variant-numeric: tabular-nums; }
+.cp .short { color: #ff9a8a; font-weight: 700; }
+.cp input, .cp textarea, .cp select { font: inherit; color: var(--fg); background: rgb(255 255 255 / .08); border: 1px solid var(--line); border-radius: 10px; padding: 7px 10px; min-width: 0; }
+.cp input[type=number] { width: 130px; }
+.cp textarea { width: 100%; min-height: 60px; }
+.cp button { padding: 7px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-elev); font-weight: 600; }
+.cp button.pri { background: var(--ga); color: var(--gon); border-color: transparent; }
+.cp .err { color: #ff9a8a; }
+.cp .lays { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.cp .lay { display: grid; gap: 8px; align-content: start; }
+.cp .lay img { width: 100%; border-radius: 12px; display: block; }
+.cp .lay a { overflow-wrap: anywhere; }
+.cp .notes { white-space: pre-wrap; font-size: var(--fs-footnote); color: var(--fg-dim); }
+@media (max-width: 600px) { .cp input[type=number] { width: 100%; } .cp .step { grid-template-columns: 28px 1fr; } .cp .step span { grid-column: 2; } }

@@ -64,6 +64,7 @@ bp = Blueprint(
 
 _FRONTEND = os.path.join(os.path.dirname(__file__), "frontend")
 _CATALOG = Path(_FRONTEND) / "static" / "catalog.json"
+_RUNES_JSON = Path(_FRONTEND) / "static" / "runes.json"
 _STATS = vault_root() / "data" / "forge-stats.json"
 _SETS = vault_root() / "data" / "forge-sets.json"
 _DIFF = vault_root() / "data" / "forge-patch-diff.json"
@@ -72,6 +73,8 @@ _LOLA = vault_root() / "data" / "forge-lolalytics.json"
 _BANS = vault_root() / "data" / "forge-bans.json"
 _PASSIVES = vault_root() / "data" / "forge-item-passives.json"
 _ME = vault_root() / "data" / "forge-me.json"
+# {champion: [role, ...]}: which lanes each pool champion is in his pool for (mark 2026-11-10-042636 #2)
+_POOL_ROLES = vault_root() / "data" / "forge-pool-roles.json"
 
 # A set name becomes part of an id; keep it to something that survives a URL.
 _SAFE = re.compile(r"[^a-z0-9]+")
@@ -290,6 +293,39 @@ def _set_stub(s: dict) -> dict:
     }
 
 
+def _pool_roles(card: dict, picked: dict) -> list:
+    """The lanes a pool champion sits under in the rail. His own pick once he has
+    made one; before that, every role he has saved a build of his own in, else the
+    champion's most-played role, so the rail is never empty on day one."""
+    if isinstance(picked.get(card["name"]), list):
+        return [r for r in picked[card["name"]] if r in ROLES.values()]
+    built = [r["role"] for r in card["roles"] if any(s["role"] == r["role"] and not s["auto"] for s in card["sets"])]
+    return built or ([card["lead"]] if card["lead"] else [])
+
+
+@bp.route("/api/pool-roles", methods=["POST"])
+def api_pool_roles():
+    """{champion, role, on}: put a pool champion in or out of his pool for a lane."""
+    body = request.get_json(silent=True) or {}
+    champ, role, on = body.get("champion"), body.get("role"), body.get("on")
+    stats = _read(_STATS, {"champions": {}})
+    if champ not in stats.get("champions", {}) or role not in ROLES.values() or not isinstance(on, bool):
+        return jsonify(error="champion must be in the pool, role a lane, on true or false"), 400
+    with _SAVE_LOCK:
+        picked = _read(_POOL_ROLES, {})
+        picked = picked if isinstance(picked, dict) else {}
+        if champ not in picked:  # first pick starts from what the rail already showed
+            sets = _sets().get("sets", [])
+            card = _card(champ, stats["champions"][champ], {}, sets)
+            picked[champ] = _pool_roles(card, {})
+        roles = [r for r in picked[champ] if r != role] + ([role] if on else [])
+        picked[champ] = [r for r in ROLES.values() if r in roles]
+        tmp = _POOL_ROLES.with_name(_POOL_ROLES.name + ".tmp")
+        tmp.write_text(json.dumps(picked, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        os.replace(tmp, _POOL_ROLES)
+    return jsonify(champion=champ, poolRoles=picked[champ])
+
+
 @bp.route("/api/landing", methods=["GET"])
 def api_landing():
     """Everything the landing page needs, already sliced.
@@ -309,6 +345,10 @@ def api_landing():
     styles = _styles()
     cards = [dict(_card(name, champ, portraits, sets), styles=styles.get(name) or [])
              for name, champ in sorted(stats.get("champions", {}).items())]
+    picked = _read(_POOL_ROLES, {})
+    picked = picked if isinstance(picked, dict) else {}
+    for c in cards:
+        c["poolRoles"] = _pool_roles(c, picked)
     # the strip above the cards renders the same entries, so it wants the same
     # readable labels the cards get rather than Data Dragon's raw stat keys
     if diff.get("items"):
@@ -510,9 +550,43 @@ def api_lolalytics():
 
     Separate from /api/stats because it is a separate measurement of a different
     thing on a different patch, and merging the two files would make it possible
-    to lose track of which number came from where."""
-    return Response(json.dumps(_read(_LOLA, {"champions": {}, "patch": None})),
-                    mimetype="application/json")
+    to lose track of which number came from where.
+
+    `?champ=<name>` (case-insensitive) narrows `champions` to that one champion,
+    or to nothing when the name is empty or unknown: the builder reads one champion
+    at a time, and the whole file is ~750 KB gzipped against ~5-30 KB for one."""
+    if "champ" not in request.args:
+        return Response(_lola_body()[0], mimetype="application/json")
+    data = _lola_body()[1]
+    want = request.args.get("champ", "").strip().lower()
+    hit = {k: v for k, v in data.get("champions", {}).items() if want and k.lower() == want}
+    return Response(json.dumps({**data, "champions": hit}), mimetype="application/json")
+
+
+# The lolalytics bake is 3.4 MB; parsing and re-dumping it cost ~160 ms per request,
+# 304s included, and the builder waits on it before drawing. The file is already the
+# JSON we send, so its bytes are kept and served as-is, checked once per mtime, with
+# the parsed copy beside them for the one-champion reads.
+_LOLA_EMPTY = {"champions": {}, "patch": None}
+_lola_cache: tuple[float, bytes, dict] | None = None
+
+
+def _lola_body() -> tuple[bytes, dict]:
+    global _lola_cache
+    try:
+        stamp = _LOLA.stat().st_mtime
+    except OSError:
+        return json.dumps(_LOLA_EMPTY).encode(), _LOLA_EMPTY
+    if _lola_cache is None or _lola_cache[0] != stamp:
+        raw = _LOLA.read_bytes()
+        try:
+            data = json.loads(raw)
+            if not isinstance(data, dict) or not isinstance(data.get("champions"), dict):
+                raise ValueError("not a lolalytics bake")
+        except ValueError:
+            data, raw = _LOLA_EMPTY, json.dumps(_LOLA_EMPTY).encode()
+        _lola_cache = (stamp, raw, data)
+    return _lola_cache[1], _lola_cache[2]
 
 
 @bp.route("/api/sets", methods=["GET"])
@@ -765,7 +839,58 @@ def api_me():
         row["portrait"] = portraits.get((row.get("champion") or "").lower())
         row["href"] = link(row.get("champion"))
 
+    data["icons"] = _match_icons(data.get("matches", []))
     return Response(json.dumps(data), mimetype="application/json")
+
+
+# Data Dragon summoner.json key -> file id, for the spells OP.GG names by number.
+# ponytail: static map, the list changes about once a year (Snowball is ARAM).
+_SPELLS = {1: "SummonerBoost", 3: "SummonerExhaust", 4: "SummonerFlash", 6: "SummonerHaste",
+           7: "SummonerHeal", 11: "SummonerSmite", 12: "SummonerTeleport", 13: "SummonerMana",
+           14: "SummonerDot", 21: "SummonerBarrier", 32: "SummonerSnowball"}
+
+
+def _match_icons(matches: list) -> dict:
+    """One icon per id the match rows use, sent once rather than on every row
+    (item icons are inline data URIs, and 20 games of six items each repeat)."""
+    cat = _catalog()
+    items = {str(i["id"]): {"n": i.get("n"), "u": i.get("u")} for i in cat.get("items", [])}
+    runes = _read(_RUNES_JSON, {})
+    ver = runes.get("version") or cat.get("ver")
+    used = lambda key: {str(x) for g in matches for x in (g.get(key) or []) if x}
+    one = lambda key: {str(g.get(key)) for g in matches if g.get(key)}
+    return {
+        "items": {i: items[i] for i in used("items") if i in items},
+        "spells": {s: {"n": _SPELLS[int(s)][8:], "u": f"https://ddragon.leagueoflegends.com/cdn/{ver}/img/spell/{_SPELLS[int(s)]}.png"}
+                   for s in used("spells") if int(s) in _SPELLS},
+        "runes": {r: {"n": runes["runes"][r]["name"], "u": runes["runes"][r]["icon"]}
+                  for r in one("keystone") if r in (runes.get("runes") or {})},
+        "trees": {t: {"n": runes["trees"][t]["name"], "u": runes["trees"][t]["icon"]}
+                  for t in one("secondary") if t in (runes.get("trees") or {})},
+    }
+
+
+_games: dict = {}   # ponytail: a finished game never changes, so no expiry; a few KB per game opened
+
+
+@bp.route("/api/me/game", methods=["GET"])
+def api_me_game():
+    """One game of his in full (`?id=&at=` from a match row): ten players, items, runes,
+    team objectives, his side first, plus the icons those ids need."""
+    gid, at = request.args.get("id"), request.args.get("at")
+    if not gid:
+        return jsonify({"error": "id required"}), 400
+    try:
+        if gid not in _games:
+            _games[gid] = opgg_me.detail(gid, at or "")
+    except Exception as e:  # op.gg down or the game id unknown to it
+        return jsonify({"error": f"{type(e).__name__}: {e}"}), 502
+    g = _games[gid]
+    portraits = {c["n"].lower(): c.get("u") for c in _catalog().get("champs", [])}
+    players = [p for t in g.get("teams", []) for p in t.get("players", [])]
+    for p in players:
+        p["portrait"] = portraits.get((p.get("champion") or "").lower())
+    return jsonify(dict(g, icons=_match_icons(players)))
 
 
 @bp.route("/api/bans/<champ>", methods=["GET"])
@@ -844,6 +969,17 @@ def api_draft_ingame():
     if bad:
         return bad
     code, msg = draft_feed.accept_ingame(request.get_json(silent=True), remote, time.time())
+    return jsonify({"ok": code < 300, "message": msg}), code
+
+
+@bp.route("/api/me/rank", methods=["POST"])
+def api_me_rank():
+    """The poller's Solo / Duo reading from the League client: exact LP per game.
+    Loopback only."""
+    bad, _remote = _post_gate()
+    if bad:
+        return bad
+    code, msg = opgg_me.add_reading(_ME.with_name(opgg_me.RANK_LOG), request.get_json(silent=True), time.time())
     return jsonify({"ok": code < 300, "message": msg}), code
 
 

@@ -55,7 +55,7 @@
   <link rel="stylesheet" href="/static/css/chrome.css?v=13">
   <!-- home.css split into four 2026-07-29; they cascade as one sheet, so this order
        is load-bearing and must stay base → panels → layout → day. -->
-  <link rel="stylesheet" href="/static/css/home/base.css?v=57">
+  <link rel="stylesheet" href="/static/css/home/base.css?v=58">
   <link rel="stylesheet" href="/static/css/home/panels.css?v=62">
   <link rel="stylesheet" href="/static/css/home/layout.css?v=60">
   <link rel="stylesheet" href="/static/css/home/day.css?v=75">
@@ -105,7 +105,7 @@
        topbar before window.HubBack existed, so theme-switch.js would inject a second
        back button next to React's. defer restores the original order. -->
   <script defer src="/jsx/static/js/topbar.jsx"></script>
-  <script defer src="/jsx/static/js/chrome.jsx?v=13"></script>
+  <script defer src="/jsx/static/js/chrome.jsx?v=14"></script>
   <!-- home-only today-briefing subsystem, split out of chrome.jsx 2026-07-29;
        purchases and work load chrome.jsx alone and must stay that way. Split
        again into four the same day: each is its own Babel scope, so the order

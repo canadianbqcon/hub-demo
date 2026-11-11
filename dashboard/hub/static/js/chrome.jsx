@@ -198,6 +198,35 @@ function AlwaysSeeTab({ storageKey, summary, now, children }) {
 }
 
 /* ---------------- TripCard ---------------- */
+const tripDate = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
+const tripDay = (iso) => {
+  const t = tripDate(iso);
+  return `${t.toLocaleDateString("en-US", { weekday: "short" }).toLowerCase()} ${t.getDate()}`;
+};
+// one sunday-first grid per month the trip touches (nearly always one)
+function tripMonths(startIso, endIso) {
+  const s = tripDate(startIso), e = tripDate(endIso || startIso), out = [];
+  for (let m = new Date(s.getFullYear(), s.getMonth(), 1); m <= e; m = new Date(m.getFullYear(), m.getMonth() + 1, 1)) {
+    const lead = m.getDay(), n = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate(), cells = [];
+    for (let i = 0; i < lead; i++) cells.push(<span key={`b${i}`} />);
+    for (let d = 1; d <= n; d++) {
+      const t = new Date(m.getFullYear(), m.getMonth(), d), on = t >= s && t <= e;
+      const fly = on && (+t === +s || +t === +e);
+      cells.push(<span key={d} className={fly ? "is-fly" : on ? "is-in" : undefined}>{d}</span>);
+    }
+    out.push(
+      <div className="trip-cal" key={m.getMonth()}>
+        <div className="trip-cal-m">{m.toLocaleDateString("en-US", { month: "long" }).toLowerCase()}</div>
+        <div className="trip-cal-g">
+          {"smtwtfs".split("").map((w, i) => <span key={`h${i}`} className="trip-cal-h">{w}</span>)}
+          {cells}
+        </div>
+      </div>
+    );
+  }
+  return out;
+}
+
 function TripCard({ trip }) {
   return (
     <div className="panel fixed">
@@ -220,10 +249,16 @@ function TripCard({ trip }) {
               </div>
             </div>
             <span className="trip-arrow" aria-hidden="true">→</span>
-            {trip.window ? (
+            {trip.window && trip.start ? (
+              /* the trip's month(s) with its days filled, legs named beside it
+                 (mark 2026-11-11 "options", Workbench pick "December calendar") */
               <div className="trip-facts">
-                <div className={`trip-fact${trip.flight ? "" : " is-open"}`}><span className="trip-fact-k">flight</span>{trip.flight || "not booked"}</div>
-                <div className={`trip-fact${trip.stay ? "" : " is-open"}`}><span className="trip-fact-k">stay</span>{trip.stay || "not booked"}</div>
+                <div className="trip-cals">{tripMonths(trip.start, trip.end)}</div>
+                <div className="trip-legs">
+                  <div className={`trip-fact${trip.flight ? "" : " is-open"}`}><span className="trip-fact-k">{tripDay(trip.start)}</span>{trip.flight || "flight not booked"}</div>
+                  <div className={`trip-fact${trip.stay ? "" : " is-open"}`}><span className="trip-fact-k">{trip.nights} night{trip.nights === 1 ? "" : "s"}</span>{trip.stay || "stay not booked"}</div>
+                  <div className={`trip-fact${trip.ret ? "" : " is-open"}`}><span className="trip-fact-k">{tripDay(trip.end)}</span>{trip.ret || "flight home not booked"}</div>
+                </div>
               </div>
             ) : null}
           </a>
@@ -242,18 +277,19 @@ function NewsCard({ news }) {
     <div className="panel fixed">
       <div className="panel-head">
         <h3 className="panel-title">news</h3>
-        <span className="panel-meta">→ news</span>
+        <a className="panel-meta" href="/news/">{news ? `${news.clusters_today} stories → news` : "→ news"}</a>
       </div>
       <div className="panel-body">
+        {/* 2026-11-10 mark "looks shit": one raw digest line under a giant count. Now the
+            lead story of the digest's first three sections, a headline each. */}
         {news ? (
           <a className="news-summary" href="/news/">
-            <div>
-              <div className="news-count">{news.clusters_today}<span className="news-count-unit">stories</span></div>
-            </div>
-            <div>
-              <div className="news-line">{news.digest_line || "no digest yet"}</div>
-            </div>
-            <span className="news-arrow" aria-hidden="true">→</span>
+            {(news.digest_leads || []).length ? news.digest_leads.map((x, i) => (
+              <div className="news-lead" key={i}>
+                {x.section ? <span className="news-lead-k">{x.section}</span> : null}
+                <span className="news-line">{x.text}</span>
+              </div>
+            )) : <div className="news-line">{news.digest_line || "no digest yet"}</div>}
           </a>
         ) : null}
       </div>

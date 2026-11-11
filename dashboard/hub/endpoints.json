@@ -21,6 +21,9 @@
   "DELETE /checklists/api/checklists/<int:cid>/items/<int:item_id>": {
     "class": "local-write"
   },
+  "DELETE /clash/api/layouts": {
+    "class": "local-write"
+  },
   "DELETE /finances/api/owed/<int:rid>": {
     "class": "local-write"
   },
@@ -245,6 +248,16 @@
   "GET /apply/<path:rest>": {
     "class": "read"
   },
+  "GET /armory/": {
+    "class": "read"
+  },
+  "GET /armory/i/<path:name>": {
+    "class": "read"
+  },
+  "GET /armory/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
   "GET /artifacts/": {
     "class": "read"
   },
@@ -354,6 +367,49 @@
   "GET /checklists/static/<path:filename>": {
     "class": "read",
     "path-pinned": true
+  },
+  "GET /clash/": {
+    "class": "read"
+  },
+  "GET /clash/api/layouts": {
+    "class": "read"
+  },
+  "GET /clash/api/patch": {
+    "class": "read"
+  },
+  "GET /clash/api/plan": {
+    "class": "read"
+  },
+  "GET /clash/api/profile": {
+    "class": "read"
+  },
+  "GET /clash/api/village": {
+    "class": "read"
+  },
+  "GET /clash/api/war": {
+    "class": "read"
+  },
+  "GET /clash/layouts": {
+    "class": "read"
+  },
+  "GET /clash/layouts/img/<name>": {
+    "class": "read"
+  },
+  "GET /clash/patch": {
+    "class": "read"
+  },
+  "GET /clash/plan": {
+    "class": "read"
+  },
+  "GET /clash/profile": {
+    "class": "read"
+  },
+  "GET /clash/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
+  },
+  "GET /clash/war": {
+    "class": "read"
   },
   "GET /elements/": {
     "class": "read"
@@ -474,6 +530,14 @@
     "class": "integration",
     "why": "op.gg fetch"
   },
+  "GET /forge/api/me/game": {
+    "class": "integration",
+    "why": "op.gg fetch"
+  },
+  "GET /forge/api/overlay": {
+    "class": "integration",
+    "why": "op.gg fetch"
+  },
   "GET /forge/api/passives": {
     "class": "read"
   },
@@ -510,6 +574,16 @@
   },
   "GET /forge/stats": {
     "class": "read"
+  },
+  "GET /gaming/": {
+    "class": "read"
+  },
+  "GET /gaming/api/summary": {
+    "class": "read"
+  },
+  "GET /gaming/static/<path:filename>": {
+    "class": "read",
+    "path-pinned": true
   },
   "GET /guide/": {
     "class": "read",
@@ -548,6 +622,10 @@
   "GET /inventory/api/programs/<machine>": {
     "class": "read",
     "path-pinned": true
+  },
+  "GET /inventory/api/updates": {
+    "class": "integration",
+    "why": "runs winget"
   },
   "GET /inventory/static/<path:filename>": {
     "class": "read",
@@ -631,6 +709,9 @@
     "path-pinned": true
   },
   "GET /ledger/": {
+    "class": "read"
+  },
+  "GET /ledger/<path:rest>": {
     "class": "read"
   },
   "GET /ledger/i/<path:name>": {
@@ -718,6 +799,12 @@
   "GET /news/static/<path:filename>": {
     "class": "read",
     "path-pinned": true
+  },
+  "GET /notify/api/list": {
+    "class": "read"
+  },
+  "GET /notify/go/<int:nid>": {
+    "class": "read"
   },
   "GET /public/<path:rel>": {
     "class": "read",
@@ -1205,6 +1292,45 @@
   "POST /checklists/api/checklists/<int:cid>/sections/rename": {
     "class": "local-write"
   },
+  "POST /clash/api/boost": {
+    "class": "local-write"
+  },
+  "POST /clash/api/finish": {
+    "class": "local-write"
+  },
+  "POST /clash/api/helper": {
+    "class": "local-write"
+  },
+  "POST /clash/api/layouts": {
+    "class": "local-write"
+  },
+  "POST /clash/api/paste": {
+    "class": "integration",
+    "why": "stores the village then refreshes it from the Clash of Clans API"
+  },
+  "POST /clash/api/patch/refresh": {
+    "class": "integration",
+    "why": "game blog fetch"
+  },
+  "POST /clash/api/queue": {
+    "class": "local-write"
+  },
+  "POST /clash/api/queue/plan": {
+    "class": "local-write"
+  },
+  "POST /clash/api/queue/remove": {
+    "class": "local-write"
+  },
+  "POST /clash/api/refresh": {
+    "class": "integration",
+    "why": "Clash of Clans API fetch"
+  },
+  "POST /clash/api/start": {
+    "class": "local-write"
+  },
+  "POST /clash/api/undo": {
+    "class": "local-write"
+  },
   "POST /finances/api/book/link-account": {
     "class": "local-write"
   },
@@ -1243,7 +1369,18 @@
   "POST /forge/api/draft/pick": {
     "class": "local-write"
   },
+  "POST /forge/api/draft/roster": {
+    "class": "integration",
+    "why": "op.gg and Riot fetch"
+  },
   "POST /forge/api/draft/session": {
+    "class": "local-write"
+  },
+  "POST /forge/api/me/rank": {
+    "class": "integration",
+    "why": "op.gg fetch"
+  },
+  "POST /forge/api/pool-roles": {
     "class": "local-write"
   },
   "POST /forge/api/sets": {
@@ -1256,6 +1393,10 @@
   "POST /inventory/api/uninstall": {
     "class": "integration",
     "why": "runs an uninstall process"
+  },
+  "POST /inventory/api/update": {
+    "class": "integration",
+    "why": "runs winget"
   },
   "POST /jobs/api/applications": {
     "class": "local-write"
@@ -1398,6 +1539,12 @@
     "class": "local-write"
   },
   "POST /news/api/topics": {
+    "class": "local-write"
+  },
+  "POST /notify/api/delete": {
+    "class": "local-write"
+  },
+  "POST /notify/api/read": {
     "class": "local-write"
   },
   "POST /purchases/api/candidates/<int:cid>/constraint-checks": {
@@ -1577,6 +1724,21 @@
     "class": "local-write"
   },
   "PUT /batch/api/batch/storage/item/<int:item_id>/note": {
+    "class": "local-write"
+  },
+  "PUT /clash/api/builders": {
+    "class": "local-write"
+  },
+  "PUT /clash/api/layouts": {
+    "class": "local-write"
+  },
+  "PUT /clash/api/order": {
+    "class": "local-write"
+  },
+  "PUT /clash/api/queue/order": {
+    "class": "local-write"
+  },
+  "PUT /clash/api/war-plan": {
     "class": "local-write"
   },
   "PUT /forge/api/bans/<champ>": {

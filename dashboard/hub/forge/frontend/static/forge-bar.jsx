@@ -29,13 +29,31 @@ window.ForgeUI = window.ForgeUI || {};
      now carried by the status pill. Landing only: `pool` [{name, img, n}] fills the rail's
      pool list, `query`/`onQuery` make the search filter the cards in place, `total` is the
      build count. Elsewhere the search is a GET to the landing page (?q=). */
-  function Bar({ current, act, children, pool, query, onQuery, total }) {
+  /* `onSection(key)`: the landing page shows Patch inline (mark 2026-11-10-042636 #1), so it
+     takes the click for that section and returns true; anything it declines navigates. */
+  function Bar({ current, act, children, pool, query, onQuery, total, onSection, onPick }) {
     const onLanding = !!onQuery;
     const q = (query || '').trim().toLowerCase();
-    const go = name => {
-      const card = document.querySelector(`.card[data-champ="${CSS.escape(name)}"]`);
-      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const go = p => {
+      // from the inline Patch view the cards are not drawn yet: back to them first
+      if (onSection) onSection('champions');
+      if (onPick) onPick(p);
+      requestAnimationFrame(() => {
+        const card = document.querySelector(`.card[data-champ="${CSS.escape(p.name)}"]`);
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
     };
+    /* The pool sorted by lane (mark 2026-11-10-042636 #2): entries carrying a `role`
+       sit under that lane's heading, in ROLES order; a champion in no lane goes last. */
+    const shownPool = (pool || []).filter(p => p.name.toLowerCase().includes(q));
+    const lanes = shownPool.some(p => 'role' in p)
+      ? [...ForgeUI.ROLES, ''].map(r => [r, shownPool.filter(p => (p.role || '') === r)]).filter(([, l]) => l.length)
+      : [[null, shownPool]];
+    const poolRow = p => (
+      <a href={`c/${encodeURIComponent(p.name)}`} key={`${p.role}|${p.name}`}
+         onClick={e => { e.preventDefault(); go(p); }}>
+        {p.img ? <img src={p.img} alt="" /> : <i></i>}<span>{p.name}</span>
+        <em className={p.n ? undefined : 'z'}>{p.n}</em></a>);
     return (
       <React.Fragment>
         <form className="fs-search" action="./" method="get" role="search"
@@ -49,18 +67,22 @@ window.ForgeUI = window.ForgeUI || {};
         <aside className="frail">
           <nav className="navtabs" aria-label="Forge sections">
             {SECTIONS.map(([key, href, label]) => (
-              <a href={href} key={key} aria-current={current === key ? 'page' : undefined}>
+              <a href={href} key={key} aria-current={current === key ? 'page' : undefined}
+                 onClick={onSection ? e => {
+                   if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+                   if (onSection(key)) e.preventDefault();
+                 } : undefined}>
                 <span className="ic" aria-hidden="true">{ICO[key]}</span><span>{label}</span></a>))}
           </nav>
           {pool && pool.length ? (
             <React.Fragment>
               <p className="fs-cap">Pool</p>
               <div className="fs-pool">
-                {pool.filter(p => p.name.toLowerCase().includes(q)).map(p => (
-                  <a href={`c/${encodeURIComponent(p.name)}`} key={p.name}
-                     onClick={e => { e.preventDefault(); go(p.name); }}>
-                    {p.img ? <img src={p.img} alt="" /> : <i></i>}<span>{p.name}</span>
-                    <em className={p.n ? undefined : 'z'}>{p.n}</em></a>))}
+                {lanes.map(([r, list]) => r === null ? list.map(poolRow) : (
+                  <React.Fragment key={r || 'none'}>
+                    <p className="fs-lane">{r ? <RoleGlyph role={r} /> : null}{r ? r[0].toUpperCase() + r.slice(1) : 'No lane'}</p>
+                    {list.map(poolRow)}
+                  </React.Fragment>))}
               </div>
             </React.Fragment>) : null}
           {act}
@@ -70,7 +92,7 @@ window.ForgeUI = window.ForgeUI || {};
 
         <div className="fs-status">
           {children}
-          {total != null && pool ? <span className="fs-tot"><i className="dot"></i>{`${total} builds · ${pool.length} champions`}</span> : null}
+          {total != null && pool ? <span className="fs-tot"><i className="dot"></i>{`${total} builds · ${new Set(pool.map(p => p.name)).size} champions`}</span> : null}
           <span className="fs-where">FORGE · /forge/</span>
         </div>
       </React.Fragment>

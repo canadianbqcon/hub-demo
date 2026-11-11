@@ -576,6 +576,8 @@ window.AutomationsUI = window.AutomationsUI || {};
     const [busy, setBusy] = useState(() => new Set());
     const [outcome, setOutcome] = useState(null);
     const [tab, setTab] = useState(() => {
+      const q = new URLSearchParams(location.search).get("tab");  // ?tab=rules: the bell's link to the rules waiting on him
+      if (TAB_IDS.includes(q)) return q;
       try { const s = localStorage.getItem("automations.tab"); return TAB_IDS.includes(s) ? s : "gmail"; } catch (_e) { return "gmail"; }
     });
     const [lastSel, setLastSel] = useState({});

@@ -49,7 +49,7 @@
 <link rel="stylesheet" href="/static/css/components.css?v=5">
 <link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2">
 <link rel="stylesheet" href="/static/css/themes/liquid.css?v=2">
-<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=34"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script><script defer src="/jsx/artifacts/frontend/static/artifacts.jsx?v=1"></script>
+<script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=34"></script><script defer src="/static/vendor/react.production.min.js"></script><script defer src="/static/vendor/react-dom.production.min.js"></script><script defer src="/jsx/static/js/topbar.jsx"></script><script defer src="/jsx/artifacts/frontend/static/artifacts.jsx?v=3"></script>
 
 <style>
   * { box-sizing:border-box; }
@@ -154,6 +154,22 @@
     display:flex; align-items:baseline; gap:var(--s-2); min-width:0;
   }
   .row-fav { grid-column:1; grid-row:1; min-width:1.15em; font-size:var(--fs-subhead); line-height:1; }
+  /* icon: every icon sits in one rounded tile of one size, centred on the
+     title's first line (margin-top = (line box - tile) / 2, line box 1.35em).
+     Topic icons are white glyphs on a colour picked per icon (RowIcon --tile);
+     brand marks keep their own colours on a white tile. */
+  .row-icon {
+    grid-column:1; grid-row:1; align-self:start; box-sizing:border-box;
+    width:28px; height:28px; margin-top:calc((1.35 * var(--fs-subhead) - 28px) / 2);
+    border-radius:8px; padding:5px; object-fit:contain; background:#fff;
+    box-shadow:inset 0 0 0 .5px rgba(0,0,0,.12);
+  }
+  .row-icon.mono { padding:0; background:var(--tile); box-shadow:none; position:relative; }
+  .row-icon.mono::after {
+    content:""; position:absolute; inset:6px; background:#fff;
+    -webkit-mask:var(--ic) center/contain no-repeat; mask:var(--ic) center/contain no-repeat;
+  }
+  .row-icon + .row-head { align-self:start; }
   .row-title {
     font-family:var(--font); font-feature-settings:var(--feat-display);
     font-weight:600; font-size:var(--fs-subhead); color:var(--fg); line-height:1.35;
@@ -235,9 +251,9 @@
   [data-theme="liquid"] .group .n { font-size:var(--fs-subhead); font-weight:400; color:var(--fg-dim); }
   [data-theme="liquid"] .row {
     grid-template-columns:auto minmax(0,1fr); align-content:start;
-    margin:0; padding:14px 16px; border:0; border-radius:20px; background:var(--bg-elev);
+    margin:0; padding:14px 16px; border:0; border-radius:20px; background:var(--lq-card); box-shadow:var(--lq-slab-shade);   /* liquid.css section 16 card rule */
   }
-  [data-theme="liquid"] .row:hover { background:var(--bg-elev-2); }
+  [data-theme="liquid"] .row:hover { background:var(--lq-card-hi); }
   [data-theme="liquid"] .row:focus-visible { outline:2px solid var(--accent); outline-offset:-3px; }
   [data-theme="liquid"] .row-title { font:600 var(--fs-subhead)/1.3 var(--font); color:var(--fg); }
   [data-theme="liquid"] .row:hover .row-title { color:var(--fg); }

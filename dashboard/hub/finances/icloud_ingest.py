@@ -154,8 +154,10 @@ POWERSHELL = "/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
 _RESTART_PS = (
     "$d='C:\\Program Files (x86)\\Common Files\\Apple\\Internet Services'; "
     "Stop-Process -Name iCloudDrive,iCloudServices -Force -EA 0; Start-Sleep 3; "
-    "Start-Process \"$d\\iCloudServices.exe\"; Start-Sleep 10; "
-    "if (-not (Get-Process iCloudDrive -EA 0)) { Start-Process \"$d\\iCloudDrive.exe\" }; "
+    # Hidden: this runs from the 06:00/18:00 file-sort job and must never pull
+    # focus from a fullscreen game. Both are tray apps, so nothing is lost.
+    "Start-Process \"$d\\iCloudServices.exe\" -WindowStyle Hidden; Start-Sleep 10; "
+    "if (-not (Get-Process iCloudDrive -EA 0)) { Start-Process \"$d\\iCloudDrive.exe\" -WindowStyle Hidden }; "
     "Start-Sleep 10; [bool](Get-Process iCloudDrive -EA 0)"
 )
 

@@ -44,6 +44,7 @@ document.documentElement.setAttribute("data-surface", "dark");
 
   .wrap { max-width: 1600px; margin: 0 auto; padding: 16px 20px 90px; display: grid; gap: 14px; }
 
+  .wrap .status { white-space: normal; } /* the shared pill is nowrap; a long line overflowed at 1000px */
   .status { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px;
     font: 500 var(--t-xs)/1.4 var(--mono); color: var(--dim); }
   .status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); display: inline-block; margin-right: 6px; }
@@ -54,9 +55,33 @@ document.documentElement.setAttribute("data-surface", "dark");
     border: 1px solid color-mix(in oklab, var(--rework) 45%, transparent); border-radius: var(--r-md); }
   .err code { font: 600 var(--t-xs)/1.4 var(--mono); }
 
-  .desk { display: grid; grid-template-columns: 300px minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
-  @media (max-width: 1100px) { .desk { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-    .desk .mid { grid-column: 1 / -1; grid-row: 2; } }
+  /* teams with the bans between them, then the job full width, then items | runes
+     (mark 2026-11-10-043606 #3; bans: Workbench set forge-draft-bans, pick F "Full-size
+     struck tiles", note "in line with every pick"). Seats and ban tiles share the
+     grid's rows through subgrid, so a seat that opens its archetype grows its ban row too. */
+  .desk { display: grid; gap: 16px; min-width: 0; }
+  .teams { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px 16px; align-items: start; }
+  .teams .t-us, .teams #allies { grid-column: 1; }
+  .teams .t-them, .teams #enemies { grid-column: 2; }
+  .teams .t-us, .teams .t-them { grid-row: 1; }
+  .teams #allies, .teams #enemies { grid-row: 2; }
+  .teams.with-bans { grid-template-columns: minmax(0, 1fr) 92px 92px minmax(0, 1fr); row-gap: 0; column-gap: 12px; align-items: stretch; }
+  .with-bans > h3 { margin-bottom: 8px; align-self: end; }
+  .with-bans .t-bans { grid-row: 1; grid-column: 2 / 4; text-align: center; }
+  .with-bans .t-them, .with-bans #enemies { grid-column: 4; }
+  .with-bans #allies, .with-bans #enemies, .with-bans .bancol { grid-row: 2 / span 5; display: grid; grid-template-rows: subgrid; }
+  .with-bans .bancol.us { grid-column: 2; }
+  .with-bans .bancol.them { grid-column: 3; }
+  .banlab { display: none; margin: 0; font: 600 var(--t-xs)/1.2 var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+  .ban { display: grid; place-items: center; padding: 10px 0; }
+  .ban + .ban { border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
+  .ban .tile { position: relative; width: 64px; height: 64px; border-radius: var(--r-sm); }
+  .ban .tile img { display: block; width: 64px; height: 64px; border-radius: var(--r-sm); filter: grayscale(1); opacity: .75; }
+  .ban .tile:not(.none)::after { content: ""; position: absolute; inset: 0; border-radius: var(--r-sm);
+    background: linear-gradient(to top right, transparent calc(50% - 1.5px), color-mix(in oklab, var(--nerf) 85%, transparent) 50%, transparent calc(50% + 1.5px)); }
+  .bancol.us .tile img { box-shadow: 0 0 0 2px color-mix(in oklab, var(--accent) 55%, transparent); }
+  .bancol.them .tile img { box-shadow: 0 0 0 2px color-mix(in oklab, var(--nerf) 60%, transparent); }
+  .ban .tile.none { border: 1px dashed var(--line); display: grid; place-items: center; color: var(--dim); font-size: var(--t-xs); }
 
   .col { display: grid; gap: 8px; min-width: 0; }
   h3 { margin: 0; font-size: var(--fs-subhead); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; color: var(--dim); }
@@ -81,13 +106,21 @@ document.documentElement.setAttribute("data-surface", "dark");
   .seat .pickc { font-weight: 600; font-size: var(--t-md); width: 100%; padding: 4px 6px; }
   .seat .r label { margin-left: 8px; }
   .seat select option { background: var(--surface); color: var(--ink); }
-  .bans { display: flex; flex-wrap: wrap; gap: 6px; }
-  .bans img { width: 26px; height: 26px; border-radius: var(--r-sm); filter: grayscale(1); opacity: .7; }
 
-  .mid { display: grid; gap: 14px; min-width: 0; }
   .lists { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
   .locked { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-  @media (max-width: 1350px) { .lists, .locked { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 760px) {
+    .teams, .teams.with-bans, .lists, .locked { grid-template-columns: minmax(0, 1fr); }
+    /* one column: your team, your bans, their bans, enemy team */
+    .teams > *, .with-bans > * { grid-column: 1 !important; grid-row: auto !important; }
+    .with-bans { row-gap: 8px; }
+    .with-bans #allies, .with-bans #enemies { display: block; }
+    .with-bans .t-bans { text-align: left; }
+    .with-bans .bancol { display: flex; align-items: center; gap: 6px; padding: 8px 12px; }
+    .bancol .banlab { display: block; width: 74px; flex: none; }
+    .bancol .ban { padding: 0; border: 0; }
+    .bancol .ban .tile, .bancol .ban .tile img { width: 44px; height: 44px; }
+  }
 
   .pick { display: grid; grid-template-columns: auto 40px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 14px; }
   .pick + .pick { border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
@@ -140,7 +173,6 @@ document.documentElement.setAttribute("data-surface", "dark");
   .step + .step { border-top: 1px solid color-mix(in oklab, var(--line) 55%, transparent); }
   .step img { width: 36px; height: 36px; border-radius: var(--r-sm); }
   .step .n { font-weight: 600; }
-  .step .slot { font-size: var(--t-xs); color: var(--dim); margin-left: 6px; font-weight: 500; }
   .step .why { font-size: var(--t-xs); color: var(--dim); text-wrap: pretty; }
   /* under the 1,000-game floor: most bought, not best win rate, drawn grey */
   .step.thin img { filter: grayscale(1); opacity: .6; }
@@ -193,8 +225,8 @@ document.documentElement.setAttribute("data-surface", "dark");
 <script src="/static/vendor/react-dom.production.min.js"></script>
 <script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script><script defer src="/jsx/static/js/topbar.jsx"></script>
 <!-- defer keeps document order: forge-bar.jsx (ForgeUI.Bar) before the page body -->
-<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=2"></script>
-<script defer src="/jsx/forge/frontend/static/draft-page.jsx?v=8"></script>
+<script defer src="/jsx/forge/frontend/static/forge-bar.jsx?v=5"></script>
+<script defer src="/jsx/forge/frontend/static/draft-page.jsx?v=11"></script>
 <script>
 // load fallback: if the React body never mounted, say so instead of leaving a blank page
 window.addEventListener("load", function () {

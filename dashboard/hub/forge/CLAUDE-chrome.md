@@ -13,7 +13,7 @@ before/after check `forge-hub-shape-layout-ship`): the Hub's shape in Forge's co
 
     bar:     the Hub's top bar (back, crumb `forge · <page>`, control pane, module launcher)
     search:  one wide bar under the header, across rail and page (mark 2026-11-05-175436 #1)
-    rail:    Champions / Patch / Stats / Draft · page action (when the page has one) · Pool (landing only) · + Set with no champion
+    rail:    Champions / Patch / Stats / Draft · page action (when the page has one) · Pool by lane (landing only) · + Set with no champion
     pill:    the page's .meta chips · build totals (landing) · FORGE · /forge/   (fixed, bottom centre)
 
 - **The rail holds the sections.** `.navtabs` lives in the rail now, not the header
@@ -21,6 +21,12 @@ before/after check `forge-hub-shape-layout-ship`): the Hub's shape in Forge's co
 - **The search** (`.fs-search`, its own grid row 2 on scrolling pages, named row
   `[search]` in the builder) filters the landing cards and pool list in place; on every other
   page it is a GET to the landing page with `?q=`, which landing reads as its first filter.
+- **The rail pool is grouped by lane** (`.fs-lane` headings, Top to Support), one row per
+  (champion, lane) with that lane's count; the status pill counts distinct champions. On the
+  landing, a rail click (`onPick`) turns that champion's card to the clicked lane and scrolls to it.
+- **Patch is inline on the landing.** There `Bar` gets `onSection`: Patch swaps the cards for
+  `ForgeUI.PatchBody` at `/forge/#patch` and the crumb reads `forge · patch`; Champions or a
+  pool row goes back. Other pages still link to `/forge/patch`.
 - **Pool counts use the role chips' rule** (`isCurrent` in `landing.jsx`): a set carried
   forward or an outdated Auto set does not count, so the rail and the chips agree.
 - **No explainer blurb at the top of a page.** The landing opens on the role tabs and
@@ -112,11 +118,11 @@ the catch-up, the retry and the failure isolation are covered by seven tests in
 
 | File | What it is |
 |---|---|
-| `api.py` | Blueprint at `/forge`. `/` (landing), `/c/<champ>/<role>` and `/edit` (editor), plus `GET/POST /api/sets`, `DELETE /api/sets/<id>`, `GET /api/stats`, `GET /api/lolalytics`, `GET /api/landing`, `GET /api/patchnotes`, `GET /api/diff`, `GET /api/me`. No `init()` — reads the vault via `vault_root()`, the purchases pattern. |
+| `api.py` | Blueprint at `/forge`. `/` (landing), `/c/<champ>/<role>` and `/edit` (editor), plus `GET/POST /api/sets`, `DELETE /api/sets/<id>`, `GET /api/stats`, `GET /api/lolalytics`, `GET /api/landing`, `GET /api/patchnotes`, `GET /api/diff`, `GET /api/me`, `GET /api/me/game`. No `init()` — reads the vault via `vault_root()`, the purchases pattern. |
 | `bake_stats.py` | Pulls coachless item + rune WPA into `data/forge-stats.json`, plus per-summoner-spell WPA (`spells`) for the plan page. Re-run when a patch lands. ~2 min for the pool. |
 | `notes_read.py` | The reading layer over the baked notes: `gist()`, `compare()`, `change_verdict()`, `triage()`, and `enrich()` which applies all four. Pure functions, no I/O; called from `/api/patchnotes`. Self-check: `python3 notes_read.py`. |
 | `opgg_me.py` | Sam's own record off OP.GG's open MCP server (`https://mcp-api.op.gg/mcp`, no key). `decode()` turns its Python-class-shaped text blob back into dicts, `fetch()` folds the profile and match calls into one object with the per-game averages already taken, `read()` adds the 15-minute disk cache. Served by `/api/me`. Self-check: `python3 opgg_me.py`. |
-| `frontend/stats.html` | The Stats surface: rank cards, season strip, champion pool table, recent-games feed. Reads `/api/me` only. |
+| `frontend/stats.html` | The Stats surface (body in `static/stats-page.jsx`, styles in `static/stats-history.css`): rank cards, season strip, Solo / Duo LP graph (viewBox sized from the card by ResizeObserver so labels stay 11px; tabs By day from OP.GG `lp` points, or Last 20 / Last 100 / Season by game from the `rank` stamp `opgg_me._stamp_rank` writes on each new Solo / Duo game since 2026-11-10, which match rows also show as their LP change; the `forge-rank` scheduler job refreshes every 15 minutes so the stamp lands close to each game), match history with queue tabs, summary strip and load more, champion pool. Clicking a game row (or its Open button) fetches `/api/me/game` once and opens the full game below it: team-against-team tug bars (kills, gold, towers, drakes, barons, grubs; each bar is the honest share of the total, with a 50% centre line and the lead in its label, since gold always lands near even), then both teams in ONE table (one `tbody` per team) so their columns line up. OP score, kill share, CS and gold carry `.grade` with `--q` from `grade(v, bad, good)` in `stats-page.jsx`, one oklch hue scale red to green; the benchmarks (OP 3/9, KP 35/60%, CS/min 5/8 except supports, gold/min 300/450) sit in the comment above `grade`. Reads `/api/me` and `/api/me/game`. |
 | `frontend/patch.html` | The patch surface: the tally, the section tabs, and one card per entry. Reads `/api/patchnotes` only. |
 | `bake_patchnotes.py` | Pulls Riot's own patch notes for the live patch into `data/forge-patch-notes.json`, served by `/api/patchnotes`. Stdlib fetch + BeautifulSoup, seconds. Re-run when a patch lands. Parser covered by `dashboard/hub/tests/test_forge_patchnotes.py`. |
 | `bake_lolalytics.py` | Pulls lolalytics' live-patch win rate and pick rate into `data/forge-lolalytics.json` for the pool's roles plus every champion-role at or above `ROLE_FLOOR` (`build_jobs`), served by `/api/lolalytics`. Runes are baked twice: keystone-blind at `runes`, and per keystone at `runesByKeystone.<id>` for every keystone clearing `KEYSTONE_PICK_FLOOR`. Also the plan page's `plan` block (summoner pair, skill priority, skill order) off the build page and `counters` off a second `/counters/` page. Headless system Chrome. Roles are scraped concurrently, `--workers` at a time (default 4, each its own Chrome): measured 4m52s for the 33-role pool at 4, 18m51s at 1. Re-run when a patch lands. |

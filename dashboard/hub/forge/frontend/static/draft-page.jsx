@@ -139,9 +139,34 @@ window.ForgeUI = window.ForgeUI || {};
 
   /* ── side columns ─────────────────────────────────────────────────────── */
 
+  // What this seat banned: on the enemy side it is also the engine's role hint.
+  const banLine = (k, byKey) => k && byKey[k] ? <div className="r">{`banned ${byKey[k].n}`}</div> : null;
+
+  // Seat order on both sides, shared by the seats and the ban tiles level with them.
+  const allySeats = draft => [...(draft.allies || []), { ...(draft.me || {}), isMe: true }].sort((a, b) => a.cellId - b.cellId);
+  const enemyBans = draft => {
+    const all = [...(draft.enemies || []).map(e => e.ban), ...(draft.pendingEnemyBans || [])];
+    return Array.from({ length: 5 }, (_, i) => all[i]);
+  };
+
+  // One struck tile per seat, in that seat's row (Workbench set forge-draft-bans, pick F,
+  // with his note "in line with every pick").
+  function BanCol({ side, keys, byKey }) {
+    return (
+      <div className={`card bancol ${side}`} id={side === 'us' ? 'bans-us' : 'bans-them'}>
+        <p className="banlab">{side === 'us' ? 'Your bans' : 'Their bans'}</p>
+        {keys.map((k, i) => {
+          const c = k > 0 ? byKey[k] : null;
+          return <div className="ban" key={i}>{c
+            ? <span className="tile"><img src={c.u} alt={`banned ${c.n}`} title={c.n} width="64" height="64" /></span>
+            : <span className="tile none">no ban</span>}</div>;
+        })}
+      </div>
+    );
+  }
+
   function YourTeam({ draft, byKey, x }) {
-    const me = draft.me || {};
-    const seats = [...(draft.allies || []), { ...me, isMe: true }].sort((a, b) => a.cellId - b.cellId);
+    const seats = allySeats(draft);
     return (
       <div className="card" id="allies">{seats.map(s => {
         if (s.isMe) {
@@ -153,7 +178,7 @@ window.ForgeUI = window.ForgeUI || {};
           return (
             <div className={`seat me${!locked && s.hover ? ' hover' : ''}`} key="me" data-me="1">
               <Portrait c={c} size={64} />
-              <div><div className="n">{n}</div><div className="r">{r}</div>{ax.chip}</div>
+              <div><div className="n">{n}</div><div className="r">{r}</div>{banLine(s.ban, byKey)}{ax.chip}</div>
               {ax.body}
             </div>
           );
@@ -164,7 +189,7 @@ window.ForgeUI = window.ForgeUI || {};
           <div className={`seat${s.provisional ? ' hover' : ''}`} key={s.cellId}>
             <Portrait c={c} size={64} />
             <div><div className="n">{c ? c.n : 'Not locked'}</div>
-              <div className="r">{role(s.role)}{s.provisional ? ' · hovering' : ''}</div>{ax.chip}</div>
+              <div className="r">{role(s.role)}{s.provisional ? ' · hovering' : ''}</div>{banLine(s.ban, byKey)}{ax.chip}</div>
             {ax.body}
           </div>
         );
@@ -176,6 +201,7 @@ window.ForgeUI = window.ForgeUI || {};
     const roles = advice?.teams?.enemyRoles || {};
     const locked = (draft.enemies || []).map(e => byKey[e.championId]);
     const slots = [...locked, ...Array(Math.max(0, 5 - locked.length)).fill(null)];
+    const bans = [...(draft.enemies || []).map(e => e.ban), ...(draft.pendingEnemyBans || [])];
     return (
       <div className="card" id="enemies">{slots.map((c, i) => {
         const ax = archSeat(x, c);
@@ -183,7 +209,7 @@ window.ForgeUI = window.ForgeUI || {};
           <div className="seat" key={i}>
             <Portrait c={c} size={64} />
             <div><div className="n">{c ? c.n : 'Not locked'}</div>
-              <div className="r">{c ? (roles[c.n] ? `likely ${roles[c.n]}` : 'role unclear') : 'picking'}</div>{ax.chip}</div>
+              <div className="r">{c ? (roles[c.n] ? `likely ${roles[c.n]}` : 'role unclear') : 'picking'}</div>{banLine(bans[i], byKey)}{ax.chip}</div>
             {ax.body}
           </div>);
       })}</div>
@@ -219,7 +245,6 @@ window.ForgeUI = window.ForgeUI || {};
 
   /* ── locked: plan, build, runes ───────────────────────────────────────── */
 
-  const SLOT = { 1: 'First item', 2: 'Second', 3: 'Third', 4: 'Fourth', 5: 'Fifth', 6: 'Sixth' };
 
   function Build({ build, items }) {
     const steps = [...(build.items || []), ...(build.boots ? [{ ...build.boots, boots: true }] : [])]
@@ -235,13 +260,15 @@ window.ForgeUI = window.ForgeUI || {};
             <div className={s.thin ? 'step thin' : 'step'} key={`${s.slot}-${s.itemId}`}>
               {it ? <img src={it.u} alt="" /> : <span></span>}
               <div>
-                <div><span className="n">{it ? it.n : s.itemId}</span>
-                  <span className="slot">{s.boots ? `Boots, ${SLOT[s.slot] || s.slot}` : SLOT[s.slot] || s.slot}</span></div>
+                <div className="n">{it ? it.n : s.itemId}</div>
                 <div className="why">{s.why}</div>
                 {s.counter?.why?.length ? <div className="why">{`Counters: ${s.counter.why.join('; ')}.`}</div> : null}
                 {s.replaced && !s.replaced.damage ? <div className="why">{`Score ${s.counter.score} vs ${s.replaced.score} for ${items[String(s.replaced.itemId)]?.n || s.replaced.itemId}.`}</div> : null}
               </div>
-              <span className="pill">{s.thin ? `thin, ${s.lolalytics.n.toLocaleString()} games` : s.source === 'set' ? 'your set' : s.source}</span>
+              {/* the source pill only when it says more than the BUILD header (mark 2026-11-10-043606 #1) */}
+              {s.thin ? <span className="pill">{`thin, ${s.lolalytics.n.toLocaleString()} games`}</span>
+                : s.source === 'set' ? <span className="pill">your set</span>
+                : s.source !== build.source ? <span className="pill">{s.source}</span> : null}
             </div>
           );
         })}
@@ -259,7 +286,7 @@ window.ForgeUI = window.ForgeUI || {};
       return (
         <div className="step" key={`${label}-${id}`}>
           {it ? <img src={it.u} alt="" /> : <span></span>}
-          <div><div><span className="n">{it ? it.n : id}</span><span className="slot">{label}</span></div></div>
+          <div><div className="n">{it ? it.n : id}</div></div>
         </div>
       );
     };
@@ -269,7 +296,7 @@ window.ForgeUI = window.ForgeUI || {};
             ? `metasrc had no Mayhem build for ${build.champ}: this is the ARAM build${build.games ? `, ${build.games.toLocaleString()} games at ${build.wr}%` : ''}.`
             : `metasrc's Mayhem build over ${(build.games || 0).toLocaleString()} games. metasrc gives tiers, not win rates.`}
             {build.starting?.length ? ` Start: ${build.starting.map(i => items[String(i)]?.n || i).join(', ')}.` : ''}</div>
-          {(build.items || []).map(s => row(s.itemId, SLOT[s.slot] || s.slot))}
+          {(build.items || []).map(s => row(s.itemId, s.slot))}
           {build.boots ? row(build.boots.itemId, 'Boots') : null}
         </div>
     );
@@ -701,7 +728,9 @@ window.ForgeUI = window.ForgeUI || {};
 
     return (
       <React.Fragment>
-        <ForgeUI.Bar current="draft" />
+        <ForgeUI.Bar current="draft"
+          act={<a className="act" target="_blank" rel="noopener" href="https://porofessor.gg/live/na/canadianbacon-pork"
+            title="Your live game on Porofessor: player tags, mains, streaks">Porofessor live</a>} />
         <div className="wrap">
           {/* the base href is /forge/, so these resolve to /forge/draft and /forge/draft?mock */}
           <nav className="modes" aria-label="Draft mode">
@@ -718,18 +747,23 @@ window.ForgeUI = window.ForgeUI || {};
           {err ? <div className="err" id="err" role="alert"><code>{errCode(err)}</code>{ERRORS[errCode(err)] || err}</div> : null}
           {draft ? (
             <div className="desk">
-              <div className="col"><h3>Your team</h3>{MOCK
-                ? <MockTeam m={mk} setM={setMk} champs={cat?.champs || []} byKey={byKey} x={x} />
-                : <YourTeam draft={draft} byKey={byKey} x={x} />}</div>
-              <div className="mid">
-                {middle}
-                <div className="col"><h3>Team traits</h3><div className="card" id="traits"><Traits traits={advice?.traits} /></div></div>
+              <div className={`teams${MOCK ? '' : ' with-bans'}`}>
+                <h3 className="t-us">Your team</h3>
+                {MOCK
+                  ? <MockTeam m={mk} setM={setMk} champs={cat?.champs || []} byKey={byKey} x={x} />
+                  : <YourTeam draft={draft} byKey={byKey} x={x} />}
+                {MOCK ? null : <React.Fragment>
+                  <h3 className="t-bans">Bans</h3>
+                  <BanCol side="us" keys={allySeats(draft).map(s => s.ban)} byKey={byKey} />
+                  <BanCol side="them" keys={enemyBans(draft)} byKey={byKey} />
+                </React.Fragment>}
+                <h3 className="t-them">Enemy team</h3>
+                {MOCK
+                  ? <MockEnemies m={mk} setM={setMk} champs={cat?.champs || []} byKey={byKey} advice={advice} x={x} />
+                  : <EnemyTeam draft={draft} advice={advice} byKey={byKey} x={x} />}
               </div>
-              <div className="col"><h3>Enemy team</h3>{MOCK
-                ? <MockEnemies m={mk} setM={setMk} champs={cat?.champs || []} byKey={byKey} advice={advice} x={x} />
-                : <EnemyTeam draft={draft} advice={advice} byKey={byKey} x={x} />}
-                {MOCK ? null : <React.Fragment><h3>Bans</h3><div className="bans" id="bans">{(draft.bans || []).map(k => byKey[k]
-                  ? <img key={k} src={byKey[k].u} alt={byKey[k].n} title={byKey[k].n} /> : null)}</div></React.Fragment>}</div>
+              {middle}
+              <div className="col"><h3>Team traits</h3><div className="card" id="traits"><Traits traits={advice?.traits} /></div></div>
             </div>
           ) : middle}
         </div>

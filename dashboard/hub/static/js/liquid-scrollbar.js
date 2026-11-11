@@ -61,8 +61,16 @@
   }
   // the page itself scrolls on a phone: the rail runs between the top bar and the dock
   function rect(b) { return b.sc === doc ? { top: 90, height: innerHeight - 180, right: innerWidth } : b.sc.getBoundingClientRect(); }
+  // a pane's groove spans its content, not its padding: mail's nav column starts 22px above the nav card
+  // (its padding plus the card's margin), and a groove from the column's edge poked above the card (mark 2026-11-10-105631 #1)
+  function inset(sc, side) {
+    var kid = side === "top" ? sc.firstElementChild : sc.lastElementChild, s = getComputedStyle(sc);
+    var m = kid ? parseFloat(getComputedStyle(kid)["margin" + (side === "top" ? "Top" : "Bottom")]) || 0 : 0;
+    return Math.max(6, (parseFloat(s["padding" + (side === "top" ? "Top" : "Bottom")]) || 0) + Math.max(0, m));
+  }
   function geo(b) {
-    var sc = b.sc, r = rect(b), pad = b.cd ? PAD : 6, H = r.height - 2 * pad;
+    var sc = b.sc, r = rect(b), full = !b.cd && sc !== doc;
+    var pad = b.cd ? PAD : full ? inset(sc, "top") : 6, padB = b.cd ? PAD : full ? inset(sc, "bottom") : 6, H = r.height - pad - padB;
     return { r: r, pad: pad, H: H, th: Math.max(b.cd ? 24 : 36, H * sc.clientHeight / sc.scrollHeight), max: sc.scrollHeight - sc.clientHeight };
   }
   function layout(b) {

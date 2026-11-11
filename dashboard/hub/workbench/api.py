@@ -11,7 +11,9 @@ from __future__ import annotations
 
 import hashlib
 import html
+import json
 import os
+import tempfile
 import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
@@ -273,36 +275,87 @@ def _read(f: Path) -> str | None:
 # set dir -> (file stat signature, sha256): a set is rehashed only when a file in
 # it is added, removed or rewritten, not on every list load
 READY_STAMP_SINCE = 1794274800  # 2026-11-10 UTC, when shot_set.py began writing ready.txt
-_HASH_CACHE: dict[str, tuple[frozenset, str]] = {}
-_META_CACHE: dict[str, tuple[tuple, tuple]] = {}
+#
+# Both caches are keyed on a digest of the set's file signature and kept on native disk
+# (_CACHE_FILE), so a Hub restart does not re-read all 93 MB of sets to rehash them:
+# that made the first Workbench load after each restart 3.3 s (2026-11-10, ~19 restarts
+# that day). ponytail: one JSON file, rewritten when a set changed; never pruned beyond
+# dropping sets that are gone.
+_HASH_CACHE: dict[str, tuple[str, str]] = {}
+_META_CACHE: dict[str, tuple[str, list]] = {}
+_CACHE_FILE = Path.home() / ".cache" / "hub-workbench-options.json"
+_loaded_from_disk = False
+
+
+def _persists(root: Path) -> bool:
+    # test vaults live under the temp dir; they must not overwrite the real cache
+    return not str(root.resolve()).startswith(tempfile.gettempdir())
+
+
+def _load_caches(root: Path) -> None:
+    global _loaded_from_disk
+    if _loaded_from_disk or not _persists(root):
+        return
+    _loaded_from_disk = True
+    try:
+        disk = json.loads(_CACHE_FILE.read_text(encoding="utf-8"))
+        for k, v in disk.get("hash", {}).items():
+            _HASH_CACHE.setdefault(k, tuple(v))
+        for k, v in disk.get("meta", {}).items():
+            _META_CACHE.setdefault(k, tuple(v))
+    except (OSError, ValueError, AttributeError, TypeError):
+        pass
+
+
+def _save_caches(root: Path, live: set[str]) -> None:
+    if not _persists(root):
+        return
+    try:
+        _CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        tmp = _CACHE_FILE.with_suffix(".tmp")
+        tmp.write_text(json.dumps({
+            "hash": {k: v for k, v in _HASH_CACHE.items() if k in live},
+            "meta": {k: v for k, v in _META_CACHE.items() if k in live},
+        }), encoding="utf-8")
+        tmp.replace(_CACHE_FILE)
+    except OSError:
+        pass                     # the disk copy is only a speed-up
+
+
+def _files(top: str):
+    """(dir, name, stat) for every file under top. scandir's entry.stat is ~3x
+    faster than os.walk + os.stat on /mnt/c (0.3 s against 0.9 s for 749 files,
+    threaded, 2026-11-10)."""
+    with os.scandir(top) as it:
+        for e in it:
+            try:
+                if e.is_dir(follow_symlinks=False):
+                    yield from _files(e.path)
+                else:
+                    yield top, e.name, e.stat(follow_symlinks=False)
+            except OSError:
+                continue         # removed mid-walk
 
 
 def _option_item(d: Path, real_root: Path) -> dict:
-    # One stat per file via scandir (rglob + is_file + stat was three, and each
-    # costs ~2ms on /mnt/c: 1.7s for the list, measured 2026-10-13).
     newest = 0
     sig = set()
     build_sig = None
     ready_at = None
-    for top, _dirs, files in os.walk(d):
-        for name in files:
-            try:
-                st = os.stat(os.path.join(top, name))
-            except OSError:
-                continue
-            if top == str(d) and name == "build.txt":
-                build_sig = (st.st_mtime_ns, st.st_size)
-                continue
-            if top == str(d) and name == "ready.txt":
-                ready_at = st.st_mtime
-                continue
-            newest = max(newest, st.st_mtime)
-            sig.add((top, name, st.st_mtime_ns, st.st_size))
-    sig = frozenset(sig)
+    for top, name, st in _files(str(d)):
+        if top == str(d) and name == "build.txt":
+            build_sig = (st.st_mtime_ns, st.st_size)
+            continue
+        if top == str(d) and name == "ready.txt":
+            ready_at = st.st_mtime
+            continue
+        newest = max(newest, st.st_mtime)
+        sig.add((top, name, st.st_mtime_ns, st.st_size))
+    sig = hashlib.md5(json.dumps(sorted(sig)).encode(), usedforsecurity=False).hexdigest()
     # The three reads below were 0.75 s of every list (228 reads on /mnt/c,
     # 2026-10-22) for files the walk above already stat'd, so they are kept
     # against those stats the same way the hash is.
-    meta_key = (sig, build_sig)
+    meta_key = f"{sig}|{build_sig}"
     meta = _META_CACHE.get(str(d))
     if meta and meta[0] == meta_key:
         title, build, cards = meta[1]
@@ -312,7 +365,7 @@ def _option_item(d: Path, real_root: Path) -> dict:
         title = html.unescape(re.sub(r"<[^>]+>", "", m.group(1))).strip() if m else d.name
         build = (_read(d / "build.txt") or "").strip() or None  # a bad link fails open: ungrouped
         cards = len(_CARD_RE.findall(_read(d / "options.html") or ""))
-        _META_CACHE[str(d)] = (meta_key, (title, build, cards))
+        _META_CACHE[str(d)] = (meta_key, [title, build, cards])
     hit = _HASH_CACHE.get(str(d))
     if hit and hit[0] == sig:
         sha256 = hit[1]
@@ -343,8 +396,13 @@ def api_options():
             if d.is_dir() and not d.name.startswith(".")]
     real_root = root.resolve()
     # The walk is latency-bound on the Windows drive, not CPU-bound: run the sets side by side.
+    _load_caches(root)
+    before = (dict(_HASH_CACHE), dict(_META_CACHE))
     with ThreadPoolExecutor(max_workers=16) as ex:
         items = list(ex.map(lambda d: _option_item(d, real_root), dirs))
+    live = {str(d) for d in dirs}
+    if before != (_HASH_CACHE, _META_CACHE) or not live >= set(_HASH_CACHE):
+        _save_caches(root, live)
     items.sort(key=lambda d: d["mtime"], reverse=True)
     return jsonify(items)
 

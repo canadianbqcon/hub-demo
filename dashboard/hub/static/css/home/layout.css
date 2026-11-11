@@ -32,12 +32,16 @@
    column's cards scroll inside rather than push the row past the window. */
 body.home .scroll-region { container-type: size; }
 @media (min-width: 900px) {
-  .lh-top { height: calc(100cqh - var(--s-4)); min-height: 560px; }
+  /* at least the window; taller when the glance cards need it, so they never scroll (mark 003123 #1).
+     contain:size keeps the calendar from setting the row: it fills whatever height the cards leave it */
+  .lh-top { min-height: max(560px, calc(100cqh - var(--s-4))); }
+  .lp-today { contain: size; }
   .lp-today, .lh-top-r { min-height: 0; }
   .lp-today .col-cal { display: flex; flex-direction: column; }
-  .lp-today .col-cal .tb-day { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
-  /* rounded like the cards it clips, so a card cut by the scroll edge keeps a card's corner (mark 055757 #1) */
-  .lp-glance { min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-radius: var(--r-card); }
+  /* no overscroll-behavior:contain here: the today view fills the window, so a trapped wheel
+     meant the page never scrolled while the pointer was over it (2026-11-09). At their end,
+     these hand the wheel on to the page. */
+  .lp-today .col-cal .tb-day { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
 }
 .lh-three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-5); align-items: stretch; }
 .lh-stack { display: grid; gap: var(--s-5); align-content: start; min-width: 0; }

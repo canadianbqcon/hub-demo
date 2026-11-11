@@ -476,6 +476,211 @@ function ModuleLauncher({ open, modules, onClose }) {
   );
 }
 
+/* ---------------- NotifyBell ----------------
+   The notification bell (Workbench pick "Module icon tiles", 2026-11-10). Fetches
+   /notify/api/list after mount, on focus and every 60 s while visible, each fetch
+   cut at 8 s. A failed fetch keeps the last count and the pane says "unavailable";
+   a 401 clears both. Titles, bodies and sources are React text only; the one
+   innerHTML is the module icon from window.MODULES. NotifyBoundary keeps a render
+   fault in here from taking the rest of the bar with it. */
+/* Pages do not link chrome.css (theme-switch.js injects the bar's rules), so the bell carries its own
+   copy, the twin of the .nb block in chrome.css. Edit both. */
+const NB_CSS = `.nb { position: relative; display: flex; align-items: center; }
+.nb-btn { position: relative; color: var(--fg); }
+.nb-g { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.nb-pane { position: absolute; top: calc(100% + 14px); right: 0; width: 380px; max-width: calc(100vw - 20px); box-sizing: border-box; padding: 8px; z-index: 1100;
+  border-radius: 24px; background: var(--lq-frost-fill, var(--bg-elev));
+  backdrop-filter: blur(var(--lq-frost-blur, 40px)) saturate(180%); -webkit-backdrop-filter: blur(var(--lq-frost-blur, 40px)) saturate(180%);
+  box-shadow: var(--lg-ov-rim, none), var(--lq-menu-shade, none); color: var(--fg); }
+.nb-head { display: flex; align-items: center; gap: 10px; padding: 8px 10px 10px; font-size: 13px; }
+.nb-head > b { font-family: var(--font-display); font-size: 15px; }
+.nb-fail { color: var(--fg-dim); font-size: 12px; }
+.nb-all { margin-left: auto; background: none; border: 0; color: var(--fg-dim); font: inherit; font-size: 12px; cursor: pointer; padding: 4px 6px; border-radius: 8px; }
+.nb-all:hover { color: var(--fg); background: var(--line-soft); }
+.nb-list { max-height: min(70vh, 520px); overflow: auto; }
+.nb-grp { margin: 8px 10px 4px; font-size: 11px; letter-spacing: .06em; color: var(--fg-dim); }
+.nb-row { display: flex; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 14px; color: var(--fg-dim); text-decoration: none; }
+.nb-row:hover { background: var(--line-soft); }
+.nb-row.is-unread { color: var(--fg); }
+.nb-row b { font-weight: 500; font-size: 14px; overflow-wrap: anywhere; }
+.nb-row.is-unread b { font-weight: 650; }
+.nb-tx { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.nb-body { font-size: 12px; color: var(--fg-dim); overflow-wrap: anywhere; }
+/* source = the module's own launcher glyph in a glass tile, the row's visual anchor; accent tint while unread */
+.nb-ic { flex: none; width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; color: var(--fg-dim);
+  background: var(--line-soft); box-shadow: inset 0 0 0 1px var(--line); }
+.nb-ic svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; display: block; }
+.nb-ic .nb-dot { fill: currentColor; stroke: none; }
+.nb-row.is-unread .nb-ic { color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent); }
+.nb-when { font-size: 12px; color: var(--fg-dim); white-space: nowrap; font-variant-numeric: tabular-nums; align-self: flex-start; margin-top: 4px; }
+/* delete: a quiet x over the time on hover or focus; always shown where there is no hover (touch) */
+.nb-item { position: relative; }
+.nb-del { position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 10px;
+  background: var(--bg-elev); color: var(--fg-dim); cursor: pointer; opacity: 0; }
+.nb-del svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.nb-item:hover .nb-del, .nb-del:focus-visible { opacity: 1; }
+.nb-del:hover { color: var(--fg); background: var(--line-soft); }
+.nb-del:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media (hover: none) { .nb-del { opacity: 1; top: 4px; right: 0; width: 44px; height: 44px; background: none; } .nb-row { padding-right: 44px; } }
+.nb-badge { position: absolute; top: -3px; right: -5px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent);
+  color: var(--bg); font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; box-shadow: 0 0 0 2px var(--bg); box-sizing: border-box; }
+/* phone: the controls are a bottom dock, so the pane opens upward as a sheet */
+@media (max-width: 640px) {
+  .nb { position: static; }
+  .nb-pane { position: fixed; top: auto; left: 12px; right: 12px; bottom: calc(var(--dock-gap, 16px) + 72px); width: auto; max-width: none; max-height: 62vh; overflow: auto; background: var(--bg-elev); }  /* solid on the phone, as the control pane does */
+  .nb-list { max-height: none; overflow: visible; }
+  .nb-all { min-height: 44px; padding: 0 12px; }  /* phone tap target */
+}`;
+if (!document.getElementById("nb-css")) {
+  const st = document.createElement("style"); st.id = "nb-css"; st.textContent = NB_CSS; document.head.appendChild(st);
+}
+const NB_DOT = { __html: '<circle class="nb-dot" cx="12" cy="12" r="3"/>' };
+function nbWhen(iso) {
+  const d = new Date(iso), ms = Date.now() - d.getTime();
+  if (!(ms >= 0)) return "";
+  const m = Math.floor(ms / 60000);
+  if (m < 1) return "now";
+  if (m < 60) return m + "m";
+  if (m < 1440) return Math.floor(m / 60) + "h";
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  if (d.toDateString() === y.toDateString()) return "yesterday";
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+function nbIcon(source) {
+  const mods = window.MODULES || [];
+  const hit = mods.find((m) => m.name === source) || (source === "clash" ? mods.find((m) => m.name === "gaming") : null);
+  return hit && hit.icon ? { __html: hit.icon } : NB_DOT;
+}
+/* post() allows a Hub path or an https link; a row that reached the store some other way gets no link.
+   Control characters and spaces are refused because browsers strip them ("/\t/x" would become "//x"). */
+function nbHref(raw) {
+  if (typeof raw !== "string" || /[\x00-\x20\x7f]/.test(raw)) return "";
+  return /^https:\/\/[^\/\\]/i.test(raw) || /^\/(?![\/\\])/.test(raw) ? raw : "";
+}
+function NotifyRow({ it, onRead, onDelete }) {
+  const url = nbHref(it.url), ext = /^https:/i.test(url);
+  /* an unread Hub link goes through /notify/go/<id>, which marks it read on the server and then
+     redirects, so click, middle-click and new tab all mark it first. An https link opens directly
+     (a new tab may not carry the Hub session) and, like a row with no link, is marked by a POST. */
+  const via = url && !ext && !it.read;
+  const href = via ? "/notify/go/" + it.id : url || "#";
+  const click = (e) => {
+    if (!url) e.preventDefault();
+    if (!it.read) onRead(it.id, !via);
+  };
+  const aux = (e) => { if (e.button === 1 && !it.read) onRead(it.id, !via); };  // middle-click skips onClick
+  /* the delete button sits beside the link, not in it (a button inside an <a> is invalid and would follow the link) */
+  return (
+    <div className="nb-item">
+      <a className={"nb-row" + (it.read ? "" : " is-unread")} href={href} onClick={click} onAuxClick={aux}
+         target={ext ? "_blank" : undefined} rel={ext ? "noopener" : undefined}>
+        <span className="nb-ic" title={String(it.source)}>
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" dangerouslySetInnerHTML={nbIcon(it.source)} />
+        </span>
+        <span className="nb-tx"><b>{String(it.title)}</b>{it.body ? <span className="nb-body">{String(it.body)}</span> : null}</span>
+        <span className="nb-when">{nbWhen(it.due_at)}</span>
+      </a>
+      <button type="button" className="nb-del" onClick={() => onDelete(it.id)} aria-label={"delete " + String(it.title)} title="delete">
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8" /></svg>
+      </button>
+    </div>
+  );
+}
+function NotifyBellInner() {
+  const [open, setOpen] = useState(false);
+  const [st, setSt] = useState({ unread: 0, items: [], failed: false });
+  const wRef = useRef(null), bRef = useRef(null);
+  const gen = useRef(0);   // bumped at the start and end of every mark
+  const busy = useRef(0);  // marks in flight; a list fetch is applied only when none overlapped it
+  const last = useRef(0);  // the newest mark; only its answer is applied, since an older one may predate it
+  const apply = (d) => setSt({ unread: Number(d.unread) || 0, items: Array.isArray(d.items) ? d.items : [], failed: false });
+
+  useEffect(() => {
+    let dead = false;
+    const load = async () => {
+      if (document.visibilityState !== "visible") return;
+      const c = new AbortController(), t = setTimeout(() => c.abort(), 8000), g = gen.current;
+      try {
+        const r = await fetch("/notify/api/list", { signal: c.signal, credentials: "same-origin" });
+        if (r.status === 401) { if (!dead) setSt({ unread: 0, items: [], failed: false }); return; }
+        if (!r.ok) throw new Error("list " + r.status);
+        const d = await r.json();
+        if (!dead && g === gen.current && !busy.current) apply(d);
+      } catch (e) {
+        if (!dead) setSt((s) => ({ ...s, failed: true }));
+      } finally { clearTimeout(t); }
+    };
+    load();
+    const iv = setInterval(load, 60000);
+    window.addEventListener("focus", load);
+    return () => { dead = true; clearInterval(iv); window.removeEventListener("focus", load); };
+  }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (e) => { if (wRef.current && !wRef.current.contains(e.target)) setOpen(false); };
+    const onEsc = (e) => { if (e.key === "Escape") { setOpen(false); if (bRef.current) bRef.current.focus(); } };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onEsc);
+    return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onEsc); };
+  }, [open]);
+
+  const send = (path, ids) => {  // the POST answers with the fresh list, which replaces any fetch it overlapped
+    gen.current++; busy.current++;
+    const me = ++last.current, c = new AbortController(), t = setTimeout(() => c.abort(), 8000);  // a hung POST must not freeze the bell
+    fetch(path, { method: "POST", signal: c.signal, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ids }) })
+      .then((r) => (r.ok ? r.json() : null)).catch(() => null)
+      .then((d) => { clearTimeout(t); busy.current--; gen.current++; if (d && !busy.current && me === last.current) apply(d); });
+  };
+  const readLocal = (ids) => setSt((s) => {
+    const hit = s.items.filter((i) => !i.read && ids.includes(i.id)).length;
+    return { ...s, unread: Math.max(0, s.unread - hit), items: s.items.map((i) => (ids.includes(i.id) ? { ...i, read: true } : i)) };
+  });
+  const mark = (ids) => send("/notify/api/read", ids);
+  const onRead = (id, post) => { gen.current++; readLocal([id]); if (post) mark([id]); };
+  const onDelete = (id) => {  // no confirm, as he asked: the row goes at once
+    gen.current++;
+    setSt((s) => ({ ...s, unread: Math.max(0, s.unread - s.items.filter((i) => i.id === id && !i.read).length),
+      items: s.items.filter((i) => i.id !== id) }));
+    send("/notify/api/delete", [id]);
+  };
+  const readAll = () => {  // the ids shown, from one snapshot: a row that came due since stays unread
+    const ids = st.items.filter((i) => !i.read).map((i) => i.id);
+    if (ids.length) { readLocal(ids); mark(ids); }
+  };
+  const fresh = st.items.filter((i) => !i.read), older = st.items.filter((i) => i.read);
+  const n = st.unread;
+  return (
+    <div className="nb" ref={wRef} data-open={open}>
+      <button type="button" ref={bRef} className="launcher launcher-icon nb-btn" onClick={() => setOpen((o) => !o)}
+        aria-haspopup="dialog" aria-expanded={open} aria-label={"notifications, " + n + " unread"} title="notifications">
+        <svg className="nb-g" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2.2c-2.6 0-4.5 2-4.5 4.6v2.7L3 12.3h12l-1.5-2.8V6.8C13.5 4.2 11.6 2.2 9 2.2Z" /><path d="M7.2 14.4a1.9 1.9 0 0 0 3.6 0" /></svg>
+        {n ? <span className="nb-badge">{n > 99 ? "99+" : n}</span> : null}
+      </button>
+      <HubCollapse open={open} float>
+        <div className="nb-pane" role="dialog" aria-label="notifications">
+          <div className="nb-head"><b>notifications</b>
+            {st.failed ? <span className="nb-fail">unavailable</span> : null}
+            {n && !st.failed ? <button type="button" className="nb-all" onClick={readAll}>mark all read</button> : null}</div>
+          <div className="nb-list">
+            {fresh.length ? <p className="nb-grp">new</p> : null}
+            {fresh.map((i) => <NotifyRow key={i.id} it={i} onRead={onRead} onDelete={onDelete} />)}
+            {older.length ? <p className="nb-grp">earlier</p> : null}
+            {older.map((i) => <NotifyRow key={i.id} it={i} onRead={onRead} onDelete={onDelete} />)}
+            {!st.items.length && !st.failed ? <p className="nb-grp nb-empty">nothing yet</p> : null}
+          </div>
+        </div>
+      </HubCollapse>
+    </div>
+  );
+}
+class NotifyBoundary extends React.Component {
+  constructor(p) { super(p); this.state = { bad: false }; }
+  static getDerivedStateFromError() { return { bad: true }; }
+  render() { return this.state.bad ? null : this.props.children; }
+}
+
 /* ---------------- the bar ----------------
    brand lockup ("hub" over the active theme's slogan), the page's crumb, then the
    controls. `slots` is the page's own extras (see the top of this file); React
@@ -507,6 +712,7 @@ function TopbarInner({ crumb, slots }) {
         </div>
       </div>
       <div className="topbar-r" ref={rRef}>
+        {modules.length ? <NotifyBoundary><NotifyBellInner /></NotifyBoundary> : null}
         <ControlPane />
         {modules.length ? (
           <button type="button" className="launcher launcher-icon module-launcher" aria-label="modules" title="modules"

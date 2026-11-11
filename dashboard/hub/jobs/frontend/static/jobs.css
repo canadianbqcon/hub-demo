@@ -785,7 +785,7 @@ body.jobs .rts-edit svg{width:14px;height:14px;flex:none;}
 /* context rail: each panel is its own slab; the head is not a --bg band and not a violet caps label */
 [data-theme="liquid"] body.jobs .hub-e3p-rail { gap: var(--lq-gap); display: flex; flex-direction: column; overflow-x: hidden; }
 [data-theme="liquid"] body.jobs .hub-e3p-rail > .panel {
-  flex: none; border: 0; border-radius: var(--lq-pane-r); background: var(--bg-elev); box-shadow: var(--lq-slab-shade);
+  flex: none; border: 0; border-radius: var(--lq-pane-r); background: var(--lq-card); box-shadow: var(--lq-slab-shade);   /* liquid.css section 16 card rule */
 }
 [data-theme="liquid"] body.jobs .hub-e3p-rail .panel-head { border-bottom: 0; background: none; padding: 14px 18px 4px; }
 [data-theme="liquid"] body.jobs .panel-title {

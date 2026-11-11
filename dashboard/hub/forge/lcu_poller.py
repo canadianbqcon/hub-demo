@@ -45,6 +45,7 @@ from pathlib import Path
 LOCKFILE = Path(r"C:\Riot Games\League of Legends\lockfile")
 HUB = "http://127.0.0.1:5002/forge/api/draft/session"
 HUB_INGAME = "http://127.0.0.1:5002/forge/api/draft/ingame"
+HUB_RANK = "http://127.0.0.1:5002/forge/api/me/rank"
 LIVE_CLIENT = "https://127.0.0.1:2999/liveclientdata/playerlist"
 # 0.5 s in champ select keeps the worst case near 1.3 s of the 2 s budget
 # (spec section 1); 3 s otherwise is cheap and still catches a draft starting.
@@ -155,6 +156,25 @@ def poll_game(lcu: Client, seq: int, now: float, read=read_players, send=None, p
     return True
 
 
+_DIVISIONS = {"I": 1, "II": 2, "III": 3, "IV": 4}
+
+
+def ranked(lcu: Client) -> dict | None:
+    """His Solo / Duo standing straight from the client: tier, division, LP and the
+    win / loss count. The count is what ties a reading to games: it steps by one per
+    ranked game, so the first reading after a game is that game's LP exactly."""
+    _c, body = lcu.get("/lol-ranked/v1/current-ranked-stats")
+    if not isinstance(body, dict):
+        return None
+    q = (body.get("queueMap") or {}).get("RANKED_SOLO_5x5") or next(
+        (x for x in body.get("queues") or [] if x.get("queueType") == "RANKED_SOLO_5x5"), None)
+    if not isinstance(q, dict) or q.get("tier") in (None, "", "NONE", "UNRANKED"):
+        log.warning("no Solo / Duo standing in ranked stats (keys %s)", sorted(body)[:8])
+        return None
+    return {"tier": q["tier"], "division": _DIVISIONS.get(q.get("division")),
+            "lp": q.get("leaguePoints"), "wins": q.get("wins"), "losses": q.get("losses")}
+
+
 def post(body: dict, url: str = HUB) -> bool:
     req = urllib.request.Request(url, data=json.dumps(body).encode(), method="POST",
                                  headers={"Content-Type": "application/json"})
@@ -189,7 +209,7 @@ def run() -> None:
                         format="%(asctime)s %(levelname)s %(message)s")
     _lock = _single_instance()  # noqa: F841 -- held open for the process lifetime
     lcu, pid, seq = Client(), uuid.uuid4().hex[:12], 0
-    sent_hash, sent_at, game_at = None, 0.0, 0.0
+    sent_hash, sent_at, game_at, sent_rank = None, 0.0, 0.0, None
     log.info("poller %s started", pid)
     while True:
         snap = {"status": "idle"}
@@ -205,6 +225,11 @@ def run() -> None:
                 game_at = now
                 seq += 1
                 poll_game(lcu, seq, now, poller=pid)
+                # Every change is posted (plus the first read, the baseline): the
+                # Hub matches each to the game that ended before it.
+                rank = ranked(lcu)
+                if rank and rank != sent_rank and post({**rank, "capturedAt": now}, HUB_RANK):
+                    sent_rank = rank
         except Exception:                   # pythonw has no stderr: name it, keep polling
             log.exception("poll failed")
         time.sleep(POLL_DRAFT if snap["status"] == "draft" else POLL_IDLE)
@@ -222,6 +247,7 @@ def main() -> int:
     body = {"pollerId": "once", "seq": 1, "capturedAt": time.time(), **snap}
     if a.dry:
         print(f"status: {snap['status']}")
+        print(f"ranked: {ranked(Client())}")
         if snap["status"] == "draft":
             print(json.dumps(body)[:2000])
         return 0

@@ -76,12 +76,17 @@ window.ForgeUI = window.ForgeUI || {};
     return s => !replaced.has(s.id);
   };
 
-  function Card({ c, live, runedex, onOpen, onBuilt, tab }) {
+  function Card({ c, live, runedex, onOpen, onBuilt, tab, focus }) {
     const [building, setBuilding] = useState(false);
     const [err, setErr] = useState(null);
     const [picked, setPicked] = useState(tab || null);
     // a role tab turns every shown card to that role's shelf; its chips still switch after
     useEffect(() => { if (tab) setPicked(tab); }, [tab]);
+    // a rail click under a lane heading turns this card to that lane
+    useEffect(() => { if (focus && focus.role) setPicked(focus.role); }, [focus]);
+    /* Auto sets fold away once he has builds of his own on the role (mark 2026-11-10-042636 #4) */
+    const [autoOpen, setAutoOpen] = useState(false);
+    const [poolBusy, setPoolBusy] = useState(false);
     const [old, setOld] = useState(false);
     const on = picked && c.roles.some(r => r.role === picked) ? picked : openingRole(c);
     const current = isCurrent(c);
@@ -91,6 +96,16 @@ window.ForgeUI = window.ForgeUI || {};
     // His builds and Auto sets sit on separate shelves: Auto is Autobuild's, read-only.
     const mine = shown.filter(s => !s.auto), auto = shown.filter(s => s.auto);
     const hidden = all.length - all.filter(current).length;
+    const foldAuto = mine.length > 0 && auto.length > 0;
+    const inPool = (c.poolRoles || []).includes(on);
+    /* Mark 2026-11-10-042636 #2: which lanes this champion is in his pool for; the rail sorts by it. */
+    const togglePool = () => {
+      setPoolBusy(true); setErr(null);
+      fetch('api/pool-roles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ champion: c.name, role: on, on: !inPool }) })
+        .then(r => { if (!r.ok) throw new Error(`request failed (${r.status})`); return onBuilt(); })
+        .catch(e => setErr(`Pool not changed. ${e.message || e}`))
+        .then(() => setPoolBusy(false));
+    };
     const autobuild = () => {
       setBuilding(true); setErr(null);
       fetch('api/autobuild', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ champion: c.name, role: on }) })
@@ -120,17 +135,23 @@ window.ForgeUI = window.ForgeUI || {};
                 );
               })}
             </div>
-            <Styles list={c.styles} />
+            {/* no build style chips on the card (mark 2026-11-10-042636 #5): the champion page header carries them */}
           </div>
         </div>
         <section className="shelf">
-          <h4>My builds <span className="where">{on}</span></h4>
+          <h4>My builds <span className="where">{on}</span>
+            <button type="button" className="inpool" aria-pressed={inPool} disabled={poolBusy} onClick={togglePool}
+                    title={inPool ? `In your ${on} pool. Click to take ${c.name} out of it.` : `Add ${c.name} to your ${on} pool`}>
+              {inPool ? `In ${on} pool` : `Add to ${on} pool`}</button></h4>
           {mine.length
             ? <div className="builds">{mine.map(s => (
                 <Build c={c} s={s} live={live} runedex={runedex} onOpen={onOpen} key={s.id} />))}</div>
             : <p className="quiet">No {on} builds saved yet.</p>}
-          {auto.length ? <h4>Auto <span className="where">{on}</span></h4> : null}
-          {auto.length ? <div className="builds">{auto.map(s => (
+          {auto.length ? (foldAuto
+            ? <h4><button type="button" className="fold" aria-expanded={autoOpen} onClick={() => setAutoOpen(!autoOpen)}>
+                Auto <span className="where">{on}</span><span className="where">{auto.length}</span></button></h4>
+            : <h4>Auto <span className="where">{on}</span></h4>) : null}
+          {auto.length && (!foldAuto || autoOpen) ? <div className="builds">{auto.map(s => (
             <Build c={c} s={s} live={live} runedex={runedex} onOpen={onOpen} key={s.id} />))}</div> : null}
           {/* Shown until the role has a build of his or a live-patch Auto set: stale Auto
               sets have no carry-forward, so this is how they come up to the live patch. */}
@@ -185,7 +206,8 @@ window.ForgeUI = window.ForgeUI || {};
         <div className="roster-grid">
           {shown.map(c => (
             <div className="tile" data-champ={c.name} key={c.name}>
-              {c.portrait ? <img src={c.portrait} alt="" /> : <i></i>}
+              {/* lazy: ~170 portraits (~5 MB) sit below the fold; eager, they held the load event to 2 s */}
+              {c.portrait ? <img src={c.portrait} alt="" loading="lazy" decoding="async" width="40" height="40" /> : <i></i>}
               <div>
                 <a className="nm" href={buildHref(c.name, c.roles[0])}>{c.name}</a>
                 <div className="roles">{c.roles.map(r => (
@@ -206,6 +228,27 @@ window.ForgeUI = window.ForgeUI || {};
     /* the rail's search: filters the cards here; other pages land here with ?q= */
     const [query, setQuery] = useState(() => new URLSearchParams(location.search).get('q') || '');
     const [tab, setTab] = useState('');   // '' is every role
+    const [focus, setFocus] = useState(null);   // the rail's last click: {name, role}
+    /* Patch opens here, in place of the cards, not as a separate page (mark 2026-11-10-042636 #1).
+       It rides the hash so Back returns to the cards and a link to /forge/#patch reopens it. */
+    const viewOf = () => location.hash === '#patch' ? 'patch' : 'champions';
+    const [view, setView] = useState(viewOf);
+    const [notes, setNotes] = useState(null);
+    useEffect(() => {
+      const sync = () => setView(viewOf());
+      window.addEventListener('hashchange', sync);
+      return () => window.removeEventListener('hashchange', sync);
+    }, []);
+    useEffect(() => {
+      if (view === 'patch' && !notes) window.__FORGE.notes.then(setNotes);
+      const crumb = document.querySelector('[data-slot="crumb"]');
+      if (crumb) crumb.textContent = 'forge · ' + view;
+    }, [view]);
+    const onSection = key => {
+      if (key === 'champions') { if (view !== 'champions') history.pushState(null, '', location.pathname + location.search); setView('champions'); return true; }
+      if (key === 'patch') { if (view !== 'patch') location.hash = 'patch'; setView('patch'); window.scrollTo(0, 0); return true; }
+      return false;
+    };
     const setsRef = useRef(new Map());
     const ovRef = useRef(null);
     const reloadRef = useRef(null);
@@ -253,13 +296,20 @@ window.ForgeUI = window.ForgeUI || {};
 
     return (
       <React.Fragment>
-        <ForgeUI.Bar current="champions" act={<a className="act" href="edit">New set</a>}
-          query={query} onQuery={setQuery} total={D ? totalSets : null}
-          pool={D ? D.champions.map(c => ({ name: c.name, img: c.portrait, n: c.sets.filter(isCurrent(c)).length })) : null}>
+        <ForgeUI.Bar current={view} act={<a className="act" href="edit">New set</a>} onSection={onSection}
+          query={query} onQuery={setQuery} total={D ? totalSets : null} onPick={setFocus}
+          pool={D ? D.champions.flatMap(c => {
+            const cur = c.sets.filter(isCurrent(c));
+            const roles = c.poolRoles || [];
+            return roles.length
+              ? roles.map(role => ({ name: c.name, img: c.portrait, role, n: cur.filter(s => s.role === role).length }))
+              : [{ name: c.name, img: c.portrait, role: '', n: cur.length }];
+          }) : null}>
           <span className="meta" id="statsPatch">{D?.patch ? `stats ${D.patch}` : ''}</span>
           <span className="meta" id="livePatch">{D?.catalogPatch ? `live ${D.catalogPatch}` : ''}</span>
         </ForgeUI.Bar>
 
+        {view === 'patch' ? <ForgeUI.PatchBody notes={notes} /> :
         <div className="wrap">
           {/* No explainer blurb over the cards (mark 2026-11-05-173522 #1, sent back twice):
               the page opens on the tabs. Only loading and the empty pool get a line. */}
@@ -274,11 +324,12 @@ window.ForgeUI = window.ForgeUI || {};
             {D ? D.champions.filter(c => c.name.toLowerCase().includes(query.trim().toLowerCase())
                 && (!tab || c.roles.some(r => r.role === tab))).map(c => (
               <Card c={c} live={data.live} runedex={data.runedex} key={c.name} tab={tab}
+                    focus={focus && focus.name === c.name ? focus : null}
                     onOpen={id => ovRef.current.open(setsRef.current.get(id))}
                     onBuilt={() => reloadRef.current()} />)) : null}
           </div>
           {D?.roster?.length ? <Roster roster={D.roster} tab={tab} /> : null}
-        </div>
+        </div>}
       </React.Fragment>
     );
   }

@@ -26,7 +26,7 @@ re-import over his changes.
 | `/forge/stats` | **his own record** off OP.GG: rank, season history, champion pool, recent games | `stats.html` |
 | `/forge/c/<champ>` and `/forge/c/<champ>/<role>` | that champion's **build list**, every saved set grouped by patch | `champion.html` |
 | `/forge/c/<champ>/<role>/build` and `/forge/edit` | the **three-step builder**: items, rune page, plan | `forge.html` |
-| `/forge/draft` | the **draft assistant**: live champ select from `lcu_poller.py`, two pick lists, then build and game plan once he locks | `draft.html` |
+| `/forge/draft` | the **draft assistant**: live champ select from `lcu_poller.py`, two pick lists, then build and game plan once he locks; rail button opens his porofessor.gg live game (link only: porofessor.gg and leagueofgraphs.com answer a Cloudflare 403 to the Hub, so their tags cannot be read in) | `draft.html` |
 
 ## Where the rest of this lives
 
@@ -67,6 +67,10 @@ Three rules hold that, and all three are easy to undo by accident.
   blocked on every stylesheet declared before it, so the preflight below the two
   `<link rel=stylesheet>` lines cost a further hop for CSS it never reads.
   **A new page-boot fetch goes in the preflight, not next to the code that uses it.**
+  The builder's lolalytics read is `api/lolalytics?champ=<URL champion>` (one
+  champion, ~8 KB gzipped against ~730 KB whole); `renderMeta` in `forge-stats.jsx`
+  fetches each further champion the page turns to and repaints. The bare
+  `api/lolalytics` still serves the whole file (verify_frontend.py reads it).
 - **Nothing here is served `no-store`.** `no-store` and `no-cache` both forbid serving
   a stale file; only `no-store` also forbids keeping one, which is what had the 424 KB
   catalog re-downloading on every single page view. The Hub's `_no_cache_static` hook

@@ -545,6 +545,10 @@ CAL_EVENTS = [
 ]
 
 
+# Google's modern event colours by colorId; "" is the calendar's own (lavender)
+CAL_HEX = {"": "#7986cb", "2": "#33b679", "5": "#f6bf26", "6": "#f4511e", "7": "#039be5"}
+
+
 def _demo_week_events(days: int = 7, days_back: int = 0) -> list[dict]:
     import gcal
     today = dt.date.today()  # home_data buckets on local date.today() too
@@ -560,8 +564,10 @@ def _demo_week_events(days: int = 7, days_back: int = 0) -> list[dict]:
             # each its own offset, so a week across a DST change stays on the clock
             at = lambda hm: dt.datetime.combine(day, dt.time.fromisoformat(hm)).astimezone().isoformat()
             span = {"start": {"dateTime": at(start)}, "end": {"dateTime": at(end)}}
+        # the Hub tints from _color, which the real fetch resolves to Google's hex
         out.append(gcal._week_event_row({"id": f"demo-ev-{i}", "summary": title, "location": loc,
-                                         "colorId": color, "_cal_id": "primary", **span}))
+                                         "colorId": color, "_color": CAL_HEX.get(color, CAL_HEX[""]),
+                                         "_cal_id": "primary", **span}))
     out.sort(key=lambda e: (e["date"], e["start_dt"]))
     return out
 

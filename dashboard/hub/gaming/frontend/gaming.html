@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="icon" type="image/png" href="/static/assets/favicon.png">
+  <script>
+    /* Gaming is one theme: the Hub's Liquid Glass, retinted per game in gaming.css.
+       Pinned here, not read from hub.theme, the way Forge pins Rift. */
+    document.documentElement.setAttribute("data-theme", "liquid");
+    document.documentElement.setAttribute("data-glass", "frost");
+    /* light/dark follows the Hub (2026-11-10); slabs take the shared card fill in light */
+    try { document.documentElement.setAttribute("data-surface", localStorage.getItem("hub.surface") === "light" ? "light" : "dark"); } catch (e) { document.documentElement.setAttribute("data-surface", "dark"); }
+  </script>
+  <script>window.MODULES = {{ modules|tojson }};</script>
+  <script>window.CONNECTORS = {{ connectors|tojson }};</script>
+  <title>HUB · gaming</title>
+  <!-- webfonts: same-origin stylesheet carrying both themes' faces (see work.html). -->
+  <link rel="stylesheet" href="/static/vendor/fonts/fonts.css?v=3">
+  <link rel="stylesheet" href="/static/css/chrome.css?v=12" />
+  <link rel="stylesheet" href="/gaming/static/gaming.css?v=3" />
+  <link rel="stylesheet" href="/static/css/base.css?v=6">
+  <link rel="stylesheet" href="/static/css/components.css?v=5">
+  <link rel="stylesheet" href="/static/css/themes/cobalt.css?v=2" />
+  <link rel="stylesheet" href="/static/css/themes/liquid.css?v=10" />
+  <script defer src="/hub-modules.js"></script><script defer src="/static/js/theme-switch.js?v=42"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="/static/vendor/react.production.min.js"></script>
+  <script src="/static/vendor/react-dom.production.min.js"></script>
+  <!-- defer, and it matters: these used to be type="text/babel", which meant
+       @babel/standalone ran them at DOMContentLoaded - always AFTER the deferred
+       theme-switch.js that publishes window.HubBack/HubTheme and after hub-modules.js.
+       A plain <script> would run during parse instead and chrome.jsx would render its
+       topbar before window.HubBack existed, so theme-switch.js would inject a second
+       back button next to React's. defer restores the original order. -->
+  <script defer src="/jsx/static/js/topbar.jsx"></script>
+  <script defer src="/jsx/static/js/chrome.jsx?v=12"></script>
+  <script defer src="/jsx/gaming/frontend/static/gaming.jsx?v=2"></script>
+</body>
+</html>

@@ -114,6 +114,16 @@
       "ai": "Transcribed from photographed cards."
     },
     {
+      "group": "Life",
+      "name": "gaming",
+      "href": "/gaming/",
+      "what": "One door to the game tools: League item sets, a CS2 inventory book, a Clash of Clans builder tracker.",
+      "try": [
+        "Open the Clash tracker"
+      ],
+      "ai": "Each tool was specced, built and reviewed with Claude; live game data is off in the demo."
+    },
+    {
       "group": "Career",
       "name": "work",
       "href": "/work/",

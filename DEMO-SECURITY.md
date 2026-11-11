@@ -14,7 +14,7 @@ This copy of the Hub is public, so `dashboard/hub/demo_mode.py` wraps it when `D
   map, and fails if its scan finds a personal name, email, path or key.
 
 
-Routes: 231 read, 197 write to the demo's own data, 54 switched off.
+Routes: 254 read, 215 write to the demo's own data, 63 switched off.
 
 ## Switched-off routes
 
@@ -39,6 +39,9 @@ Routes: 231 read, 197 write to the demo's own data, 54 switched off.
 | `GET /forge/api/conditioned` | integration | live coachless fetch |
 | `GET /forge/api/draft/history` | integration | op.gg fetch |
 | `GET /forge/api/me` | integration | op.gg fetch |
+| `GET /forge/api/me/game` | integration | op.gg fetch |
+| `GET /forge/api/overlay` | integration | op.gg fetch |
+| `GET /inventory/api/updates` | integration | runs winget |
 | `GET /mail/api/attachment/<msg>/<att>` | integration | gmail attachment fetch |
 | `GET /news/api/items/<int:item_id>/read` | integration | fetches the article url |
 | `GET /trips/api/prefs/address-search` | integration | geocoder lookup |
@@ -50,10 +53,16 @@ Routes: 231 read, 197 write to the demo's own data, 54 switched off.
 | `POST /automations/api/act` | integration | gmail modify |
 | `POST /automations/api/decisions/<int:did>/fix` | integration | undoes then redoes a gmail action |
 | `POST /automations/api/decisions/<int:did>/undo` | integration | may reverse a gmail action |
+| `POST /clash/api/paste` | integration | stores the village then refreshes it from the Clash of Clans API |
+| `POST /clash/api/patch/refresh` | integration | game blog fetch |
+| `POST /clash/api/refresh` | integration | Clash of Clans API fetch |
 | `POST /finances/api/book/sync` | integration | simplefin bank sync plus anthropic categorize |
 | `POST /finances/api/owed/payments/scan` | integration | reads gmail for payments |
+| `POST /forge/api/draft/roster` | integration | op.gg and Riot fetch |
+| `POST /forge/api/me/rank` | integration | op.gg fetch |
 | `POST /inventory/api/scan` | integration | spawns inventory-scan process |
 | `POST /inventory/api/uninstall` | integration | runs an uninstall process |
+| `POST /inventory/api/update` | integration | runs winget |
 | `POST /jobs/api/applications/<int:app_id>/ai-research` | integration | anthropic streaming |
 | `POST /jobs/api/resumes/<int:resume_id>/reveal` | integration | spawns explorer.exe |
 | `POST /mail/api/act` | integration | gmail write |

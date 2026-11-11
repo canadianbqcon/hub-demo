@@ -41,7 +41,7 @@ body.mail .hub-nav-item.mx-lab { justify-content: space-between; min-height: 34p
    Marks 103701 #1 and #2, 2026-10-20: "this should sit on a large black card", then "not black ... make it dark,
    same as email list" (picked: both dark gray) */
 @media (min-width: 901px) {
-  [data-theme="liquid"] body.mail .mx-split > :is(.hub-t3p-list-col, .hub-t3p-side) { margin: 22px 0 10px 10px; border: 0; border-radius: 26px; background: var(--bg-elev); box-shadow: inset 0 0 0 1px var(--line-soft), var(--lq-slab-shade); overflow: clip; }
+  [data-theme="liquid"] body.mail .mx-split > :is(.hub-t3p-list-col, .hub-t3p-side) { margin: 22px 0 10px 10px; border: 0; border-radius: 26px; background: var(--lq-card, var(--bg-elev)); box-shadow: inset 0 0 0 1px var(--line-soft), var(--lq-slab-shade); overflow: clip; }   /* liquid.css section 16 card rule */
   [data-theme="liquid"] body.mail .mx-split > .hub-t3p-side { margin-right: 10px; }
   /* the cards already end above the status island, so the scrollers inside drop its 56px clearance
      (mark 161115 #1, "why is there a gap on bottom") */

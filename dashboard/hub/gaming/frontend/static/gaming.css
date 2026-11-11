@@ -1,0 +1,81 @@
+/* gaming hub - ported from Workbench gaming-page-look option A (2026-11-09), gx.css.
+   The page is the Hub's Liquid Glass (pinned in gaming.html); each game retints its
+   own band and slab with the --g* sets below. Same 3-row shell as work.css. */
+body {
+  margin: 0;
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body);
+  font-feature-settings: var(--feat-text);
+}
+.gaming-shell { grid-template-rows: auto 1fr var(--status-h); overflow: hidden; background: var(--bg); color: var(--fg); }
+.gaming-body { min-height: 0; overflow-y: auto; padding: var(--s-5) var(--s-5) var(--s-6); background: var(--bg); }
+.gaming-body::-webkit-scrollbar { width: 6px; }
+.gaming-body::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: var(--r-pill); }
+.gaming-body::-webkit-scrollbar-track { background: transparent; }
+[data-theme="liquid"] .gaming-body { padding: var(--s-2) 18px var(--s-6); }
+/* Liquid paints its wallpaper behind the page; an opaque shell or body fill hides it. */
+[data-theme="liquid"] .gaming-shell, [data-theme="liquid"] .gaming-body, [data-theme="liquid"] body { background: transparent; }
+
+/* per-game tint sets: League is Rift, CS2 is orange over steel */
+.g-league { --ga: #00d0e2; --gh1: 0 208 226; --gh3: 59 88 118; --gon: #031a1d; --gfill: 19 25 31; }
+.g-cs2 { --ga: #f0a53a; --gh1: 240 165 58; --gh3: 62 78 94; --gon: #261500; --gfill: 24 27 32; }
+.g-clash { --ga: #f2c230; --gh1: 242 194 48; --gh3: 70 96 60; --gon: #2a1d00; --gfill: 26 30 24; }
+.g-other { --ga: var(--accent); --gh1: 150 150 160; --gh3: 70 70 85; --gon: #fff; --gfill: 28 28 34; }
+
+.gx { display: flex; flex-direction: column; gap: 12px; font-family: var(--font); color: var(--fg); font-variant-numeric: tabular-nums; }
+.gx p, .gx h1, .gx h2 { margin: 0; }
+.gx a { color: inherit; text-decoration: none; }
+.gx .k { font-size: var(--fs-footnote); color: var(--fg-dim); font-weight: 500; }
+.gx .b { font-weight: 600; }
+.gx-page { padding: 4px 4px 2px; }
+.gx-page h1 { font: 700 30px/1.1 var(--font); letter-spacing: -.02em; }
+.gx-page p { color: var(--fg-dim); font-size: var(--fs-footnote); margin-top: 4px; }
+.gx-err { padding: 10px 14px; border-radius: 14px; background: var(--bg-elev); color: var(--fg); font-size: var(--fs-footnote); }
+
+.gx-go { flex: none; padding: 9px 14px; border-radius: 14px; background: var(--ga); color: var(--gon) !important; font-weight: 600; font-size: var(--fs-body); text-align: center; }
+.gx-go b { font-weight: 400; }
+.gx-go:focus-visible, .gx-l a:focus-visible { outline: 2px solid var(--ga); outline-offset: 2px; }
+.gx-go.on-band { background: #f2f4f7; color: #14202a !important; }
+.g-cs2 .gx-go.on-band { background: #1e202f; color: #fff !important; }
+
+/* bands */
+.gb { display: grid; grid-template-columns: auto auto 1fr auto; align-items: center; gap: 18px 24px; padding: 20px 24px; border-radius: 28px; color: #fff; box-shadow: var(--lq-slab-shade); }
+.g-league.gb { background: linear-gradient(135deg, #0a2530, #0f4350 60%, #123a4a); }
+.g-cs2.gb { background: linear-gradient(90deg, #e38717 0, #e38717 30%, #7d6a58 62%, #3e4e5e); }
+.g-clash.gb { background: linear-gradient(135deg, #3a5a2a, #5c7a34 55%, #2f4a2a); }
+.gm { display: block; width: auto; max-width: 100%; }
+.gm-league { height: 52px; }
+.gm-clash { height: 64px; }
+.gm-cs2 { height: 64px; border-radius: 8px; }
+.gb-id h2 { font: 700 24px/1.1 var(--font); }
+.gb-id p { opacity: .75; font-size: var(--fs-footnote); margin-top: 4px; }
+.gb-n { display: flex; gap: 28px; justify-content: center; }
+.gb-n div { display: flex; flex-direction: column; gap: 2px; }
+.gb-n p { font-size: var(--fs-footnote); opacity: .75; }
+.gb-n b { font-size: 20px; }
+.gb-n span { font-size: var(--fs-footnote); opacity: .75; }
+
+/* list slabs: game-tinted; dark text in light, light text in dark */
+.gx-slab { color: var(--fg);
+  position: relative; border-radius: 26px; padding: 16px 18px; min-width: 0; box-shadow: var(--lq-slab-shade);
+  background: linear-gradient(150deg, rgb(var(--gh1) / .20), rgb(var(--gh3) / .26) 70%), rgb(var(--gfill) / .72); }
+[data-surface="dark"] .gx-slab { --fg: #eef2f6; --fg-dim: rgb(238 242 246 / .74); --fg-faint: rgb(238 242 246 / .56); }
+/* light: the Hub card rule (liquid.css section 16) over white, washed with the game's own hues */
+[data-surface="light"] .gx-slab { background: linear-gradient(150deg, rgb(var(--gh1) / .14), rgb(var(--gh3) / .18) 70%), rgb(255 255 255 / .74); }
+.gx-hd { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.gx-l { list-style: none; margin: 0; padding: 0; }
+.gx-l li { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 9px 0; border-top: 1px solid rgb(var(--gh1) / .22); }
+.gx-l li .d { grid-column: 1; color: var(--fg-dim); font-size: var(--fs-footnote); }
+.gx-l li .t { color: var(--fg-faint); font-size: var(--fs-footnote); grid-row: 1; grid-column: 2; }
+.gx-empty { padding: 8px 0; border-top: 1px solid rgb(var(--gh1) / .22); }
+
+/* ---- phone. Last on purpose: source order is the win over the rules above. ---- */
+@media (max-width: 640px) {
+  .gaming-shell { grid-template-rows: auto 1fr auto; }
+  .gaming-body { padding: var(--s-4) var(--s-4) var(--s-5); }
+  .gx-page h1 { font-size: 26px; }
+  .gb { grid-template-columns: auto 1fr; padding: 18px; }
+  .gb-n { grid-column: 1 / -1; justify-content: space-between; gap: 10px; }
+  .gb-n b { font-size: 16px; }
+  .gb .gx-go { grid-column: 1 / -1; }
+}

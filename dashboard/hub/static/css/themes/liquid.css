@@ -86,22 +86,14 @@
 }
 
 /* ===== 3. Module wallpaper: one fixed layer, painted once, never repainted on scroll. =====
-   Hue triplets per module (Trips = Apple teal, from the picked stage). body.<module> is the
-   page's module hook; unknown pages fall back to Apple blue. */
+   Every page is the standard Apple blue since 2026-11-10 (Sam: one blue, cards tinted to match);
+   per-module hues were dropped. Brand apps (forge, ledger, barback) still set their own. */
 [data-theme="liquid"] {
   --lg-wall-base:#05101c;                          /* eye */
   --lg-hue-1:10 132 255; --lg-hue-2:10 132 255; --lg-hue-3:10 132 255;
   --lg-wall-a1:.55; --lg-wall-a2:.45; --lg-wall-a3:.25;  /* eye: stage L dark alphas */
 }
 [data-theme="liquid"][data-surface="light"] { --lg-wall-base:#eaf1fb; --lg-wall-a1:.4; --lg-wall-a2:.35; --lg-wall-a3:.2; } /* eye: stage L light alphas */
-[data-theme="liquid"] body.home { --lg-hue-1:255 90 140; --lg-hue-2:0 145 255; --lg-hue-3:52 199 89; --lg-wall-base:#0a0d1c; } /* eye: stage K pink/blue/green */
-[data-theme="liquid"][data-surface="light"] body.home { --lg-wall-base:#eef1f8; }
-[data-theme="liquid"] body.trips { --lg-hue-1:0 195 208; --lg-hue-2:0 145 180; --lg-hue-3:0 195 208; --lg-wall-base:#04161a; } /* eye: stage L teal */
-[data-theme="liquid"][data-surface="light"] body.trips { --lg-hue-1:0 192 232; --lg-hue-2:0 170 200; --lg-hue-3:0 192 232; --lg-wall-base:#e8f6f8; }
-[data-theme="liquid"] body.jobs { --lg-hue-1:94 92 230; --lg-hue-2:191 90 242; --lg-hue-3:94 92 230; --lg-wall-base:#0d0c24; } /* eye: Apple indigo + purple */
-[data-theme="liquid"][data-surface="light"] body.jobs { --lg-wall-base:#eceaf8; }
-[data-theme="liquid"] body.purchases { --lg-hue-1:255 159 10; --lg-hue-2:255 69 58; --lg-hue-3:255 159 10; --lg-wall-base:#1a1004; } /* eye: Apple orange + red */
-[data-theme="liquid"][data-surface="light"] body.purchases { --lg-wall-base:#fbf0e0; }
 
 :root[data-theme="liquid"] { background:var(--lg-wall-base); }
 :root[data-theme="liquid"] body { margin:0; background:transparent; } /* (0,2,1): beats a page's own body.<module> ground; /recipes keeps the UA 8px margin, which held the bar off the top */
@@ -1093,3 +1085,25 @@
 [data-theme="liquid"] .work-body,
 [data-theme="liquid"] :is(.cl-sidebar, .cl-main),
 [data-theme="liquid"] :is(.pe-rail, .pe-context) { background:transparent; }
+
+/* ===== 16. Cards: the Game Hub slab is the card rule (Sam 2026-11-10). =====
+   Every card is translucent fill under a 150deg wash of the page's own wallpaper hues
+   (hue-1 into hue-3), so the module colour carries into its cards the way each game
+   tints its slab on /gaming. Resolved on body, where body.<module> sets the hues; a card
+   that needs its own tint overrides --lg-hue-1/3 on itself. Dark is gaming.css .gx-slab
+   verbatim; light is the same wash over white. The selector list is every top-level card
+   the 2026-11-10 page probe found; a new card class is added here, never painted solid
+   in module CSS. (0,3,1) so it beats the module rules it replaces, whatever the load order. */
+[data-theme="liquid"] body {
+  --lq-card-fill:rgb(28 28 30 / .72); --lq-card-t1:.20; --lq-card-t2:.26; --lq-card-h2:94 92 230; --lq-card-stop:70%;   /* blue into indigo, both surfaces (Workbench picks hub-card-light, hub-card-dark, 2026-11-11) */
+  --lq-card:linear-gradient(150deg, rgb(var(--lg-hue-1) / var(--lq-card-t1)), rgb(var(--lq-card-h2) / var(--lq-card-t2)) var(--lq-card-stop)), var(--lq-card-fill);
+  --lq-card-hi:linear-gradient(150deg, rgb(var(--lg-hue-1) / calc(var(--lq-card-t1) + .12)), rgb(var(--lq-card-h2) / calc(var(--lq-card-t2) + .12)) var(--lq-card-stop)), var(--lq-card-fill);
+}
+[data-theme="liquid"][data-surface="light"] body { --lq-card-fill:rgb(255 255 255 / .72); --lq-card-t1:.18; --lq-card-t2:.22; --lq-card-stop:75%; }
+:root[data-theme="liquid"] body :is(.hub-card, .hub-infocard, .hub-plate-card, .hub-notice-warn,
+  .lp, .tb-card, .wx-slab, .panel, .total-card, .expected, .by-source, .periods,
+  .node-card, .legcard, .hub-figure, .news-card, .news-digest, .rx-card, .el-card,
+  .pe-focus-head, .pe-focus-body,
+  .hub-t3p-list-col, .hub-e3p-head, .focus-head, .cl-main) { background:var(--lq-card); box-shadow:var(--lq-slab-shade); }   /* panes, list columns, headers joined 2026-11-10 */
+:root[data-theme="liquid"] body :is(.hub-card--selectable, .news-card, .rx-card, .el-card, .node-card):hover { background:var(--lq-card-hi); }
+:root[data-theme="liquid"] body .lp .panel { background:none; box-shadow:none; }   /* (0,4,1): a Home panel inside its .lp section must not wash twice (mark 2026-11-10-224502 #1) */

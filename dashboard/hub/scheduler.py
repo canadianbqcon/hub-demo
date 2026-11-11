@@ -187,23 +187,13 @@ def _already_ran(skill_or_job, scheduled_time, day, *, _record_key="skill"):
     Python jobs pass _record_key="job" because their records carry "job":
     "<name>" rather than a "skill" field.
     """
-    if not RUN_LOG.exists():
-        return False
-    with open(RUN_LOG) as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                r = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if (
-                r.get(_record_key) == skill_or_job
-                and r.get("scheduled_time") == scheduled_time
-                and (r.get("date") or "").startswith(day)
-            ):
-                return True
+    for r in _all_runs():
+        if (
+            r.get(_record_key) == skill_or_job
+            and r.get("scheduled_time") == scheduled_time
+            and (r.get("date") or "").startswith(day)
+        ):
+            return True
     return False
 
 
@@ -707,6 +697,44 @@ def _demo_refresh_job(cmd, job):
     return _locked_run(job.get("job", f"demo-{cmd}"), job, work, lock_path=LOCK_PATH.parent / "demo-refresh.lock")
 
 
+def run_clash_api_job(job):
+    """Refresh Clash of Clans profile and war data for every account, then re-post open timers."""
+    def work():
+        from clash import coc_api, db as clash_db, notify_glue
+        if clash_db._db_path is None:
+            clash_db.init(VAULT / "data" / "clash.db")
+        with clash_db.conn() as c:
+            tags = [r[0] for r in c.execute("SELECT tag FROM account")]
+            if not tags:
+                return {"status": "ok", "skipped": "no accounts"}
+            res = {t: coc_api.refresh(c, t) for t in tags}
+            posted = notify_glue.repost_open(c)
+        banner = next((r["banner"] for r in res.values() if r["banner"]), None)
+        errors = sum(len(r["errors"]) for r in res.values())
+        tried = errors + sum(len(r["ok"]) for r in res.values())
+        # every fetch failing (IP change, revoked key, API down) shows as failed in the scheduler log
+        return {"status": "failed" if banner or (tried and errors == tried) else "ok", "accounts": len(tags),
+                "errors": errors, "banner": banner, "reposted": posted}
+
+    return _locked_run("clash-api", job, work)
+
+
+def run_clash_patch_job(job):
+    """Daily: Supercell blog and leaks fetch, then classify new posts (clash/patch.py), on its own lock."""
+    def work():
+        from clash import db as clash_db, patch
+        if clash_db._db_path is None:
+            clash_db.init(VAULT / "data" / "clash.db")
+        with clash_db.conn() as c:
+            res = patch.run(c, patch.http_get, patch.make_client())
+        errors = [k for k, v in res.items() if "error" in v]
+        # ponytail: failed only when all three steps raised or errored; one bad source is "ok" with errors listed
+        return {"status": "failed" if len(errors) == len(res) else "ok",
+                "cost_usd": round(res["classify"].get("cost", 0.0), 4), "errors": errors, **res}
+
+    return _locked_run("clash-patch", job, work, VAULT / ".pending" / "clash-patch.lock")
+
+
 # Job name in scheduler-config.json -> the Python function that runs it. These are
 # the jobs whose decisions are all Python; everything else goes through run_skill.
 # shift-sync shells out to claude once for its report-only audit, but nothing that
@@ -714,6 +742,8 @@ def _demo_refresh_job(cmd, job):
 PYTHON_JOBS = {
     "shift-sync": run_shift_sync_job,
     "forge-rebake": run_forge_rebake_job,
+    "clash-api": run_clash_api_job,
+    "clash-patch": run_clash_patch_job,
     "owed-payments": run_owed_payments_job,
     "book-sync": run_book_sync_job,
     "orders-scan": run_orders_scan_job,
@@ -955,6 +985,24 @@ def _run_mail_sync(job):
         logger.exception("mail short titles failed")
 
 
+_forge_rank_lock = threading.Lock()
+
+
+def _run_forge_rank(job):
+    """Trigger-based job: reads his OP.GG record so each new Solo / Duo game gets
+    the rank from a refresh close after it (LP per game, forge/opgg_me._stamp_rank).
+    The cache's 15-minute TTL is the cadence; most ticks return the cached copy."""
+    if not _forge_rank_lock.acquire(blocking=False):
+        return
+    try:
+        from forge import opgg_me
+        opgg_me.read(VAULT / "data" / "forge-me.json")
+    except Exception:
+        logger.exception("forge-rank run failed")
+    finally:
+        _forge_rank_lock.release()
+
+
 def _run_sitesearch_alerts(job):
     """Trigger-based job: cadence, quiet hours and the overlap lock live in
     sitesearch/alerts.py. Lazy import and catch-all so a headless-browser or
@@ -966,6 +1014,32 @@ def _run_sitesearch_alerts(job):
         logger.exception("sitesearch-alerts run failed")
 
 
+def _run_notify_push(job):
+    """Trigger-based job: sync the bell's source rows (notify/sources.py), then push due
+    Hub notifications marked push. A non-blocking
+    flock skips an overlapping tick; catch-all so the scheduler never dies."""
+    try:
+        from notify import db as notify_db
+        path = notify_db.default_path().with_suffix(".push.lock")
+        fd = os.open(str(path), os.O_CREAT | os.O_RDWR, 0o644)
+        try:
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                return
+            conn = notify_db.connect()
+            try:
+                from notify import sources as notify_sources
+                notify_sources.reconcile(conn)  # rows for what waits on him; each source fails on its own
+                notify_db.sweep(conn)
+            finally:
+                conn.close()
+        finally:
+            os.close(fd)  # closing releases the flock
+    except Exception:
+        logger.exception("notify-push run failed")
+
+
 # Jobs that fire on their own cadence rather than a clock slot: evaluated on
 # every tick, deciding for themselves whether they're due, so they carry no
 # "time" in config. Kept separate from PYTHON_JOBS because a python job's
@@ -975,7 +1049,8 @@ def _run_sitesearch_alerts(job):
 # than a name test in _tick so the config/runner pairing stays checkable from
 # one place.
 TRIGGER_JOBS = {"window-chain": _run_window_chain, "news-poll": _run_news_poll,
-                "sitesearch-alerts": _run_sitesearch_alerts, "mail-sync": _run_mail_sync}
+                "sitesearch-alerts": _run_sitesearch_alerts, "mail-sync": _run_mail_sync,
+                "forge-rank": _run_forge_rank, "notify-push": _run_notify_push}
 
 
 def _dispatch_job(job: dict, hhmm: str, day: str) -> tuple[str, dict] | None:
@@ -1087,18 +1162,36 @@ class SkillScheduler:
                              daemon=True).start()
 
 
+_RUNS_CACHE = {"path": None, "ino": None, "pos": 0, "rows": []}
+_RUNS_LOCK = threading.Lock()
+
+
+def _all_runs() -> list[dict]:
+    """Every run record, oldest first. The log is append-only, so only bytes added since
+    the last call are parsed (a full parse of 14k lines was ~0.5 s per Automations load,
+    2026-11-10). A shorter or replaced file, or a different RUN_LOG, starts over."""
+    c = _RUNS_CACHE
+    with _RUNS_LOCK:
+        try:
+            st = RUN_LOG.stat()
+        except OSError:
+            return []
+        if c["path"] != RUN_LOG or c["ino"] != st.st_ino or st.st_size < c["pos"]:
+            c.update(path=RUN_LOG, ino=st.st_ino, pos=0, rows=[])
+        if st.st_size > c["pos"]:
+            with open(RUN_LOG, "rb") as fh:
+                fh.seek(c["pos"])
+                chunk = fh.read()
+            end = chunk.rfind(b"\n") + 1      # a half-written last line waits for next call
+            for line in chunk[:end].splitlines():
+                try:
+                    c["rows"].append(json.loads(line))
+                except ValueError:
+                    continue
+            c["pos"] += end
+        return c["rows"]
+
+
 def recent_runs(limit=20):
     """Most-recent run records for the Hub status panel (newest first)."""
-    if not RUN_LOG.exists():
-        return []
-    out = []
-    with open(RUN_LOG) as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                out.append(json.loads(line))
-            except json.JSONDecodeError:
-                continue
-    return out[-limit:][::-1]
+    return _all_runs()[-limit:][::-1]

@@ -20,6 +20,23 @@ have built in always has a chip even if coachless never measured it. A card open
 on the role you have most built in, falling back to the played-most role when the
 shelf is empty — the shelf you reach for is your own.
 
+**Pool membership is per lane** (mark 2026-11-10-042636 #2). `data/forge-pool-roles.json`
+holds `{champion: [lanes]}`, written by `POST api/pool-roles {champion, role, on}`; a
+champion with no entry is in the lanes he has his own non-Auto builds in, else its lead
+role (`_pool_roles()` in `api.py`, sent as `poolRoles` on each `/api/landing` card). It
+is separate from `bake_stats` `POOL`, which decides what gets baked; adding a champion
+that is not in `POOL` is not done here. The pool shows one card per (champion, lane); the
+shelf heading carries the `In <lane> pool` / `Add to <lane> pool` toggle.
+
+**Auto folds behind your own builds** (mark 2026-11-10-042636 #4): when a role has his
+own sets, its Auto sets sit behind a `.fold` header button (`AUTO <lane> N ▸`), shut by
+default. `.fold.fold:hover` doubles the class to beat `forge-base.css`
+`button:hover:not(:disabled)`, which otherwise paints a fill on the header.
+
+**Card size** (mark 2026-11-10-042636 #3, "these are too big"): `minmax(290px)` columns,
+three across at 1280, 14/16 padding, 48px portrait, small role chips. The rule lives in
+`landing.html`'s later "shell's panel shape" block, which beats the earlier `.cards` rule.
+
 Each row links to `c/<champ>/<role>#<set-id>`, and `champion.html` opens that
 set's overlay on load. Closing the overlay drops the hash, so a reload lands on
 the list rather than reopening what you just closed.
@@ -117,10 +134,14 @@ on its own mtime cache), each a link to `/forge/c/<champ>/<role>`, the champion 
 A search box filters by name. Added 2026-11-04 on his ask: the champion pages existed
 for all 173 but the front door only reached the pool.
 
+Tile portraits are `loading="lazy"`: eager, the ~160 of them (~5 MB from Data Dragon)
+held the page's load event to 2.3 s cold and 220 requests; lazy, 0.84 s and 61
+(2026-11-10). Pool card portraits stay eager, they are above the fold.
+
 ## Build style chips
 
-Every pool card, every roster tile and the champion page header carry a second chip
-row under the roles: the build styles the champion is actually built in (crit,
+Every roster tile and the champion page header carry a second chip row under the
+roles (not the pool cards: mark 2026-11-10-042636 #5, "hide from top card view"): the build styles the champion is actually built in (crit,
 lethality, on-hit, bruiser, tank, burst AP, burn AP, AP bruiser, enchanter). They are
 labels, not links. `build_styles.py` scores each style as the expected number of its
 items among the first three completed items, in the champion's best role for it, off

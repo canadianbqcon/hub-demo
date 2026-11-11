@@ -165,15 +165,71 @@ def fills(champ: str, gap: str, traits: dict) -> bool:
     return v >= 3 if kind == "max" else v >= 0.5
 
 
-def likely_roles(enemies: list[str], shares: dict) -> dict:
-    """Greedy one-champion-per-role assignment by role share, biggest first."""
-    pairs = sorted(((s, e, r) for e in enemies for r, s in (shares.get(e) or {}).items()),
-                   reverse=True)
-    got: dict = {}
-    for _, e, r in pairs:
-        if e not in got and r not in got.values():
-            got[e] = r
+ROLES = ("top", "jungle", "mid", "bot", "support")
+# Where a class goes when it leaves its listed lanes. OP.GG's lane meta lists only
+# meta roles (Yorick: top and nothing else), so without this a champion pushed off
+# its one role had no role at all. ponytail: hand-set from how off-role picks land,
+# not measured; swap for per-champion off-role rates if a source ever carries them.
+CLASS_ROLE = {
+    "Fighter":  {"top": .40, "jungle": .40, "mid": .10, "support": .07, "bot": .03},
+    "Tank":     {"top": .35, "jungle": .30, "support": .30, "mid": .03, "bot": .02},
+    "Mage":     {"mid": .50, "support": .30, "bot": .12, "top": .05, "jungle": .03},
+    "Assassin": {"mid": .50, "jungle": .35, "top": .10, "support": .03, "bot": .02},
+    "Marksman": {"bot": .80, "mid": .10, "top": .05, "support": .03, "jungle": .02},
+    "Support":  {"support": .80, "mid": .10, "bot": .05, "top": .03, "jungle": .02},
+}
+OFF_ROLE = 0.05      # weight of all unlisted roles together, against a listed share
+BAN_HINT = 1.5       # a seat that banned a role's champion is that much likelier in it
+
+
+def _role_odds(champ: str, shares: dict, classes: dict) -> dict:
+    """Every role's weight for one champion: OP.GG's share where it lists one, the
+    class prior scaled down to OFF_ROLE where it does not, never zero."""
+    listed = shares.get(champ) or {}
+    tags = [t for t in (classes.get(champ) or []) if t in CLASS_ROLE]
+    prior = {r: sum(CLASS_ROLE[t][r] for t in tags) / len(tags) if tags else 0.2 for r in ROLES}
+    return {r: listed[r] if listed.get(r) else OFF_ROLE * prior[r] for r in ROLES}
+
+
+def likely_roles(enemies: list[str], shares: dict, classes: dict | None = None,
+                 bans: dict | None = None) -> dict:
+    """The one role each enemy most likely plays, read off the whole team at once.
+
+    Every way of seating the team in distinct roles is scored (product of each
+    champion's odds in its seat), and the best wins: Kayle locking top moves Yorick
+    to his next likeliest seat instead of leaving him unseated, and a pick can move
+    an earlier one. `bans` is {champion: the champion its seat banned}; the banned
+    champion's main role is a hint for the banner's own role (players ban their lane
+    opponent). More than five champions (a bad feed) seats the first five."""
+    from itertools import permutations
+    classes, bans = classes or {}, bans or {}
+    team = list(dict.fromkeys(enemies))[:len(ROLES)]
+    odds = {}
+    for e in team:
+        o = _role_odds(e, shares, classes)
+        banned = shares.get(bans.get(e) or "") or {}
+        if banned:
+            hint = max(banned, key=lambda r: banned[r])
+            o[hint] = o[hint] * BAN_HINT
+        odds[e] = o
+    best, got = -1.0, {}
+    for seats in permutations(ROLES, len(team)):
+        p = 1.0
+        for e, r in zip(team, seats):
+            p *= odds[e][r]
+        if p > best:
+            best, got = p, dict(zip(team, seats))
     return got
+
+
+def classes_of(stores: dict) -> dict:
+    return {c["n"]: c.get("c") or [] for c in stores.get("catalogChamps") or []}
+
+
+def enemy_bans(draft: dict, names: dict) -> dict:
+    """{enemy champion: what that seat banned}, for the seats the feed tied a ban to."""
+    return {names[e["championId"]]: names[e["ban"]] for e in draft.get("enemies") or []
+            if e.get("championId") in names and e.get("ban") in names}
 
 
 # --- scoring ------------------------------------------------------------------
@@ -415,7 +471,7 @@ def run(draft: dict, stores: dict, picks: dict | None = None, ingame: dict | Non
     hovers = {names[a["championId"]]: a.get("role") for a in draft["allies"]
               if a.get("championId") and a.get("provisional") and a["championId"] in names}
     enemy_names = [names[e["championId"]] for e in draft["enemies"] if e.get("championId") in names]
-    enemies = likely_roles(enemy_names, shares)
+    enemies = likely_roles(enemy_names, shares, classes_of(stores), enemy_bans(draft, names))
     enemies.update({e: None for e in enemy_names if e not in enemies})
 
     ally_list = list(allies) + list(hovers)

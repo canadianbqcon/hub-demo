@@ -1,0 +1,31 @@
+/* Profile and war pages. Sits on gaming.css (.gx, .gx-page, .gx-slab, .gx-hd) with the .g-clash tint. */
+.wp-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.wp-bar select, .wp-btn, .wp-pick { font: inherit; font-size: var(--fs-footnote); color: var(--fg); background: var(--bg-elev); border: 1px solid var(--line-strong); border-radius: 12px; padding: 7px 12px; }
+.wp-btn { cursor: pointer; font-weight: 600; }
+.wp-btn:hover:not(:disabled) { border-color: var(--ga); }
+.wp-btn:disabled { opacity: .5; cursor: default; }
+.wp-btn:focus-visible, .wp-bar select:focus-visible, .wp-pick:focus-visible { outline: 2px solid var(--ga); outline-offset: 2px; }
+.wp-age { color: var(--fg-dim); font-size: var(--fs-footnote); }
+.wp-banner { padding: 12px 16px; border-radius: 14px; background: rgb(150 60 40 / .28); border: 1px solid rgb(220 110 80 / .5); font-size: var(--fs-footnote); line-height: 1.5; }
+.wp-banner b { font-weight: 700; }
+.wp-banner code { font-family: var(--font-mono, monospace); }
+.wp-note { color: var(--fg-dim); font-size: var(--fs-footnote); padding: 4px 4px; }
+.wp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; padding: 12px 16px 16px; }
+.wp-item { display: grid; grid-template-columns: 36px 1fr; gap: 2px 8px; align-items: center; padding: 8px 10px; border-radius: 12px; background: var(--bg-elev); font-size: var(--fs-footnote); }
+.wp-item img { width: 36px; height: 36px; object-fit: contain; grid-row: span 2; }
+.wp-item .ph { width: 36px; height: 36px; grid-row: span 2; }
+.wp-item .n { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wp-item .l { color: var(--fg-dim); }
+.wp-item.maxed .l { color: var(--ga); font-weight: 600; }
+.wp-facts { display: flex; flex-wrap: wrap; gap: 8px 28px; padding: 12px 16px 16px; font-size: var(--fs-footnote); }
+.wp-facts p { display: flex; flex-direction: column; gap: 2px; }
+.wp-facts b { font-size: 18px; font-weight: 700; }
+.wp-scroll { overflow-x: auto; padding: 0 16px 14px; }
+.wp-tbl { width: 100%; border-collapse: collapse; font-size: var(--fs-footnote); min-width: 520px; }
+.wp-tbl th { text-align: left; color: var(--fg-dim); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--line-strong); }
+.wp-tbl td { padding: 7px 8px; border-bottom: 1px solid var(--line); }
+.wp-tbl .num { text-align: right; }
+.wp-gone { color: #f0a53a; font-weight: 600; }
+.wp-score { display: flex; gap: 18px; align-items: baseline; padding: 12px 16px 4px; font-size: var(--fs-footnote); color: var(--fg-dim); }
+.wp-score b { font-size: 20px; color: var(--fg); }
+@media (max-width: 600px) { .wp-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); padding: 10px 10px 12px; } .wp-scroll { padding: 0 8px 12px; } }
